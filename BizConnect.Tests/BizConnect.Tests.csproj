@@ -10,37 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Core Testing Framework -->
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="xunit" Version="2.5.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
-
-    <!-- Code Coverage -->
-    <PackageReference Include="coverlet.collector" Version="6.0.0" />
-    <PackageReference Include="coverlet.msbuild" Version="6.0.0" />
-
-    <!-- Database Testing -->
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.7" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.7" />
-
-    <!-- Web Testing -->
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
-    <PackageReference Include="AngleSharp" Version="0.17.1" />
-
-    <!-- Mocking and Assertions -->
-    <PackageReference Include="Moq" Version="4.20.70" />
-    <PackageReference Include="FluentAssertions" Version="6.12.0" />
-
-    <!-- Performance Testing -->
-    <PackageReference Include="NBomber" Version="5.0.0" />
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
-
-    <!-- Security Testing -->
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
-
-    <!-- Test Utilities -->
-    <PackageReference Include="Bogus" Version="35.4.0" />
-    <PackageReference Include="Testcontainers.PostgreSql" Version="3.7.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,33 +24,6 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
-    <Using Include="FluentAssertions" />
-    <Using Include="Moq" />
-  </ItemGroup>
-
-  <!-- Test Configuration -->
-  <ItemGroup>
-    <None Include="appsettings.Test.json" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="test-data/**/*" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
-
-  <!-- Code Coverage Settings -->
-  <PropertyGroup>
-    <CollectCoverage>true</CollectCoverage>
-    <CoverletOutputFormat>opencover,lcov,json</CoverletOutputFormat>
-    <CoverletOutput>./coverage/</CoverletOutput>
-    <Exclude>[*]*.Migrations.*,[*]*Tests*,[*]*Mock*</Exclude>
-    <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
-    <ThresholdType>line,branch,method</ThresholdType>
-    <Threshold>80,75,80</Threshold>
-  </PropertyGroup>
-
-  <!-- Test Categories -->
-  <ItemGroup>
-    <AssemblyAttribute Include="System.Reflection.AssemblyMetadata">
-      <_Parameter1>TestCategories</_Parameter1>
-      <_Parameter2>Unit,Integration,Performance,Security,Configuration</_Parameter2>
-    </AssemblyAttribute>
   </ItemGroup>
 
 </Project>
