@@ -49,9 +49,11 @@
                     </div>
                     <div class="col-lg-4 text-center">
                         <div class="bc-hero-stats">
-                            <div class="bc-stat-item bc-stat-animate" style="animation-delay: 0.2s;">
-                                <div class="bc-stat-icon">
+                            <!-- Interactive Connections Stat -->
+                            <div class="bc-stat-item bc-stat-animate bc-stat-interactive" style="animation-delay: 0.2s;" data-tooltip="Click to view your network">
+                                <div class="bc-stat-icon bc-icon-interactive">
                                     <i class="fas fa-users"></i>
+                                    <div class="bc-pulse-ring"></div>
                                 </div>
                                 <div class="bc-stat-number" data-count="24">0</div>
                                 <div class="bc-stat-label">Connections</div>
@@ -59,16 +61,34 @@
                                     <i class="fas fa-arrow-up text-success"></i>
                                     <span>+3 this week</span>
                                 </div>
+                                <!-- Mini connection preview -->
+                                <div class="bc-connection-preview">
+                                    <div class="bc-avatar-stack">
+                                        <div class="bc-avatar bc-avatar-1"></div>
+                                        <div class="bc-avatar bc-avatar-2"></div>
+                                        <div class="bc-avatar bc-avatar-3"></div>
+                                        <div class="bc-avatar-more">+21</div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="bc-stat-item bc-stat-animate" style="animation-delay: 0.4s;">
-                                <div class="bc-stat-icon">
+
+                            <!-- Interactive Opportunities Stat -->
+                            <div class="bc-stat-item bc-stat-animate bc-stat-interactive" style="animation-delay: 0.4s;" data-tooltip="Click to explore opportunities">
+                                <div class="bc-stat-icon bc-icon-interactive">
                                     <i class="fas fa-briefcase"></i>
+                                    <div class="bc-pulse-ring"></div>
                                 </div>
                                 <div class="bc-stat-number" data-count="8">0</div>
                                 <div class="bc-stat-label">Opportunities</div>
                                 <div class="bc-stat-trend">
                                     <i class="fas fa-arrow-up text-success"></i>
                                     <span>+2 new</span>
+                                </div>
+                                <!-- Opportunity type indicators -->
+                                <div class="bc-opportunity-types">
+                                    <span class="bc-type-badge bc-type-remote">Remote</span>
+                                    <span class="bc-type-badge bc-type-fulltime">Full-time</span>
+                                    <span class="bc-type-badge bc-type-contract">Contract</span>
                                 </div>
                             </div>
                         </div>
@@ -91,22 +111,63 @@
                 </div>
                 <div class="row g-4">
                     <div class="col-md-6 col-lg-3">
-                        <div class="bc-action-card hover-lift bc-tilt bc-ripple bc-slide-in-up position-relative" style="animation-delay: 0.1s;">
-                            <div class="bc-action-badge">Popular</div>
-                            <div class="bc-action-icon bg-primary bc-glow">
-                                <i class="fas fa-users bc-rotate-sm"></i>
+                        <div class="bc-action-card hover-lift bc-tilt bc-ripple bc-slide-in-up position-relative bc-interactive-card" style="animation-delay: 0.1s;" data-action="connections">
+                            <div class="bc-action-badge bc-badge-animated">Popular</div>
+
+                            <!-- Interactive background pattern -->
+                            <div class="bc-card-pattern">
+                                <div class="bc-pattern-circle bc-circle-1"></div>
+                                <div class="bc-pattern-circle bc-circle-2"></div>
+                                <div class="bc-pattern-circle bc-circle-3"></div>
                             </div>
+
+                            <div class="bc-action-icon bg-primary bc-glow bc-icon-hover">
+                                <i class="fas fa-users bc-rotate-sm"></i>
+                                <!-- Orbiting dots -->
+                                <div class="bc-orbit-container">
+                                    <div class="bc-orbit-dot bc-dot-1"></div>
+                                    <div class="bc-orbit-dot bc-dot-2"></div>
+                                    <div class="bc-orbit-dot bc-dot-3"></div>
+                                </div>
+                            </div>
+
                             <h3 class="bc-action-title">Find Connections</h3>
                             <p class="bc-action-description">Discover and connect with professionals in your industry</p>
+
                             <div class="bc-action-stats">
-                                <span class="bc-stat-badge">
-                                    <i class="fas fa-eye me-1"></i>12 new matches
+                                <span class="bc-stat-badge bc-stat-counter-badge">
+                                    <i class="fas fa-eye me-1"></i>
+                                    <span class="bc-counter" data-target="12">0</span> new matches
                                 </span>
                             </div>
-                            <a href="#" class="bc-action-link bc-color-transition" onclick="return false;">
+
+                            <!-- Interactive progress bar -->
+                            <div class="bc-match-progress">
+                                <div class="bc-progress-label">Profile Match Score</div>
+                                <div class="bc-progress-bar-interactive">
+                                    <div class="bc-progress-fill-animated" data-progress="85"></div>
+                                    <span class="bc-progress-text">85%</span>
+                                </div>
+                            </div>
+
+                            <a href="#" class="bc-action-link bc-color-transition bc-link-interactive" onclick="return false;">
                                 <span>Explore Network</span>
-                                <i class="fas fa-arrow-right ms-2"></i>
+                                <i class="fas fa-arrow-right ms-2 bc-arrow-slide"></i>
                             </a>
+
+                            <!-- Hover reveal content -->
+                            <div class="bc-hover-reveal">
+                                <div class="bc-quick-stats">
+                                    <div class="bc-quick-stat">
+                                        <i class="fas fa-user-tie"></i>
+                                        <span>5 Executives</span>
+                                    </div>
+                                    <div class="bc-quick-stat">
+                                        <i class="fas fa-code"></i>
+                                        <span>7 Developers</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-6 col-lg-3">
@@ -213,24 +274,54 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-8">
-                        <div class="bc-activity-feed">
-                            <div class="bc-activity-item bc-slide-in-left" style="animation-delay: 0.1s;">
-                                <div class="bc-activity-timeline"></div>
-                                <div class="bc-activity-icon bg-success bc-pulse">
+                        <div class="bc-activity-feed bc-interactive-timeline">
+                            <!-- Interactive Activity Item 1 -->
+                            <div class="bc-activity-item bc-slide-in-left bc-activity-interactive" style="animation-delay: 0.1s;" data-activity="connection">
+                                <div class="bc-activity-timeline bc-timeline-animated"></div>
+                                <div class="bc-activity-icon bg-success bc-pulse bc-icon-expandable">
                                     <i class="fas fa-user-plus"></i>
+                                    <div class="bc-icon-ripple"></div>
                                 </div>
                                 <div class="bc-activity-content">
                                     <div class="bc-activity-header">
-                                        <p class="bc-activity-text">You connected with <strong>Sarah Johnson</strong></p>
+                                        <div class="bc-activity-main">
+                                            <p class="bc-activity-text">You connected with <strong class="bc-name-highlight">Sarah Johnson</strong></p>
+                                            <!-- Profile preview on hover -->
+                                            <div class="bc-profile-preview">
+                                                <div class="bc-profile-avatar">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                                <div class="bc-profile-info">
+                                                    <div class="bc-profile-name">Sarah Johnson</div>
+                                                    <div class="bc-profile-title">Product Manager at TechCorp</div>
+                                                    <div class="bc-profile-mutual">3 mutual connections</div>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div class="bc-activity-actions">
-                                            <button class="btn btn-sm btn-outline-primary">
+                                            <button class="btn btn-sm btn-outline-primary bc-btn-interactive">
                                                 <i class="fas fa-comment me-1"></i>Message
                                             </button>
+                                            <button class="btn btn-sm btn-outline-secondary bc-btn-more" data-bs-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>View Profile</a></li>
+                                                <li><a class="dropdown-item" href="#"><i class="fas fa-share me-2"></i>Share</a></li>
+                                            </ul>
                                         </div>
                                     </div>
-                                    <span class="bc-activity-time">
-                                        <i class="fas fa-clock me-1"></i>2 hours ago
+                                    <span class="bc-activity-time bc-time-interactive">
+                                        <i class="fas fa-clock me-1"></i>
+                                        <span class="bc-relative-time" data-timestamp="2">2 hours ago</span>
                                     </span>
+                                    <!-- Expandable details -->
+                                    <div class="bc-activity-details">
+                                        <div class="bc-connection-context">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Connected through mutual connection: <strong>Mike Chen</strong>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="bc-activity-item bc-slide-in-left" style="animation-delay: 0.2s;">
@@ -419,27 +510,66 @@ else
                     <div class="col-lg-6">
                         <div class="bc-hero-visual bc-slide-in-right">
                             <div class="bc-network-graphic position-relative">
-                                <!-- Interactive network visualization -->
-                                <div class="bc-network-container">
-                                    <div class="bc-network-node bc-node-center">
+                                <!-- Enhanced Interactive network visualization -->
+                                <div class="bc-network-container bc-interactive-network" data-network="demo">
+                                    <!-- Central User Node -->
+                                    <div class="bc-network-node bc-node-center bc-node-interactive" data-tooltip="You - The center of your network">
                                         <i class="fas fa-user"></i>
+                                        <div class="bc-node-pulse"></div>
+                                        <div class="bc-node-label">You</div>
                                     </div>
-                                    <div class="bc-network-node bc-node-1">
+
+                                    <!-- Career Node -->
+                                    <div class="bc-network-node bc-node-1 bc-node-interactive" data-tooltip="Career Opportunities - 8 active">
                                         <i class="fas fa-briefcase"></i>
+                                        <div class="bc-node-badge">8</div>
+                                        <div class="bc-node-label">Jobs</div>
                                     </div>
-                                    <div class="bc-network-node bc-node-2">
+
+                                    <!-- Connections Node -->
+                                    <div class="bc-network-node bc-node-2 bc-node-interactive" data-tooltip="Professional Network - 24 connections">
                                         <i class="fas fa-users"></i>
+                                        <div class="bc-node-badge">24</div>
+                                        <div class="bc-node-label">Network</div>
                                     </div>
-                                    <div class="bc-network-node bc-node-3">
+
+                                    <!-- Events Node -->
+                                    <div class="bc-network-node bc-node-3 bc-node-interactive" data-tooltip="Networking Events - 3 upcoming">
                                         <i class="fas fa-calendar"></i>
+                                        <div class="bc-node-badge">3</div>
+                                        <div class="bc-node-label">Events</div>
                                     </div>
-                                    <div class="bc-network-node bc-node-4">
+
+                                    <!-- Growth Node -->
+                                    <div class="bc-network-node bc-node-4 bc-node-interactive" data-tooltip="Career Growth - Track your progress">
                                         <i class="fas fa-chart-line"></i>
+                                        <div class="bc-node-badge">↗</div>
+                                        <div class="bc-node-label">Growth</div>
                                     </div>
-                                    <div class="bc-network-connection bc-connection-1"></div>
-                                    <div class="bc-network-connection bc-connection-2"></div>
-                                    <div class="bc-network-connection bc-connection-3"></div>
-                                    <div class="bc-network-connection bc-connection-4"></div>
+
+                                    <!-- Animated Connections -->
+                                    <div class="bc-network-connection bc-connection-1 bc-connection-interactive"></div>
+                                    <div class="bc-network-connection bc-connection-2 bc-connection-interactive"></div>
+                                    <div class="bc-network-connection bc-connection-3 bc-connection-interactive"></div>
+                                    <div class="bc-network-connection bc-connection-4 bc-connection-interactive"></div>
+
+                                    <!-- Data Flow Animation -->
+                                    <div class="bc-data-flow bc-flow-1"></div>
+                                    <div class="bc-data-flow bc-flow-2"></div>
+                                    <div class="bc-data-flow bc-flow-3"></div>
+                                    <div class="bc-data-flow bc-flow-4"></div>
+                                </div>
+
+                                <!-- Network Stats Overlay -->
+                                <div class="bc-network-stats">
+                                    <div class="bc-stat-item">
+                                        <span class="bc-stat-value">10K+</span>
+                                        <span class="bc-stat-label">Active Users</span>
+                                    </div>
+                                    <div class="bc-stat-item">
+                                        <span class="bc-stat-value">500+</span>
+                                        <span class="bc-stat-label">Companies</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
