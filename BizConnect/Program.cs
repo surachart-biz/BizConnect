@@ -2,6 +2,7 @@ using BizConnect.Dal;
 using BizConnect.Services;
 using BizConnect.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -116,7 +117,24 @@ if (appPerformanceConfig.Exists())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+
+// Configure static files with environment-specific caching
+if (app.Environment.IsDevelopment())
+{
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        OnPrepareResponse = ctx =>
+        {
+            ctx.Context.Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
+            ctx.Context.Response.Headers.Append("Pragma", "no-cache");
+            ctx.Context.Response.Headers.Append("Expires", "-1");
+        }
+    });
+}
+else
+{
+    app.UseStaticFiles();   // default caching; version hash in URLs will prevent staleness
+}
 
 app.UseRouting();
 

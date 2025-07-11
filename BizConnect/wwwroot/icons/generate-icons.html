@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Icon Generator</title>
+</head>
+<body>
+    <h1>BizConnect Icon Generator</h1>
+    <p>This page generates PNG icons from the SVG source. Open browser console to see download links.</p>
+    
+    <canvas id="canvas" style="border: 1px solid #ccc;"></canvas>
+    
+    <script>
+        const sizes = [16, 32, 72, 96, 128, 144, 152, 192, 384, 512];
+        const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#007bff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0056b3;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" rx="80" ry="80" fill="url(#bgGradient)"/>
+  
+  <!-- Network Icon -->
+  <g transform="translate(128, 128)" fill="white">
+    <!-- Central node -->
+    <circle cx="128" cy="128" r="24" fill="white"/>
+    
+    <!-- Surrounding nodes -->
+    <circle cx="64" cy="64" r="16" fill="white"/>
+    <circle cx="192" cy="64" r="16" fill="white"/>
+    <circle cx="64" cy="192" r="16" fill="white"/>
+    <circle cx="192" cy="192" r="16" fill="white"/>
+    <circle cx="32" cy="128" r="12" fill="white"/>
+    <circle cx="224" cy="128" r="12" fill="white"/>
+    <circle cx="128" cy="32" r="12" fill="white"/>
+    <circle cx="128" cy="224" r="12" fill="white"/>
+    
+    <!-- Connection lines -->
+    <line x1="128" y1="128" x2="64" y2="64" stroke="white" stroke-width="3"/>
+    <line x1="128" y1="128" x2="192" y2="64" stroke="white" stroke-width="3"/>
+    <line x1="128" y1="128" x2="64" y2="192" stroke="white" stroke-width="3"/>
+    <line x1="128" y1="128" x2="192" y2="192" stroke="white" stroke-width="3"/>
+    <line x1="128" y1="128" x2="32" y2="128" stroke="white" stroke-width="2"/>
+    <line x1="128" y1="128" x2="224" y2="128" stroke="white" stroke-width="2"/>
+    <line x1="128" y1="128" x2="128" y2="32" stroke="white" stroke-width="2"/>
+    <line x1="128" y1="128" x2="128" y2="224" stroke="white" stroke-width="2"/>
+  </g>
+</svg>`;
+
+        function generateIcon(size) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = size;
+            canvas.height = size;
+            
+            const img = new Image();
+            const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(svgBlob);
+            
+            img.onload = function() {
+                ctx.clearRect(0, 0, size, size);
+                ctx.drawImage(img, 0, 0, size, size);
+                
+                canvas.toBlob(function(blob) {
+                    const link = document.createElement('a');
+                    link.download = `icon-${size}x${size}.png`;
+                    link.href = URL.createObjectURL(blob);
+                    
+                    console.log(`Generated: ${link.download}`);
+                    console.log(`Download link: ${link.href}`);
+                    
+                    // Auto-download (may be blocked by browser)
+                    link.click();
+                }, 'image/png');
+                
+                URL.revokeObjectURL(url);
+            };
+            
+            img.src = url;
+        }
+        
+        // Generate all sizes
+        console.log('Generating icons...');
+        sizes.forEach((size, index) => {
+            setTimeout(() => generateIcon(size), index * 500);
+        });
+        
+        console.log('Icon generation started. Check downloads folder for PNG files.');
+        console.log('If auto-download is blocked, right-click the download links and save.');
+    </script>
+</body>
+</html>
