@@ -21,63 +21,177 @@
                 <h5><i class="fas fa-user-plus"></i> User Information</h5>
             </div>
             <div class="card-body">
-                <form method="post">
-                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                <form method="post" id="createUserForm" novalidate>
+                    <!-- Enhanced Validation Summary -->
+                    <div asp-validation-summary="All" class="bc-validation-summary"></div>
 
                     <div class="row">
+                        <!-- Username Field -->
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label asp-for="Username" class="form-label">Username</label>
-                                <input asp-for="Username" class="form-control" autocomplete="username" />
-                                <span asp-validation-for="Username" class="text-danger"></span>
-                                <div class="form-text">Must be between 3 and 50 characters.</div>
+                            <div class="bc-form-group">
+                                <label asp-for="Username" class="bc-form-label required">
+                                    <i class="fas fa-user me-2"></i>Username
+                                </label>
+                                <div class="bc-input-group">
+                                    <input asp-for="Username"
+                                           class="bc-form-control"
+                                           autocomplete="username"
+                                           placeholder="Enter username"
+                                           data-validation-target="username" />
+                                    <div class="bc-input-icon">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="bc-validation-icon">
+                                        <i class="fas fa-check bc-success-icon"></i>
+                                        <i class="fas fa-times bc-error-icon"></i>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="Username" class="bc-field-validation"></span>
+                                <div class="bc-field-help">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Must be between 3 and 50 characters, letters and numbers only
+                                    </small>
+                                </div>
                             </div>
                         </div>
+
+                        <!-- Role Field -->
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label asp-for="Role" class="form-label">Role</label>
-                                <select asp-for="Role" class="form-select">
-                                    <option value="">Select a role...</option>
-                                    <option value="User">User</option>
-                                    <option value="Admin">Admin</option>
-                                </select>
-                                <span asp-validation-for="Role" class="text-danger"></span>
+                            <div class="bc-form-group">
+                                <label asp-for="Role" class="bc-form-label required">
+                                    <i class="fas fa-user-tag me-2"></i>Role
+                                </label>
+                                <div class="bc-select-group">
+                                    <select asp-for="Role" class="bc-form-select" data-validation-target="role">
+                                        <option value="">Select a role...</option>
+                                        <option value="User">User - Standard access</option>
+                                        <option value="Admin">Admin - Full system access</option>
+                                    </select>
+                                    <div class="bc-select-icon">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                    <div class="bc-validation-icon">
+                                        <i class="fas fa-check bc-success-icon"></i>
+                                        <i class="fas fa-times bc-error-icon"></i>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="Role" class="bc-field-validation"></span>
+                                <div class="bc-field-help">
+                                    <small class="text-muted">
+                                        <i class="fas fa-shield-alt me-1"></i>
+                                        Choose appropriate access level for this user
+                                    </small>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
+                        <!-- Password Field -->
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label asp-for="Password" class="form-label">Password</label>
-                                <input asp-for="Password" type="password" class="form-control" autocomplete="new-password" />
-                                <span asp-validation-for="Password" class="text-danger"></span>
-                                <div class="form-text">Must be at least 6 characters long.</div>
+                            <div class="bc-form-group">
+                                <label asp-for="Password" class="bc-form-label required">
+                                    <i class="fas fa-lock me-2"></i>Password
+                                </label>
+                                <div class="bc-input-group">
+                                    <input asp-for="Password"
+                                           type="password"
+                                           class="bc-form-control"
+                                           autocomplete="new-password"
+                                           placeholder="Enter password"
+                                           data-validation-target="password" />
+                                    <div class="bc-input-icon">
+                                        <i class="fas fa-lock"></i>
+                                    </div>
+                                    <button type="button" class="bc-password-toggle" onclick="togglePassword('Password')">
+                                        <i class="fas fa-eye" id="Password-toggle-icon"></i>
+                                    </button>
+                                    <div class="bc-validation-icon">
+                                        <i class="fas fa-check bc-success-icon"></i>
+                                        <i class="fas fa-times bc-error-icon"></i>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="Password" class="bc-field-validation"></span>
+                                <div class="bc-password-strength">
+                                    <div class="bc-strength-meter">
+                                        <div class="bc-strength-bar"></div>
+                                    </div>
+                                    <div class="bc-strength-text">Password strength: <span id="strengthText">Weak</span></div>
+                                </div>
+                                <div class="bc-field-help">
+                                    <small class="text-muted">
+                                        <i class="fas fa-key me-1"></i>
+                                        Minimum 6 characters, include letters and numbers
+                                    </small>
+                                </div>
                             </div>
                         </div>
+
+                        <!-- Confirm Password Field -->
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
-                                <input asp-for="ConfirmPassword" type="password" class="form-control" autocomplete="new-password" />
-                                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                            <div class="bc-form-group">
+                                <label asp-for="ConfirmPassword" class="bc-form-label required">
+                                    <i class="fas fa-lock me-2"></i>Confirm Password
+                                </label>
+                                <div class="bc-input-group">
+                                    <input asp-for="ConfirmPassword"
+                                           type="password"
+                                           class="bc-form-control"
+                                           autocomplete="new-password"
+                                           placeholder="Confirm password"
+                                           data-validation-target="confirmPassword" />
+                                    <div class="bc-input-icon">
+                                        <i class="fas fa-lock"></i>
+                                    </div>
+                                    <button type="button" class="bc-password-toggle" onclick="togglePassword('ConfirmPassword')">
+                                        <i class="fas fa-eye" id="ConfirmPassword-toggle-icon"></i>
+                                    </button>
+                                    <div class="bc-validation-icon">
+                                        <i class="fas fa-check bc-success-icon"></i>
+                                        <i class="fas fa-times bc-error-icon"></i>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="ConfirmPassword" class="bc-field-validation"></span>
+                                <div class="bc-field-help">
+                                    <small class="text-muted">
+                                        <i class="fas fa-check-double me-1"></i>
+                                        Must match the password above
+                                    </small>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input asp-for="IsActive" type="checkbox" class="form-check-input" />
-                            <label asp-for="IsActive" class="form-check-label">
-                                User is active and can log in
+                    <!-- Active Status -->
+                    <div class="bc-form-group">
+                        <div class="bc-checkbox-group">
+                            <input asp-for="IsActive" type="checkbox" class="bc-checkbox" id="isActive" checked />
+                            <label for="isActive" class="bc-checkbox-label">
+                                <span class="bc-checkbox-indicator"></span>
+                                <span class="bc-checkbox-text">
+                                    <strong>User is active and can log in</strong>
+                                    <small class="d-block text-muted">Uncheck to create an inactive user account</small>
+                                </span>
                             </label>
                         </div>
                     </div>
 
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a asp-controller="Users" asp-action="Index" asp-area="Admin" class="btn btn-secondary me-md-2">Cancel</a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Create User
-                        </button>
+                    <!-- Form Actions -->
+                    <div class="bc-form-actions">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a asp-controller="Users" asp-action="Index" asp-area="Admin" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="createUserSubmitBtn">
+                                <span class="bc-btn-text">
+                                    <i class="fas fa-user-plus me-2"></i>Create User
+                                </span>
+                                <span class="bc-btn-loading" style="display: none;">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Creating User...
+                                </span>
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -115,4 +229,167 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Enhanced form validation and UX for user creation
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('createUserForm');
+            const submitBtn = document.getElementById('createUserSubmitBtn');
+            const passwordField = document.getElementById('Password');
+            const confirmPasswordField = document.getElementById('ConfirmPassword');
+
+            // Real-time validation for all fields
+            const inputs = form.querySelectorAll('.bc-form-control, .bc-form-select');
+            inputs.forEach(input => {
+                input.addEventListener('blur', validateField);
+                input.addEventListener('input', function(e) {
+                    clearFieldError(e);
+                    if (e.target.id === 'Password') {
+                        updatePasswordStrength(e.target.value);
+                        validatePasswordMatch();
+                    }
+                    if (e.target.id === 'ConfirmPassword') {
+                        validatePasswordMatch();
+                    }
+                });
+            });
+
+            // Form submission handling
+            form.addEventListener('submit', function(e) {
+                if (validateForm()) {
+                    showLoadingState();
+                } else {
+                    e.preventDefault();
+                }
+            });
+
+            function validateField(e) {
+                const field = e.target;
+                const fieldGroup = field.closest('.bc-form-group');
+                const value = field.value.trim();
+                let isValid = true;
+
+                // Clear previous states
+                fieldGroup.classList.remove('bc-field-error', 'bc-field-success');
+
+                // Field-specific validation
+                switch(field.dataset.validationTarget) {
+                    case 'username':
+                        isValid = value.length >= 3 && value.length <= 50 && /^[a-zA-Z0-9]+$/.test(value);
+                        break;
+                    case 'role':
+                        isValid = value !== '';
+                        break;
+                    case 'password':
+                        isValid = value.length >= 6;
+                        updatePasswordStrength(value);
+                        break;
+                    case 'confirmPassword':
+                        isValid = value === passwordField.value && value.length >= 6;
+                        break;
+                    default:
+                        isValid = value !== '';
+                }
+
+                if (isValid) {
+                    fieldGroup.classList.add('bc-field-success');
+                } else {
+                    fieldGroup.classList.add('bc-field-error');
+                }
+
+                return isValid;
+            }
+
+            function clearFieldError(e) {
+                const fieldGroup = e.target.closest('.bc-form-group');
+                fieldGroup.classList.remove('bc-field-error');
+            }
+
+            function validateForm() {
+                let isValid = true;
+                inputs.forEach(input => {
+                    if (!validateField({target: input})) {
+                        isValid = false;
+                    }
+                });
+                return isValid;
+            }
+
+            function validatePasswordMatch() {
+                const confirmGroup = confirmPasswordField.closest('.bc-form-group');
+                const passwordValue = passwordField.value;
+                const confirmValue = confirmPasswordField.value;
+
+                if (confirmValue && passwordValue !== confirmValue) {
+                    confirmGroup.classList.add('bc-field-error');
+                    confirmGroup.classList.remove('bc-field-success');
+                } else if (confirmValue && passwordValue === confirmValue) {
+                    confirmGroup.classList.add('bc-field-success');
+                    confirmGroup.classList.remove('bc-field-error');
+                }
+            }
+
+            function updatePasswordStrength(password) {
+                const strengthBar = document.querySelector('.bc-strength-bar');
+                const strengthText = document.getElementById('strengthText');
+
+                let strength = 0;
+                let strengthLabel = 'Weak';
+                let strengthColor = 'var(--bc-error)';
+
+                if (password.length >= 6) strength += 1;
+                if (password.length >= 8) strength += 1;
+                if (/[A-Z]/.test(password)) strength += 1;
+                if (/[0-9]/.test(password)) strength += 1;
+                if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+
+                switch(strength) {
+                    case 0:
+                    case 1:
+                        strengthLabel = 'Weak';
+                        strengthColor = 'var(--bc-error)';
+                        break;
+                    case 2:
+                        strengthLabel = 'Fair';
+                        strengthColor = 'var(--bc-warning)';
+                        break;
+                    case 3:
+                        strengthLabel = 'Good';
+                        strengthColor = 'var(--bc-info)';
+                        break;
+                    case 4:
+                    case 5:
+                        strengthLabel = 'Strong';
+                        strengthColor = 'var(--bc-success)';
+                        break;
+                }
+
+                const percentage = (strength / 5) * 100;
+                strengthBar.style.width = percentage + '%';
+                strengthBar.style.backgroundColor = strengthColor;
+                strengthText.textContent = strengthLabel;
+                strengthText.style.color = strengthColor;
+            }
+
+            function showLoadingState() {
+                submitBtn.disabled = true;
+                submitBtn.querySelector('.bc-btn-text').style.display = 'none';
+                submitBtn.querySelector('.bc-btn-loading').style.display = 'inline-flex';
+            }
+        });
+
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const icon = document.getElementById(fieldId + '-toggle-icon');
+
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
 }

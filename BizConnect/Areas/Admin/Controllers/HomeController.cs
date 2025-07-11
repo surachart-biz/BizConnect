@@ -30,6 +30,16 @@ public class HomeController : Controller
 
         return View(model);
     }
+
+    public IActionResult LoadingDemo()
+    {
+        return View();
+    }
+
+    public IActionResult InteractionsDemo()
+    {
+        return View();
+    }
 }
 
 public class DashboardViewModel

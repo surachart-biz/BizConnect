@@ -1,0 +1,368 @@
+@{
+    ViewData["Title"] = "Loading States Demo";
+}
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-spinner me-3"></i>Loading States Demo</h1>
+                    <p class="text-muted">Showcase of all loading indicators and progress components</p>
+                </div>
+                <a asp-controller="Home" asp-action="Dashboard" asp-area="Admin" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spinners Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-circle-notch me-2"></i>Loading Spinners</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-3">
+                            <h5>Default Spinner</h5>
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="bc-spinner bc-spinner-sm"></div>
+                                <div class="bc-spinner"></div>
+                                <div class="bc-spinner bc-spinner-lg"></div>
+                                <div class="bc-spinner bc-spinner-xl"></div>
+                            </div>
+                            <small class="text-muted">Small, Default, Large, Extra Large</small>
+                        </div>
+                        <div class="col-md-3">
+                            <h5>Pulse Spinner</h5>
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="bc-spinner-pulse" style="width: 16px; height: 16px;"></div>
+                                <div class="bc-spinner-pulse"></div>
+                                <div class="bc-spinner-pulse" style="width: 32px; height: 32px;"></div>
+                                <div class="bc-spinner-pulse" style="width: 48px; height: 48px;"></div>
+                            </div>
+                            <small class="text-muted">Pulsing animation effect</small>
+                        </div>
+                        <div class="col-md-3">
+                            <h5>Dots Spinner</h5>
+                            <div class="bc-spinner-dots mb-3"></div>
+                            <small class="text-muted">Three bouncing dots</small>
+                        </div>
+                        <div class="col-md-3">
+                            <h5>Button Loading</h5>
+                            <button class="btn btn-primary" onclick="toggleButtonLoading(this)">
+                                <span class="bc-btn-content">Click to Load</span>
+                            </button>
+                            <div class="mt-2">
+                                <small class="text-muted">Click to see loading state</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Bars Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-tasks me-2"></i>Progress Bars</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h5>Standard Progress</h5>
+                            <div class="mb-3">
+                                <label class="form-label">Small Progress (25%)</label>
+                                <div class="bc-progress bc-progress-sm">
+                                    <div class="bc-progress-bar" style="width: 25%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Default Progress (50%)</label>
+                                <div class="bc-progress">
+                                    <div class="bc-progress-bar" style="width: 50%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Large Progress (75%)</label>
+                                <div class="bc-progress bc-progress-lg">
+                                    <div class="bc-progress-bar" style="width: 75%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Extra Large Progress (90%)</label>
+                                <div class="bc-progress bc-progress-xl">
+                                    <div class="bc-progress-bar" style="width: 90%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Interactive Progress</h5>
+                            <div class="mb-3">
+                                <label class="form-label">Controllable Progress</label>
+                                <div id="controllableProgress"></div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="updateProgress(-10)">-10%</button>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="updateProgress(10)">+10%</button>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="resetProgress()">Reset</button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Indeterminate Progress</label>
+                                <div class="bc-progress bc-progress-indeterminate">
+                                    <div class="bc-progress-bar"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Circular Progress</label>
+                                <div id="circularProgress"></div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="updateCircularProgress(-15)">-15%</button>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="updateCircularProgress(15)">+15%</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skeleton Screens Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-layer-group me-2"></i>Skeleton Screens</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <h5>Text Skeletons</h5>
+                            <div class="bc-skeleton bc-skeleton-title"></div>
+                            <div class="bc-skeleton bc-skeleton-paragraph"></div>
+                            <div class="bc-skeleton bc-skeleton-paragraph"></div>
+                            <div class="bc-skeleton bc-skeleton-paragraph"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <h5>Card Skeleton</h5>
+                            <div class="bc-skeleton-card">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bc-skeleton bc-skeleton-avatar me-3"></div>
+                                    <div class="flex-grow-1">
+                                        <div class="bc-skeleton bc-skeleton-text mb-2" style="width: 60%;"></div>
+                                        <div class="bc-skeleton bc-skeleton-text-sm" style="width: 40%;"></div>
+                                    </div>
+                                </div>
+                                <div class="bc-skeleton bc-skeleton-text mb-2"></div>
+                                <div class="bc-skeleton bc-skeleton-text mb-2"></div>
+                                <div class="bc-skeleton bc-skeleton-text" style="width: 80%;"></div>
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <div class="bc-skeleton bc-skeleton-button"></div>
+                                    <div class="bc-skeleton bc-skeleton-text" style="width: 60px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <h5>List Skeleton</h5>
+                            <div class="list-group">
+                                <div class="list-group-item">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bc-skeleton bc-skeleton-avatar-sm me-3"></div>
+                                        <div class="flex-grow-1">
+                                            <div class="bc-skeleton bc-skeleton-text-sm mb-1" style="width: 70%;"></div>
+                                            <div class="bc-skeleton bc-skeleton-text-sm" style="width: 50%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bc-skeleton bc-skeleton-avatar-sm me-3"></div>
+                                        <div class="flex-grow-1">
+                                            <div class="bc-skeleton bc-skeleton-text-sm mb-1" style="width: 80%;"></div>
+                                            <div class="bc-skeleton bc-skeleton-text-sm" style="width: 40%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bc-skeleton bc-skeleton-avatar-sm me-3"></div>
+                                        <div class="flex-grow-1">
+                                            <div class="bc-skeleton bc-skeleton-text-sm mb-1" style="width: 60%;"></div>
+                                            <div class="bc-skeleton bc-skeleton-text-sm" style="width: 70%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlays Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-layer-group me-2"></i>Loading Overlays</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h5>Light Overlay</h5>
+                            <div class="position-relative" style="height: 200px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px;">
+                                <div class="p-3">
+                                    <h6>Sample Content</h6>
+                                    <p>This content will be covered by the loading overlay.</p>
+                                </div>
+                                <button class="btn btn-primary m-3" onclick="toggleOverlay('lightOverlay', false)">Show Light Overlay</button>
+                                <div id="lightOverlay" class="bc-loading-overlay" style="display: none;">
+                                    <div class="bc-loading-content">
+                                        <div class="bc-spinner bc-spinner-lg"></div>
+                                        <div class="bc-loading-text">Loading content...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Dark Overlay</h5>
+                            <div class="position-relative" style="height: 200px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px;">
+                                <div class="p-3">
+                                    <h6>Sample Content</h6>
+                                    <p>This content will be covered by the dark loading overlay.</p>
+                                </div>
+                                <button class="btn btn-primary m-3" onclick="toggleOverlay('darkOverlay', true)">Show Dark Overlay</button>
+                                <div id="darkOverlay" class="bc-loading-overlay bc-loading-overlay-dark" style="display: none;">
+                                    <div class="bc-loading-content">
+                                        <div class="bc-spinner bc-spinner-lg"></div>
+                                        <div class="bc-loading-text">Processing request...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-bell me-2"></i>Toast Notifications</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <button class="btn btn-success w-100" onclick="showToast('success')">
+                                <i class="fas fa-check me-2"></i>Success Toast
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-info w-100" onclick="showToast('info')">
+                                <i class="fas fa-info me-2"></i>Info Toast
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-warning w-100" onclick="showToast('warning')">
+                                <i class="fas fa-exclamation me-2"></i>Warning Toast
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-danger w-100" onclick="showToast('error')">
+                                <i class="fas fa-times me-2"></i>Error Toast
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let progressValue = 0;
+        let circularProgressValue = 0;
+        let progressId, circularProgressId;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize progress bars
+            progressId = BizConnectLoading.createProgressBar(
+                document.getElementById('controllableProgress'),
+                { value: 0, max: 100 }
+            );
+
+            circularProgressId = BizConnectLoading.createCircularProgress(
+                document.getElementById('circularProgress'),
+                { size: 80, value: 0, max: 100 }
+            );
+        });
+
+        function toggleButtonLoading(button) {
+            BizConnectLoading.setButtonLoading(button, true);
+            setTimeout(() => {
+                BizConnectLoading.setButtonLoading(button, false);
+            }, 3000);
+        }
+
+        function updateProgress(change) {
+            progressValue = Math.max(0, Math.min(100, progressValue + change));
+            BizConnectLoading.updateProgress(progressId, progressValue);
+        }
+
+        function resetProgress() {
+            progressValue = 0;
+            BizConnectLoading.updateProgress(progressId, progressValue);
+        }
+
+        function updateCircularProgress(change) {
+            circularProgressValue = Math.max(0, Math.min(100, circularProgressValue + change));
+            BizConnectLoading.updateCircularProgress(circularProgressId, circularProgressValue);
+        }
+
+        function toggleOverlay(overlayId, isDark) {
+            const overlay = document.getElementById(overlayId);
+            overlay.style.display = overlay.style.display === 'none' ? 'flex' : 'none';
+            
+            if (overlay.style.display === 'flex') {
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function showToast(type) {
+            const messages = {
+                success: 'Operation completed successfully!',
+                info: 'Here is some useful information.',
+                warning: 'Please review this important notice.',
+                error: 'An error occurred while processing your request.'
+            };
+
+            const titles = {
+                success: 'Success',
+                info: 'Information',
+                warning: 'Warning',
+                error: 'Error'
+            };
+
+            BizConnectLoading.showToast(messages[type], {
+                type: type,
+                title: titles[type],
+                duration: 5000
+            });
+        }
+    </script>
+}

@@ -1,25 +1,158 @@
 @model ErrorViewModel
 @{
-    ViewData["Title"] = "Error";
+    ViewData["Title"] = "Oops! Something went wrong";
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+<div class="bc-error-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <div class="bc-error-content">
+                    <!-- Error Icon -->
+                    <div class="bc-error-icon">
+                        <div class="bc-error-icon-bg">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="bc-error-particles">
+                            <div class="bc-particle bc-particle-1"></div>
+                            <div class="bc-particle bc-particle-2"></div>
+                            <div class="bc-particle bc-particle-3"></div>
+                            <div class="bc-particle bc-particle-4"></div>
+                        </div>
+                    </div>
 
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
+                    <!-- Error Message -->
+                    <div class="bc-error-message">
+                        <h1 class="bc-error-title">Oops! Something went wrong</h1>
+                        <p class="bc-error-subtitle">
+                            We encountered an unexpected error while processing your request.
+                            Our team has been notified and is working to resolve this issue.
+                        </p>
+                    </div>
+
+                    <!-- Error Details (Development Only) -->
+                    @if (Model.ShowRequestId)
+                    {
+                        <div class="bc-error-details">
+                            <div class="bc-error-detail-card">
+                                <h3 class="bc-error-detail-title">
+                                    <i class="fas fa-info-circle me-2"></i>Error Details
+                                </h3>
+                                <div class="bc-error-detail-content">
+                                    <div class="bc-error-detail-item">
+                                        <span class="bc-error-detail-label">Request ID:</span>
+                                        <code class="bc-error-detail-value">@Model.RequestId</code>
+                                    </div>
+                                    <div class="bc-error-detail-item">
+                                        <span class="bc-error-detail-label">Timestamp:</span>
+                                        <span class="bc-error-detail-value">@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Action Buttons -->
+                    <div class="bc-error-actions">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-lg">
+                            <i class="fas fa-home me-2"></i>Go to Homepage
+                        </a>
+                        <button class="btn btn-outline-secondary btn-lg" onclick="goBack()">
+                            <i class="fas fa-arrow-left me-2"></i>Go Back
+                        </button>
+                        <button class="btn btn-outline-info btn-lg" onclick="refreshPage()">
+                            <i class="fas fa-sync-alt me-2"></i>Try Again
+                        </button>
+                    </div>
+
+                    <!-- Help Section -->
+                    <div class="bc-error-help">
+                        <div class="bc-error-help-card">
+                            <h3 class="bc-error-help-title">Need Help?</h3>
+                            <p class="bc-error-help-text">
+                                If this problem persists, please contact our support team with the error details above.
+                            </p>
+                            <div class="bc-error-help-actions">
+                                <a href="#" class="bc-error-help-link" onclick="return false;">
+                                    <i class="fas fa-envelope me-2"></i>Contact Support
+                                </a>
+                                <a href="#" class="bc-error-help-link" onclick="return false;">
+                                    <i class="fas fa-question-circle me-2"></i>Help Center
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Development Information -->
+                    @if (ViewContext.HttpContext.RequestServices.GetService<IWebHostEnvironment>()?.IsDevelopment() == true)
+                    {
+                        <div class="bc-dev-info">
+                            <div class="bc-dev-info-card">
+                                <h3 class="bc-dev-info-title">
+                                    <i class="fas fa-code me-2"></i>Development Information
+                                </h3>
+                                <div class="bc-dev-info-content">
+                                    <div class="alert alert-warning">
+                                        <h5><i class="fas fa-exclamation-triangle me-2"></i>Development Mode Active</h5>
+                                        <p class="mb-2">
+                                            You're seeing this detailed error information because the application is running in Development mode.
+                                        </p>
+                                        <p class="mb-0">
+                                            <strong>Important:</strong> This detailed error information should not be displayed in production environments
+                                            as it may reveal sensitive application details.
+                                        </p>
+                                    </div>
+                                    <div class="bc-dev-tips">
+                                        <h6>Troubleshooting Tips:</h6>
+                                        <ul>
+                                            <li>Check the application logs for detailed error information</li>
+                                            <li>Verify database connectivity and configuration</li>
+                                            <li>Ensure all required services are properly registered</li>
+                                            <li>Check for any recent code changes that might have caused this issue</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '@Url.Action("Index", "Home")';
+            }
+        }
+
+        function refreshPage() {
+            window.location.reload();
+        }
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate particles
+            const particles = document.querySelectorAll('.bc-particle');
+            particles.forEach((particle, index) => {
+                particle.style.animationDelay = (index * 0.2) + 's';
+            });
+
+            // Add click effect to error icon
+            const errorIcon = document.querySelector('.bc-error-icon-bg');
+            if (errorIcon) {
+                errorIcon.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 150);
+                });
+            }
+        });
+    </script>
 }
-
-<h3>Development Mode</h3>
-<p>
-    Swapping to the <strong>Development</strong> environment displays detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>

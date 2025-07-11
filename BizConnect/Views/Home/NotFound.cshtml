@@ -1,0 +1,225 @@
+@{
+    ViewData["Title"] = "Page Not Found - 404";
+}
+
+<div class="bc-error-container bc-error-404">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <div class="bc-error-content">
+                    <!-- 404 Illustration -->
+                    <div class="bc-404-illustration">
+                        <div class="bc-404-number">
+                            <span class="bc-404-digit">4</span>
+                            <div class="bc-404-zero">
+                                <div class="bc-404-zero-inner">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                            </div>
+                            <span class="bc-404-digit">4</span>
+                        </div>
+                        <div class="bc-404-floating-elements">
+                            <div class="bc-floating-element bc-element-1">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="bc-floating-element bc-element-2">
+                                <i class="fas fa-folder"></i>
+                            </div>
+                            <div class="bc-floating-element bc-element-3">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            <div class="bc-floating-element bc-element-4">
+                                <i class="fas fa-question"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div class="bc-error-message">
+                        <h1 class="bc-error-title">Page Not Found</h1>
+                        <p class="bc-error-subtitle">
+                            The page you're looking for doesn't exist or has been moved. 
+                            Don't worry, let's get you back on track!
+                        </p>
+                    </div>
+
+                    <!-- Search Suggestion -->
+                    <div class="bc-404-search">
+                        <div class="bc-search-card">
+                            <h3 class="bc-search-title">
+                                <i class="fas fa-search me-2"></i>Looking for something specific?
+                            </h3>
+                            <div class="bc-search-form">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Search BizConnect..." id="errorPageSearch">
+                                    <button class="btn btn-primary" type="button" onclick="performSearch()">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="bc-404-quick-links">
+                        <h3 class="bc-quick-links-title">Popular Pages</h3>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <a asp-controller="Home" asp-action="Index" class="bc-quick-link-card">
+                                    <div class="bc-quick-link-icon">
+                                        <i class="fas fa-home"></i>
+                                    </div>
+                                    <div class="bc-quick-link-content">
+                                        <h4>Homepage</h4>
+                                        <p>Return to the main page</p>
+                                    </div>
+                                </a>
+                            </div>
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <div class="col-md-6">
+                                    <a href="#" class="bc-quick-link-card" onclick="return false;">
+                                        <div class="bc-quick-link-icon">
+                                            <i class="fas fa-users"></i>
+                                        </div>
+                                        <div class="bc-quick-link-content">
+                                            <h4>My Network</h4>
+                                            <p>View your connections</p>
+                                        </div>
+                                    </a>
+                                </div>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <div class="col-md-6">
+                                        <a asp-controller="Home" asp-action="Dashboard" asp-area="Admin" class="bc-quick-link-card">
+                                            <div class="bc-quick-link-icon">
+                                                <i class="fas fa-tachometer-alt"></i>
+                                            </div>
+                                            <div class="bc-quick-link-content">
+                                                <h4>Admin Dashboard</h4>
+                                                <p>Manage the platform</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                }
+                                <div class="col-md-6">
+                                    <a href="#" class="bc-quick-link-card" onclick="return false;">
+                                        <div class="bc-quick-link-icon">
+                                            <i class="fas fa-briefcase"></i>
+                                        </div>
+                                        <div class="bc-quick-link-content">
+                                            <h4>Opportunities</h4>
+                                            <p>Browse job listings</p>
+                                        </div>
+                                    </a>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-md-6">
+                                    <a asp-controller="Account" asp-action="Login" class="bc-quick-link-card">
+                                        <div class="bc-quick-link-icon">
+                                            <i class="fas fa-sign-in-alt"></i>
+                                        </div>
+                                        <div class="bc-quick-link-content">
+                                            <h4>Login</h4>
+                                            <p>Access your account</p>
+                                        </div>
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="bc-error-actions">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-lg">
+                            <i class="fas fa-home me-2"></i>Go Home
+                        </a>
+                        <button class="btn btn-outline-secondary btn-lg" onclick="goBack()">
+                            <i class="fas fa-arrow-left me-2"></i>Go Back
+                        </button>
+                    </div>
+
+                    <!-- Help Section -->
+                    <div class="bc-error-help">
+                        <div class="bc-error-help-card">
+                            <h3 class="bc-error-help-title">Still can't find what you're looking for?</h3>
+                            <p class="bc-error-help-text">
+                                Our support team is here to help you navigate BizConnect and find exactly what you need.
+                            </p>
+                            <div class="bc-error-help-actions">
+                                <a href="#" class="bc-error-help-link" onclick="return false;">
+                                    <i class="fas fa-envelope me-2"></i>Contact Support
+                                </a>
+                                <a href="#" class="bc-error-help-link" onclick="return false;">
+                                    <i class="fas fa-question-circle me-2"></i>Help Center
+                                </a>
+                                <a href="#" class="bc-error-help-link" onclick="return false;">
+                                    <i class="fas fa-comments me-2"></i>Live Chat
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '@Url.Action("Index", "Home")';
+            }
+        }
+
+        function performSearch() {
+            const searchTerm = document.getElementById('errorPageSearch').value.trim();
+            if (searchTerm) {
+                // In a real application, this would redirect to a search results page
+                BizConnectLoading.showToast(`Searching for "${searchTerm}"...`, {
+                    type: 'info',
+                    title: 'Search',
+                    duration: 3000
+                });
+                
+                // Simulate search redirect
+                setTimeout(() => {
+                    window.location.href = '@Url.Action("Index", "Home")' + '?search=' + encodeURIComponent(searchTerm);
+                }, 1000);
+            }
+        }
+
+        // Add interactive animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate floating elements
+            const floatingElements = document.querySelectorAll('.bc-floating-element');
+            floatingElements.forEach((element, index) => {
+                element.style.animationDelay = (index * 0.5) + 's';
+            });
+
+            // Add hover effect to 404 number
+            const digits = document.querySelectorAll('.bc-404-digit');
+            digits.forEach(digit => {
+                digit.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.1) rotate(5deg)';
+                });
+                
+                digit.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1) rotate(0deg)';
+                });
+            });
+
+            // Search on Enter key
+            document.getElementById('errorPageSearch').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        });
+    </script>
+}

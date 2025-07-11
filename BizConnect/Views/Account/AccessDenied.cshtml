@@ -1,17 +1,216 @@
 @{
-    ViewData["Title"] = "Access Denied";
+    ViewData["Title"] = "Access Denied - 403";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="alert alert-danger" role="alert">
-            <h4 class="alert-heading">Access Denied</h4>
-            <p>You do not have permission to access this resource.</p>
-            <hr>
-            <p class="mb-0">
-                <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Go to Home</a>
-                <a asp-controller="Account" asp-action="Logout" class="btn btn-secondary">Logout</a>
-            </p>
+<div class="bc-error-container bc-error-403">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <div class="bc-error-content">
+                    <!-- Access Denied Illustration -->
+                    <div class="bc-403-illustration">
+                        <div class="bc-403-shield">
+                            <div class="bc-shield-outer">
+                                <div class="bc-shield-inner">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="bc-shield-lock">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                            </div>
+                            <div class="bc-shield-waves">
+                                <div class="bc-wave bc-wave-1"></div>
+                                <div class="bc-wave bc-wave-2"></div>
+                                <div class="bc-wave bc-wave-3"></div>
+                            </div>
+                        </div>
+                        <div class="bc-403-code">403</div>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div class="bc-error-message">
+                        <h1 class="bc-error-title">Access Denied</h1>
+                        <p class="bc-error-subtitle">
+                            You don't have permission to access this resource. This area is restricted to authorized users only.
+                        </p>
+                    </div>
+
+                    <!-- User Status -->
+                    <div class="bc-403-status">
+                        <div class="bc-status-card">
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <div class="bc-status-authenticated">
+                                    <div class="bc-status-icon">
+                                        <i class="fas fa-user-check"></i>
+                                    </div>
+                                    <div class="bc-status-content">
+                                        <h3>Signed in as @User.Identity.Name</h3>
+                                        <p>You're logged in, but your current role doesn't have access to this resource.</p>
+                                        @if (User.IsInRole("User"))
+                                        {
+                                            <div class="bc-role-badge bc-role-user">
+                                                <i class="fas fa-user me-1"></i>User
+                                            </div>
+                                        }
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <div class="bc-role-badge bc-role-admin">
+                                                <i class="fas fa-shield-alt me-1"></i>Administrator
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="bc-status-anonymous">
+                                    <div class="bc-status-icon">
+                                        <i class="fas fa-user-slash"></i>
+                                    </div>
+                                    <div class="bc-status-content">
+                                        <h3>Not Signed In</h3>
+                                        <p>You need to sign in to access this resource.</p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Possible Actions -->
+                    <div class="bc-403-suggestions">
+                        <h3 class="bc-suggestions-title">What can you do?</h3>
+                        <div class="bc-suggestions-list">
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <div class="bc-suggestion-item">
+                                    <div class="bc-suggestion-icon">
+                                        <i class="fas fa-home"></i>
+                                    </div>
+                                    <div class="bc-suggestion-content">
+                                        <h4>Return to Dashboard</h4>
+                                        <p>Go back to your main dashboard where you have access</p>
+                                    </div>
+                                </div>
+                                <div class="bc-suggestion-item">
+                                    <div class="bc-suggestion-icon">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div class="bc-suggestion-content">
+                                        <h4>Request Access</h4>
+                                        <p>Contact an administrator to request access to this resource</p>
+                                    </div>
+                                </div>
+                                <div class="bc-suggestion-item">
+                                    <div class="bc-suggestion-icon">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                    </div>
+                                    <div class="bc-suggestion-content">
+                                        <h4>Sign in with Different Account</h4>
+                                        <p>Log out and sign in with an account that has the required permissions</p>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="bc-suggestion-item">
+                                    <div class="bc-suggestion-icon">
+                                        <i class="fas fa-sign-in-alt"></i>
+                                    </div>
+                                    <div class="bc-suggestion-content">
+                                        <h4>Sign In</h4>
+                                        <p>Log in with your BizConnect account to access this resource</p>
+                                    </div>
+                                </div>
+                                <div class="bc-suggestion-item">
+                                    <div class="bc-suggestion-icon">
+                                        <i class="fas fa-user-plus"></i>
+                                    </div>
+                                    <div class="bc-suggestion-content">
+                                        <h4>Create Account</h4>
+                                        <p>Don't have an account? Sign up to join the BizConnect community</p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="bc-error-actions">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-lg">
+                                <i class="fas fa-home me-2"></i>Go to Dashboard
+                            </a>
+                            <a asp-controller="Account" asp-action="Logout" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-sign-out-alt me-2"></i>Sign Out
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                            </a>
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-home me-2"></i>Go Home
+                            </a>
+                        }
+                        <button class="btn btn-outline-info btn-lg" onclick="goBack()">
+                            <i class="fas fa-arrow-left me-2"></i>Go Back
+                        </button>
+                    </div>
+
+                    <!-- Help Section -->
+                    <div class="bc-error-help">
+                        <div class="bc-error-help-card">
+                            <h3 class="bc-error-help-title">Need Help with Access?</h3>
+                            <p class="bc-error-help-text">
+                                If you believe you should have access to this resource, please contact our support team or your administrator.
+                            </p>
+                            <div class="bc-error-help-actions">
+                                <a href="#" class="bc-error-help-link" onclick="return false;">
+                                    <i class="fas fa-envelope me-2"></i>Contact Admin
+                                </a>
+                                <a href="#" class="bc-error-help-link" onclick="return false;">
+                                    <i class="fas fa-question-circle me-2"></i>Access Help
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '@Url.Action("Index", "Home")';
+            }
+        }
+
+        // Add interactive animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate shield waves
+            const waves = document.querySelectorAll('.bc-wave');
+            waves.forEach((wave, index) => {
+                wave.style.animationDelay = (index * 0.3) + 's';
+            });
+
+            // Add click effect to shield
+            const shield = document.querySelector('.bc-shield-outer');
+            if (shield) {
+                shield.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 150);
+                });
+            }
+        });
+    </script>
+}

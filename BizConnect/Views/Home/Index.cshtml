@@ -2,29 +2,371 @@
     ViewData["Title"] = "BizConnect - Home";
 }
 
-<div class="text-center">
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <h1 class="display-4">Welcome to BizConnect, @User.Identity.Name!</h1>
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <!-- Authenticated User Dashboard -->
+    <div class="bc-dashboard">
+        <!-- Welcome Hero Section -->
+        <section class="bc-hero-dashboard">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <div class="bc-welcome-content bc-fade-in">
+                            <h1 class="bc-hero-title bc-slide-in-left">
+                                Welcome back, <span class="text-primary bc-text-glow">@User.Identity.Name</span>!
+                            </h1>
+                            <p class="bc-hero-subtitle bc-slide-in-up">
+                                Ready to expand your professional network and discover new opportunities?
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 text-center">
+                        <div class="bc-hero-stats">
+                            <div class="bc-stat-item">
+                                <div class="bc-stat-number">24</div>
+                                <div class="bc-stat-label">Connections</div>
+                            </div>
+                            <div class="bc-stat-item">
+                                <div class="bc-stat-number">8</div>
+                                <div class="bc-stat-label">Opportunities</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="bc-quick-actions">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <h2 class="bc-section-title">Quick Actions</h2>
+                    </div>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-6 col-lg-3">
+                        <div class="bc-action-card hover-lift bc-tilt bc-ripple bc-slide-in-up" style="animation-delay: 0.1s;">
+                            <div class="bc-action-icon bg-primary bc-glow">
+                                <i class="fas fa-users bc-rotate-sm"></i>
+                            </div>
+                            <h3 class="bc-action-title">Find Connections</h3>
+                            <p class="bc-action-description">Discover and connect with professionals in your industry</p>
+                            <a href="#" class="bc-action-link bc-color-transition" onclick="return false;">Explore Network</a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="bc-action-card hover-lift bc-tilt bc-ripple bc-slide-in-up" style="animation-delay: 0.2s;">
+                            <div class="bc-action-icon bg-success bc-glow">
+                                <i class="fas fa-briefcase bc-rotate-sm"></i>
+                            </div>
+                            <h3 class="bc-action-title">Job Opportunities</h3>
+                            <p class="bc-action-description">Browse and apply to exciting career opportunities</p>
+                            <a href="#" class="bc-action-link bc-color-transition" onclick="return false;">View Jobs</a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="bc-action-card hover-lift bc-tilt bc-ripple bc-slide-in-up" style="animation-delay: 0.3s;">
+                            <div class="bc-action-icon bg-info bc-glow">
+                                <i class="fas fa-calendar-alt bc-rotate-sm"></i>
+                            </div>
+                            <h3 class="bc-action-title">Events</h3>
+                            <p class="bc-action-description">Join networking events and professional meetups</p>
+                            <a href="#" class="bc-action-link bc-color-transition" onclick="return false;">Find Events</a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="bc-action-card hover-lift bc-tilt bc-ripple bc-slide-in-up" style="animation-delay: 0.4s;">
+                            <div class="bc-action-icon bg-warning bc-glow">
+                                <i class="fas fa-user-edit bc-rotate-sm"></i>
+                            </div>
+                            <h3 class="bc-action-title">Update Profile</h3>
+                            <p class="bc-action-description">Keep your professional profile up to date</p>
+                            <a href="#" class="bc-action-link bc-color-transition" onclick="return false;">Edit Profile</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         @if (User.IsInRole("Admin"))
         {
-            <p class="lead">You have administrator privileges.</p>
-            <a asp-controller="Home" asp-action="Dashboard" asp-area="Admin" class="btn btn-primary btn-lg">Go to Admin Dashboard</a>
+            <!-- Admin Quick Access -->
+            <section class="bc-admin-section">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="bc-admin-card">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bc-admin-icon">
+                                            <i class="fas fa-shield-alt"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="bc-admin-title">Administrator Access</h3>
+                                            <p class="bc-admin-description">Manage users, monitor system activity, and configure settings</p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <a asp-controller="Home" asp-action="Dashboard" asp-area="Admin" class="btn btn-primary">
+                                            <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         }
-        else
-        {
-            <p class="lead">Welcome to your dashboard.</p>
-            <div class="alert alert-info mt-4">
-                <h4>Welcome User!</h4>
-                <p>You are successfully logged in to BizConnect. This is your home page.</p>
+
+        <!-- Recent Activity -->
+        <section class="bc-recent-activity">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <h2 class="bc-section-title">Recent Activity</h2>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="bc-activity-feed">
+                            <div class="bc-activity-item">
+                                <div class="bc-activity-icon bg-success">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                                <div class="bc-activity-content">
+                                    <p class="bc-activity-text">You connected with <strong>Sarah Johnson</strong></p>
+                                    <span class="bc-activity-time">2 hours ago</span>
+                                </div>
+                            </div>
+                            <div class="bc-activity-item">
+                                <div class="bc-activity-icon bg-info">
+                                    <i class="fas fa-briefcase"></i>
+                                </div>
+                                <div class="bc-activity-content">
+                                    <p class="bc-activity-text">New job opportunity: <strong>Senior Developer</strong></p>
+                                    <span class="bc-activity-time">1 day ago</span>
+                                </div>
+                            </div>
+                            <div class="bc-activity-item">
+                                <div class="bc-activity-icon bg-warning">
+                                    <i class="fas fa-calendar"></i>
+                                </div>
+                                <div class="bc-activity-content">
+                                    <p class="bc-activity-text">Upcoming event: <strong>Tech Networking Meetup</strong></p>
+                                    <span class="bc-activity-time">3 days ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="bc-suggestions-card">
+                            <h3 class="bc-suggestions-title">Suggested Connections</h3>
+                            <div class="bc-suggestion-item">
+                                <div class="bc-suggestion-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="bc-suggestion-info">
+                                    <h4 class="bc-suggestion-name">Michael Chen</h4>
+                                    <p class="bc-suggestion-role">Product Manager</p>
+                                </div>
+                                <button class="btn btn-outline-primary btn-sm">Connect</button>
+                            </div>
+                            <div class="bc-suggestion-item">
+                                <div class="bc-suggestion-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="bc-suggestion-info">
+                                    <h4 class="bc-suggestion-name">Emily Rodriguez</h4>
+                                    <p class="bc-suggestion-role">UX Designer</p>
+                                </div>
+                                <button class="btn btn-outline-primary btn-sm">Connect</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        }
-    }
-    else
-    {
-        <h1 class="display-4">Welcome to BizConnect</h1>
-        <p class="lead">Business Networking Platform</p>
-        <p class="text-muted">Please log in to access your account and start connecting with professionals.</p>
-        <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg">Login</a>
-    }
-</div>
+        </section>
+    </div>
+}
+else
+{
+    <!-- Non-Authenticated User Landing Page -->
+    <div class="bc-landing">
+        <!-- Hero Section -->
+        <section class="bc-hero">
+            <div class="container">
+                <div class="row align-items-center min-vh-75">
+                    <div class="col-lg-6">
+                        <div class="bc-hero-content">
+                            <h1 class="bc-hero-title">
+                                Connect. Network. <span class="text-primary">Grow.</span>
+                            </h1>
+                            <p class="bc-hero-subtitle">
+                                Join the premier business networking platform where professionals connect,
+                                opportunities flourish, and careers advance.
+                            </p>
+                            <div class="bc-hero-actions">
+                                <a href="#" class="btn btn-primary btn-lg me-3" onclick="return false;">
+                                    <i class="fas fa-user-plus me-2"></i>Get Started Free
+                                </a>
+                                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary btn-lg">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                                </a>
+                            </div>
+                            <div class="bc-hero-stats">
+                                <div class="bc-stat-item">
+                                    <div class="bc-stat-number">10K+</div>
+                                    <div class="bc-stat-label">Professionals</div>
+                                </div>
+                                <div class="bc-stat-item">
+                                    <div class="bc-stat-number">500+</div>
+                                    <div class="bc-stat-label">Companies</div>
+                                </div>
+                                <div class="bc-stat-item">
+                                    <div class="bc-stat-number">1K+</div>
+                                    <div class="bc-stat-label">Success Stories</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="bc-hero-visual">
+                            <div class="bc-network-graphic">
+                                <div class="bc-node bc-node-1">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="bc-node bc-node-2">
+                                    <i class="fas fa-building"></i>
+                                </div>
+                                <div class="bc-node bc-node-3">
+                                    <i class="fas fa-briefcase"></i>
+                                </div>
+                                <div class="bc-node bc-node-4">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="bc-node bc-node-5">
+                                    <i class="fas fa-handshake"></i>
+                                </div>
+                                <svg class="bc-connections" viewBox="0 0 400 300">
+                                    <line x1="100" y1="150" x2="200" y2="80" stroke="var(--bc-primary)" stroke-width="2" opacity="0.6"/>
+                                    <line x1="100" y1="150" x2="300" y2="150" stroke="var(--bc-primary)" stroke-width="2" opacity="0.6"/>
+                                    <line x1="100" y1="150" x2="200" y2="220" stroke="var(--bc-primary)" stroke-width="2" opacity="0.6"/>
+                                    <line x1="200" y1="80" x2="300" y2="150" stroke="var(--bc-accent)" stroke-width="2" opacity="0.4"/>
+                                    <line x1="200" y1="220" x2="300" y2="150" stroke="var(--bc-accent)" stroke-width="2" opacity="0.4"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="bc-features">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <h2 class="bc-section-title">Why Choose BizConnect?</h2>
+                        <p class="bc-section-subtitle">
+                            Everything you need to build meaningful professional relationships and advance your career
+                        </p>
+                    </div>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="bc-feature-card hover-lift">
+                            <div class="bc-feature-icon">
+                                <i class="fas fa-network-wired"></i>
+                            </div>
+                            <h3 class="bc-feature-title">Smart Networking</h3>
+                            <p class="bc-feature-description">
+                                Connect with the right professionals using our intelligent matching algorithm
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="bc-feature-card hover-lift">
+                            <div class="bc-feature-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <h3 class="bc-feature-title">Opportunity Discovery</h3>
+                            <p class="bc-feature-description">
+                                Find job opportunities, partnerships, and collaborations tailored to your goals
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="bc-feature-card hover-lift">
+                            <div class="bc-feature-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <h3 class="bc-feature-title">Event Management</h3>
+                            <p class="bc-feature-description">
+                                Discover and attend networking events, workshops, and industry conferences
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="bc-feature-card hover-lift">
+                            <div class="bc-feature-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h3 class="bc-feature-title">Career Growth</h3>
+                            <p class="bc-feature-description">
+                                Track your professional growth and get insights to advance your career
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="bc-feature-card hover-lift">
+                            <div class="bc-feature-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3 class="bc-feature-title">Secure Platform</h3>
+                            <p class="bc-feature-description">
+                                Your professional data is protected with enterprise-grade security
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="bc-feature-card hover-lift">
+                            <div class="bc-feature-icon">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <h3 class="bc-feature-title">Mobile Ready</h3>
+                            <p class="bc-feature-description">
+                                Access your network anywhere with our responsive design and mobile app
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action Section -->
+        <section class="bc-cta">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <div class="bc-cta-content">
+                            <h2 class="bc-cta-title">Ready to Transform Your Professional Network?</h2>
+                            <p class="bc-cta-subtitle">
+                                Join thousands of professionals who are already growing their careers with BizConnect
+                            </p>
+                            <div class="bc-cta-actions">
+                                <a href="#" class="btn btn-primary btn-lg me-3" onclick="return false;">
+                                    <i class="fas fa-rocket me-2"></i>Start Networking Today
+                                </a>
+                                <a href="#" class="btn btn-outline-light btn-lg" onclick="return false;">
+                                    <i class="fas fa-play me-2"></i>Watch Demo
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+}

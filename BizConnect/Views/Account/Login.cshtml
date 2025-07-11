@@ -4,37 +4,107 @@
     Layout = "_Layout";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-4">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="text-center">Login to BizConnect</h3>
-            </div>
-            <div class="card-body">
-                <form method="post">
-                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
-                    
-                    <div class="mb-3">
-                        <label asp-for="Username" class="form-label">Username</label>
-                        <input asp-for="Username" class="form-control" autocomplete="username" />
-                        <span asp-validation-for="Username" class="text-danger"></span>
+<div class="bc-login-container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5 col-xl-4">
+            <div class="bc-login-card">
+                <!-- Login Header -->
+                <div class="bc-login-header">
+                    <div class="bc-login-logo">
+                        <i class="fas fa-network-wired"></i>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label asp-for="Password" class="form-label">Password</label>
-                        <input asp-for="Password" type="password" class="form-control" autocomplete="current-password" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
-                    
-                    <div class="mb-3 form-check">
-                        <input asp-for="RememberMe" type="checkbox" class="form-check-input" />
-                        <label asp-for="RememberMe" class="form-check-label">Remember me</label>
-                    </div>
-                    
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Login</button>
-                    </div>
-                </form>
+                    <h2 class="bc-login-title">Welcome Back</h2>
+                    <p class="bc-login-subtitle">Sign in to your BizConnect account</p>
+                </div>
+
+                <!-- Login Form -->
+                <div class="bc-login-body">
+                    <form method="post" id="loginForm" novalidate>
+                        <!-- Validation Summary -->
+                        <div asp-validation-summary="All" class="bc-validation-summary"></div>
+
+                        <!-- Username Field -->
+                        <div class="bc-form-group">
+                            <label asp-for="Username" class="bc-form-label">
+                                <i class="fas fa-user me-2"></i>Username
+                            </label>
+                            <div class="bc-input-group">
+                                <input asp-for="Username"
+                                       class="bc-form-control"
+                                       autocomplete="username"
+                                       placeholder="Enter your username"
+                                       data-validation-target="username" />
+                                <div class="bc-input-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+                            <span asp-validation-for="Username" class="bc-field-validation"></span>
+                            <div class="bc-field-help">
+                                <small class="text-muted">Enter the username you used to register</small>
+                            </div>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="bc-form-group">
+                            <label asp-for="Password" class="bc-form-label">
+                                <i class="fas fa-lock me-2"></i>Password
+                            </label>
+                            <div class="bc-input-group">
+                                <input asp-for="Password"
+                                       type="password"
+                                       class="bc-form-control"
+                                       autocomplete="current-password"
+                                       placeholder="Enter your password"
+                                       data-validation-target="password" />
+                                <div class="bc-input-icon">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                <button type="button" class="bc-password-toggle" onclick="togglePassword('Password')">
+                                    <i class="fas fa-eye" id="Password-toggle-icon"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Password" class="bc-field-validation"></span>
+                        </div>
+
+                        <!-- Remember Me -->
+                        <div class="bc-form-group">
+                            <div class="bc-checkbox-group">
+                                <input asp-for="RememberMe" type="checkbox" class="bc-checkbox" id="rememberMe" />
+                                <label for="rememberMe" class="bc-checkbox-label">
+                                    <span class="bc-checkbox-indicator"></span>
+                                    <span class="bc-checkbox-text">Keep me signed in for 30 days</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="bc-form-group">
+                            <button type="submit" class="bc-submit-btn" id="loginSubmitBtn">
+                                <span class="bc-btn-text">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                                </span>
+                                <span class="bc-btn-loading" style="display: none;">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Signing In...
+                                </span>
+                            </button>
+                        </div>
+
+                        <!-- Additional Links -->
+                        <div class="bc-form-footer">
+                            <div class="text-center">
+                                <a href="#" class="bc-link" onclick="return false;">Forgot your password?</a>
+                            </div>
+                            <div class="bc-divider">
+                                <span>New to BizConnect?</span>
+                            </div>
+                            <div class="text-center">
+                                <a href="#" class="bc-link-secondary" onclick="return false;">
+                                    <i class="fas fa-user-plus me-1"></i>Create an account
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -42,4 +112,66 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Enhanced form validation and UX
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('loginForm');
+            const submitBtn = document.getElementById('loginSubmitBtn');
+
+            // Real-time validation
+            const inputs = form.querySelectorAll('.bc-form-control');
+            inputs.forEach(input => {
+                input.addEventListener('blur', validateField);
+                input.addEventListener('input', clearFieldError);
+            });
+
+            // Form submission handling
+            form.addEventListener('submit', function(e) {
+                showLoadingState();
+            });
+
+            function validateField(e) {
+                const field = e.target;
+                const fieldGroup = field.closest('.bc-form-group');
+                const value = field.value.trim();
+
+                // Clear previous states
+                fieldGroup.classList.remove('bc-field-error', 'bc-field-success');
+
+                if (value === '') {
+                    fieldGroup.classList.add('bc-field-error');
+                    return false;
+                } else {
+                    fieldGroup.classList.add('bc-field-success');
+                    return true;
+                }
+            }
+
+            function clearFieldError(e) {
+                const fieldGroup = e.target.closest('.bc-form-group');
+                fieldGroup.classList.remove('bc-field-error');
+            }
+
+            function showLoadingState() {
+                submitBtn.disabled = true;
+                submitBtn.querySelector('.bc-btn-text').style.display = 'none';
+                submitBtn.querySelector('.bc-btn-loading').style.display = 'inline-flex';
+            }
+        });
+
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const icon = document.getElementById(fieldId + '-toggle-icon');
+
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
 }

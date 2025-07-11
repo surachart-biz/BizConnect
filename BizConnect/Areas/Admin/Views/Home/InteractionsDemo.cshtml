@@ -1,0 +1,339 @@
+@{
+    ViewData["Title"] = "Interactive Elements Demo";
+}
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center bc-fade-in">
+                <div>
+                    <h1><i class="fas fa-magic me-3 bc-rotate-sm"></i>Interactive Elements Demo</h1>
+                    <p class="text-muted">Showcase of smooth transitions, hover effects, and engaging animations</p>
+                </div>
+                <a asp-controller="Home" asp-action="Dashboard" asp-area="Admin" class="btn btn-outline-secondary bc-ripple">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Button Effects Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card bc-slide-in-up">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-hand-pointer me-2"></i>Button Effects</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-3">
+                            <h5>Ripple Effects</h5>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary bc-ripple">Primary Ripple</button>
+                                <button class="btn btn-secondary bc-ripple">Secondary Ripple</button>
+                                <button class="btn btn-outline-primary bc-ripple">Outline Ripple</button>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <h5>Glow Effects</h5>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary bc-glow">Glow Primary</button>
+                                <button class="btn btn-success bc-glow">Glow Success</button>
+                                <button class="btn btn-warning bc-glow">Glow Warning</button>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <h5>Scale Effects</h5>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-info bc-scale-sm">Scale Small</button>
+                                <button class="btn btn-info bc-scale-md">Scale Medium</button>
+                                <button class="btn btn-info bc-scale-lg">Scale Large</button>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <h5>Gradient Shift</h5>
+                            <div class="d-grid gap-2">
+                                <button class="btn bc-gradient-shift text-white">Gradient Button</button>
+                                <button class="btn bc-border-animate">Border Animate</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card Effects Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card bc-slide-in-left">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-layer-group me-2"></i>Card Effects</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="card bc-tilt">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-cube fa-3x text-primary mb-3 bc-rotate-md"></i>
+                                    <h5>Tilt Effect</h5>
+                                    <p>Hover to see 3D tilt effect</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card hover-lift bc-glow">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-star fa-3x text-warning mb-3 bc-pulse"></i>
+                                    <h5>Lift & Glow</h5>
+                                    <p>Hover for lift and glow effect</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bc-color-transition">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-palette fa-3x text-success mb-3 bc-text-glow"></i>
+                                    <h5>Color Transition</h5>
+                                    <p>Hover for color change</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Animation Showcase -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card bc-slide-in-right">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-play me-2"></i>Animation Showcase</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h5>Entrance Animations</h5>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-primary" onclick="triggerAnimation('fade-in')">
+                                    <i class="fas fa-eye me-2"></i>Fade In
+                                </button>
+                                <button class="btn btn-outline-primary" onclick="triggerAnimation('slide-left')">
+                                    <i class="fas fa-arrow-right me-2"></i>Slide In Left
+                                </button>
+                                <button class="btn btn-outline-primary" onclick="triggerAnimation('slide-up')">
+                                    <i class="fas fa-arrow-up me-2"></i>Slide In Up
+                                </button>
+                                <button class="btn btn-outline-primary" onclick="triggerAnimation('bounce')">
+                                    <i class="fas fa-basketball-ball me-2"></i>Bounce
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Demo Element</h5>
+                            <div id="animationTarget" class="card text-center p-4" style="min-height: 200px;">
+                                <div class="d-flex align-items-center justify-content-center h-100">
+                                    <div>
+                                        <i class="fas fa-magic fa-3x text-primary mb-3"></i>
+                                        <h5>Animation Target</h5>
+                                        <p>Click buttons to see animations</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Counter Animation -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card bc-slide-in-up" style="animation-delay: 0.2s;">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-calculator me-2"></i>Counter Animations</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="p-4">
+                                <h2 class="bc-counter text-primary" data-target="1250">0</h2>
+                                <p class="text-muted">Total Users</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-4">
+                                <h2 class="bc-counter text-success" data-target="89">0</h2>
+                                <p class="text-muted">Success Rate %</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-4">
+                                <h2 class="bc-counter text-info" data-target="456">0</h2>
+                                <p class="text-muted">Active Projects</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-4">
+                                <h2 class="bc-counter text-warning" data-target="24">0</h2>
+                                <p class="text-muted">Team Members</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button class="btn btn-primary" onclick="resetCounters()">
+                            <i class="fas fa-redo me-2"></i>Reset Counters
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive List -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card bc-slide-in-down">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-list me-2"></i>Interactive Lists & Tables</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Interactive List</h5>
+                            <ul class="list-unstyled">
+                                <li class="bc-list-item p-3 mb-2 rounded">
+                                    <i class="fas fa-user me-2"></i>User Management
+                                </li>
+                                <li class="bc-list-item p-3 mb-2 rounded">
+                                    <i class="fas fa-chart-bar me-2"></i>Analytics Dashboard
+                                </li>
+                                <li class="bc-list-item p-3 mb-2 rounded">
+                                    <i class="fas fa-cog me-2"></i>System Settings
+                                </li>
+                                <li class="bc-list-item p-3 mb-2 rounded">
+                                    <i class="fas fa-bell me-2"></i>Notifications
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Interactive Table</h5>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>John Doe</td>
+                                        <td><span class="badge bg-success">Active</span></td>
+                                        <td><button class="btn btn-sm btn-outline-primary bc-ripple">Edit</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Jane Smith</td>
+                                        <td><span class="badge bg-warning">Pending</span></td>
+                                        <td><button class="btn btn-sm btn-outline-primary bc-ripple">Edit</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Bob Johnson</td>
+                                        <td><span class="badge bg-success">Active</span></td>
+                                        <td><button class="btn btn-sm btn-outline-primary bc-ripple">Edit</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tooltips and Interactive Elements -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card bc-fade-in" style="animation-delay: 0.3s;">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-info-circle me-2"></i>Tooltips & Interactive Elements</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h5>Custom Tooltips</h5>
+                            <div class="d-flex gap-3 flex-wrap">
+                                <span class="bc-tooltip" data-tooltip="This is a custom tooltip">Hover me</span>
+                                <span class="bc-tooltip" data-tooltip="Another helpful tooltip">Info here</span>
+                                <span class="bc-tooltip" data-tooltip="Tooltips are great for UX">More info</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Interactive Badges</h5>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <span class="badge bg-primary">Primary Badge</span>
+                                <span class="badge bg-secondary">Secondary Badge</span>
+                                <span class="badge bg-success">Success Badge</span>
+                                <span class="badge bg-warning">Warning Badge</span>
+                                <span class="badge bg-danger">Danger Badge</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function triggerAnimation(type) {
+            const target = document.getElementById('animationTarget');
+            
+            // Remove existing animation classes
+            target.classList.remove('bc-fade-in', 'bc-slide-in-left', 'bc-slide-in-up', 'bc-bounce', 'bc-shake');
+            
+            // Add the requested animation
+            setTimeout(() => {
+                switch(type) {
+                    case 'fade-in':
+                        target.classList.add('bc-fade-in');
+                        break;
+                    case 'slide-left':
+                        target.classList.add('bc-slide-in-left');
+                        break;
+                    case 'slide-up':
+                        target.classList.add('bc-slide-in-up');
+                        break;
+                    case 'bounce':
+                        target.classList.add('bc-bounce');
+                        break;
+                }
+            }, 50);
+        }
+
+        function resetCounters() {
+            const counters = document.querySelectorAll('.bc-counter');
+            counters.forEach(counter => {
+                counter.textContent = '0';
+                // Re-trigger counter animation
+                if (window.BizConnectInteractions) {
+                    window.BizConnectInteractions.animateCounter(counter);
+                }
+            });
+        }
+
+        // Add staggered animations to list items
+        document.addEventListener('DOMContentLoaded', function() {
+            const listItems = document.querySelectorAll('.bc-list-item');
+            listItems.forEach((item, index) => {
+                item.style.animationDelay = (index * 0.1) + 's';
+                item.classList.add('bc-slide-in-left');
+            });
+        });
+    </script>
+}

@@ -1,0 +1,266 @@
+@{
+    ViewData["Title"] = "Server Error - 500";
+}
+
+<div class="bc-error-container bc-error-500">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <div class="bc-error-content">
+                    <!-- Server Error Illustration -->
+                    <div class="bc-500-illustration">
+                        <div class="bc-server-rack">
+                            <div class="bc-server bc-server-1">
+                                <div class="bc-server-lights">
+                                    <div class="bc-light bc-light-red"></div>
+                                    <div class="bc-light bc-light-yellow"></div>
+                                    <div class="bc-light bc-light-green"></div>
+                                </div>
+                                <div class="bc-server-slots">
+                                    <div class="bc-slot"></div>
+                                    <div class="bc-slot"></div>
+                                    <div class="bc-slot"></div>
+                                </div>
+                            </div>
+                            <div class="bc-server bc-server-2">
+                                <div class="bc-server-lights">
+                                    <div class="bc-light bc-light-red bc-light-blink"></div>
+                                    <div class="bc-light bc-light-red bc-light-blink"></div>
+                                    <div class="bc-light bc-light-red bc-light-blink"></div>
+                                </div>
+                                <div class="bc-server-slots">
+                                    <div class="bc-slot"></div>
+                                    <div class="bc-slot"></div>
+                                    <div class="bc-slot"></div>
+                                </div>
+                            </div>
+                            <div class="bc-server bc-server-3">
+                                <div class="bc-server-lights">
+                                    <div class="bc-light bc-light-green"></div>
+                                    <div class="bc-light bc-light-green"></div>
+                                    <div class="bc-light bc-light-yellow"></div>
+                                </div>
+                                <div class="bc-server-slots">
+                                    <div class="bc-slot"></div>
+                                    <div class="bc-slot"></div>
+                                    <div class="bc-slot"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bc-500-code">500</div>
+                        <div class="bc-error-sparks">
+                            <div class="bc-spark bc-spark-1"></div>
+                            <div class="bc-spark bc-spark-2"></div>
+                            <div class="bc-spark bc-spark-3"></div>
+                        </div>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div class="bc-error-message">
+                        <h1 class="bc-error-title">Internal Server Error</h1>
+                        <p class="bc-error-subtitle">
+                            Our servers are experiencing some technical difficulties. 
+                            We're working hard to fix this issue and get everything back to normal.
+                        </p>
+                    </div>
+
+                    <!-- Status Information -->
+                    <div class="bc-500-status">
+                        <div class="bc-status-card">
+                            <div class="bc-status-header">
+                                <div class="bc-status-icon">
+                                    <i class="fas fa-server"></i>
+                                </div>
+                                <div class="bc-status-info">
+                                    <h3>System Status</h3>
+                                    <div class="bc-status-indicator bc-status-error">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <span>Service Disruption</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bc-status-details">
+                                <div class="bc-status-item">
+                                    <span class="bc-status-label">Incident ID:</span>
+                                    <code class="bc-status-value">#@DateTime.Now.ToString("yyyyMMdd-HHmmss")</code>
+                                </div>
+                                <div class="bc-status-item">
+                                    <span class="bc-status-label">Reported:</span>
+                                    <span class="bc-status-value">@DateTime.Now.ToString("MMM dd, yyyy HH:mm")</span>
+                                </div>
+                                <div class="bc-status-item">
+                                    <span class="bc-status-label">Status:</span>
+                                    <span class="bc-status-value bc-status-investigating">Investigating</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- What's Being Done -->
+                    <div class="bc-500-actions-taken">
+                        <h3 class="bc-actions-title">What we're doing about it</h3>
+                        <div class="bc-actions-list">
+                            <div class="bc-action-item bc-action-completed">
+                                <div class="bc-action-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="bc-action-content">
+                                    <h4>Issue Detected</h4>
+                                    <p>Our monitoring systems have identified the problem</p>
+                                </div>
+                            </div>
+                            <div class="bc-action-item bc-action-in-progress">
+                                <div class="bc-action-icon">
+                                    <i class="fas fa-cog fa-spin"></i>
+                                </div>
+                                <div class="bc-action-content">
+                                    <h4>Team Notified</h4>
+                                    <p>Our technical team is actively investigating the issue</p>
+                                </div>
+                            </div>
+                            <div class="bc-action-item bc-action-pending">
+                                <div class="bc-action-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="bc-action-content">
+                                    <h4>Resolution in Progress</h4>
+                                    <p>We're working to restore normal service as quickly as possible</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estimated Resolution -->
+                    <div class="bc-500-eta">
+                        <div class="bc-eta-card">
+                            <div class="bc-eta-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="bc-eta-content">
+                                <h3>Estimated Resolution</h3>
+                                <p>We expect to have this issue resolved within the next <strong>30 minutes</strong>.</p>
+                                <small class="text-muted">Last updated: @DateTime.Now.ToString("HH:mm")</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="bc-error-actions">
+                        <button class="btn btn-primary btn-lg" onclick="refreshPage()">
+                            <i class="fas fa-sync-alt me-2"></i>Try Again
+                        </button>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-home me-2"></i>Go Home
+                        </a>
+                        <button class="btn btn-outline-info btn-lg" onclick="checkStatus()">
+                            <i class="fas fa-heartbeat me-2"></i>Check Status
+                        </button>
+                    </div>
+
+                    <!-- Help Section -->
+                    <div class="bc-error-help">
+                        <div class="bc-error-help-card">
+                            <h3 class="bc-error-help-title">Stay Updated</h3>
+                            <p class="bc-error-help-text">
+                                Get real-time updates about this issue and other system status information.
+                            </p>
+                            <div class="bc-error-help-actions">
+                                <a href="#" class="bc-error-help-link" onclick="return false;">
+                                    <i class="fas fa-rss me-2"></i>Status Page
+                                </a>
+                                <a href="#" class="bc-error-help-link" onclick="return false;">
+                                    <i class="fab fa-twitter me-2"></i>@BizConnect
+                                </a>
+                                <a href="#" class="bc-error-help-link" onclick="return false;">
+                                    <i class="fas fa-envelope me-2"></i>Email Updates
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function refreshPage() {
+            // Show loading state
+            const refreshBtn = document.querySelector('[onclick="refreshPage()"]');
+            const originalText = refreshBtn.innerHTML;
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Checking...';
+            refreshBtn.disabled = true;
+            
+            // Simulate checking (in real app, this would check server status)
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        }
+
+        function checkStatus() {
+            BizConnectLoading.showToast('Checking system status...', {
+                type: 'info',
+                title: 'Status Check',
+                duration: 3000
+            });
+            
+            // In a real application, this would check actual system status
+            setTimeout(() => {
+                BizConnectLoading.showToast('System is still experiencing issues. Please try again later.', {
+                    type: 'warning',
+                    title: 'Status Update',
+                    duration: 5000
+                });
+            }, 2000);
+        }
+
+        // Add interactive animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate server lights
+            const blinkingLights = document.querySelectorAll('.bc-light-blink');
+            blinkingLights.forEach((light, index) => {
+                light.style.animationDelay = (index * 0.2) + 's';
+            });
+
+            // Animate sparks
+            const sparks = document.querySelectorAll('.bc-spark');
+            sparks.forEach((spark, index) => {
+                spark.style.animationDelay = (index * 0.4) + 's';
+            });
+
+            // Auto-refresh timer (optional)
+            let autoRefreshTimer = 60; // 60 seconds
+            const timerElement = document.createElement('div');
+            timerElement.className = 'bc-auto-refresh-timer';
+            timerElement.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: var(--bc-primary);
+                color: white;
+                padding: 10px 15px;
+                border-radius: 8px;
+                font-size: 14px;
+                box-shadow: var(--bc-shadow-lg);
+                z-index: 1000;
+            `;
+            
+            function updateTimer() {
+                if (autoRefreshTimer > 0) {
+                    timerElement.innerHTML = `<i class="fas fa-sync-alt me-2"></i>Auto-refresh in ${autoRefreshTimer}s`;
+                    autoRefreshTimer--;
+                    setTimeout(updateTimer, 1000);
+                } else {
+                    timerElement.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Refreshing...';
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                }
+            }
+            
+            document.body.appendChild(timerElement);
+            updateTimer();
+        });
+    </script>
+}
