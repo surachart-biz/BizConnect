@@ -412,3 +412,11 @@ Thumbs.db
 appsettings.Local.json
 appsettings.*.local.json
 secrets.json
+
+# Database and script related files
+*.psql_history
+/scripts/*.log
+/db/migrations/*.log
+
+# Documentation files to ignore
+02_db-first-workflow.md

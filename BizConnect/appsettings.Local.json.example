@@ -1,0 +1,12 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Database=bizconnect_local;Username=postgres;Password=postgres"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning",
+      "Microsoft.EntityFrameworkCore.Database.Command": "Information"
+    }
+  }
+}

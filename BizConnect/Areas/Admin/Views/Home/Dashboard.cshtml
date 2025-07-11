@@ -1,0 +1,98 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="row">
+    <div class="col-12">
+        <h1>Admin Dashboard</h1>
+        <p class="lead">Welcome to the BizConnect administration panel.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.TotalUsers</h4>
+                        <p class="mb-0">Total Users</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.ActiveUsers</h4>
+                        <p class="mb-0">Active Users</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-user-check fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.AdminUsers</h4>
+                        <p class="mb-0">Admin Users</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-user-shield fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.RegularUsers</h4>
+                        <p class="mb-0">Regular Users</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-user fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">User Management</h5>
+                <a asp-controller="Users" asp-action="Create" asp-area="Admin" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Create New User
+                </a>
+            </div>
+            <div class="card-body">
+                <a asp-controller="Users" asp-action="Index" asp-area="Admin" class="btn btn-outline-primary">
+                    <i class="fas fa-list"></i> Manage Users
+                </a>
+                <p class="mt-3 text-muted">
+                    View, create, edit, and manage user accounts and permissions.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

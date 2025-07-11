@@ -1,0 +1,30 @@
+@{
+    ViewData["Title"] = "BizConnect - Home";
+}
+
+<div class="text-center">
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <h1 class="display-4">Welcome to BizConnect, @User.Identity.Name!</h1>
+        @if (User.IsInRole("Admin"))
+        {
+            <p class="lead">You have administrator privileges.</p>
+            <a asp-controller="Home" asp-action="Dashboard" asp-area="Admin" class="btn btn-primary btn-lg">Go to Admin Dashboard</a>
+        }
+        else
+        {
+            <p class="lead">Welcome to your dashboard.</p>
+            <div class="alert alert-info mt-4">
+                <h4>Welcome User!</h4>
+                <p>You are successfully logged in to BizConnect. This is your home page.</p>
+            </div>
+        }
+    }
+    else
+    {
+        <h1 class="display-4">Welcome to BizConnect</h1>
+        <p class="lead">Business Networking Platform</p>
+        <p class="text-muted">Please log in to access your account and start connecting with professionals.</p>
+        <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg">Login</a>
+    }
+</div>

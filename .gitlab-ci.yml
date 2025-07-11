@@ -1,0 +1,157 @@
+# GitLab CI/CD Pipeline for BizConnect
+# ASP.NET Core 8 application with PostgreSQL
+
+stages:
+  - build
+  - test
+  - publish
+
+variables:
+  DOTNET_VERSION: "8.0"
+  SOLUTION_PATH: "BizConnect.sln"
+  ARTIFACTS_PATH: "artifacts"
+  
+# Use the official .NET SDK image
+image: mcr.microsoft.com/dotnet/sdk:8.0
+
+# Cache dependencies to speed up builds
+cache:
+  paths:
+    - .nuget/
+  key: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
+
+before_script:
+  # Restore NuGet packages
+  - dotnet restore $SOLUTION_PATH --packages .nuget
+
+# Build Stage
+build:
+  stage: build
+  script:
+    - echo "Building BizConnect solution..."
+    - dotnet build $SOLUTION_PATH --configuration Release --no-restore
+    - echo "Build completed successfully"
+  artifacts:
+    paths:
+      - "**/bin/Release/**"
+      - "**/obj/**"
+    expire_in: 1 hour
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Test Stage
+test:
+  stage: test
+  dependencies:
+    - build
+  script:
+    - echo "Running unit tests..."
+    - dotnet test $SOLUTION_PATH --configuration Release --no-build --logger "junit;LogFilePath=test-results.xml" --collect:"XPlat Code Coverage"
+    - echo "Tests completed"
+  artifacts:
+    when: always
+    reports:
+      junit: "**/test-results.xml"
+      coverage_report:
+        coverage_format: cobertura
+        path: "**/coverage.cobertura.xml"
+    paths:
+      - "**/TestResults/**"
+    expire_in: 1 week
+  coverage: '/Total\s*\|\s*(\d+(?:\.\d+)?%)/'
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Publish Stage
+publish:
+  stage: publish
+  dependencies:
+    - build
+    - test
+  script:
+    - echo "Publishing BizConnect application..."
+    - mkdir -p $ARTIFACTS_PATH
+    - dotnet publish BizConnect/BizConnect.csproj --configuration Release --output $ARTIFACTS_PATH --no-build
+    - echo "Application published to $ARTIFACTS_PATH"
+    - ls -la $ARTIFACTS_PATH
+  artifacts:
+    paths:
+      - $ARTIFACTS_PATH/
+    expire_in: 1 month
+  only:
+    - main
+    - develop
+
+# Security scanning (optional)
+security_scan:
+  stage: test
+  script:
+    - echo "Running security scan..."
+    - dotnet list package --vulnerable --include-transitive || true
+    - echo "Security scan completed"
+  allow_failure: true
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Code quality analysis (optional)
+code_quality:
+  stage: test
+  script:
+    - echo "Running code quality analysis..."
+    - dotnet format --verify-no-changes --verbosity diagnostic || true
+    - echo "Code quality analysis completed"
+  allow_failure: true
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Local scaffold verification (optional)
+local_scaffold_check:
+  stage: test
+  tags:
+    - local-check
+  services:
+    - postgres:16
+  variables:
+    POSTGRES_DB: bizconnect_test
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    POSTGRES_HOST_AUTH_METHOD: trust
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq postgresql-client jq
+    - dotnet restore $SOLUTION_PATH --packages .nuget
+  script:
+    - echo "Running local scaffold verification..."
+    - |
+      # Create test connection string
+      export CONNECTION_STRING="Host=postgres;Database=bizconnect_test;Username=postgres;Password=postgres"
+
+      # Create temporary appsettings.Local.json for testing
+      mkdir -p BizConnect
+      echo "{\"ConnectionStrings\":{\"DefaultConnection\":\"$CONNECTION_STRING\"}}" > BizConnect/appsettings.Local.json
+
+      # Install required tools
+      apt-get install -y -qq jq
+
+      # Run the scaffold script
+      bash ./scripts/update-db.sh
+
+      # Verify build still works
+      dotnet build --configuration Release
+
+      echo "Local scaffold verification completed successfully"
+  artifacts:
+    when: always
+    paths:
+      - "BizConnect.Dal/Models/**"
+    expire_in: 1 hour
+  only:
+    variables:
+      - $RUN_LOCAL_SCAFFOLD == "true"
