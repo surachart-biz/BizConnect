@@ -5,11 +5,15 @@ stages:
   - build
   - test
   - publish
+  - deploy
 
 variables:
   DOTNET_VERSION: "8.0"
   SOLUTION_PATH: "BizConnect.sln"
   ARTIFACTS_PATH: "artifacts"
+  PROJECT_NAME: "BizConnect"
+  DOCKER_IMAGE_NAME: "$CI_REGISTRY_IMAGE/bizconnect"
+  DOCKER_TAG: "$CI_COMMIT_SHORT_SHA"
   
 # Use the official .NET SDK image
 image: mcr.microsoft.com/dotnet/sdk:8.0
@@ -66,14 +70,41 @@ test:
     - develop
     - merge_requests
 
-# Publish Stage
+# Publish Stage - Build Docker Image
 publish:
+  stage: publish
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  dependencies:
+    - build
+    - test
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - echo "Building Docker image..."
+    - docker build -t $DOCKER_IMAGE_NAME:$DOCKER_TAG -t $DOCKER_IMAGE_NAME:latest .
+    - echo "Pushing Docker image to registry..."
+    - docker push $DOCKER_IMAGE_NAME:$DOCKER_TAG
+    - docker push $DOCKER_IMAGE_NAME:latest
+    - echo "Docker image published successfully"
+  only:
+    - main
+    - develop
+
+# Publish Artifacts (Alternative deployment method)
+publish_artifacts:
   stage: publish
   dependencies:
     - build
     - test
   script:
-    - echo "Publishing BizConnect application..."
+    - echo "Publishing BizConnect application artifacts..."
     - mkdir -p $ARTIFACTS_PATH
     - dotnet publish BizConnect/BizConnect.csproj --configuration Release --output $ARTIFACTS_PATH --no-build
     - echo "Application published to $ARTIFACTS_PATH"
@@ -85,6 +116,7 @@ publish:
   only:
     - main
     - develop
+  when: manual
 
 # Security scanning (optional)
 security_scan:
@@ -155,3 +187,91 @@ local_scaffold_check:
   only:
     variables:
       - $RUN_LOCAL_SCAFFOLD == "true"
+
+# Deploy to Production (Ubuntu 24.04)
+deploy_production:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -H $PRODUCTION_SERVER >> ~/.ssh/known_hosts
+  script:
+    - echo "Deploying to production server..."
+    - |
+      ssh $PRODUCTION_USER@$PRODUCTION_SERVER << 'EOF'
+        set -e
+        echo "Logging into Docker registry..."
+        echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+
+        echo "Pulling latest Docker image..."
+        docker pull $DOCKER_IMAGE_NAME:$DOCKER_TAG
+
+        echo "Stopping existing containers..."
+        cd /opt/bizconnect
+        docker-compose down || true
+
+        echo "Updating docker-compose.yml with new image tag..."
+        sed -i "s|image: .*bizconnect:.*|image: $DOCKER_IMAGE_NAME:$DOCKER_TAG|g" docker-compose.yml
+
+        echo "Starting updated containers..."
+        docker-compose up -d
+
+        echo "Cleaning up old Docker images..."
+        docker image prune -f
+
+        echo "Deployment completed successfully!"
+      EOF
+  environment:
+    name: production
+    url: https://$PRODUCTION_DOMAIN
+  only:
+    - main
+  when: manual
+
+# Deploy to UAT (Ubuntu 24.04)
+deploy_uat:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -H $UAT_SERVER >> ~/.ssh/known_hosts
+  script:
+    - echo "Deploying to UAT server..."
+    - |
+      ssh $UAT_USER@$UAT_SERVER << 'EOF'
+        set -e
+        echo "Logging into Docker registry..."
+        echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+
+        echo "Pulling latest Docker image..."
+        docker pull $DOCKER_IMAGE_NAME:$DOCKER_TAG
+
+        echo "Stopping existing containers..."
+        cd /opt/bizconnect-uat
+        docker-compose down || true
+
+        echo "Updating docker-compose.yml with new image tag..."
+        sed -i "s|image: .*bizconnect:.*|image: $DOCKER_IMAGE_NAME:$DOCKER_TAG|g" docker-compose.yml
+
+        echo "Starting updated containers..."
+        docker-compose up -d
+
+        echo "Cleaning up old Docker images..."
+        docker image prune -f
+
+        echo "UAT deployment completed successfully!"
+      EOF
+  environment:
+    name: uat
+    url: https://$UAT_DOMAIN
+  only:
+    - develop
+  when: manual

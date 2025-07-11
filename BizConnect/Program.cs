@@ -50,6 +50,10 @@ builder.Services.AddAuthorization(options =>
 // Add MVC services
 builder.Services.AddControllersWithViews();
 
+// Add health checks
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<BizConnectContext>();
+
 // Add performance optimizations based on environment configuration
 var performanceConfig = builder.Configuration.GetSection("Performance");
 if (performanceConfig.Exists())
@@ -127,6 +131,9 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Map health check endpoint
+app.MapHealthChecks("/health");
 
 app.Run();
 

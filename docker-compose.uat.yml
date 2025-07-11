@@ -1,0 +1,97 @@
+# Docker Compose for BizConnect UAT Environment
+# Ubuntu 24.04 with PostgreSQL 16
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database for UAT
+  postgres:
+    image: postgres:16
+    container_name: bizconnect-uat-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bizconnect_uat
+      POSTGRES_USER: bizconnect
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+    volumes:
+      - postgres_uat_data:/var/lib/postgresql/data
+      - ./db/migrations:/docker-entrypoint-initdb.d:ro
+      - ./backups:/backups
+    ports:
+      - "5433:5432"  # Different port for UAT
+    networks:
+      - bizconnect-uat-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bizconnect -d bizconnect_uat"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # BizConnect Web Application for UAT
+  bizconnect-app:
+    image: ${CI_REGISTRY_IMAGE}/bizconnect:latest
+    container_name: bizconnect-uat-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: UAT
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "Host=postgres;Database=bizconnect_uat;Username=bizconnect;Password=${POSTGRES_PASSWORD}"
+      DOTNET_RUNNING_IN_CONTAINER: "true"
+    ports:
+      - "8081:8080"  # Different port for UAT
+    volumes:
+      - app_uat_logs:/app/logs
+      - app_uat_uploads:/app/uploads
+    networks:
+      - bizconnect-uat-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Nginx Reverse Proxy for UAT
+  nginx:
+    image: nginx:alpine
+    container_name: bizconnect-uat-nginx
+    restart: unless-stopped
+    depends_on:
+      bizconnect-app:
+        condition: service_healthy
+    ports:
+      - "8080:80"   # Different port for UAT
+      - "8443:443"  # Different port for UAT
+    volumes:
+      - ./nginx/nginx.uat.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - nginx_uat_logs:/var/log/nginx
+    networks:
+      - bizconnect-uat-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  bizconnect-uat-network:
+    driver: bridge
+    name: bizconnect-uat-network
+
+volumes:
+  postgres_uat_data:
+    name: bizconnect-uat-postgres-data
+  app_uat_logs:
+    name: bizconnect-uat-app-logs
+  app_uat_uploads:
+    name: bizconnect-uat-app-uploads
+  nginx_uat_logs:
+    name: bizconnect-uat-nginx-logs

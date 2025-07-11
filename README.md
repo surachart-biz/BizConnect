@@ -109,12 +109,30 @@ The project includes:
 - Integration tests for authentication and authorization
 - Smoke tests for database scaffolding
 
-## CI/CD
+## CI/CD & Deployment
 
-The project uses GitLab CI/CD with stages:
-- **Build** - Compile the solution
-- **Test** - Run unit and integration tests
-- **Publish** - Create deployment artifacts
+The project uses GitLab CI/CD with Docker containerization for deployment to Ubuntu 24.04:
+
+### Pipeline Stages
+- **Build** - Compile the solution and restore packages
+- **Test** - Run unit and integration tests with PostgreSQL service
+- **Publish** - Build and push Docker images to GitLab Container Registry
+- **Deploy** - Deploy to Production/UAT environments using Docker Compose
+
+### Deployment Architecture
+- **Application**: ASP.NET Core 8 MVC (containerized)
+- **Database**: PostgreSQL 16 (containerized)
+- **Web Server**: Nginx reverse proxy (containerized)
+- **Target OS**: Ubuntu 24.04 LTS
+- **Health Checks**: Built-in health endpoint at `/health`
+
+### Quick Deployment
+1. **Server Setup**: Run `bash scripts/deploy.sh deploy` on Ubuntu 24.04
+2. **Configuration**: Copy `.env.example` to `.env` and configure
+3. **Deploy**: Push to `main` (production) or `develop` (UAT) branch
+4. **Manual Trigger**: Trigger deployment job in GitLab CI/CD
+
+See [deployment-guide.md](deployment-guide.md) for detailed instructions.
 
 ## Contributing
 
