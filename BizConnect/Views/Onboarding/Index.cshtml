@@ -1,0 +1,379 @@
+@{
+    ViewData["Title"] = "Welcome to BizConnect";
+    Layout = "_OnboardingLayout";
+}
+
+<div class="bc-onboarding-container">
+    <!-- Progress Header -->
+    <div class="bc-onboarding-header bc-fade-in">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="bc-progress-section">
+                        <div class="bc-progress-header">
+                            <h1 class="bc-onboarding-title">Welcome to BizConnect!</h1>
+                            <p class="bc-onboarding-subtitle">Let's get you set up in just a few quick steps</p>
+                        </div>
+                        
+                        <!-- Progress Tracker -->
+                        <div class="bc-progress-tracker" id="progressTracker">
+                            <div class="bc-progress-line"></div>
+                            <div class="bc-progress-steps">
+                                <div class="bc-progress-step active" data-step="1">
+                                    <div class="bc-step-circle">
+                                        <i class="fas fa-hand-wave"></i>
+                                    </div>
+                                    <div class="bc-step-label">Welcome</div>
+                                </div>
+                                <div class="bc-progress-step" data-step="2">
+                                    <div class="bc-step-circle">
+                                        <i class="fas fa-user-edit"></i>
+                                    </div>
+                                    <div class="bc-step-label">Profile</div>
+                                </div>
+                                <div class="bc-progress-step" data-step="3">
+                                    <div class="bc-step-circle">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="bc-step-label">Network</div>
+                                </div>
+                                <div class="bc-progress-step" data-step="4">
+                                    <div class="bc-step-circle">
+                                        <i class="fas fa-compass"></i>
+                                    </div>
+                                    <div class="bc-step-label">Tour</div>
+                                </div>
+                                <div class="bc-progress-step" data-step="5">
+                                    <div class="bc-step-circle">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="bc-step-label">Complete</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="bc-onboarding-content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <!-- Step 1: Welcome -->
+                    <div class="bc-onboarding-step active" id="step1" data-step="1">
+                        <div class="bc-step-card bc-slide-in-up">
+                            <div class="bc-step-icon">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <div class="bc-step-content">
+                                <h2 class="bc-step-title">Ready to Connect?</h2>
+                                <p class="bc-step-description">
+                                    BizConnect is your gateway to meaningful professional relationships. 
+                                    We'll help you build a powerful network that drives your career forward.
+                                </p>
+                                
+                                <div class="bc-feature-highlights">
+                                    <div class="bc-feature-item bc-slide-in-left" style="animation-delay: 0.2s;">
+                                        <div class="bc-feature-icon">
+                                            <i class="fas fa-network-wired"></i>
+                                        </div>
+                                        <div class="bc-feature-text">
+                                            <h4>Smart Networking</h4>
+                                            <p>Connect with professionals who matter to your career</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bc-feature-item bc-slide-in-left" style="animation-delay: 0.4s;">
+                                        <div class="bc-feature-icon">
+                                            <i class="fas fa-briefcase"></i>
+                                        </div>
+                                        <div class="bc-feature-text">
+                                            <h4>Career Opportunities</h4>
+                                            <p>Discover jobs and projects that match your skills</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bc-feature-item bc-slide-in-left" style="animation-delay: 0.6s;">
+                                        <div class="bc-feature-icon">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                        <div class="bc-feature-text">
+                                            <h4>Professional Growth</h4>
+                                            <p>Track your progress and celebrate achievements</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Profile Setup -->
+                    <div class="bc-onboarding-step" id="step2" data-step="2" style="display: none;">
+                        <div class="bc-step-card">
+                            <div class="bc-step-icon">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div class="bc-step-content">
+                                <h2 class="bc-step-title">Tell Us About Yourself</h2>
+                                <p class="bc-step-description">
+                                    A complete profile helps others understand your expertise and interests.
+                                </p>
+                                
+                                <div class="bc-profile-form">
+                                    <div class="row g-4">
+                                        <div class="col-md-6">
+                                            <div class="bc-form-group">
+                                                <label class="bc-form-label">
+                                                    <i class="fas fa-briefcase me-2"></i>Job Title
+                                                </label>
+                                                <input type="text" class="bc-form-control" placeholder="e.g., Software Engineer">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="bc-form-group">
+                                                <label class="bc-form-label">
+                                                    <i class="fas fa-building me-2"></i>Company
+                                                </label>
+                                                <input type="text" class="bc-form-control" placeholder="e.g., Tech Corp">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="bc-form-group">
+                                                <label class="bc-form-label">
+                                                    <i class="fas fa-map-marker-alt me-2"></i>Location
+                                                </label>
+                                                <input type="text" class="bc-form-control" placeholder="e.g., San Francisco, CA">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="bc-form-group">
+                                                <label class="bc-form-label">
+                                                    <i class="fas fa-industry me-2"></i>Industry
+                                                </label>
+                                                <select class="bc-form-select">
+                                                    <option value="">Select industry...</option>
+                                                    <option value="technology">Technology</option>
+                                                    <option value="finance">Finance</option>
+                                                    <option value="healthcare">Healthcare</option>
+                                                    <option value="education">Education</option>
+                                                    <option value="other">Other</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="bc-form-group">
+                                                <label class="bc-form-label">
+                                                    <i class="fas fa-user me-2"></i>Professional Summary
+                                                </label>
+                                                <textarea class="bc-form-control" rows="3" placeholder="Tell us about your professional background and goals..."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Networking Guide -->
+                    <div class="bc-onboarding-step" id="step3" data-step="3" style="display: none;">
+                        <div class="bc-step-card">
+                            <div class="bc-step-icon">
+                                <i class="fas fa-handshake"></i>
+                            </div>
+                            <div class="bc-step-content">
+                                <h2 class="bc-step-title">Start Building Your Network</h2>
+                                <p class="bc-step-description">
+                                    Great networking starts with understanding how to make meaningful connections.
+                                </p>
+                                
+                                <div class="bc-networking-tips">
+                                    <div class="bc-tip-card bc-tilt">
+                                        <div class="bc-tip-icon">
+                                            <i class="fas fa-search"></i>
+                                        </div>
+                                        <h4>Find the Right People</h4>
+                                        <p>Look for professionals in your industry or with complementary skills</p>
+                                    </div>
+                                    
+                                    <div class="bc-tip-card bc-tilt">
+                                        <div class="bc-tip-icon">
+                                            <i class="fas fa-comment-dots"></i>
+                                        </div>
+                                        <h4>Start Conversations</h4>
+                                        <p>Send personalized messages that show genuine interest</p>
+                                    </div>
+                                    
+                                    <div class="bc-tip-card bc-tilt">
+                                        <div class="bc-tip-icon">
+                                            <i class="fas fa-heart"></i>
+                                        </div>
+                                        <h4>Add Value</h4>
+                                        <p>Share insights, offer help, and be genuinely helpful to others</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="bc-onboarding-navigation">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button class="btn btn-outline-secondary" id="prevBtn" onclick="previousStep()" style="display: none;">
+                                <i class="fas fa-arrow-left me-2"></i>Previous
+                            </button>
+                            
+                            <div class="bc-skip-option">
+                                <button class="btn btn-link text-muted" onclick="skipOnboarding()">
+                                    Skip for now
+                                </button>
+                            </div>
+                            
+                            <button class="btn btn-primary bc-ripple" id="nextBtn" onclick="nextStep()">
+                                Next <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Onboarding flow management
+        class BizConnectOnboarding {
+            constructor() {
+                this.currentStep = 1;
+                this.totalSteps = 5;
+                this.completedSteps = new Set([1]);
+                this.init();
+            }
+
+            init() {
+                this.updateProgress();
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                // Step click navigation
+                document.querySelectorAll('.bc-progress-step').forEach(step => {
+                    step.addEventListener('click', (e) => {
+                        const stepNumber = parseInt(e.currentTarget.dataset.step);
+                        if (this.completedSteps.has(stepNumber) || stepNumber === this.currentStep + 1) {
+                            this.goToStep(stepNumber);
+                        }
+                    });
+                });
+            }
+
+            goToStep(stepNumber) {
+                if (stepNumber < 1 || stepNumber > this.totalSteps) return;
+
+                // Hide current step
+                const currentStepEl = document.getElementById(`step${this.currentStep}`);
+                if (currentStepEl) {
+                    currentStepEl.style.display = 'none';
+                    currentStepEl.classList.remove('active');
+                }
+
+                // Show new step
+                const newStepEl = document.getElementById(`step${stepNumber}`);
+                if (newStepEl) {
+                    newStepEl.style.display = 'block';
+                    newStepEl.classList.add('active');
+                    
+                    // Add animation
+                    newStepEl.querySelector('.bc-step-card').classList.add('bc-slide-in-up');
+                }
+
+                this.currentStep = stepNumber;
+                this.completedSteps.add(stepNumber);
+                this.updateProgress();
+                this.updateNavigation();
+            }
+
+            updateProgress() {
+                const progressSteps = document.querySelectorAll('.bc-progress-step');
+                const progressLine = document.querySelector('.bc-progress-line');
+                
+                progressSteps.forEach((step, index) => {
+                    const stepNumber = index + 1;
+                    step.classList.remove('active', 'completed');
+                    
+                    if (stepNumber === this.currentStep) {
+                        step.classList.add('active');
+                    } else if (this.completedSteps.has(stepNumber)) {
+                        step.classList.add('completed');
+                    }
+                });
+
+                // Update progress line
+                const progressPercentage = ((this.currentStep - 1) / (this.totalSteps - 1)) * 100;
+                if (progressLine) {
+                    progressLine.style.width = progressPercentage + '%';
+                }
+            }
+
+            updateNavigation() {
+                const prevBtn = document.getElementById('prevBtn');
+                const nextBtn = document.getElementById('nextBtn');
+                
+                if (prevBtn) {
+                    prevBtn.style.display = this.currentStep > 1 ? 'block' : 'none';
+                }
+                
+                if (nextBtn) {
+                    if (this.currentStep === this.totalSteps) {
+                        nextBtn.innerHTML = 'Complete <i class="fas fa-check ms-2"></i>';
+                        nextBtn.onclick = () => this.completeOnboarding();
+                    } else {
+                        nextBtn.innerHTML = 'Next <i class="fas fa-arrow-right ms-2"></i>';
+                        nextBtn.onclick = () => this.nextStep();
+                    }
+                }
+            }
+
+            nextStep() {
+                if (this.currentStep < this.totalSteps) {
+                    this.goToStep(this.currentStep + 1);
+                }
+            }
+
+            previousStep() {
+                if (this.currentStep > 1) {
+                    this.goToStep(this.currentStep - 1);
+                }
+            }
+
+            completeOnboarding() {
+                // Mark onboarding as complete
+                window.location.href = '@Url.Action("Complete", "Onboarding")';
+            }
+        }
+
+        // Initialize onboarding
+        let onboarding;
+        document.addEventListener('DOMContentLoaded', function() {
+            onboarding = new BizConnectOnboarding();
+        });
+
+        // Global functions for navigation
+        function nextStep() {
+            if (onboarding) onboarding.nextStep();
+        }
+
+        function previousStep() {
+            if (onboarding) onboarding.previousStep();
+        }
+
+        function skipOnboarding() {
+            if (confirm('Are you sure you want to skip the onboarding? You can always access it later from your profile.')) {
+                window.location.href = '@Url.Action("Index", "Home")';
+            }
+        }
+    </script>
+}

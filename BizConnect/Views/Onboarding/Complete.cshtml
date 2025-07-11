@@ -1,0 +1,214 @@
+@{
+    ViewData["Title"] = "Welcome Complete";
+    Layout = "_OnboardingLayout";
+}
+
+<div class="bc-onboarding-complete">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <!-- Success Animation -->
+                <div class="bc-success-animation bc-fade-in">
+                    <div class="bc-success-circle">
+                        <div class="bc-success-checkmark">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Completion Message -->
+                <div class="bc-completion-content bc-slide-in-up" style="animation-delay: 0.5s;">
+                    <h1 class="bc-completion-title">
+                        🎉 Welcome to BizConnect!
+                    </h1>
+                    <p class="bc-completion-subtitle">
+                        You're all set up and ready to start building meaningful professional connections.
+                    </p>
+
+                    <!-- Achievement Summary -->
+                    <div class="bc-achievement-summary bc-slide-in-up" style="animation-delay: 0.7s;">
+                        <h3 class="bc-achievement-title">What You've Accomplished:</h3>
+                        <div class="row g-4 mt-4">
+                            <div class="col-md-4">
+                                <div class="bc-achievement-item">
+                                    <div class="bc-achievement-icon">
+                                        <i class="fas fa-user-check"></i>
+                                    </div>
+                                    <h4>Profile Created</h4>
+                                    <p>Your professional profile is ready to make great first impressions</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="bc-achievement-item">
+                                    <div class="bc-achievement-icon">
+                                        <i class="fas fa-graduation-cap"></i>
+                                    </div>
+                                    <h4>Networking Ready</h4>
+                                    <p>You understand the basics of building meaningful connections</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="bc-achievement-item">
+                                    <div class="bc-achievement-icon">
+                                        <i class="fas fa-compass"></i>
+                                    </div>
+                                    <h4>Platform Familiar</h4>
+                                    <p>You know your way around BizConnect's key features</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Next Steps -->
+                    <div class="bc-next-steps bc-slide-in-up" style="animation-delay: 0.9s;">
+                        <h3 class="bc-next-steps-title">Ready to Get Started?</h3>
+                        <div class="bc-action-cards">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="bc-action-card bc-tilt bc-ripple">
+                                        <div class="bc-action-icon">
+                                            <i class="fas fa-search"></i>
+                                        </div>
+                                        <h4>Find Connections</h4>
+                                        <p>Start building your network by finding professionals in your field</p>
+                                        <a href="#" class="btn btn-primary bc-ripple">
+                                            Start Networking <i class="fas fa-arrow-right ms-2"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="bc-action-card bc-tilt bc-ripple">
+                                        <div class="bc-action-icon">
+                                            <i class="fas fa-home"></i>
+                                        </div>
+                                        <h4>Explore Dashboard</h4>
+                                        <p>Check out your personalized dashboard and discover opportunities</p>
+                                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary bc-ripple">
+                                            Go to Dashboard <i class="fas fa-arrow-right ms-2"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tips for Success -->
+                    <div class="bc-success-tips bc-slide-in-up" style="animation-delay: 1.1s;">
+                        <div class="bc-tips-card">
+                            <h3 class="bc-tips-title">
+                                <i class="fas fa-lightbulb me-2"></i>Tips for Success
+                            </h3>
+                            <div class="bc-tips-list">
+                                <div class="bc-tip-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <span>Complete your profile with a professional photo and detailed summary</span>
+                                </div>
+                                <div class="bc-tip-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <span>Send personalized connection requests with a friendly message</span>
+                                </div>
+                                <div class="bc-tip-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <span>Engage with your network by sharing insights and commenting on posts</span>
+                                </div>
+                                <div class="bc-tip-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <span>Check your dashboard regularly for new opportunities and updates</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Final CTA -->
+                    <div class="bc-final-cta bc-slide-in-up" style="animation-delay: 1.3s;">
+                        <div class="bc-cta-content">
+                            <h3>Ready to Transform Your Professional Network?</h3>
+                            <p class="text-muted mb-4">Your journey to meaningful connections starts now.</p>
+                            <div class="d-flex gap-3 justify-content-center">
+                                <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-lg bc-ripple">
+                                    <i class="fas fa-rocket me-2"></i>Get Started
+                                </a>
+                                <button class="btn btn-outline-secondary btn-lg" onclick="showOnboardingTour()">
+                                    <i class="fas fa-play me-2"></i>Take a Quick Tour
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Celebration animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mark onboarding as complete
+            if (typeof markOnboardingComplete === 'function') {
+                markOnboardingComplete();
+            }
+
+            // Trigger confetti animation
+            setTimeout(() => {
+                createConfetti();
+            }, 1000);
+
+            // Animate achievement items
+            const achievementItems = document.querySelectorAll('.bc-achievement-item');
+            achievementItems.forEach((item, index) => {
+                setTimeout(() => {
+                    item.classList.add('bc-bounce');
+                }, 1500 + (index * 200));
+            });
+        });
+
+        function createConfetti() {
+            // Simple confetti effect
+            for (let i = 0; i < 50; i++) {
+                createConfettiPiece();
+            }
+        }
+
+        function createConfettiPiece() {
+            const confetti = document.createElement('div');
+            confetti.className = 'bc-confetti';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.backgroundColor = getRandomColor();
+            confetti.style.animationDelay = Math.random() * 3 + 's';
+            confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => {
+                confetti.remove();
+            }, 5000);
+        }
+
+        function getRandomColor() {
+            const colors = ['#2563eb', '#059669', '#dc2626', '#d97706', '#7c3aed'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        function showOnboardingTour() {
+            // This would trigger a guided tour of the main application
+            if (window.BizConnectLoading) {
+                BizConnectLoading.showToast('Starting guided tour...', {
+                    type: 'info',
+                    title: 'Tour Starting'
+                });
+            }
+            
+            setTimeout(() => {
+                window.location.href = '@Url.Action("Index", "Home")';
+            }, 1500);
+        }
+
+        // Auto-redirect after 30 seconds if no action
+        setTimeout(() => {
+            if (confirm('Would you like to go to your dashboard now?')) {
+                window.location.href = '@Url.Action("Index", "Home")';
+            }
+        }, 30000);
+    </script>
+}

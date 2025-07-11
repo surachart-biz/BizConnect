@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BizConnect</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="bc-onboarding-body">
+    <!-- Minimal Header -->
+    <header class="bc-onboarding-header-minimal">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center py-3">
+                <div class="bc-logo">
+                    <a asp-controller="Home" asp-action="Index" class="bc-logo-link">
+                        <i class="fas fa-network-wired me-2"></i>
+                        <span class="bc-logo-text">BizConnect</span>
+                    </a>
+                </div>
+                <div class="bc-user-info">
+                    <span class="text-muted">Welcome, @(User.Identity?.Name ?? "User")</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="bc-onboarding-main">
+        @RenderBody()
+    </main>
+
+    <!-- Minimal Footer -->
+    <footer class="bc-onboarding-footer">
+        <div class="container">
+            <div class="text-center py-4">
+                <p class="text-muted mb-0">
+                    Need help? <a href="#" class="text-primary">Contact Support</a> | 
+                    <a href="#" class="text-primary">Privacy Policy</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/loading.js" asp-append-version="true"></script>
+    <script src="~/js/interactions.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
