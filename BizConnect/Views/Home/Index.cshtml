@@ -7,28 +7,69 @@
     <!-- Authenticated User Dashboard -->
     <div class="bc-dashboard">
         <!-- Welcome Hero Section -->
-        <section class="bc-hero-dashboard">
-            <div class="container">
+        <section class="bc-hero-dashboard position-relative overflow-hidden">
+            <!-- Animated Background Elements -->
+            <div class="bc-hero-bg-elements">
+                <div class="bc-floating-shape bc-shape-1"></div>
+                <div class="bc-floating-shape bc-shape-2"></div>
+                <div class="bc-floating-shape bc-shape-3"></div>
+            </div>
+
+            <div class="container position-relative">
                 <div class="row align-items-center">
                     <div class="col-lg-8">
                         <div class="bc-welcome-content bc-fade-in">
+                            <!-- Time-based greeting -->
+                            <div class="bc-greeting-badge mb-3">
+                                <i class="fas fa-sun text-warning me-2"></i>
+                                <span id="greeting-text">Good morning</span>
+                            </div>
+
                             <h1 class="bc-hero-title bc-slide-in-left">
-                                Welcome back, <span class="text-primary bc-text-glow">@User.Identity.Name</span>!
+                                Welcome back, <span class="text-primary bc-text-glow position-relative">
+                                    @User.Identity.Name
+                                    <div class="bc-sparkle-effect"></div>
+                                </span>!
                             </h1>
-                            <p class="bc-hero-subtitle bc-slide-in-up">
+                            <p class="bc-hero-subtitle bc-slide-in-up mb-4">
                                 Ready to expand your professional network and discover new opportunities?
                             </p>
+
+                            <!-- Progress indicator -->
+                            <div class="bc-profile-progress mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="bc-progress-label">Profile Completion</span>
+                                    <span class="bc-progress-percentage">85%</span>
+                                </div>
+                                <div class="bc-progress-bar">
+                                    <div class="bc-progress-fill" style="width: 85%"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-lg-4 text-center">
                         <div class="bc-hero-stats">
-                            <div class="bc-stat-item">
-                                <div class="bc-stat-number">24</div>
+                            <div class="bc-stat-item bc-stat-animate" style="animation-delay: 0.2s;">
+                                <div class="bc-stat-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="bc-stat-number" data-count="24">0</div>
                                 <div class="bc-stat-label">Connections</div>
+                                <div class="bc-stat-trend">
+                                    <i class="fas fa-arrow-up text-success"></i>
+                                    <span>+3 this week</span>
+                                </div>
                             </div>
-                            <div class="bc-stat-item">
-                                <div class="bc-stat-number">8</div>
+                            <div class="bc-stat-item bc-stat-animate" style="animation-delay: 0.4s;">
+                                <div class="bc-stat-icon">
+                                    <i class="fas fa-briefcase"></i>
+                                </div>
+                                <div class="bc-stat-number" data-count="8">0</div>
                                 <div class="bc-stat-label">Opportunities</div>
+                                <div class="bc-stat-trend">
+                                    <i class="fas fa-arrow-up text-success"></i>
+                                    <span>+2 new</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -37,52 +78,90 @@
         </section>
 
         <!-- Quick Actions -->
-        <section class="bc-quick-actions">
+        <section class="bc-quick-actions py-5">
             <div class="container">
                 <div class="row">
-                    <div class="col-12">
-                        <h2 class="bc-section-title">Quick Actions</h2>
+                    <div class="col-12 text-center mb-5">
+                        <h2 class="bc-section-title position-relative">
+                            Quick Actions
+                            <div class="bc-title-underline"></div>
+                        </h2>
+                        <p class="bc-section-subtitle">Everything you need to grow your professional network</p>
                     </div>
                 </div>
                 <div class="row g-4">
                     <div class="col-md-6 col-lg-3">
-                        <div class="bc-action-card hover-lift bc-tilt bc-ripple bc-slide-in-up" style="animation-delay: 0.1s;">
+                        <div class="bc-action-card hover-lift bc-tilt bc-ripple bc-slide-in-up position-relative" style="animation-delay: 0.1s;">
+                            <div class="bc-action-badge">Popular</div>
                             <div class="bc-action-icon bg-primary bc-glow">
                                 <i class="fas fa-users bc-rotate-sm"></i>
                             </div>
                             <h3 class="bc-action-title">Find Connections</h3>
                             <p class="bc-action-description">Discover and connect with professionals in your industry</p>
-                            <a href="#" class="bc-action-link bc-color-transition" onclick="return false;">Explore Network</a>
+                            <div class="bc-action-stats">
+                                <span class="bc-stat-badge">
+                                    <i class="fas fa-eye me-1"></i>12 new matches
+                                </span>
+                            </div>
+                            <a href="#" class="bc-action-link bc-color-transition" onclick="return false;">
+                                <span>Explore Network</span>
+                                <i class="fas fa-arrow-right ms-2"></i>
+                            </a>
                         </div>
                     </div>
                     <div class="col-md-6 col-lg-3">
-                        <div class="bc-action-card hover-lift bc-tilt bc-ripple bc-slide-in-up" style="animation-delay: 0.2s;">
+                        <div class="bc-action-card hover-lift bc-tilt bc-ripple bc-slide-in-up position-relative" style="animation-delay: 0.2s;">
+                            <div class="bc-action-badge bg-success">Hot</div>
                             <div class="bc-action-icon bg-success bc-glow">
                                 <i class="fas fa-briefcase bc-rotate-sm"></i>
                             </div>
                             <h3 class="bc-action-title">Job Opportunities</h3>
                             <p class="bc-action-description">Browse and apply to exciting career opportunities</p>
-                            <a href="#" class="bc-action-link bc-color-transition" onclick="return false;">View Jobs</a>
+                            <div class="bc-action-stats">
+                                <span class="bc-stat-badge">
+                                    <i class="fas fa-fire me-1"></i>5 new jobs
+                                </span>
+                            </div>
+                            <a href="#" class="bc-action-link bc-color-transition" onclick="return false;">
+                                <span>View Jobs</span>
+                                <i class="fas fa-arrow-right ms-2"></i>
+                            </a>
                         </div>
                     </div>
                     <div class="col-md-6 col-lg-3">
-                        <div class="bc-action-card hover-lift bc-tilt bc-ripple bc-slide-in-up" style="animation-delay: 0.3s;">
+                        <div class="bc-action-card hover-lift bc-tilt bc-ripple bc-slide-in-up position-relative" style="animation-delay: 0.3s;">
                             <div class="bc-action-icon bg-info bc-glow">
                                 <i class="fas fa-calendar-alt bc-rotate-sm"></i>
                             </div>
                             <h3 class="bc-action-title">Events</h3>
                             <p class="bc-action-description">Join networking events and professional meetups</p>
-                            <a href="#" class="bc-action-link bc-color-transition" onclick="return false;">Find Events</a>
+                            <div class="bc-action-stats">
+                                <span class="bc-stat-badge">
+                                    <i class="fas fa-calendar me-1"></i>3 this week
+                                </span>
+                            </div>
+                            <a href="#" class="bc-action-link bc-color-transition" onclick="return false;">
+                                <span>Find Events</span>
+                                <i class="fas fa-arrow-right ms-2"></i>
+                            </a>
                         </div>
                     </div>
                     <div class="col-md-6 col-lg-3">
-                        <div class="bc-action-card hover-lift bc-tilt bc-ripple bc-slide-in-up" style="animation-delay: 0.4s;">
+                        <div class="bc-action-card hover-lift bc-tilt bc-ripple bc-slide-in-up position-relative" style="animation-delay: 0.4s;">
                             <div class="bc-action-icon bg-warning bc-glow">
                                 <i class="fas fa-user-edit bc-rotate-sm"></i>
                             </div>
                             <h3 class="bc-action-title">Update Profile</h3>
                             <p class="bc-action-description">Keep your professional profile up to date</p>
-                            <a href="#" class="bc-action-link bc-color-transition" onclick="return false;">Edit Profile</a>
+                            <div class="bc-action-stats">
+                                <span class="bc-stat-badge">
+                                    <i class="fas fa-percentage me-1"></i>85% complete
+                                </span>
+                            </div>
+                            <a href="#" class="bc-action-link bc-color-transition" onclick="return false;">
+                                <span>Edit Profile</span>
+                                <i class="fas fa-arrow-right ms-2"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -121,67 +200,142 @@
         }
 
         <!-- Recent Activity -->
-        <section class="bc-recent-activity">
+        <section class="bc-recent-activity py-5 bg-light">
             <div class="container">
                 <div class="row">
-                    <div class="col-12">
-                        <h2 class="bc-section-title">Recent Activity</h2>
+                    <div class="col-12 text-center mb-5">
+                        <h2 class="bc-section-title position-relative">
+                            Recent Activity
+                            <div class="bc-title-underline"></div>
+                        </h2>
+                        <p class="bc-section-subtitle">Stay updated with your latest interactions and opportunities</p>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-lg-8">
                         <div class="bc-activity-feed">
-                            <div class="bc-activity-item">
-                                <div class="bc-activity-icon bg-success">
+                            <div class="bc-activity-item bc-slide-in-left" style="animation-delay: 0.1s;">
+                                <div class="bc-activity-timeline"></div>
+                                <div class="bc-activity-icon bg-success bc-pulse">
                                     <i class="fas fa-user-plus"></i>
                                 </div>
                                 <div class="bc-activity-content">
-                                    <p class="bc-activity-text">You connected with <strong>Sarah Johnson</strong></p>
-                                    <span class="bc-activity-time">2 hours ago</span>
+                                    <div class="bc-activity-header">
+                                        <p class="bc-activity-text">You connected with <strong>Sarah Johnson</strong></p>
+                                        <div class="bc-activity-actions">
+                                            <button class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-comment me-1"></i>Message
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <span class="bc-activity-time">
+                                        <i class="fas fa-clock me-1"></i>2 hours ago
+                                    </span>
                                 </div>
                             </div>
-                            <div class="bc-activity-item">
-                                <div class="bc-activity-icon bg-info">
+                            <div class="bc-activity-item bc-slide-in-left" style="animation-delay: 0.2s;">
+                                <div class="bc-activity-timeline"></div>
+                                <div class="bc-activity-icon bg-info bc-pulse">
                                     <i class="fas fa-briefcase"></i>
                                 </div>
                                 <div class="bc-activity-content">
-                                    <p class="bc-activity-text">New job opportunity: <strong>Senior Developer</strong></p>
-                                    <span class="bc-activity-time">1 day ago</span>
+                                    <div class="bc-activity-header">
+                                        <p class="bc-activity-text">New job opportunity: <strong>Senior Developer</strong></p>
+                                        <div class="bc-activity-actions">
+                                            <button class="btn btn-sm btn-outline-success">
+                                                <i class="fas fa-eye me-1"></i>View
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <span class="bc-activity-time">
+                                        <i class="fas fa-clock me-1"></i>1 day ago
+                                    </span>
                                 </div>
                             </div>
-                            <div class="bc-activity-item">
-                                <div class="bc-activity-icon bg-warning">
+                            <div class="bc-activity-item bc-slide-in-left" style="animation-delay: 0.3s;">
+                                <div class="bc-activity-timeline"></div>
+                                <div class="bc-activity-icon bg-warning bc-pulse">
                                     <i class="fas fa-calendar"></i>
                                 </div>
                                 <div class="bc-activity-content">
-                                    <p class="bc-activity-text">Upcoming event: <strong>Tech Networking Meetup</strong></p>
-                                    <span class="bc-activity-time">3 days ago</span>
+                                    <div class="bc-activity-header">
+                                        <p class="bc-activity-text">Upcoming event: <strong>Tech Networking Meetup</strong></p>
+                                        <div class="bc-activity-actions">
+                                            <button class="btn btn-sm btn-outline-warning">
+                                                <i class="fas fa-calendar-plus me-1"></i>RSVP
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <span class="bc-activity-time">
+                                        <i class="fas fa-clock me-1"></i>3 days ago
+                                    </span>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- View All Activity Button -->
+                        <div class="text-center mt-4">
+                            <button class="btn btn-outline-primary bc-gradient-border">
+                                <i class="fas fa-history me-2"></i>View All Activity
+                            </button>
+                        </div>
                     </div>
                     <div class="col-lg-4">
-                        <div class="bc-suggestions-card">
-                            <h3 class="bc-suggestions-title">Suggested Connections</h3>
-                            <div class="bc-suggestion-item">
-                                <div class="bc-suggestion-avatar">
-                                    <i class="fas fa-user"></i>
+                        <div class="bc-suggestions-card bc-slide-in-right">
+                            <div class="bc-suggestions-header">
+                                <h3 class="bc-suggestions-title">
+                                    <i class="fas fa-users me-2 text-primary"></i>
+                                    Suggested Connections
+                                </h3>
+                                <span class="bc-suggestions-count">2 new</span>
+                            </div>
+
+                            <div class="bc-suggestion-item hover-lift">
+                                <div class="bc-suggestion-avatar bg-primary">
+                                    <i class="fas fa-user text-white"></i>
                                 </div>
                                 <div class="bc-suggestion-info">
                                     <h4 class="bc-suggestion-name">Michael Chen</h4>
                                     <p class="bc-suggestion-role">Product Manager</p>
+                                    <div class="bc-suggestion-mutual">
+                                        <i class="fas fa-users me-1"></i>3 mutual connections
+                                    </div>
                                 </div>
-                                <button class="btn btn-outline-primary btn-sm">Connect</button>
+                                <div class="bc-suggestion-actions">
+                                    <button class="btn btn-primary btn-sm bc-ripple">
+                                        <i class="fas fa-user-plus me-1"></i>Connect
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="bc-suggestion-item">
-                                <div class="bc-suggestion-avatar">
-                                    <i class="fas fa-user"></i>
+
+                            <div class="bc-suggestion-item hover-lift">
+                                <div class="bc-suggestion-avatar bg-success">
+                                    <i class="fas fa-user text-white"></i>
                                 </div>
                                 <div class="bc-suggestion-info">
                                     <h4 class="bc-suggestion-name">Emily Rodriguez</h4>
                                     <p class="bc-suggestion-role">UX Designer</p>
+                                    <div class="bc-suggestion-mutual">
+                                        <i class="fas fa-users me-1"></i>5 mutual connections
+                                    </div>
                                 </div>
-                                <button class="btn btn-outline-primary btn-sm">Connect</button>
+                                <div class="bc-suggestion-actions">
+                                    <button class="btn btn-primary btn-sm bc-ripple">
+                                        <i class="fas fa-user-plus me-1"></i>Connect
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-3">
+                                <a href="#" class="bc-link-primary" onclick="return false;">
+                                    View all suggestions <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -195,67 +349,98 @@ else
     <!-- Non-Authenticated User Landing Page -->
     <div class="bc-landing">
         <!-- Hero Section -->
-        <section class="bc-hero">
-            <div class="container">
+        <section class="bc-hero position-relative overflow-hidden">
+            <!-- Animated Background -->
+            <div class="bc-hero-bg-animation">
+                <div class="bc-floating-element bc-element-1"></div>
+                <div class="bc-floating-element bc-element-2"></div>
+                <div class="bc-floating-element bc-element-3"></div>
+                <div class="bc-floating-element bc-element-4"></div>
+            </div>
+
+            <div class="container position-relative">
                 <div class="row align-items-center min-vh-75">
                     <div class="col-lg-6">
-                        <div class="bc-hero-content">
-                            <h1 class="bc-hero-title">
-                                Connect. Network. <span class="text-primary">Grow.</span>
-                            </h1>
-                            <p class="bc-hero-subtitle">
-                                Join the premier business networking platform where professionals connect,
-                                opportunities flourish, and careers advance.
-                            </p>
-                            <div class="bc-hero-actions">
-                                <a href="#" class="btn btn-primary btn-lg me-3" onclick="return false;">
-                                    <i class="fas fa-user-plus me-2"></i>Get Started Free
-                                </a>
-                                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary btn-lg">
-                                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
-                                </a>
+                        <div class="bc-hero-content bc-fade-in">
+                            <!-- Trust indicators -->
+                            <div class="bc-trust-badges mb-4">
+                                <span class="bc-trust-badge">
+                                    <i class="fas fa-shield-check text-success me-1"></i>
+                                    Secure Platform
+                                </span>
+                                <span class="bc-trust-badge">
+                                    <i class="fas fa-users text-primary me-1"></i>
+                                    10K+ Professionals
+                                </span>
+                                <span class="bc-trust-badge">
+                                    <i class="fas fa-star text-warning me-1"></i>
+                                    4.9/5 Rating
+                                </span>
                             </div>
-                            <div class="bc-hero-stats">
-                                <div class="bc-stat-item">
-                                    <div class="bc-stat-number">10K+</div>
-                                    <div class="bc-stat-label">Professionals</div>
+
+                            <h1 class="bc-hero-title bc-slide-in-left">
+                                Welcome to <span class="text-primary position-relative">
+                                    BizConnect
+                                    <div class="bc-text-highlight"></div>
+                                </span>
+                            </h1>
+                            <p class="bc-hero-subtitle bc-slide-in-up">
+                                Your comprehensive business networking and collaboration
+                                platform. Connect with professionals, manage projects, and
+                                grow your business network.
+                            </p>
+
+                            <!-- Key benefits -->
+                            <div class="bc-hero-benefits mb-4">
+                                <div class="bc-benefit-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <span>Free to join and start networking</span>
                                 </div>
-                                <div class="bc-stat-item">
-                                    <div class="bc-stat-number">500+</div>
-                                    <div class="bc-stat-label">Companies</div>
+                                <div class="bc-benefit-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <span>Connect with industry professionals</span>
                                 </div>
-                                <div class="bc-stat-item">
-                                    <div class="bc-stat-number">1K+</div>
-                                    <div class="bc-stat-label">Success Stories</div>
+                                <div class="bc-benefit-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <span>Discover career opportunities</span>
                                 </div>
+                            </div>
+
+                            <div class="bc-hero-actions">
+                                <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-lg me-3 bc-gradient-btn bc-ripple">
+                                    <i class="fas fa-rocket me-2"></i>Get Started Free
+                                </a>
+                                <a href="#features" class="btn btn-outline-primary btn-lg bc-smooth-scroll">
+                                    <i class="fas fa-play me-2"></i>Learn More
+                                </a>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-6">
-                        <div class="bc-hero-visual">
-                            <div class="bc-network-graphic">
-                                <div class="bc-node bc-node-1">
-                                    <i class="fas fa-user"></i>
+                        <div class="bc-hero-visual bc-slide-in-right">
+                            <div class="bc-network-graphic position-relative">
+                                <!-- Interactive network visualization -->
+                                <div class="bc-network-container">
+                                    <div class="bc-network-node bc-node-center">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="bc-network-node bc-node-1">
+                                        <i class="fas fa-briefcase"></i>
+                                    </div>
+                                    <div class="bc-network-node bc-node-2">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="bc-network-node bc-node-3">
+                                        <i class="fas fa-calendar"></i>
+                                    </div>
+                                    <div class="bc-network-node bc-node-4">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                    <div class="bc-network-connection bc-connection-1"></div>
+                                    <div class="bc-network-connection bc-connection-2"></div>
+                                    <div class="bc-network-connection bc-connection-3"></div>
+                                    <div class="bc-network-connection bc-connection-4"></div>
                                 </div>
-                                <div class="bc-node bc-node-2">
-                                    <i class="fas fa-building"></i>
-                                </div>
-                                <div class="bc-node bc-node-3">
-                                    <i class="fas fa-briefcase"></i>
-                                </div>
-                                <div class="bc-node bc-node-4">
-                                    <i class="fas fa-users"></i>
-                                </div>
-                                <div class="bc-node bc-node-5">
-                                    <i class="fas fa-handshake"></i>
-                                </div>
-                                <svg class="bc-connections" viewBox="0 0 400 300">
-                                    <line x1="100" y1="150" x2="200" y2="80" stroke="var(--bc-primary)" stroke-width="2" opacity="0.6"/>
-                                    <line x1="100" y1="150" x2="300" y2="150" stroke="var(--bc-primary)" stroke-width="2" opacity="0.6"/>
-                                    <line x1="100" y1="150" x2="200" y2="220" stroke="var(--bc-primary)" stroke-width="2" opacity="0.6"/>
-                                    <line x1="200" y1="80" x2="300" y2="150" stroke="var(--bc-accent)" stroke-width="2" opacity="0.4"/>
-                                    <line x1="200" y1="220" x2="300" y2="150" stroke="var(--bc-accent)" stroke-width="2" opacity="0.4"/>
-                                </svg>
                             </div>
                         </div>
                     </div>
@@ -264,105 +449,66 @@ else
         </section>
 
         <!-- Features Section -->
-        <section class="bc-features">
+        <section id="features" class="bc-features py-5 bg-light">
             <div class="container">
                 <div class="row">
-                    <div class="col-12 text-center">
-                        <h2 class="bc-section-title">Why Choose BizConnect?</h2>
+                    <div class="col-12 text-center mb-5">
+                        <h2 class="bc-section-title position-relative">
+                            Why Choose BizConnect?
+                            <div class="bc-title-underline"></div>
+                        </h2>
                         <p class="bc-section-subtitle">
-                            Everything you need to build meaningful professional relationships and advance your career
+                            Powerful features designed to enhance your business operations
                         </p>
                     </div>
                 </div>
+
+                <!-- Feature Cards -->
                 <div class="row g-4">
                     <div class="col-md-6 col-lg-4">
-                        <div class="bc-feature-card hover-lift">
-                            <div class="bc-feature-icon">
+                        <div class="bc-feature-card text-center bc-slide-in-up" style="animation-delay: 0.1s;">
+                            <div class="bc-feature-icon bg-primary">
                                 <i class="fas fa-network-wired"></i>
                             </div>
                             <h3 class="bc-feature-title">Smart Networking</h3>
                             <p class="bc-feature-description">
-                                Connect with the right professionals using our intelligent matching algorithm
+                                AI-powered recommendations to connect you with the right professionals in your industry.
                             </p>
                         </div>
                     </div>
                     <div class="col-md-6 col-lg-4">
-                        <div class="bc-feature-card hover-lift">
-                            <div class="bc-feature-icon">
+                        <div class="bc-feature-card text-center bc-slide-in-up" style="animation-delay: 0.2s;">
+                            <div class="bc-feature-icon bg-success">
                                 <i class="fas fa-search"></i>
                             </div>
-                            <h3 class="bc-feature-title">Opportunity Discovery</h3>
+                            <h3 class="bc-feature-title">Job Discovery</h3>
                             <p class="bc-feature-description">
-                                Find job opportunities, partnerships, and collaborations tailored to your goals
+                                Find and apply to relevant job opportunities that match your skills and experience.
                             </p>
                         </div>
                     </div>
                     <div class="col-md-6 col-lg-4">
-                        <div class="bc-feature-card hover-lift">
-                            <div class="bc-feature-icon">
+                        <div class="bc-feature-card text-center bc-slide-in-up" style="animation-delay: 0.3s;">
+                            <div class="bc-feature-icon bg-info">
                                 <i class="fas fa-calendar-check"></i>
                             </div>
                             <h3 class="bc-feature-title">Event Management</h3>
                             <p class="bc-feature-description">
-                                Discover and attend networking events, workshops, and industry conferences
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4">
-                        <div class="bc-feature-card hover-lift">
-                            <div class="bc-feature-icon">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <h3 class="bc-feature-title">Career Growth</h3>
-                            <p class="bc-feature-description">
-                                Track your professional growth and get insights to advance your career
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4">
-                        <div class="bc-feature-card hover-lift">
-                            <div class="bc-feature-icon">
-                                <i class="fas fa-shield-alt"></i>
-                            </div>
-                            <h3 class="bc-feature-title">Secure Platform</h3>
-                            <p class="bc-feature-description">
-                                Your professional data is protected with enterprise-grade security
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4">
-                        <div class="bc-feature-card hover-lift">
-                            <div class="bc-feature-icon">
-                                <i class="fas fa-mobile-alt"></i>
-                            </div>
-                            <h3 class="bc-feature-title">Mobile Ready</h3>
-                            <p class="bc-feature-description">
-                                Access your network anywhere with our responsive design and mobile app
+                                Discover and attend networking events, workshops, and professional meetups.
                             </p>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <!-- Call to Action Section -->
-        <section class="bc-cta">
-            <div class="container">
-                <div class="row">
+                <!-- CTA Section -->
+                <div class="row mt-5">
                     <div class="col-12 text-center">
-                        <div class="bc-cta-content">
-                            <h2 class="bc-cta-title">Ready to Transform Your Professional Network?</h2>
-                            <p class="bc-cta-subtitle">
-                                Join thousands of professionals who are already growing their careers with BizConnect
-                            </p>
-                            <div class="bc-cta-actions">
-                                <a href="#" class="btn btn-primary btn-lg me-3" onclick="return false;">
-                                    <i class="fas fa-rocket me-2"></i>Start Networking Today
-                                </a>
-                                <a href="#" class="btn btn-outline-light btn-lg" onclick="return false;">
-                                    <i class="fas fa-play me-2"></i>Watch Demo
-                                </a>
-                            </div>
+                        <div class="bc-cta-section">
+                            <h3 class="bc-cta-title">Ready to expand your network?</h3>
+                            <p class="bc-cta-subtitle">Join thousands of professionals already using BizConnect</p>
+                            <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-lg bc-gradient-btn bc-ripple">
+                                <i class="fas fa-user-plus me-2"></i>Join BizConnect Today
+                            </a>
                         </div>
                     </div>
                 </div>
