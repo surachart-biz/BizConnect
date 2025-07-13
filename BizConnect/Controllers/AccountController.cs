@@ -37,6 +37,11 @@ public class AccountController : Controller
             }
         }
 
+        // Clear any existing model state errors for fresh login page
+        ModelState.Clear();
+
+        // Mark this as a GET request (not a POST back)
+        ViewData["IsPostBack"] = false;
         ViewData["ReturnUrl"] = returnUrl;
         return View(new LoginViewModel());
     }
@@ -47,6 +52,7 @@ public class AccountController : Controller
     public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
+        ViewData["IsPostBack"] = true;
 
         if (ModelState.IsValid)
         {

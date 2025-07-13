@@ -280,10 +280,15 @@
             margin-bottom: 20px;
             font-size: 14px;
             animation: slideDown 0.3s ease-out;
+            display: none; /* Hide by default */
         }
 
         .validation-summary:empty {
             display: none;
+        }
+
+        .validation-summary.show {
+            display: block;
         }
 
         @@keyframes slideDown {
@@ -330,7 +335,7 @@
             <div class="login-body">
                 <form method="post" id="loginForm" novalidate>
                     <!-- Validation Summary -->
-                    <div asp-validation-summary="All" class="validation-summary"></div>
+                    <div asp-validation-summary="All" class="validation-summary" style="display: none;"></div>
 
                     <!-- Username Field -->
                     <div class="form-group">
@@ -436,9 +441,21 @@
             const submitBtn = document.getElementById('loginSubmitBtn');
             const validationSummary = document.querySelector('.validation-summary');
 
-            // Check if there are validation errors on page load
-            if (validationSummary && validationSummary.innerHTML.trim() !== '') {
+            // Check if this is a POST back with validation errors (not initial page load)
+            // We can detect this by checking ViewData from controller
+            const isPostBack = @(ViewData["IsPostBack"]?.ToString().ToLower() ?? "false");
+
+            // Always hide validation summary first
+            if (validationSummary) {
+                validationSummary.style.display = 'none';
+                validationSummary.classList.remove('show');
+            }
+
+            // Only show if it's a POST back and has errors
+            if (isPostBack && validationSummary && validationSummary.innerHTML.trim() !== '') {
                 validationSummary.style.display = 'block';
+                validationSummary.classList.add('show');
+
                 // Shake animation for error
                 validationSummary.style.animation = 'shake 0.5s ease-in-out';
                 setTimeout(() => {
