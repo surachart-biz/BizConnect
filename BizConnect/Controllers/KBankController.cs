@@ -8,13 +8,13 @@ namespace BizConnect.Controllers;
 /// <summary>
 /// Controller for KBank Online Direct Debit (ODD) operations
 /// </summary>
-[Route("odd")]
-public class OddController : Controller
+[Route("kbank")]
+public class KBankController : Controller
 {
     private readonly IKbankOddService _kbankOddService;
-    private readonly ILogger<OddController> _logger;
+    private readonly ILogger<KBankController> _logger;
 
-    public OddController(IKbankOddService kbankOddService, ILogger<OddController> logger)
+    public KBankController(IKbankOddService kbankOddService, ILogger<KBankController> logger)
     {
         _kbankOddService = kbankOddService;
         _logger = logger;
@@ -25,7 +25,7 @@ public class OddController : Controller
     /// </summary>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Redirect to KBank registration page</returns>
-    [HttpGet("register")]
+    [HttpGet("odd/register")]
     [Authorize] // Require authentication to start registration
     public async Task<IActionResult> Register(CancellationToken cancellationToken = default)
     {
@@ -55,7 +55,7 @@ public class OddController : Controller
     /// <param name="dto">Status update data from KBank</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>HTTP status code based on processing result</returns>
-    [HttpPost("status-update")]
+    [HttpPost("odd/status-update")]
     [IgnoreAntiforgeryToken] // KBank callback doesn't include antiforgery token
     public async Task<IActionResult> StatusUpdate([FromForm] StatusUpdateDto dto, CancellationToken cancellationToken = default)
     {
@@ -88,7 +88,7 @@ public class OddController : Controller
     /// Registration success page (optional - for user-friendly feedback)
     /// </summary>
     /// <returns>Success view</returns>
-    [HttpGet("success")]
+    [HttpGet("odd/success")]
     public IActionResult Success()
     {
         ViewData["Title"] = "Registration Successful";
@@ -99,7 +99,7 @@ public class OddController : Controller
     /// Registration failure page (optional - for user-friendly feedback)
     /// </summary>
     /// <returns>Failure view</returns>
-    [HttpGet("failure")]
+    [HttpGet("odd/failure")]
     public IActionResult Failure()
     {
         ViewData["Title"] = "Registration Failed";

@@ -51,14 +51,14 @@ public class KBankOddClient : IKBankOddClient
             var jsonContent = JsonSerializer.Serialize(request, _jsonOptions);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-            _logger.LogDebug("Sending request to {Url}: {Content}", requestUrl, jsonContent);
+            _logger.LogInformation("Sending request to {Url}: {Content}", requestUrl, jsonContent);
 
             var response = await _httpClient.PostAsync(requestUrl, content, cancellationToken);
 
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            
-            _logger.LogDebug("Received response from KBank API: Status={StatusCode}, Content={Content}", 
-                response.StatusCode, responseContent);
+
+            _logger.LogInformation("Received response from KBank API: Status={StatusCode}, ContentLength={ContentLength}, Content={Content}",
+                response.StatusCode, responseContent?.Length ?? 0, responseContent);
 
             if (!response.IsSuccessStatusCode)
             {

@@ -11,17 +11,17 @@ using Xunit;
 
 namespace BizConnect.Tests.Unit.Controllers;
 
-public class OddControllerTests
+public class KBankControllerTests
 {
     private readonly Mock<IKbankOddService> _mockKbankOddService;
-    private readonly Mock<ILogger<OddController>> _mockLogger;
-    private readonly OddController _controller;
+    private readonly Mock<ILogger<KBankController>> _mockLogger;
+    private readonly KBankController _controller;
 
-    public OddControllerTests()
+    public KBankControllerTests()
     {
         _mockKbankOddService = new Mock<IKbankOddService>();
-        _mockLogger = new Mock<ILogger<OddController>>();
-        _controller = new OddController(_mockKbankOddService.Object, _mockLogger.Object);
+        _mockLogger = new Mock<ILogger<KBankController>>();
+        _controller = new KBankController(_mockKbankOddService.Object, _mockLogger.Object);
 
         // Setup controller context with authenticated user
         var user = new ClaimsPrincipal(new ClaimsIdentity(new[]
@@ -34,7 +34,7 @@ public class OddControllerTests
         {
             HttpContext = new DefaultHttpContext { User = user }
         };
-
+        
         // Setup TempData
         _controller.TempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
     }

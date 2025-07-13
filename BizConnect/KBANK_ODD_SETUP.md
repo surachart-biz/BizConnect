@@ -101,13 +101,13 @@ The configuration includes different URLs for different environments:
 Once configured, the following endpoints will be available:
 
 ### User Registration
-- **URL**: `GET /odd/register`
+- **URL**: `GET /kbank/odd/register`
 - **Authentication**: Required (User must be logged in)
 - **Description**: Initiates KBank ODD registration process
 - **Response**: Redirects to KBank's registration page
 
 ### Status Update Callback
-- **URL**: `POST /odd/status-update`
+- **URL**: `POST /kbank/odd/status-update`
 - **Authentication**: SHA-256 hash validation
 - **Description**: Receives status updates from KBank
 - **Content-Type**: `application/x-www-form-urlencoded`
@@ -125,14 +125,14 @@ dotnet test --filter "FullyQualifiedName~KbankOdd"
 dotnet test --filter "FullyQualifiedName~OddUtils"
 
 # Test controller
-dotnet test --filter "FullyQualifiedName~OddController"
+dotnet test --filter "FullyQualifiedName~KBankController"
 ```
 
 ### Integration Testing
 
 1. **Configure UAT PassPhrase** in your local environment
 2. **Run the application** in Development mode
-3. **Navigate to** `/odd/register` (requires login)
+3. **Navigate to** `/kbank/odd/register` (requires login)
 4. **Verify redirect** to KBank's UAT registration page
 
 ## 📋 Database Schema
