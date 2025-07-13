@@ -38,4 +38,24 @@ public partial class KbankOddRegistration
     public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
+
+    /// <summary>
+    /// User email address for ODD registration
+    /// </summary>
+    public string? Email { get; set; }
+
+    /// <summary>
+    /// User mobile number (format: 08xxxxxxxx or +66xxxxxxxx)
+    /// </summary>
+    public string? MobileNo { get; set; }
+
+    /// <summary>
+    /// ID type: National ID, Passport, Tax ID, or Company Tax ID
+    /// </summary>
+    public string? IdType { get; set; }
+
+    /// <summary>
+    /// ID number/value corresponding to the selected ID type
+    /// </summary>
+    public string? IdValue { get; set; }
 }

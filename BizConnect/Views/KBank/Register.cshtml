@@ -1,0 +1,228 @@
+@model KBankOddRegisterViewModel
+@{
+    ViewData["Title"] = "KBank Online Direct Debit Registration";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            <!-- Page Header -->
+            <div class="text-center mb-4">
+                <div class="bc-page-header">
+                    <div class="bc-icon-wrapper mb-3">
+                        <i class="fas fa-university text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h1 class="h2 mb-2">KBank Online Direct Debit</h1>
+                    <p class="text-muted">Complete your registration to enable automatic payments</p>
+                </div>
+            </div>
+
+            <!-- Registration Form Card -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-plus me-2"></i>Registration Information
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Register" method="post" id="oddRegistrationForm" novalidate>
+                        @Html.AntiForgeryToken()
+                        
+                        <!-- Email Field -->
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label required">
+                                <i class="fas fa-envelope me-1"></i>@Html.DisplayNameFor(m => m.Email)
+                            </label>
+                            <input asp-for="Email" class="form-control" placeholder="Enter your email address" 
+                                   autocomplete="email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <!-- Mobile Number Field -->
+                        <div class="mb-3">
+                            <label asp-for="MobileNo" class="form-label required">
+                                <i class="fas fa-mobile-alt me-1"></i>@Html.DisplayNameFor(m => m.MobileNo)
+                            </label>
+                            <input asp-for="MobileNo" class="form-control" placeholder="08xxxxxxxx or +66xxxxxxxx" 
+                                   autocomplete="tel" />
+                            <div class="form-text">
+                                <small>Format: 08xxxxxxxx or +66xxxxxxxx</small>
+                            </div>
+                            <span asp-validation-for="MobileNo" class="text-danger"></span>
+                        </div>
+
+                        <!-- ID Type Field -->
+                        <div class="mb-3">
+                            <label asp-for="IdType" class="form-label required">
+                                <i class="fas fa-id-card me-1"></i>@Html.DisplayNameFor(m => m.IdType)
+                            </label>
+                            <select asp-for="IdType" asp-items="@KBankOddRegisterViewModel.IdTypes" 
+                                    class="form-select" id="idTypeSelect">
+                                <option value="">-- Select ID Type --</option>
+                            </select>
+                            <span asp-validation-for="IdType" class="text-danger"></span>
+                        </div>
+
+                        <!-- ID Value Field -->
+                        <div class="mb-4">
+                            <label asp-for="IdValue" class="form-label required">
+                                <i class="fas fa-hashtag me-1"></i>@Html.DisplayNameFor(m => m.IdValue)
+                            </label>
+                            <input asp-for="IdValue" class="form-control" placeholder="Enter your ID number" 
+                                   id="idValueInput" />
+                            <div class="form-text" id="idValueHelp">
+                                <small>Please select an ID type first</small>
+                            </div>
+                            <span asp-validation-for="IdValue" class="text-danger"></span>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary me-md-2">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <i class="fas fa-check me-1"></i>Confirm Registration
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Information Card -->
+            <div class="card mt-4 border-info">
+                <div class="card-header bg-info text-white">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Important Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li>You will be redirected to KBank's secure registration page after submitting this form</li>
+                        <li>Please ensure all information is accurate before proceeding</li>
+                        <li>Your mobile number will be used for SMS verification</li>
+                        <li>Keep your ID document ready for verification</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const idTypeSelect = document.getElementById('idTypeSelect');
+            const idValueInput = document.getElementById('idValueInput');
+            const idValueHelp = document.getElementById('idValueHelp');
+            const form = document.getElementById('oddRegistrationForm');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Update ID value field based on selected ID type
+            idTypeSelect.addEventListener('change', function() {
+                const selectedType = this.value;
+                updateIdValueField(selectedType);
+            });
+
+            function updateIdValueField(idType) {
+                let placeholder = 'Enter your ID number';
+                let helpText = 'Please select an ID type first';
+                let maxLength = 30;
+
+                switch(idType) {
+                    case 'National ID':
+                        placeholder = 'Enter 13-digit National ID';
+                        helpText = 'National ID must be exactly 13 digits';
+                        maxLength = 13;
+                        break;
+                    case 'Passport':
+                        placeholder = 'Enter passport number';
+                        helpText = 'Passport number: 8-20 alphanumeric characters';
+                        maxLength = 20;
+                        break;
+                    case 'Tax ID':
+                        placeholder = 'Enter Tax ID';
+                        helpText = 'Tax ID: 10-13 digits';
+                        maxLength = 13;
+                        break;
+                    case 'Company Tax ID':
+                        placeholder = 'Enter 13-digit Company Tax ID';
+                        helpText = 'Company Tax ID must be exactly 13 digits';
+                        maxLength = 13;
+                        break;
+                }
+
+                idValueInput.placeholder = placeholder;
+                idValueInput.maxLength = maxLength;
+                idValueHelp.innerHTML = `<small>${helpText}</small>`;
+            }
+
+            // Form submission with loading state
+            form.addEventListener('submit', function(e) {
+                if (form.checkValidity()) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Processing...';
+                }
+            });
+
+            // Real-time validation feedback
+            const inputs = form.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('blur', validateField);
+                input.addEventListener('input', clearFieldError);
+            });
+
+            function validateField(e) {
+                const field = e.target;
+                const fieldGroup = field.closest('.mb-3, .mb-4');
+
+                if (field.checkValidity()) {
+                    field.classList.remove('is-invalid');
+                    field.classList.add('is-valid');
+                } else {
+                    field.classList.remove('is-valid');
+                    field.classList.add('is-invalid');
+                }
+            }
+
+            function clearFieldError(e) {
+                const field = e.target;
+                field.classList.remove('is-invalid');
+            }
+        });
+    </script>
+
+    <style>
+        .required::after {
+            content: " *";
+            color: #dc3545;
+        }
+
+        .bc-page-header {
+            margin-bottom: 2rem;
+        }
+
+        .bc-icon-wrapper {
+            display: inline-block;
+            padding: 1rem;
+            background: rgba(13, 110, 253, 0.1);
+            border-radius: 50%;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        .card {
+            border-radius: 0.5rem;
+        }
+
+        .card-header {
+            border-radius: 0.5rem 0.5rem 0 0 !important;
+        }
+    </style>
+}

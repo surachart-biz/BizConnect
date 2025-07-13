@@ -260,6 +260,132 @@ public class KbankOddServiceTests : IDisposable
         Assert.Equal(StatusProcessResult.Unauthorized, result);
     }
 
+    [Fact]
+    public async Task StartRegistrationAsync_WithValidRequest_ReturnsRedirectUrl()
+    {
+        // Arrange
+        var request = new OddRegistrationRequest
+        {
+            Email = "test@example.com",
+            MobileNo = "0812345678",
+            IdType = "National ID",
+            IdValue = "1234567890123"
+        };
+
+        var mockResponse = new KBankInitResponse
+        {
+            RegId = "TEST123456",
+            ReturnStatus = "0",
+            ReturnCode = "0000",
+            ReturnMessage = "Success"
+        };
+
+        _mockKbankClient.Setup(c => c.InitAsync(It.IsAny<KBankInitRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mockResponse);
+
+        // Act
+        var result = await _service.StartRegistrationAsync(request);
+
+        // Assert
+        Assert.True(result.StartsWith("https://test.kasikornbank.com/PGSRegistration.do?reg_id=TEST123456"));
+
+        // Verify database record was created with contact information
+        var registration = await _context.KbankOddRegistrations.FirstOrDefaultAsync();
+        Assert.NotNull(registration);
+        Assert.Equal("TEST123456", registration.RegId);
+        Assert.Equal("Pending", registration.Status);
+        Assert.Equal("test@example.com", registration.Email);
+        Assert.Equal("0812345678", registration.MobileNo);
+        Assert.Equal("National ID", registration.IdType);
+        Assert.Equal("1234567890123", registration.IdValue);
+    }
+
+    [Fact]
+    public async Task StartRegistrationAsync_WithValidRequest_CallsKBankWithContactInfo()
+    {
+        // Arrange
+        var request = new OddRegistrationRequest
+        {
+            Email = "user@test.com",
+            MobileNo = "+66812345678",
+            IdType = "Passport",
+            IdValue = "AB1234567"
+        };
+
+        var mockResponse = new KBankInitResponse
+        {
+            RegId = "TEST789",
+            ReturnStatus = "0",
+            ReturnCode = "0000",
+            ReturnMessage = "Success"
+        };
+
+        _mockKbankClient.Setup(c => c.InitAsync(It.IsAny<KBankInitRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mockResponse);
+
+        // Act
+        await _service.StartRegistrationAsync(request);
+
+        // Assert
+        _mockKbankClient.Verify(c => c.InitAsync(It.Is<KBankInitRequest>(req =>
+            req.UserEmail == "user@test.com" &&
+            req.UserMobileNo == "+66812345678" &&
+            req.Id == "AB1234567"
+        ), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task StartRegistrationAsync_WithKBankFailure_ThrowsException()
+    {
+        // Arrange
+        var request = new OddRegistrationRequest
+        {
+            Email = "test@example.com",
+            MobileNo = "0812345678",
+            IdType = "National ID",
+            IdValue = "1234567890123"
+        };
+
+        var mockResponse = new KBankInitResponse
+        {
+            RegId = null,
+            ReturnStatus = "1",
+            ReturnCode = "9999",
+            ReturnMessage = "System Error"
+        };
+
+        _mockKbankClient.Setup(c => c.InitAsync(It.IsAny<KBankInitRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mockResponse);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => _service.StartRegistrationAsync(request));
+
+        Assert.Contains("KBank initialization failed", exception.Message);
+        Assert.Contains("System Error", exception.Message);
+    }
+
+    [Fact]
+    public async Task StartRegistrationAsync_WithMissingPassPhrase_ThrowsException()
+    {
+        // Arrange
+        var request = new OddRegistrationRequest
+        {
+            Email = "test@example.com",
+            MobileNo = "0812345678",
+            IdType = "National ID",
+            IdValue = "1234567890123"
+        };
+
+        _mockConfiguration.Setup(c => c["KBankODD:PassPhrase"]).Returns((string?)null);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => _service.StartRegistrationAsync(request));
+
+        Assert.Contains("KBankODD:PassPhrase not configured", exception.Message);
+    }
+
     public void Dispose()
     {
         _context.Dispose();

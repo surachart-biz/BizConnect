@@ -1,0 +1,156 @@
+@{
+    ViewData["Title"] = "Registration Failed";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            <!-- Failure Header -->
+            <div class="text-center mb-4">
+                <div class="bc-failure-header">
+                    <div class="bc-failure-icon-wrapper mb-3">
+                        <i class="fas fa-times-circle text-danger" style="font-size: 4rem;"></i>
+                    </div>
+                    <h1 class="h2 mb-2 text-danger">Registration Failed</h1>
+                    <p class="text-muted">Unfortunately, your KBank Online Direct Debit registration could not be completed</p>
+                </div>
+            </div>
+
+            <!-- Failure Details Card -->
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Registration Issue
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong>Registration Failed:</strong> There was an issue processing your KBank Online Direct Debit registration.
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-danger mb-3">
+                                <i class="fas fa-question-circle me-2"></i>Possible Reasons
+                            </h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-arrow-right text-danger me-2"></i>
+                                    Incorrect or invalid personal information
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-arrow-right text-danger me-2"></i>
+                                    Bank account verification issues
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-arrow-right text-danger me-2"></i>
+                                    Technical issues during processing
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-arrow-right text-danger me-2"></i>
+                                    Account eligibility requirements not met
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-danger mb-3">
+                                <i class="fas fa-tools me-2"></i>What You Can Do
+                            </h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-redo text-warning me-2"></i>
+                                    Try registering again with correct information
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-phone text-info me-2"></i>
+                                    Contact KBank customer support
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-building text-primary me-2"></i>
+                                    Visit a KBank branch for assistance
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-envelope text-secondary me-2"></i>
+                                    Check your email for detailed error information
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Support Information Card -->
+            <div class="card mt-4 border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-life-ring me-2"></i>Need Help?
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-phone text-info me-2"></i>KBank Customer Service</h6>
+                            <p class="mb-2">
+                                <strong>Phone:</strong> 02-888-8888<br>
+                                <strong>Hours:</strong> 24/7 Service
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-envelope text-secondary me-2"></i>Online Support</h6>
+                            <p class="mb-2">
+                                <strong>Website:</strong> www.kasikornbank.com<br>
+                                <strong>Live Chat:</strong> Available 24/7
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center mt-4">
+                <a href="@Url.Action("Register", "KBank")" class="btn btn-warning me-3">
+                    <i class="fas fa-redo me-2"></i>Try Again
+                </a>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary me-3">
+                    <i class="fas fa-home me-2"></i>Return to Home
+                </a>
+                <a href="tel:028888888" class="btn btn-outline-info">
+                    <i class="fas fa-phone me-2"></i>Call Support
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bc-failure-header {
+        margin-bottom: 2rem;
+    }
+    
+    .bc-failure-icon-wrapper {
+        display: inline-block;
+        padding: 1.5rem;
+        background: rgba(220, 53, 69, 0.1);
+        border-radius: 50%;
+        animation: failureShake 0.5s ease-in-out;
+    }
+    
+    @@keyframes failureShake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+    
+    .card {
+        border-radius: 0.5rem;
+    }
+    
+    .card-header {
+        border-radius: 0.5rem 0.5rem 0 0 !important;
+    }
+    
+    .alert-danger {
+        border-left: 4px solid #dc3545;
+    }
+</style>

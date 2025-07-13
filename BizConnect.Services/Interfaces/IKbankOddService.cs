@@ -15,6 +15,14 @@ public interface IKbankOddService
     Task<string> StartRegistrationRedirectUrlAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Starts the registration process with user contact information and returns the redirect URL to KBank's registration page
+    /// </summary>
+    /// <param name="request">Registration request containing user contact information</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>URL to redirect user to KBank's registration page</returns>
+    Task<string> StartRegistrationAsync(OddRegistrationRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Processes status update callback from KBank
     /// </summary>
     /// <param name="dto">Status update data from KBank</param>

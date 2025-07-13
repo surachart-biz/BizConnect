@@ -100,17 +100,41 @@ The configuration includes different URLs for different environments:
 
 Once configured, the following endpoints will be available:
 
-### User Registration
+### User Registration Form
 - **URL**: `GET /kbank/odd/register`
 - **Authentication**: Required (User must be logged in)
-- **Description**: Initiates KBank ODD registration process
-- **Response**: Redirects to KBank's registration page
+- **Description**: Displays KBank ODD registration form for collecting user contact information
+- **Response**: Returns HTML form with email, mobile, ID type, and ID value fields
+
+### User Registration Processing
+- **URL**: `POST /kbank/odd/register`
+- **Authentication**: Required (User must be logged in)
+- **Description**: Processes registration form and initiates KBank ODD registration
+- **Request Body**: Form data with Email, MobileNo, IdType, IdValue
+- **Response**: Redirects to KBank's registration page with user contact information
 
 ### Status Update Callback
 - **URL**: `POST /kbank/odd/status-update`
 - **Authentication**: SHA-256 hash validation
 - **Description**: Receives status updates from KBank
 - **Content-Type**: `application/x-www-form-urlencoded`
+
+## 📋 Registration Flow
+
+The KBank ODD registration process follows these steps:
+
+1. **User Authentication**: User logs into BizConnect
+2. **Automatic Redirect**: After successful login, user is redirected to `/kbank/odd/register`
+3. **Form Display**: Registration form is displayed with the following fields:
+   - **Email**: User's email address (validated format)
+   - **Mobile Number**: Thai mobile format (08xxxxxxxx or +66xxxxxxxx)
+   - **ID Type**: Dropdown selection (National ID, Passport, Tax ID, Company Tax ID)
+   - **ID Value**: ID number with type-specific validation
+4. **Form Validation**: Client-side and server-side validation ensures data quality
+5. **Form Submission**: Valid form data is submitted to KBank's RegisterInit API
+6. **KBank Redirect**: User is redirected to KBank's secure registration platform
+7. **Registration Completion**: User completes registration on KBank's platform
+8. **Status Updates**: KBank sends status updates via webhook to update registration status
 
 ## 🧪 Testing
 
@@ -148,9 +172,26 @@ The integration uses the existing `KbankOddRegistration` table:
 -- - EspaId (KBank ESPA ID, populated after successful registration)
 -- - Status (Pending/Success/Fail)
 -- - ReturnCode (KBank return code)
+-- - Email (User email address for ODD registration)
+-- - MobileNo (User mobile number, format: 08xxxxxxxx or +66xxxxxxxx)
+-- - IdType (ID type: National ID, Passport, Tax ID, or Company Tax ID)
+-- - IdValue (ID number/value corresponding to the selected ID type)
 -- - CreatedAt (Timestamp)
 -- - UpdatedAt (Timestamp)
 ```
+
+### Form Validation Rules
+
+The registration form implements comprehensive validation:
+
+- **Email**: Required, valid email format, max 256 characters
+- **Mobile Number**: Required, Thai format (08xxxxxxxx or +66xxxxxxxx), max 20 characters
+- **ID Type**: Required, must be one of: National ID, Passport, Tax ID, Company Tax ID
+- **ID Value**: Required, 8-30 characters with type-specific validation:
+  - **National ID**: Exactly 13 digits
+  - **Passport**: 8-20 alphanumeric characters
+  - **Tax ID**: 10-13 digits
+  - **Company Tax ID**: Exactly 13 digits
 
 ## 🔍 Troubleshooting
 

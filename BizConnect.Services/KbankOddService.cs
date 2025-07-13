@@ -107,6 +107,91 @@ public class KbankOddService : IKbankOddService
     }
 
     /// <inheritdoc />
+    public async Task<string> StartRegistrationAsync(OddRegistrationRequest request, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            _logger.LogInformation("Starting KBank ODD registration process with user contact information");
+
+            // Generate external reference
+            var externalReference = OddUtils.GenerateExternalReference();
+            _logger.LogDebug("Generated external reference: {ExternalReference}", externalReference);
+
+            // Get configuration values
+            var passPhrase = _configuration["KBankODD:PassPhrase"];
+            if (string.IsNullOrEmpty(passPhrase))
+            {
+                throw new InvalidOperationException("KBankODD:PassPhrase not configured");
+            }
+
+            var externalSystem = _configuration["KBankODD:ExternalSystem"] ?? "BIZCONNECT";
+            var serviceName = _configuration["KBankODD:ServiceName"] ?? "BizConnect ODD Service";
+            var pgBaseUrl = _configuration["KBankODD:PGBaseUrl"] ?? throw new InvalidOperationException("KBankODD:PGBaseUrl not configured");
+            var appBaseUrl = _configuration["KBankODD:AppBaseUrl"] ?? "https://localhost:7178"; // Application base URL
+
+            // Build authentication hash
+            var authParameter = OddUtils.BuildAuth(passPhrase, externalSystem, externalReference);
+
+            // Create initialization request with contact information
+            var initRequest = new KBankInitRequest
+            {
+                TransactionType = "0600",
+                Encoding = "UTF8",
+                ExternalSystem = externalSystem,
+                ExternalReference = externalReference,
+                ServiceName = serviceName,
+                UserEmail = request.Email,
+                UserMobileNo = request.MobileNo,
+                Id = request.IdValue,
+                CallbackUrl = $"{appBaseUrl.TrimEnd('/')}/kbank/odd/callback?ref={externalReference}",
+                AuthParameter = authParameter
+            };
+
+            // Call KBank API
+            var initResponse = await _kbankClient.InitAsync(initRequest, cancellationToken);
+
+            // Check if initialization was successful
+            if (initResponse.ReturnStatus != "0" || string.IsNullOrEmpty(initResponse.RegId))
+            {
+                _logger.LogError("KBank initialization failed: Status={Status}, Code={Code}, Message={Message}",
+                    initResponse.ReturnStatus, initResponse.ReturnCode, initResponse.ReturnMessage);
+                throw new InvalidOperationException($"KBank initialization failed: {initResponse.ReturnMessage}");
+            }
+
+            // Save registration record with Pending status and contact information
+            var registration = new KbankOddRegistration
+            {
+                ExternalReference = externalReference,
+                RegId = initResponse.RegId,
+                Status = "Pending",
+                Email = request.Email,
+                MobileNo = request.MobileNo,
+                IdType = request.IdType,
+                IdValue = request.IdValue,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.KbankOddRegistrations.Add(registration);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation("KBank ODD registration record created with contact info: ExternalReference={ExternalReference}, RegId={RegId}, Email={Email}",
+                externalReference, initResponse.RegId, request.Email);
+
+            // Build redirect URL
+            var redirectUrl = $"{pgBaseUrl.TrimEnd('/')}/PGSRegistration.do?reg_id={initResponse.RegId}&langLocale=th_TH";
+
+            _logger.LogInformation("KBank ODD registration redirect URL generated: {RedirectUrl}", redirectUrl);
+
+            return redirectUrl;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to start KBank ODD registration process with contact information");
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
     public async Task<StatusProcessResult> ProcessStatusUpdateAsync(StatusUpdateDto dto, CancellationToken cancellationToken = default)
     {
         try

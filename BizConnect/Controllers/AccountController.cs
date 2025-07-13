@@ -33,7 +33,7 @@ public class AccountController : Controller
             }
             else
             {
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Register", "KBank");
             }
         }
 
@@ -80,11 +80,16 @@ public class AccountController : Controller
                 }
                 else
                 {
-                    return LocalRedirect(returnUrl ?? "/");
+                    // Redirect regular users to KBank ODD registration form
+                    return LocalRedirect(returnUrl ?? Url.Action("Register", "KBank", new { area = "" })!);
                 }
             }
+            else
+            {
+                _logger.LogWarning("Failed login attempt for username: {Username}", model.Username);
+            }
 
-            ModelState.AddModelError(string.Empty, "Invalid username or password.");
+            ModelState.AddModelError(string.Empty, "Invalid username or password. Please check your credentials and try again.");
         }
 
         return View(model);

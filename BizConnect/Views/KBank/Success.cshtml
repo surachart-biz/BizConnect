@@ -1,0 +1,135 @@
+@{
+    ViewData["Title"] = "Registration Successful";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            <!-- Success Header -->
+            <div class="text-center mb-4">
+                <div class="bc-success-header">
+                    <div class="bc-success-icon-wrapper mb-3">
+                        <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h1 class="h2 mb-2 text-success">Registration Successful!</h1>
+                    <p class="text-muted">Your KBank Online Direct Debit registration has been completed successfully</p>
+                </div>
+            </div>
+
+            <!-- Success Details Card -->
+            <div class="card shadow-sm border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-university me-2"></i>KBank ODD Registration Complete
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-success" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Congratulations!</strong> Your KBank Online Direct Debit registration has been successfully processed.
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-success mb-3">
+                                <i class="fas fa-check me-2"></i>What's Next?
+                            </h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-arrow-right text-success me-2"></i>
+                                    Your account is now set up for automatic payments
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-arrow-right text-success me-2"></i>
+                                    You will receive SMS confirmations for transactions
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-arrow-right text-success me-2"></i>
+                                    Check your email for registration confirmation
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-success mb-3">
+                                <i class="fas fa-shield-alt me-2"></i>Security Features
+                            </h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-lock text-success me-2"></i>
+                                    Bank-level security encryption
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-mobile-alt text-success me-2"></i>
+                                    SMS transaction notifications
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-history text-success me-2"></i>
+                                    Complete transaction history
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Important Information Card -->
+            <div class="card mt-4 border-info">
+                <div class="card-header bg-info text-white">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-exclamation-circle me-2"></i>Important Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li>Keep your mobile number updated for SMS notifications</li>
+                        <li>Monitor your bank account for automatic debit transactions</li>
+                        <li>Contact customer support if you have any questions</li>
+                        <li>You can manage your ODD settings through KBank's online banking</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center mt-4">
+                <a href="@Url.Action("Index", "Home")" class="btn btn-primary me-3">
+                    <i class="fas fa-home me-2"></i>Return to Home
+                </a>
+                <a href="@Url.Action("Dashboard", "Home", new { area = "" })" class="btn btn-outline-primary">
+                    <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bc-success-header {
+        margin-bottom: 2rem;
+    }
+    
+    .bc-success-icon-wrapper {
+        display: inline-block;
+        padding: 1.5rem;
+        background: rgba(25, 135, 84, 0.1);
+        border-radius: 50%;
+        animation: successPulse 2s ease-in-out infinite;
+    }
+    
+    @@keyframes successPulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .card {
+        border-radius: 0.5rem;
+    }
+    
+    .card-header {
+        border-radius: 0.5rem 0.5rem 0 0 !important;
+    }
+    
+    .alert-success {
+        border-left: 4px solid #198754;
+    }
+</style>
