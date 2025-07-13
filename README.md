@@ -39,25 +39,124 @@ Example `appsettings.Local.json`:
 }
 ```
 
-### 2. Local DB Workflow
+### 2. Database-First Migration Workflow
 
-When you add or modify SQL migration files in `/db/migrations/`, use these single-command workflows to update your local database and Entity Framework models:
+BizConnect follows a **Database-First** approach. When you add or modify SQL migration files in `/db/migrations/`, use these scripts to update your local database and Entity Framework models:
 
-**Windows (PowerShell):**
+#### Script Options
+
+**🚀 Cross-Platform Launcher (Recommended):**
+```bash
+./scripts/update-db
+```
+*Automatically detects your environment and calls the appropriate script.*
+
+**Windows PowerShell:**
 ```powershell
 .\scripts\update-db.ps1
 ```
 
-**macOS/Linux/WSL (Bash):**
+**macOS/Linux/WSL/Git Bash:**
 ```bash
 bash ./scripts/update-db.sh
 ```
 
-These scripts will:
-1. Read your connection string from `appsettings.Local.json`
-2. Execute all SQL migration files in alphabetical order
-3. Re-scaffold Entity Framework Core models to match the database
-4. Validate that the solution builds successfully
+#### Prerequisites
+
+| Tool | Windows | macOS | Linux | Notes |
+|------|---------|-------|-------|-------|
+| **PowerShell** | 5.1+ or Core 6+ | Core 6+ | Core 6+ | For `.ps1` script |
+| **Bash + jq** | Git Bash + `choco install jq` | Built-in + `brew install jq` | Built-in + `apt install jq` | For `.sh` script |
+| **.NET 8 SDK** | Required | Required | Required | All platforms |
+| **PostgreSQL Client** | `psql` in PATH | `psql` in PATH | `psql` in PATH | All platforms |
+| **dotnet-ef tool** | Auto-installed | Auto-installed | Auto-installed | All platforms |
+
+#### What These Scripts Do
+
+1. **Validate Prerequisites** - Check for required tools and configuration
+2. **Read Connection String** - From `appsettings.Local.json`
+3. **Execute SQL Migrations** - Run all `.sql` files in alphabetical order
+4. **Scaffold EF Models** - Re-generate Entity Framework Core models
+5. **Validate Build** - Ensure the solution compiles successfully
+
+#### Installation Help
+
+If you get errors about missing tools:
+
+**jq (for Bash script):**
+```bash
+# Windows (Chocolatey)
+choco install jq
+
+# Windows (Scoop)
+scoop install jq
+
+# macOS (Homebrew)
+brew install jq
+
+# Ubuntu/Debian
+sudo apt-get install jq
+
+# RHEL/CentOS
+sudo yum install jq
+```
+
+**PostgreSQL Client (psql):**
+
+The migration scripts require the PostgreSQL client (`psql`) to execute SQL files. Install it using your platform's package manager:
+
+```bash
+# Windows (Chocolatey)
+choco install postgresql
+
+# Windows (Scoop)
+scoop install postgresql
+
+# macOS (Homebrew)
+brew install postgresql
+
+# macOS (MacPorts)
+sudo port install postgresql16
+
+# Ubuntu/Debian
+sudo apt-get install postgresql-client
+
+# RHEL/CentOS
+sudo yum install postgresql
+
+# Fedora
+sudo dnf install postgresql
+
+# Arch Linux
+sudo pacman -S postgresql
+```
+
+**Manual Installation:**
+- Windows: Download from [postgresql.org](https://www.postgresql.org/download/windows/)
+- Other platforms: [postgresql.org/download](https://www.postgresql.org/download/)
+
+**Custom Installation Path:**
+
+If PostgreSQL is installed in a non-standard location, set the `PG_BIN` environment variable:
+
+```bash
+# Bash/Zsh
+export PG_BIN="/usr/local/pgsql/bin"
+export PG_BIN="/c/Program Files/PostgreSQL/16/bin"  # Git Bash on Windows
+
+# PowerShell
+$env:PG_BIN = "C:\Program Files\PostgreSQL\16\bin"
+
+# Command Prompt
+set PG_BIN=C:\Program Files\PostgreSQL\16\bin
+```
+
+#### Dry Run Mode
+
+Test what the PowerShell script would do without making changes:
+```powershell
+.\scripts\update-db.ps1 -WhatIf
+```
 
 ### 3. Running the Application
 

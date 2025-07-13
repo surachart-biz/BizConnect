@@ -12,6 +12,17 @@
 # Platform: macOS, Linux, WSL
 #
 
+# Environment detection - check if running in PowerShell (rare but possible)
+if [[ -n "${PSVersionTable:-}" ]] || [[ -n "${PSHOME:-}" ]]; then
+    echo -e "\033[31m❌ You are running this Bash script in PowerShell.\033[0m"
+    echo ""
+    echo -e "\033[33mPlease use one of these options instead:\033[0m"
+    echo -e "\033[36m  1. Use PowerShell script: .\scripts\update-db.ps1\033[0m"
+    echo -e "\033[36m  2. Use cross-platform launcher: ./scripts/update-db\033[0m"
+    echo ""
+    exit 1
+fi
+
 # Strict error handling
 set -euo pipefail
 
@@ -34,6 +45,100 @@ error_exit() {
     exit 1
 }
 
+# PostgreSQL client discovery function
+find_postgresql_client() {
+    # 1. Check if PG_BIN environment variable is set
+    if [[ -n "${PG_BIN:-}" ]]; then
+        local pg_bin_path="$PG_BIN/psql"
+        if [[ -x "$pg_bin_path" ]]; then
+            print_info "Using PostgreSQL client from PG_BIN: $pg_bin_path" >&2
+            echo "$pg_bin_path"
+            return 0
+        else
+            print_warning "PG_BIN is set but psql not found or not executable at: $pg_bin_path"
+        fi
+    fi
+
+    # 2. Try which/command -v first (checks PATH)
+    local psql_in_path
+    if psql_in_path=$(command -v psql 2>/dev/null); then
+        # On Windows, command -v might return path without .exe extension
+        # Try both with and without .exe
+        local psql_candidates=("$psql_in_path" "${psql_in_path}.exe")
+        for candidate in "${psql_candidates[@]}"; do
+            if [[ -x "$candidate" ]]; then
+                print_info "Using PostgreSQL client from PATH: $candidate" >&2
+                echo "$candidate"
+                return 0
+            fi
+        done
+        print_warning "Found psql in PATH but it's not executable: $psql_in_path"
+    fi
+
+    # 3. Search common installation paths
+    local common_paths=(
+        "/usr/bin/psql"
+        "/usr/local/bin/psql"
+        "/usr/local/pgsql/bin/psql"
+        "/opt/postgresql/bin/psql"
+        "/Applications/Postgres.app/Contents/Versions/*/bin/psql"
+    )
+
+    # Add Windows paths for Git Bash/MSYS2/Cygwin
+    if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || uname -o 2>/dev/null | grep -qi mingw; then
+        common_paths+=(
+            "/c/Program Files/PostgreSQL/*/bin/psql.exe"
+            "/c/Program Files (x86)/PostgreSQL/*/bin/psql.exe"
+        )
+    fi
+
+    for path_pattern in "${common_paths[@]}"; do
+        # Handle glob patterns - use compgen for proper expansion
+        if [[ "$path_pattern" == *"*"* ]]; then
+            # Use find for wildcard patterns
+            local found_paths
+            if [[ "$path_pattern" == "/c/Program Files"* ]]; then
+                # Windows paths - search for psql.exe in PostgreSQL directories
+                if [[ -d "/c/Program Files" ]]; then
+                    found_paths=$(find "/c/Program Files" -name "psql.exe" -path "*/PostgreSQL/*/bin/psql.exe" 2>/dev/null | sort -V | tail -1)
+                    if [[ -n "$found_paths" && -x "$found_paths" ]]; then
+                        print_info "Found PostgreSQL client at: $found_paths" >&2
+                        echo "$found_paths"
+                        return 0
+                    fi
+                fi
+                if [[ -d "/c/Program Files (x86)" ]]; then
+                    found_paths=$(find "/c/Program Files (x86)" -name "psql.exe" -path "*/PostgreSQL/*/bin/psql.exe" 2>/dev/null | sort -V | tail -1)
+                    if [[ -n "$found_paths" && -x "$found_paths" ]]; then
+                        print_info "Found PostgreSQL client at: $found_paths" >&2
+                        echo "$found_paths"
+                        return 0
+                    fi
+                fi
+            else
+                # Unix paths with wildcards
+                for psql_path in $path_pattern; do
+                    if [[ -x "$psql_path" ]]; then
+                        print_info "Found PostgreSQL client at: $psql_path" >&2
+                        echo "$psql_path"
+                        return 0
+                    fi
+                done
+            fi
+        else
+            # Direct path without wildcards
+            if [[ -x "$path_pattern" ]]; then
+                print_info "Found PostgreSQL client at: $path_pattern" >&2
+                echo "$path_pattern"
+                return 0
+            fi
+        fi
+    done
+
+    # 4. Not found
+    return 1
+}
+
 # Banner
 echo -e "\033[35m🚀 BizConnect Database Migration Workflow"
 echo -e "==========================================\033[0m"
@@ -47,10 +152,140 @@ if [[ ! -f "$LOCAL_SETTINGS_PATH" ]]; then
 Please create this file with your local database connection string."
 fi
 
-# Check if required tools are available
-command -v psql >/dev/null 2>&1 || error_exit "PostgreSQL client 'psql' not found in PATH. Please install PostgreSQL client tools."
+# Check if required tools are available with enhanced psql discovery
+print_info "Discovering PostgreSQL client..."
+PSQL_PATH=$(find_postgresql_client)
+print_info "PostgreSQL client path resolved to: $PSQL_PATH"
+if [[ -z "$PSQL_PATH" ]]; then
+    print_error "PostgreSQL client 'psql' not found."
+    echo ""
+    echo -e "\033[33mInstallation instructions:\033[0m"
+
+    # Detect platform and provide specific instructions
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        echo -e "\033[36m  macOS (Homebrew): brew install postgresql\033[0m"
+        echo -e "\033[36m  macOS (MacPorts): sudo port install postgresql16\033[0m"
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        # Linux
+        if command -v apt-get >/dev/null 2>&1; then
+            echo -e "\033[36m  Ubuntu/Debian: sudo apt-get install postgresql-client\033[0m"
+        fi
+        if command -v yum >/dev/null 2>&1; then
+            echo -e "\033[36m  RHEL/CentOS: sudo yum install postgresql\033[0m"
+        fi
+        if command -v dnf >/dev/null 2>&1; then
+            echo -e "\033[36m  Fedora: sudo dnf install postgresql\033[0m"
+        fi
+        if command -v pacman >/dev/null 2>&1; then
+            echo -e "\033[36m  Arch Linux: sudo pacman -S postgresql\033[0m"
+        fi
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
+        # Windows (Git Bash/MSYS2/Cygwin)
+        echo -e "\033[36m  Windows (Chocolatey): choco install postgresql\033[0m"
+        echo -e "\033[36m  Windows (Scoop): scoop install postgresql\033[0m"
+        echo -e "\033[36m  Git Bash/MSYS2: pacman -S mingw-w64-x86_64-postgresql\033[0m"
+    fi
+
+    echo -e "\033[36m  Or download from: https://www.postgresql.org/download/\033[0m"
+    echo ""
+    echo -e "\033[33mAlternative: Set environment variable PG_BIN to your PostgreSQL bin directory:\033[0m"
+    echo -e "\033[36m  export PG_BIN=\"/usr/local/pgsql/bin\"\033[0m"
+    echo -e "\033[36m  export PG_BIN=\"/c/Program Files/PostgreSQL/16/bin\"\033[0m"
+    echo ""
+    exit 1
+fi
+
 command -v dotnet >/dev/null 2>&1 || error_exit ".NET SDK not found in PATH. Please install .NET 8 SDK."
-command -v jq >/dev/null 2>&1 || error_exit "jq not found in PATH. Please install jq for JSON parsing."
+
+# Enhanced jq check with auto-download for Windows and platform-specific instructions
+ensure_jq_available() {
+    # Check if jq is already available
+    if command -v jq >/dev/null 2>&1; then
+        return 0
+    fi
+
+    print_info "jq not found in PATH. Attempting to resolve..."
+
+    # Detect platform and handle accordingly
+    if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || uname -o 2>/dev/null | grep -qi mingw; then
+        # Windows (Git Bash/MSYS2/Cygwin) - auto-download portable jq
+        print_info "Windows environment detected. Downloading portable jq..."
+
+        local tools_dir="$SCRIPT_DIR/tools"
+        local jq_path="$tools_dir/jq.exe"
+
+        # Create tools directory if it doesn't exist
+        if [[ ! -d "$tools_dir" ]]; then
+            mkdir -p "$tools_dir" || error_exit "Failed to create tools directory: $tools_dir"
+        fi
+
+        # Download jq if not already present
+        if [[ ! -f "$jq_path" ]]; then
+            print_info "Downloading jq-win64.exe..."
+            if command -v curl >/dev/null 2>&1; then
+                curl -L "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-win64.exe" -o "$jq_path" --silent --show-error
+            elif command -v wget >/dev/null 2>&1; then
+                wget -q "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-win64.exe" -O "$jq_path"
+            else
+                error_exit "Neither curl nor wget found. Cannot download jq automatically."
+            fi
+
+            if [[ ! -f "$jq_path" ]]; then
+                error_exit "Failed to download jq to: $jq_path"
+            fi
+
+            # Make executable
+            chmod +x "$jq_path"
+            print_success "Downloaded portable jq to scripts/tools/"
+        else
+            print_info "Using existing portable jq from scripts/tools/"
+        fi
+
+        # Add tools directory to PATH for this session
+        export PATH="$tools_dir:$PATH"
+
+        # Verify jq is now available
+        if ! command -v jq >/dev/null 2>&1; then
+            error_exit "jq still not available after download. Please check scripts/tools/jq.exe"
+        fi
+
+        return 0
+    else
+        # macOS/Linux - provide installation instructions and exit
+        print_error "jq not found in PATH. Please install jq for JSON parsing."
+        echo ""
+        echo -e "\033[33mInstallation instructions:\033[0m"
+
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            # macOS
+            echo -e "\033[36m  macOS (Homebrew): brew install jq\033[0m"
+            echo -e "\033[36m  macOS (MacPorts): sudo port install jq\033[0m"
+        elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+            # Linux
+            if command -v apt-get >/dev/null 2>&1; then
+                echo -e "\033[36m  Ubuntu/Debian: sudo apt-get install jq\033[0m"
+            fi
+            if command -v yum >/dev/null 2>&1; then
+                echo -e "\033[36m  RHEL/CentOS: sudo yum install jq\033[0m"
+            fi
+            if command -v dnf >/dev/null 2>&1; then
+                echo -e "\033[36m  Fedora: sudo dnf install jq\033[0m"
+            fi
+            if command -v pacman >/dev/null 2>&1; then
+                echo -e "\033[36m  Arch Linux: sudo pacman -S jq\033[0m"
+            fi
+        fi
+
+        echo -e "\033[36m  Or download from: https://stedolan.github.io/jq/download/\033[0m"
+        echo ""
+        echo -e "\033[33mAfter installation, re-run this script.\033[0m"
+        exit 1
+    fi
+}
+
+# Call the enhanced jq check
+ensure_jq_available
 
 print_success "Prerequisites validated"
 
@@ -89,7 +324,8 @@ else
         # Execute SQL file with error handling
         # Convert .NET connection string to psql format
         PSQL_CONNECTION=$(echo "$CONNECTION_STRING" | sed 's/Host=/host=/g; s/Database=/dbname=/g; s/Username=/user=/g; s/Password=/password=/g; s/;/ /g')
-        if ! psql "$PSQL_CONNECTION" -v ON_ERROR_STOP=1 -f "$sql_file"; then
+        print_info "Executing command: $PSQL_PATH $PSQL_CONNECTION -v ON_ERROR_STOP=1 -f $sql_file"
+        if ! "$PSQL_PATH" "$PSQL_CONNECTION" -v ON_ERROR_STOP=1 -f "$sql_file"; then
             error_exit "SQL execution failed for $filename"
         fi
         

@@ -416,7 +416,14 @@ secrets.json
 # Database and script related files
 *.psql_history
 /scripts/*.log
+/scripts/update-db.log
+/scripts/migration-*.log
 /db/migrations/*.log
+/db/migrations/*.backup
 
 # Documentation files to ignore
 02_db-first-workflow.md
+
+# Dev helper binaries (auto-downloaded tools)
+/scripts/tools/*
+!/scripts/tools/README.md

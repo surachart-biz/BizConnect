@@ -5,6 +5,21 @@
 -- Enable UUID extension if needed (optional for future use)
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Create schema version tracking table
+CREATE TABLE IF NOT EXISTS "_SchemaVersion" (
+    "Id" SERIAL PRIMARY KEY,
+    "Filename" VARCHAR(255) NOT NULL UNIQUE,
+    "AppliedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+-- Create index on Filename for faster lookups
+CREATE UNIQUE INDEX IF NOT EXISTS "IX_SchemaVersion_Filename" ON "_SchemaVersion" ("Filename");
+
+-- Add comment for documentation
+COMMENT ON TABLE "_SchemaVersion" IS 'Tracks applied database migration files';
+COMMENT ON COLUMN "_SchemaVersion"."Filename" IS 'Name of the migration file that was applied';
+COMMENT ON COLUMN "_SchemaVersion"."AppliedAt" IS 'Timestamp when the migration was applied';
+
 -- Create Users table with PascalCase column names to match EF Core conventions
 CREATE TABLE IF NOT EXISTS "Users" (
     "Id" SERIAL PRIMARY KEY,
@@ -63,3 +78,8 @@ COMMENT ON COLUMN "Users"."Role" IS 'User role: Admin or User';
 COMMENT ON COLUMN "Users"."CreatedAt" IS 'Timestamp when user was created';
 COMMENT ON COLUMN "Users"."UpdatedAt" IS 'Timestamp when user was last updated (auto-updated by trigger)';
 COMMENT ON COLUMN "Users"."IsActive" IS 'Whether the user account is active and can log in';
+
+-- Record this migration in the schema version table
+INSERT INTO "_SchemaVersion" ("Filename")
+VALUES ('20250710-01_InitialSchema.sql')
+ON CONFLICT ("Filename") DO NOTHING;

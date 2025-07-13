@@ -1,5 +1,6 @@
 using BizConnect.Dal;
 using BizConnect.Services;
+using BizConnect.Services.Clients;
 using BizConnect.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.StaticFiles;
@@ -20,6 +21,15 @@ builder.Services.AddDbContext<BizConnectContext>(options =>
 
 // Add services
 builder.Services.AddScoped<IUserService, UserService>();
+
+// Add KBank ODD services
+builder.Services.AddHttpClient<KBankOddClient>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(30);
+    client.DefaultRequestHeaders.Add("User-Agent", "BizConnect/1.0");
+});
+builder.Services.AddScoped<IKBankOddClient, KBankOddClient>();
+builder.Services.AddScoped<IKbankOddService, KbankOddService>();
 
 // Add authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
