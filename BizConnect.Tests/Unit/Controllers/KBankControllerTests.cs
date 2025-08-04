@@ -19,7 +19,7 @@ public class KBankControllerTests : IDisposable
     private readonly Mock<IKbankOddService> _mockKbankOddService;
     private readonly Mock<IOddRegistrationService> _mockOddRegistrationService;
     private readonly Mock<IValidationService> _mockValidationService;
-    private readonly Mock<BizConnectContext> _mockContext;
+    private readonly Mock<IBranchService> _mockBranchService;
     private readonly Mock<ILogger<KBankController>> _mockLogger;
     private readonly KBankController _controller;
 
@@ -28,14 +28,14 @@ public class KBankControllerTests : IDisposable
         _mockKbankOddService = new Mock<IKbankOddService>();
         _mockOddRegistrationService = new Mock<IOddRegistrationService>();
         _mockValidationService = new Mock<IValidationService>();
-        _mockContext = new Mock<BizConnectContext>();
+        _mockBranchService = new Mock<IBranchService>();
         _mockLogger = new Mock<ILogger<KBankController>>();
 
         _controller = new KBankController(
             _mockKbankOddService.Object, 
             _mockOddRegistrationService.Object,
             _mockValidationService.Object,
-            _mockContext.Object,
+            _mockBranchService.Object,
             _mockLogger.Object);
 
         // Setup controller context with authenticated user

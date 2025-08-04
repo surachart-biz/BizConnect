@@ -246,7 +246,7 @@
         }
 
         /* Responsive Design */
-        @media (max-width: 768px) {
+        @@media (max-width: 768px) {
             .register-card {
                 padding: 2rem 1.5rem;
                 margin: 1rem;
@@ -288,7 +288,7 @@
             animation: spin 1s ease-in-out infinite;
         }
 
-        @keyframes spin {
+        @@keyframes spin {
             to { transform: rotate(360deg); }
         }
 
@@ -381,15 +381,10 @@
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-floating">
-                            <select asp-for="IdType" class="form-select" required>
-                                <option value="">เลือกประเภทเอกสาร</option>
-                                @foreach (var idType in Model.IdTypes)
-                                {
-                                    <option value="@idType.Value">@idType.Text</option>
-                                }
-                            </select>
-                            <label asp-for="IdType" class="required-field">ประเภทเอกสาร</label>
-                            <span asp-validation-for="IdType" class="text-danger"></span>
+                            <!-- IdType is always "National ID" as per requirements -->
+                            <input type="hidden" asp-for="IdType" value="National ID" />
+                            <input type="text" class="form-control" value="บัตรประจำตัวประชาชน (13 หลัก)" readonly />
+                            <label class="required-field">ประเภทเอกสาร</label>
                         </div>
                     </div>
                     <div class="col-md-8">
@@ -643,36 +638,21 @@
             });
 
             function initializeInputs() {
-                // ID Type change handler
-                const idTypeSelect = document.getElementById('IdType');
+                // Setup for National ID only (no dropdown)
                 const idValueInput = document.getElementById('idValueInput');
                 const idHintText = document.getElementById('idHintText');
 
-                idTypeSelect.addEventListener('change', function() {
-                    const selectedType = this.value;
-                    if (selectedType && validators.idValue[selectedType]) {
-                        const validator = validators.idValue[selectedType];
-                        idHintText.textContent = validator.hint;
-                        idValueInput.placeholder = validator.hint;
-                    } else {
-                        idHintText.textContent = 'กรุณาเลือกประเภทเอกสารก่อน';
-                        idValueInput.placeholder = 'เลขที่เอกสาร';
-                    }
-                    idValueInput.value = '';
-                    clearValidationState(idValueInput);
-                });
+                // Set hint for National ID (13 digits)
+                const nationalIdValidator = validators.idValue['National ID'];
+                if (nationalIdValidator) {
+                    idHintText.textContent = nationalIdValidator.hint;
+                    idValueInput.placeholder = nationalIdValidator.hint;
+                }
 
-                // ID Value input formatting
+                // ID Value input formatting (National ID only - 13 digits)
                 idValueInput.addEventListener('input', function() {
-                    const selectedType = idTypeSelect.value;
-                    let value = this.value.replace(/[^A-Za-z0-9]/g, '');
-                    
-                    if (selectedType === 'National ID' || selectedType === 'Tax ID' || selectedType === 'Company Tax ID') {
-                        value = value.replace(/[^0-9]/g, '').substring(0, 13);
-                    } else if (selectedType === 'Passport') {
-                        value = value.toUpperCase().substring(0, 12);
-                    }
-                    
+                    // Always National ID - only allow 13 digits
+                    let value = this.value.replace(/[^0-9]/g, '').substring(0, 13);
                     this.value = value;
                     validateField(this);
                 });
@@ -724,15 +704,9 @@
                         break;
 
                     case 'IdValue':
-                        const idType = document.getElementById('IdType').value;
-                        if (idType && validators.idValue[idType]) {
-                            const validator = validators.idValue[idType];
-                            isValid = validator.pattern.test(value);
-                            errorMessage = validator.message;
-                        } else {
-                            isValid = false;
-                            errorMessage = 'กรุณาเลือกประเภทเอกสารก่อน';
-                        }
+                        // Always National ID - validate 13 digits
+                        isValid = /^[0-9]{13}$/.test(value);
+                        errorMessage = 'เลขประจำตัวประชาชนต้องเป็นตัวเลข 13 หลัก';
                         break;
 
                     case 'MobileNo':
@@ -745,10 +719,9 @@
                         errorMessage = 'เลขที่บัญชีต้องเป็นตัวเลข 10-15 หลัก';
                         break;
 
-                    case 'IdType':
                     case 'BranchId':
                         isValid = value !== '';
-                        errorMessage = 'กรุณาเลือกข้อมูลที่จำเป็น';
+                        errorMessage = 'กรุณาเลือกสาขา';
                         break;
                 }
 

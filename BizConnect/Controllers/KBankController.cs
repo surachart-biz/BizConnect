@@ -1,11 +1,9 @@
-using BizConnect.Dal.Models;
 using BizConnect.Services.Interfaces;
 using BizConnect.Services.Models.KBank;
 using BizConnect.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 
 namespace BizConnect.Controllers;
 
@@ -18,70 +16,26 @@ public class KBankController : Controller
     private readonly IKbankOddService _kbankOddService;
     private readonly IOddRegistrationService _oddRegistrationService;
     private readonly IValidationService _validationService;
-    private readonly BizConnectContext _context;
+    private readonly IBranchService _branchService;
     private readonly ILogger<KBankController> _logger;
 
     public KBankController(
         IKbankOddService kbankOddService, 
         IOddRegistrationService oddRegistrationService,
         IValidationService validationService,
-        BizConnectContext context,
+        IBranchService branchService,
         ILogger<KBankController> logger)
     {
         _kbankOddService = kbankOddService;
         _oddRegistrationService = oddRegistrationService;
         _validationService = validationService;
-        _context = context;
+        _branchService = branchService;
         _logger = logger;
     }
 
-    /// <summary>
-    /// Guest registration start endpoint - DEPRECATED - Now handled by HomeController
-    /// </summary>
-    /// <returns>Redirect to new flow</returns>
-    [HttpGet("register/start")]
-    [AllowAnonymous]
-    public IActionResult Start()
-    {
-        _logger.LogInformation("Redirecting from deprecated KBank start endpoint to new flow");
-        return RedirectToAction("Verify", "Home");
-    }
-
-    /// <summary>
-    /// Guest registration form endpoint - DEPRECATED - Now handled by HomeController
-    /// </summary>
-    /// <param name="otac">8-character OTAC code</param>
-    /// <returns>Redirect to new flow</returns>
-    [HttpGet("register/form")]
-    [AllowAnonymous]
-    public IActionResult RegisterForm(string? otac)
-    {
-        _logger.LogInformation("Redirecting from deprecated KBank register/form endpoint to new flow, OTAC: {Otac}", otac);
-        
-        if (!string.IsNullOrWhiteSpace(otac))
-        {
-            // Pass the OTAC to the new verification flow
-            TempData["OtacCode"] = otac;
-        }
-        
-        return RedirectToAction("Verify", "Home");
-    }
-
-    /// <summary>
-    /// Processes guest registration form submission - DEPRECATED - Now handled by HomeController
-    /// </summary>
-    /// <param name="viewModel">Registration form data</param>
-    /// <param name="registrationId">Registration ID from ViewData</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Redirect to new flow</returns>
-    [HttpPost("register/form")]
-    [AllowAnonymous]
-    [ValidateAntiForgeryToken]
-    public IActionResult RegisterForm(KBankOddRegisterViewModel viewModel, int registrationId, CancellationToken cancellationToken = default)
-    {
-        _logger.LogInformation("Redirecting deprecated POST register/form to new flow");
-        return RedirectToAction("Register", "Home");
-    }
+    // DEPRECATED ENDPOINTS REMOVED - Guest registration now handled by HomeController
+    // - /kbank/register/start -> /verify (HomeController)
+    // - /kbank/register/form -> /register (HomeController)
 
     /// <summary>
     /// Displays the KBank ODD registration form (authenticated users)
@@ -94,15 +48,16 @@ public class KBankController : Controller
         _logger.LogInformation("User {UserId} accessed KBank ODD registration form", User.Identity?.Name);
 
         // Load active branches for dropdown
-        var branches = await _context.Branches.Where(b => b.IsActive).OrderBy(b => b.Name).ToListAsync();
+        var branchData = await _branchService.GetActiveBranchesForDropdownAsync();
+        var branches = branchData.Select(b => new SelectListItem 
+        { 
+            Value = b.BranchId.ToString(), 
+            Text = b.Name 
+        }).ToList();
 
         var viewModel = new KBankOddRegisterViewModel
         {
-            Branches = branches.Select(b => new SelectListItem 
-            { 
-                Value = b.BranchId.ToString(), 
-                Text = b.Name 
-            }).ToList()
+            Branches = branches
         };
 
         return View(viewModel);
@@ -136,8 +91,8 @@ public class KBankController : Controller
                 _logger.LogWarning("User {UserId} submitted invalid KBank ODD registration form", User.Identity?.Name);
                 
                 // Reload branches for dropdown
-                var branches = await _context.Branches.Where(b => b.IsActive).OrderBy(b => b.Name).ToListAsync();
-                viewModel.Branches = branches.Select(b => new SelectListItem 
+                var branchData = await _branchService.GetActiveBranchesForDropdownAsync();
+                viewModel.Branches = branchData.Select(b => new SelectListItem 
                 { 
                     Value = b.BranchId.ToString(), 
                     Text = b.Name 
@@ -172,8 +127,8 @@ public class KBankController : Controller
             ModelState.AddModelError(string.Empty, "Unable to process registration. Please try again later.");
             
             // Reload branches for dropdown
-            var branches = await _context.Branches.Where(b => b.IsActive).OrderBy(b => b.Name).ToListAsync();
-            viewModel.Branches = branches.Select(b => new SelectListItem 
+            var branchData = await _branchService.GetActiveBranchesForDropdownAsync();
+            viewModel.Branches = branchData.Select(b => new SelectListItem 
             { 
                 Value = b.BranchId.ToString(), 
                 Text = b.Name 
@@ -198,9 +153,8 @@ public class KBankController : Controller
             _logger.LogInformation("Received KBank ODD status update: ExternalReference={ExternalReference}, Status={Status}, ReturnCode={ReturnCode}", 
                 dto.ExternalReference, dto.ReturnStatus, dto.ReturnCode);
 
-            // Find registration by external reference
-            var result = await _oddRegistrationService.GetRegistrationsAsync(page: 1, pageSize: 1000);
-            var registration = result.Registrations.FirstOrDefault(r => r.ExternalReference == dto.ExternalReference);
+            // Find registration by external reference using new service method
+            var registration = await _oddRegistrationService.GetRegistrationByExternalRefAsync(dto.ExternalReference);
 
             if (registration == null)
             {
@@ -250,9 +204,7 @@ public class KBankController : Controller
             _logger.LogInformation("Processing KBank callback for external reference: {ExternalReference}", @ref);
 
             // Look up the registration status using the service
-            // Note: We need to find registration by external reference
-            var result = await _oddRegistrationService.GetRegistrationsAsync(page: 1, pageSize: 1000);
-            var registration = result.Registrations.FirstOrDefault(r => r.ExternalReference == @ref);
+            var registration = await _oddRegistrationService.GetRegistrationByExternalRefAsync(@ref);
 
             if (registration == null)
             {

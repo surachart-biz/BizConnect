@@ -13,8 +13,8 @@ public interface IOddRegistrationService
     /// Generates a new OTAC code and creates a KBank ODD registration record
     /// </summary>
     /// <param name="employeeUserId">ID of the employee generating the OTAC</param>
-    /// <returns>Generated OTAC code</returns>
-    Task<string> GenerateOtacAsync(int employeeUserId);
+    /// <returns>Generated KBank ODD registration record with OTAC</returns>
+    Task<KbankOddRegistration> GenerateOtacAsync(int employeeUserId);
 
     /// <summary>
     /// Validates an OTAC code and updates its state
@@ -63,6 +63,13 @@ public interface IOddRegistrationService
     /// <param name="regId">KBank registration ID</param>
     /// <returns>Registration record or null if not found</returns>
     Task<KbankOddRegistration?> GetRegistrationByRegIdAsync(string regId);
+
+    /// <summary>
+    /// Gets a specific registration by external reference
+    /// </summary>
+    /// <param name="externalRef">External reference</param>
+    /// <returns>Registration record or null if not found</returns>
+    Task<KbankOddRegistration?> GetRegistrationByExternalRefAsync(string externalRef);
 
     // Admin Management Methods
 

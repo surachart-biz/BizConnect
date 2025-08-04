@@ -40,8 +40,8 @@ public class OddRegistrationService : IOddRegistrationService
     /// Generates a new OTAC code and creates a KBank ODD registration record
     /// </summary>
     /// <param name="employeeUserId">ID of the employee generating the OTAC</param>
-    /// <returns>Generated OTAC code</returns>
-    public async Task<string> GenerateOtacAsync(int employeeUserId)
+    /// <returns>Generated KBank ODD registration record with OTAC</returns>
+    public async Task<KbankOddRegistration> GenerateOtacAsync(int employeeUserId)
     {
         try
         {
@@ -65,12 +65,12 @@ public class OddRegistrationService : IOddRegistrationService
             }
             while (await _context.KbankOddRegistrations.AnyAsync(r => r.OtacCode == otacCode));
 
-            // Create registration record with OTAC
+            // Create registration record with OTAC (Status = null initially, ExternalReference = null until form submission)
             var registration = new KbankOddRegistration
             {
-                ExternalReference = OddUtils.GenerateExternalReference(),
+                ExternalReference = string.Empty, // Will be set when form is submitted
                 RegId = string.Empty, // Will be set when KBank API is called
-                Status = "CodeIssued",
+                Status = null, // No status initially - will be set to "Pending" after form submission
                 CreatedAt = DateTime.UtcNow,
                 OtacCode = otacCode,
                 OtacState = "Generated",
@@ -86,7 +86,7 @@ public class OddRegistrationService : IOddRegistrationService
             _logger.LogInformation("OTAC generated successfully: {OtacCode} for user {UserId}, expires at {ExpiresAt}",
                 otacCode, employeeUserId, registration.OtacExpiresAt);
 
-            return otacCode;
+            return registration;
         }
         catch (Exception ex)
         {
@@ -262,7 +262,8 @@ public class OddRegistrationService : IOddRegistrationService
                 return (false, "ไม่พบข้อมูลการลงทะเบียน");
             }
 
-            // Update registration with form data
+            // Update registration with form data and set ExternalReference
+            registration.ExternalReference = OddUtils.GenerateExternalReference();
             registration.FullName = formData.FullName;
             registration.IdType = formData.IdType;
             registration.IdValue = formData.IdValue;
@@ -373,6 +374,27 @@ public class OddRegistrationService : IOddRegistrationService
         }
     }
 
+    /// <summary>
+    /// Gets a specific registration by external reference
+    /// </summary>
+    /// <param name="externalRef">External reference</param>
+    /// <returns>Registration record or null if not found</returns>
+    public async Task<KbankOddRegistration?> GetRegistrationByExternalRefAsync(string externalRef)
+    {
+        try
+        {
+            return await _context.KbankOddRegistrations
+                .Include(r => r.Branch)
+                .Include(r => r.GeneratedByUser)
+                .FirstOrDefaultAsync(r => r.ExternalReference == externalRef);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get registration by ExternalRef: {ExternalRef}", externalRef);
+            return null;
+        }
+    }
+
     #endregion
 
     #region Background Job Methods
@@ -394,7 +416,7 @@ public class OddRegistrationService : IOddRegistrationService
                 .Where(r => r.OtacExpiresAt.HasValue && 
                            r.OtacExpiresAt.Value < cutoffDate &&
                            r.OtacState != "Used" &&
-                           r.Status == "CodeIssued")
+                           (r.Status == null || r.Status == "Pending"))
                 .ToListAsync();
 
             if (expiredRegistrations.Any())

@@ -1,12 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using BizConnect.Dal.Models;
 using BizConnect.Models;
 using BizConnect.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 
 namespace BizConnect.Controllers;
 
@@ -14,13 +12,13 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly IOddRegistrationService _oddRegistrationService;
-    private readonly BizConnectContext _context;
+    private readonly IBranchService _branchService;
 
-    public HomeController(ILogger<HomeController> logger, IOddRegistrationService oddRegistrationService, BizConnectContext context)
+    public HomeController(ILogger<HomeController> logger, IOddRegistrationService oddRegistrationService, IBranchService branchService)
     {
         _logger = logger;
         _oddRegistrationService = oddRegistrationService;
-        _context = context;
+        _branchService = branchService;
     }
 
     public IActionResult Index()
@@ -113,14 +111,12 @@ public class HomeController : Controller
         }
 
         // Load branches for dropdown
-        var branches = await _context.Branches
-            .OrderBy(b => b.Name)
-            .Select(b => new SelectListItem 
-            { 
-                Value = b.BranchId.ToString(), 
-                Text = b.Name 
-            })
-            .ToListAsync();
+        var branchData = await _branchService.GetActiveBranchesForDropdownAsync();
+        var branches = branchData.Select(b => new SelectListItem 
+        { 
+            Value = b.BranchId.ToString(), 
+            Text = b.Name 
+        }).ToList();
 
         var model = new GuestRegistrationViewModel
         {
@@ -149,24 +145,22 @@ public class HomeController : Controller
         if (!ModelState.IsValid)
         {
             // Reload branches
-            model.Branches = await _context.Branches
-                .OrderBy(b => b.Name)
-                .Select(b => new SelectListItem 
-                { 
-                    Value = b.BranchId.ToString(), 
-                    Text = b.Name 
-                })
-                .ToListAsync();
+            var branchDataForError = await _branchService.GetActiveBranchesForDropdownAsync();
+            model.Branches = branchDataForError.Select(b => new SelectListItem 
+            { 
+                Value = b.BranchId.ToString(), 
+                Text = b.Name 
+            }).ToList();
             return View(model);
         }
 
         try
         {
-            // Create registration form data
+            // Create registration form data (IdType is always "National ID")
             var formData = new RegistrationFormData
             {
                 FullName = model.FullName,
-                IdType = model.IdType,
+                IdType = "National ID", // Always National ID as per requirements
                 IdValue = model.IdValue,
                 MobileNo = model.MobileNo,
                 AccountNo = model.AccountNo,
@@ -201,14 +195,12 @@ public class HomeController : Controller
         }
 
         // Reload branches on error
-        model.Branches = await _context.Branches
-            .OrderBy(b => b.Name)
-            .Select(b => new SelectListItem 
-            { 
-                Value = b.BranchId.ToString(), 
-                Text = b.Name 
-            })
-            .ToListAsync();
+        var branchData = await _branchService.GetActiveBranchesForDropdownAsync();
+        model.Branches = branchData.Select(b => new SelectListItem 
+        { 
+            Value = b.BranchId.ToString(), 
+            Text = b.Name 
+        }).ToList();
 
         return View(model);
     }
@@ -269,9 +261,8 @@ public class GuestRegistrationViewModel
     [Display(Name = "ชื่อ-นามสกุล")]
     public string FullName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "กรุณาเลือกประเภทเอกสาร")]
-    [Display(Name = "ประเภทเอกสาร")]
-    public string IdType { get; set; } = string.Empty;
+    // IdType is always "National ID" - no dropdown needed as per requirements
+    public string IdType { get; set; } = "National ID";
 
     [Required(ErrorMessage = "กรุณากรอกเลขที่เอกสาร")]
     [StringLength(50, ErrorMessage = "เลขที่เอกสารต้องไม่เกิน 50 ตัวอักษร")]
@@ -294,11 +285,5 @@ public class GuestRegistrationViewModel
 
     public IEnumerable<SelectListItem> Branches { get; set; } = new List<SelectListItem>();
 
-    public IEnumerable<SelectListItem> IdTypes => new List<SelectListItem>
-    {
-        new() { Value = "National ID", Text = "บัตรประจำตัวประชาชน (13 หลัก)" },
-        new() { Value = "Passport", Text = "หนังสือเดินทาง (Passport)" },
-        new() { Value = "Tax ID", Text = "เลขประจำตัวผู้เสียภาษี" },
-        new() { Value = "Company Tax ID", Text = "เลขประจำตัวผู้เสียภาษีนิติบุคคล" }
-    };
+    // No IdTypes dropdown - always "National ID" as per requirements
 }

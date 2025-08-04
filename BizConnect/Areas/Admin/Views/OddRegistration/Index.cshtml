@@ -529,7 +529,7 @@
                             <td class="date-cell">
                                 <div>@registration.CreatedAt.ToString("MMM dd, yyyy")</div>
                                 <div class="text-muted">@registration.CreatedAt.ToString("HH:mm")</div>
-                                @if (registration.GeneratedByUserId.HasValue)
+                                @if (registration.GeneratedByUserId > 0)
                                 {
                                     <div class="small badge bg-info mt-1">
                                         User ID: @registration.GeneratedByUserId

@@ -54,6 +54,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IOddRegistrationService, OddRegistrationService>();
 builder.Services.AddScoped<IValidationService, ValidationService>();
+builder.Services.AddScoped<IBranchService, BranchService>();
 
 // Add security services
 builder.Services.AddScoped<ISecurityAuditService, SecurityAuditService>();
