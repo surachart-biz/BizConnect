@@ -202,11 +202,14 @@
             font-family: 'Courier New', Courier, monospace;
             font-size: 0.9rem;
             font-weight: bold;
-            background: #f8f9fa;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
             color: #495057;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
+            padding: 0.35rem 0.6rem;
+            border-radius: 6px;
             border: 1px solid #dee2e6;
+            letter-spacing: 0.1em;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
         .badge {
@@ -912,7 +915,7 @@
 
         // Fallback modal creation (simplified version)
         function showFallbackOtacModal(data) {
-            const expiryDate = new Date(data.expiresAt);
+            const expiryDate = new Date(data.otacExpiresAt);
             const expiryTimeLocal = expiryDate.toLocaleString('th-TH', {
                 year: 'numeric',
                 month: 'short',
@@ -942,7 +945,7 @@
                                         <label class="form-label small text-muted mb-2">รหัสยืนยัน</label>
                                         <div class="input-group justify-content-center">
                                             <input type="text" id="resultGeneratedCode" class="form-control form-control-lg font-monospace fw-bold text-center"
-                                                   value="${data.code}" readonly style="font-size: 2rem; letter-spacing: 0.5em; background: #f8f9fa; max-width: 300px;">
+                                                   value="${data.otacCode}" readonly style="font-size: 2rem; letter-spacing: 0.5em; background: #f8f9fa; max-width: 300px;">
                                             <button class="btn btn-outline-success" type="button" onclick="copyToClipboard('resultGeneratedCode')" title="คัดลอก">
                                                 <i class="fas fa-copy"></i>
                                             </button>
@@ -986,7 +989,7 @@
             modal.show();
 
             // Start countdown
-            startResultCountdown(data.expiresAt);
+            startResultCountdown(data.otacExpiresAt);
 
             // Clean up on modal close
             document.getElementById('otacResultsModal').addEventListener('hidden.bs.modal', function () {

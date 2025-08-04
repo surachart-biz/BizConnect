@@ -122,11 +122,11 @@
     
     // Function to populate modal with OTAC data
     function populateOtacModal(data) {
-        // Set the generated code
-        document.getElementById('generatedCode').value = data.code;
+        // Set the generated code (backend now returns 'otacCode' instead of 'code')
+        document.getElementById('generatedCode').value = data.otacCode;
         
-        // Format expiry time in Thai format with proper Buddhist calendar
-        const expiryDate = new Date(data.expiresAt);
+        // Format expiry time in Thai format with proper Buddhist calendar (backend now returns 'otacExpiresAt' instead of 'expiresAt')
+        const expiryDate = new Date(data.otacExpiresAt);
         const thaiMonths = [
             'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
             'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
@@ -145,8 +145,8 @@
             document.getElementById('codeRegistrationId').textContent = '#-';
         }
         
-        // Start countdown timer
-        startCountdown(data.expiresAt);
+        // Start countdown timer (backend now returns 'otacExpiresAt')
+        startCountdown(data.otacExpiresAt);
     }
 
     function startCountdown(expiresAt) {

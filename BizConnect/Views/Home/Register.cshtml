@@ -67,6 +67,7 @@
             font-weight: bold;
             color: #155724;
             letter-spacing: 0.3em;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
 
         .form-section {
@@ -238,6 +239,10 @@
             font-size: 0.875rem;
             color: #6c757d;
             margin-top: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            background: rgba(108, 117, 125, 0.05);
+            border-radius: 6px;
+            border-left: 3px solid #6c757d;
         }
 
         .required-field::after {
@@ -379,26 +384,20 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-floating">
-                            <!-- IdType is always "National ID" as per requirements -->
-                            <input type="hidden" asp-for="IdType" value="National ID" />
-                            <input type="text" class="form-control" value="บัตรประจำตัวประชาชน (13 หลัก)" readonly />
-                            <label class="required-field">ประเภทเอกสาร</label>
-                        </div>
-                    </div>
-                    <div class="col-md-8">
+                    <div class="col-12">
+                        <!-- IdType is always "National ID" as per requirements - hidden field only -->
+                        <input type="hidden" asp-for="IdType" value="National ID" />
                         <div class="form-floating">
                             <input asp-for="IdValue" 
                                    class="form-control" 
-                                   placeholder="เลขที่เอกสาร"
+                                   placeholder="เลขบัตรประชาชน"
                                    id="idValueInput"
                                    required />
-                            <label asp-for="IdValue" class="required-field">เลขที่เอกสาร</label>
+                            <label asp-for="IdValue" class="required-field">เลขบัตรประชาชน (13 หลัก)</label>
                             <span asp-validation-for="IdValue" class="text-danger"></span>
                             <div class="input-hint" id="idHint">
                                 <i class="fas fa-info-circle me-1"></i>
-                                <span id="idHintText">กรุณาเลือกประเภทเอกสารก่อน</span>
+                                <span id="idHintText">ใช้เฉพาะบัตรประชาชนไทยเท่านั้น - กรอกตัวเลข 13 หลัก</span>
                             </div>
                         </div>
                     </div>
@@ -593,30 +592,11 @@
             const submitBtn = document.getElementById('submitBtn');
             const agreeTerms = document.getElementById('agreeTerms');
 
-            // Form validation configuration
-            const validators = {
-                idValue: {
-                    'National ID': {
-                        pattern: /^[0-9]{13}$/,
-                        message: 'เลขประจำตัวประชาชนต้องเป็นตัวเลข 13 หลัก',
-                        hint: 'กรอกเลขประจำตัวประชาชน 13 หลัก'
-                    },
-                    'Passport': {
-                        pattern: /^[A-Z0-9]{6,12}$/,
-                        message: 'หมายเลขหนังสือเดินทางไม่ถูกต้อง',
-                        hint: 'กรอกหมายเลขหนังสือเดินทาง (6-12 ตัวอักษร)'
-                    },
-                    'Tax ID': {
-                        pattern: /^[0-9]{13}$/,
-                        message: 'เลขประจำตัวผู้เสียภาษีต้องเป็นตัวเลข 13 หลัก',
-                        hint: 'กรอกเลขประจำตัวผู้เสียภาษี 13 หลัก'
-                    },
-                    'Company Tax ID': {
-                        pattern: /^[0-9]{13}$/,
-                        message: 'เลขประจำตัวผู้เสียภาษีนิติบุคคลต้องเป็นตัวเลข 13 หลัก',
-                        hint: 'กรอกเลขประจำตัวผู้เสียภาษีนิติบุคคล 13 หลัก'
-                    }
-                }
+            // Form validation configuration - National ID only
+            const nationalIdValidator = {
+                pattern: /^[0-9]{13}$/,
+                message: 'เลขประจำตัวประชาชนต้องเป็นตัวเลข 13 หลัก',
+                hint: 'กรอกเลขประจำตัวประชาชน 13 หลัก'
             };
 
             // Initialize input formatting and validation
@@ -640,14 +620,6 @@
             function initializeInputs() {
                 // Setup for National ID only (no dropdown)
                 const idValueInput = document.getElementById('idValueInput');
-                const idHintText = document.getElementById('idHintText');
-
-                // Set hint for National ID (13 digits)
-                const nationalIdValidator = validators.idValue['National ID'];
-                if (nationalIdValidator) {
-                    idHintText.textContent = nationalIdValidator.hint;
-                    idValueInput.placeholder = nationalIdValidator.hint;
-                }
 
                 // ID Value input formatting (National ID only - 13 digits)
                 idValueInput.addEventListener('input', function() {
