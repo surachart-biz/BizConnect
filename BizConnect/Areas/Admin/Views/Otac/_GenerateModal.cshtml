@@ -1,0 +1,257 @@
+@model GenerateOtacViewModel
+
+<!-- OTAC Results Modal (Results Display Only) -->
+<div class="modal fade" id="generateOtacModal" tabindex="-1" aria-labelledby="generateOtacModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-success text-white border-0">
+                <h5 class="modal-title" id="generateOtacModalLabel">
+                    <i class="fas fa-check-circle me-2"></i>🎯 OTAC สร้างสำเร็จ!
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="alert alert-success border-0 shadow-sm">
+                    <div class="text-center mb-4">
+                        <div class="mb-3">
+                            <i class="fas fa-check-circle fa-4x text-success"></i>
+                        </div>
+                        <h4 class="text-success mb-2">OTAC Code พร้อมใช้งาน</h4>
+                        <p class="text-muted mb-0">รหัสยืนยันตัวตนแบบใช้ครั้งเดียวสำหรับการลงทะเบียน ODD</p>
+                    </div>
+                    
+                    <!-- Generated Code Display -->
+                    <div class="code-display p-4 bg-light rounded-3 border-2 border-success mb-4">
+                        <div class="text-center mb-3">
+                            <label class="form-label small text-muted mb-2 d-block">รหัสยืนยัน</label>
+                            <div class="d-flex justify-content-center align-items-center gap-2">
+                                <input type="text" id="generatedCode" class="form-control form-control-lg font-monospace fw-bold text-center border-0 bg-white shadow-sm" 
+                                       readonly style="font-size: 2.2rem; letter-spacing: 0.4em; max-width: 280px; color: #28a745;">
+                                <button class="btn btn-outline-success btn-lg" type="button" onclick="copyToClipboard('generatedCode')" title="คัดลอกรหัส">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="small text-muted mb-1">
+                                <i class="fas fa-clock me-1"></i>หมดอายุ: <span id="expiryTime" class="fw-bold text-warning"></span>
+                            </div>
+                            <div id="countdown" class="small"></div>
+                        </div>
+                    </div>
+
+                    <!-- Code Details -->
+                    <div class="row text-center mb-3">
+                        <div class="col-md-6 mb-3">
+                            <div class="p-3 bg-light rounded-3">
+                                <i class="fas fa-tag text-primary me-2"></i>
+                                <strong>วัตถุประสงค์</strong>
+                                <div id="codePurpose" class="text-muted mt-1">KBank ODD Guest Registration</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="p-3 bg-light rounded-3">
+                                <i class="fas fa-database text-info me-2"></i>
+                                <strong>Registration ID</strong>
+                                <div id="codeRegistrationId" class="text-muted mt-1">#-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Notice -->
+                    <div class="alert alert-warning border-0 bg-warning bg-opacity-10 text-center">
+                        <div class="d-flex justify-content-center align-items-start">
+                            <i class="fas fa-shield-alt text-warning me-2 mt-1"></i>
+                            <div class="small">
+                                <strong>หมายเหตุความปลอดภัย:</strong> รหัสนี้ใช้ได้เพียงครั้งเดียวและจะหมดอายุโดยอัตโนมัติ<br>
+                                กรุณาเก็บรักษาให้ปลอดภัยและแจกจ่ายผ่านช่องทางที่ปลอดภัยเท่านั้น
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer border-0 justify-content-center gap-2">
+                <button type="button" class="btn btn-outline-success" onclick="generateAnotherOtac()">
+                    <i class="fas fa-plus me-1"></i>สร้างอีก 1 รหัส
+                </button>
+                <button type="button" class="btn btn-success" onclick="copyToClipboard('generatedCode')">
+                    <i class="fas fa-copy me-1"></i>คัดลอกรหัส
+                </button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>ปิด
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .code-display {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    .font-monospace {
+        font-family: 'Courier New', Courier, monospace !important;
+    }
+    
+    .modal-header.bg-success {
+        border-bottom: none;
+    }
+    
+    .modal-content {
+        border: none;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+    
+    .countdown-urgent {
+        color: #dc3545 !important;
+        font-weight: bold;
+    }
+    
+    .countdown-warning {
+        color: #fd7e14 !important;
+        font-weight: bold;
+    }
+</style>
+
+<script>
+    let countdownInterval;
+    
+    // Function to populate modal with OTAC data
+    function populateOtacModal(data) {
+        // Set the generated code
+        document.getElementById('generatedCode').value = data.code;
+        
+        // Format expiry time in Thai format with proper Buddhist calendar
+        const expiryDate = new Date(data.expiresAt);
+        const thaiMonths = [
+            'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+            'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+        ];
+        
+        const buddhistYear = expiryDate.getFullYear() + 543;
+        const thaiFormattedDate = `${expiryDate.getDate()} ${thaiMonths[expiryDate.getMonth()]} ${buddhistYear} ${expiryDate.getHours().toString().padStart(2, '0')}:${expiryDate.getMinutes().toString().padStart(2, '0')}`;
+        
+        document.getElementById('expiryTime').textContent = thaiFormattedDate;
+        
+        // Set purpose and registration ID
+        document.getElementById('codePurpose').textContent = data.purpose || 'KBank ODD Guest Registration';
+        if (data.registrationId) {
+            document.getElementById('codeRegistrationId').textContent = '#' + data.registrationId;
+        } else {
+            document.getElementById('codeRegistrationId').textContent = '#-';
+        }
+        
+        // Start countdown timer
+        startCountdown(data.expiresAt);
+    }
+
+    function startCountdown(expiresAt) {
+        const expiryDate = new Date(expiresAt);
+        const countdownElement = document.getElementById('countdown');
+        
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+        }
+        
+        countdownInterval = setInterval(() => {
+            const now = new Date();
+            const timeLeft = expiryDate - now;
+            
+            if (timeLeft <= 0) {
+                countdownElement.innerHTML = '<span class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>หมดอายุแล้ว</span>';
+                clearInterval(countdownInterval);
+                return;
+            }
+            
+            const minutes = Math.floor(timeLeft / 60000);
+            const seconds = Math.floor((timeLeft % 60000) / 1000);
+            
+            let cssClass = '';
+            let icon = 'fas fa-clock';
+            if (minutes < 2) {
+                cssClass = 'countdown-urgent';
+                icon = 'fas fa-exclamation-triangle';
+            } else if (minutes < 5) {
+                cssClass = 'countdown-warning';
+                icon = 'fas fa-hourglass-half';
+            }
+            
+            countdownElement.innerHTML = `<span class="${cssClass}"><i class="${icon} me-1"></i>เหลือ ${minutes} นาที ${seconds} วินาที</span>`;
+        }, 1000);
+    }
+
+    // Make functions globally available
+    window.populateOtacModal = populateOtacModal;
+    window.startCountdown = startCountdown;
+    window.generateAnotherOtac = generateAnotherOtac;
+
+    function generateAnotherOtac() {
+        // Close current modal and trigger new generation
+        const modal = bootstrap.Modal.getInstance(document.getElementById('generateOtacModal'));
+        if (modal) {
+            modal.hide();
+        }
+        
+        // Small delay to ensure modal is closed before opening new one
+        setTimeout(() => {
+            // Trigger immediate generation again
+            if (typeof generateOtacImmediately === 'function') {
+                generateOtacImmediately();
+            }
+        }, 300);
+    }
+
+    // Enhanced copy to clipboard with better feedback
+    function copyToClipboard(elementId) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+        
+        element.select();
+        element.setSelectionRange(0, 99999); // For mobile devices
+        
+        try {
+            const successful = document.execCommand('copy');
+            if (successful) {
+                // Visual feedback for the copy button
+                const button = element.parentElement.querySelector('button');
+                if (button) {
+                    const originalContent = button.innerHTML;
+                    button.innerHTML = '<i class="fas fa-check"></i>';
+                    button.classList.add('btn-success');
+                    button.classList.remove('btn-outline-success');
+                    
+                    // Show success alert if available
+                    if (typeof showAlert === 'function') {
+                        showAlert('success', 'คัดลอกรหัสเรียบร้อยแล้ว!');
+                    }
+                    
+                    setTimeout(() => {
+                        button.innerHTML = originalContent;
+                        button.classList.remove('btn-success');
+                        button.classList.add('btn-outline-success');
+                    }, 2000);
+                }
+            }
+        } catch (err) {
+            console.error('Copy failed:', err);
+            // Fallback: select the text for manual copy
+            element.focus();
+            element.select();
+            
+            if (typeof showAlert === 'function') {
+                showAlert('warning', 'กรุณาคัดลอกรหัสด้วยตนเอง (Ctrl+C)');
+            }
+        }
+    }
+
+    // Clean up on modal close
+    document.getElementById('generateOtacModal').addEventListener('hidden.bs.modal', function () {
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+        }
+    });
+</script>

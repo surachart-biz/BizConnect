@@ -35,11 +35,6 @@ public class KBankInitRequest
     [StringLength(12)]
     public string? PayeeShortName { get; set; }
 
-    /// <summary>
-    /// Registrant's user email - Mandatory if service name matched and field has been set up as mandatory in service setup
-    /// </summary>
-    [StringLength(100)]
-    public string? UserEmail { get; set; }
 
     /// <summary>
     /// Registrant's user mobile no - Mandatory if service name matched and field has been set up as mandatory in service setup

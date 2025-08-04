@@ -4,28 +4,20 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace BizConnect.ViewModels;
 
 /// <summary>
-/// View model for KBank Online Direct Debit registration form
+/// View model for KBank Online Direct Debit registration form V1.9.7
+/// Pure data transfer object - business logic moved to ValidationService
+/// Email field removed as per V1.9.7 specification
 /// </summary>
-public class KBankOddRegisterViewModel : IValidatableObject
+public class KBankOddRegisterViewModel
 {
     /// <summary>
-    /// User's email address for ODD registration
+    /// User's full name for registration
     /// </summary>
-    [Required(ErrorMessage = "Email is required")]
-    [EmailAddress(ErrorMessage = "Please enter a valid email address")]
-    [StringLength(256, ErrorMessage = "Email cannot exceed 256 characters")]
-    [Display(Name = "Email Address")]
-    public string Email { get; set; } = string.Empty;
-
-    /// <summary>
-    /// User's mobile number (format: 08xxxxxxxx or +66xxxxxxxx)
-    /// </summary>
-    [Required(ErrorMessage = "Mobile number is required")]
-    [RegularExpression(@"^(08\d{8}|\+66\d{8,9})$", 
-        ErrorMessage = "Mobile number must be in format 08xxxxxxxx or +66xxxxxxxx")]
-    [StringLength(20, ErrorMessage = "Mobile number cannot exceed 20 characters")]
-    [Display(Name = "Mobile Number")]
-    public string MobileNo { get; set; } = string.Empty;
+    [Required(ErrorMessage = "Full name is required")]
+    [StringLength(100, MinimumLength = 2, 
+        ErrorMessage = "Full name must be between 2 and 100 characters")]
+    [Display(Name = "Full Name")]
+    public string FullName { get; set; } = string.Empty;
 
     /// <summary>
     /// Type of identification document
@@ -44,6 +36,37 @@ public class KBankOddRegisterViewModel : IValidatableObject
     public string IdValue { get; set; } = string.Empty;
 
     /// <summary>
+    /// User's mobile number (format: 08xxxxxxxx or +66xxxxxxxx)
+    /// </summary>
+    [Required(ErrorMessage = "Mobile number is required")]
+    [RegularExpression(@"^(08\d{8}|\+66\d{8,9})$", 
+        ErrorMessage = "Mobile number must be in format 08xxxxxxxx or +66xxxxxxxx")]
+    [StringLength(20, ErrorMessage = "Mobile number cannot exceed 20 characters")]
+    [Display(Name = "Mobile Number")]
+    public string MobileNo { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Bank account number for ODD registration
+    /// </summary>
+    [Required(ErrorMessage = "Account number is required")]
+    [RegularExpression(@"^\d{10,15}$", 
+        ErrorMessage = "Account number must be 10-15 digits")]
+    [Display(Name = "Account Number")]
+    public string AccountNo { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Selected branch ID for the registration
+    /// </summary>
+    [Required(ErrorMessage = "Branch selection is required")]
+    [Display(Name = "Branch")]
+    public int? BranchId { get; set; }
+
+    /// <summary>
+    /// Available branches for dropdown selection
+    /// </summary>
+    public List<SelectListItem> Branches { get; set; } = new();
+
+    /// <summary>
     /// Available ID types for dropdown selection
     /// </summary>
     public static readonly List<SelectListItem> IdTypes = new()
@@ -54,97 +77,4 @@ public class KBankOddRegisterViewModel : IValidatableObject
         new SelectListItem { Value = "Company Tax ID", Text = "Company Tax ID" }
     };
 
-    /// <summary>
-    /// Custom validation for ID value based on ID type
-    /// </summary>
-    /// <param name="validationContext">Validation context</param>
-    /// <returns>Validation result</returns>
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-    {
-        var results = new List<ValidationResult>();
-
-        // Validate ID value based on ID type
-        switch (IdType)
-        {
-            case "National ID":
-                if (!IsValidThaiNationalId(IdValue))
-                {
-                    results.Add(new ValidationResult(
-                        "National ID must be 13 digits", 
-                        new[] { nameof(IdValue) }));
-                }
-                break;
-
-            case "Passport":
-                if (!IsValidPassport(IdValue))
-                {
-                    results.Add(new ValidationResult(
-                        "Passport number must be 8-20 alphanumeric characters", 
-                        new[] { nameof(IdValue) }));
-                }
-                break;
-
-            case "Tax ID":
-                if (!IsValidTaxId(IdValue))
-                {
-                    results.Add(new ValidationResult(
-                        "Tax ID must be 10-13 digits", 
-                        new[] { nameof(IdValue) }));
-                }
-                break;
-
-            case "Company Tax ID":
-                if (!IsValidCompanyTaxId(IdValue))
-                {
-                    results.Add(new ValidationResult(
-                        "Company Tax ID must be 13 digits", 
-                        new[] { nameof(IdValue) }));
-                }
-                break;
-        }
-
-        return results;
-    }
-
-    /// <summary>
-    /// Validates Thai National ID format (13 digits)
-    /// </summary>
-    private static bool IsValidThaiNationalId(string value)
-    {
-        return !string.IsNullOrEmpty(value) && 
-               value.Length == 13 && 
-               value.All(char.IsDigit);
-    }
-
-    /// <summary>
-    /// Validates passport format (8-20 alphanumeric characters)
-    /// </summary>
-    private static bool IsValidPassport(string value)
-    {
-        return !string.IsNullOrEmpty(value) && 
-               value.Length >= 8 && 
-               value.Length <= 20 && 
-               value.All(char.IsLetterOrDigit);
-    }
-
-    /// <summary>
-    /// Validates Tax ID format (10-13 digits)
-    /// </summary>
-    private static bool IsValidTaxId(string value)
-    {
-        return !string.IsNullOrEmpty(value) && 
-               value.Length >= 10 && 
-               value.Length <= 13 && 
-               value.All(char.IsDigit);
-    }
-
-    /// <summary>
-    /// Validates Company Tax ID format (13 digits)
-    /// </summary>
-    private static bool IsValidCompanyTaxId(string value)
-    {
-        return !string.IsNullOrEmpty(value) && 
-               value.Length == 13 && 
-               value.All(char.IsDigit);
-    }
 }

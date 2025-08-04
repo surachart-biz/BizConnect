@@ -1,0 +1,674 @@
+<!-- Excel Import/Export Modal -->
+<div class="modal fade" id="excelImportExportModal" tabindex="-1" aria-labelledby="excelModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="excelModalLabel">
+                    <i class="fas fa-file-excel me-2"></i>Excel Import & Export
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Tab Navigation -->
+                <ul class="nav nav-tabs nav-fill mb-4" id="excelTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="import-tab" data-bs-toggle="tab" data-bs-target="#import-pane" 
+                                type="button" role="tab" aria-controls="import-pane" aria-selected="true">
+                            <i class="fas fa-upload me-2"></i>Import Data
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="export-tab" data-bs-toggle="tab" data-bs-target="#export-pane" 
+                                type="button" role="tab" aria-controls="export-pane" aria-selected="false">
+                            <i class="fas fa-download me-2"></i>Export Data
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="template-tab" data-bs-toggle="tab" data-bs-target="#template-pane" 
+                                type="button" role="tab" aria-controls="template-pane" aria-selected="false">
+                            <i class="fas fa-file-download me-2"></i>Templates
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="excelTabContent">
+                    <!-- Import Tab -->
+                    <div class="tab-pane fade show active" id="import-pane" role="tabpanel" aria-labelledby="import-tab">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <!-- File Upload Area -->
+                                <div class="upload-area border-2 border-dashed rounded-3 p-4 text-center" id="uploadArea">
+                                    <div class="upload-icon mb-3">
+                                        <i class="fas fa-cloud-upload-alt fa-4x text-success opacity-50"></i>
+                                    </div>
+                                    <h5 class="upload-title">Drag & Drop Excel File Here</h5>
+                                    <p class="upload-subtitle text-muted mb-3">or click to browse files</p>
+                                    
+                                    <input type="file" id="excelFileInput" class="d-none" accept=".xlsx,.xls,.csv" multiple>
+                                    <button type="button" class="btn btn-outline-success btn-lg" onclick="document.getElementById('excelFileInput').click()">
+                                        <i class="fas fa-folder-open me-2"></i>Choose Files
+                                    </button>
+                                    
+                                    <div class="mt-3 small text-muted">
+                                        Supported formats: .xlsx, .xls, .csv (Max 10MB per file)
+                                    </div>
+                                </div>
+
+                                <!-- File List -->
+                                <div id="fileList" class="mt-4 d-none">
+                                    <h6>Selected Files:</h6>
+                                    <div id="fileItems"></div>
+                                </div>
+
+                                <!-- Import Options -->
+                                <div class="import-options mt-4">
+                                    <h6><i class="fas fa-cogs me-2"></i>Import Options</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Data Type</label>
+                                            <select class="form-select" id="importDataType">
+                                                <option value="odd-registrations">ODD Registrations</option>
+                                                <option value="users">Users</option>
+                                                <option value="branches">Branches</option>
+                                                <option value="otac-codes">OTAC Codes</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Import Mode</label>
+                                            <select class="form-select" id="importMode">
+                                                <option value="insert">Insert New Records</option>
+                                                <option value="update">Update Existing Records</option>
+                                                <option value="upsert">Insert & Update (Upsert)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="skipFirstRow" checked>
+                                                <label class="form-check-label" for="skipFirstRow">
+                                                    Skip first row (headers)
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="validateData" checked>
+                                                <label class="form-check-label" for="validateData">
+                                                    Validate data before import
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-lg-4">
+                                <!-- Import Progress -->
+                                <div class="import-status" id="importStatus">
+                                    <div class="card border-0 bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                <i class="fas fa-info-circle me-2"></i>Import Guidelines
+                                            </h6>
+                                            <ul class="small mb-0">
+                                                <li>Ensure data follows the template format</li>
+                                                <li>Required fields must not be empty</li>
+                                                <li>Mobile numbers must be valid Thai format</li>
+                                                <li>ID numbers must match the selected ID type</li>
+                                                <li>Dates should be in YYYY-MM-DD format</li>
+                                                <li>Maximum 1000 records per import</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Import Results (Hidden Initially) -->
+                                <div id="importResults" class="d-none mt-3">
+                                    <div class="card border-success">
+                                        <div class="card-header bg-success text-white">
+                                            <i class="fas fa-check-circle me-2"></i>Import Complete
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="import-stats">
+                                                <div class="stat-item d-flex justify-content-between">
+                                                    <span>Total Records:</span>
+                                                    <span id="totalRecords" class="fw-bold">0</span>
+                                                </div>
+                                                <div class="stat-item d-flex justify-content-between">
+                                                    <span>Successful:</span>
+                                                    <span id="successfulRecords" class="fw-bold text-success">0</span>
+                                                </div>
+                                                <div class="stat-item d-flex justify-content-between">
+                                                    <span>Failed:</span>
+                                                    <span id="failedRecords" class="fw-bold text-danger">0</span>
+                                                </div>
+                                                <div class="stat-item d-flex justify-content-between">
+                                                    <span>Warnings:</span>
+                                                    <span id="warningRecords" class="fw-bold text-warning">0</span>
+                                                </div>
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-primary mt-2" onclick="downloadErrorReport()">
+                                                <i class="fas fa-download me-1"></i>Error Report
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export Tab -->
+                    <div class="tab-pane fade" id="export-pane" role="tabpanel" aria-labelledby="export-tab">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <!-- Export Options -->
+                                <div class="export-options">
+                                    <h6><i class="fas fa-download me-2"></i>Export Settings</h6>
+                                    
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Data Type</label>
+                                            <select class="form-select" id="exportDataType">
+                                                <option value="odd-registrations">ODD Registrations</option>
+                                                <option value="users">Users</option>
+                                                <option value="branches">Branches</option>
+                                                <option value="otac-codes">OTAC Codes</option>
+                                                <option value="audit-logs">Audit Logs</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Export Format</label>
+                                            <select class="form-select" id="exportFormat">
+                                                <option value="xlsx">Excel (.xlsx)</option>
+                                                <option value="csv">CSV (.csv)</option>
+                                                <option value="json">JSON (.json)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Date From</label>
+                                            <input type="date" class="form-control" id="exportDateFrom">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Date To</label>
+                                            <input type="date" class="form-control" id="exportDateTo">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Filters -->
+                                    <div class="mt-4">
+                                        <h6><i class="fas fa-filter me-2"></i>Filters</h6>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Status</label>
+                                                <select class="form-select" id="exportStatus">
+                                                    <option value="">All Status</option>
+                                                    <option value="Pending">Pending</option>
+                                                    <option value="Completed">Completed</option>
+                                                    <option value="Failed">Failed</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Maximum Records</label>
+                                                <select class="form-select" id="exportLimit">
+                                                    <option value="1000">1,000 records</option>
+                                                    <option value="5000">5,000 records</option>
+                                                    <option value="10000">10,000 records</option>
+                                                    <option value="">No limit</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Column Selection -->
+                                    <div class="mt-4">
+                                        <h6><i class="fas fa-columns me-2"></i>Columns to Export</h6>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="selectAllColumns" checked>
+                                            <label class="form-check-label fw-bold" for="selectAllColumns">
+                                                Select All
+                                            </label>
+                                        </div>
+                                        <div class="row g-2 mt-2" id="columnSelections">
+                                            <!-- Dynamic column checkboxes will be loaded here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-lg-4">
+                                <!-- Export Preview -->
+                                <div class="export-preview">
+                                    <div class="card border-0 bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                <i class="fas fa-eye me-2"></i>Export Preview
+                                            </h6>
+                                            <div class="export-stats">
+                                                <div class="stat-item d-flex justify-content-between">
+                                                    <span>Estimated Records:</span>
+                                                    <span id="estimatedRecords" class="fw-bold">-</span>
+                                                </div>
+                                                <div class="stat-item d-flex justify-content-between">
+                                                    <span>File Size:</span>
+                                                    <span id="estimatedSize" class="fw-bold">-</span>
+                                                </div>
+                                                <div class="stat-item d-flex justify-content-between">
+                                                    <span>Columns:</span>
+                                                    <span id="selectedColumns" class="fw-bold">-</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <button class="btn btn-success w-100 mt-3" onclick="startExport()">
+                                                <i class="fas fa-download me-2"></i>Start Export
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Export Progress -->
+                                <div id="exportProgress" class="d-none mt-3">
+                                    <div class="card border-info">
+                                        <div class="card-header bg-info text-white">
+                                            <i class="fas fa-spinner fa-spin me-2"></i>Exporting...
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="progress mb-2">
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                                     id="exportProgressBar" style="width: 0%"></div>
+                                            </div>
+                                            <div class="text-center">
+                                                <span id="exportProgressText">Preparing export...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Templates Tab -->
+                    <div class="tab-pane fade" id="template-pane" role="tabpanel" aria-labelledby="template-tab">
+                        <div class="row g-4">
+                            <div class="col-md-6 col-lg-4">
+                                <div class="template-card card h-100">
+                                    <div class="card-body text-center">
+                                        <div class="template-icon mb-3">
+                                            <i class="fas fa-file-alt fa-3x text-primary"></i>
+                                        </div>
+                                        <h5 class="card-title">ODD Registrations</h5>
+                                        <p class="card-text">Template for importing ODD registration data</p>
+                                        <button class="btn btn-outline-primary" onclick="downloadTemplate('odd-registrations')">
+                                            <i class="fas fa-download me-1"></i>Download
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <div class="template-card card h-100">
+                                    <div class="card-body text-center">
+                                        <div class="template-icon mb-3">
+                                            <i class="fas fa-users fa-3x text-success"></i>
+                                        </div>
+                                        <h5 class="card-title">Users</h5>
+                                        <p class="card-text">Template for importing user account data</p>
+                                        <button class="btn btn-outline-success" onclick="downloadTemplate('users')">
+                                            <i class="fas fa-download me-1"></i>Download
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <div class="template-card card h-100">
+                                    <div class="card-body text-center">
+                                        <div class="template-icon mb-3">
+                                            <i class="fas fa-building fa-3x text-info"></i>
+                                        </div>
+                                        <h5 class="card-title">Branches</h5>
+                                        <p class="card-text">Template for importing branch information</p>
+                                        <button class="btn btn-outline-info" onclick="downloadTemplate('branches')">
+                                            <i class="fas fa-download me-1"></i>Download
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Template Instructions -->
+                        <div class="mt-4">
+                            <div class="alert alert-info border-0">
+                                <h6 class="alert-heading">
+                                    <i class="fas fa-info-circle me-2"></i>Template Usage Instructions
+                                </h6>
+                                <ul class="mb-0">
+                                    <li>Download the appropriate template for your data type</li>
+                                    <li>Fill in your data following the column headers and format examples</li>
+                                    <li>Do not modify column headers or add/remove columns</li>
+                                    <li>Save as Excel (.xlsx) or CSV (.csv) format</li>
+                                    <li>Use the Import tab to upload your completed file</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Close
+                </button>
+                <button type="button" class="btn btn-success" id="processImportBtn" onclick="processImport()" style="display: none;">
+                    <i class="fas fa-upload me-1"></i>Process Import
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .upload-area {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .upload-area:hover {
+        background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+        border-color: #28a745 !important;
+    }
+    
+    .upload-area.dragover {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        border-color: #28a745 !important;
+    }
+    
+    .file-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem;
+        background: #f8f9fa;
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .file-item .file-icon {
+        width: 40px;
+        text-align: center;
+        margin-right: 0.75rem;
+    }
+    
+    .file-item .file-info {
+        flex: 1;
+    }
+    
+    .file-item .file-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .template-card {
+        transition: all 0.3s ease;
+    }
+    
+    .template-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .stat-item {
+        padding: 0.25rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .stat-item:last-child {
+        border-bottom: none;
+    }
+</style>
+
+<script>
+    // Initialize Excel Import/Export functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeFileUpload();
+        initializeColumnSelections();
+    });
+
+    function initializeFileUpload() {
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('excelFileInput');
+        
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = Array.from(e.dataTransfer.files).filter(file => 
+                file.name.match(/\.(xlsx|xls|csv)$/i)
+            );
+            
+            handleFiles(files);
+        });
+        
+        uploadArea.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', function() {
+            handleFiles(Array.from(this.files));
+        });
+    }
+
+    function handleFiles(files) {
+        if (files.length === 0) return;
+        
+        const fileList = document.getElementById('fileList');
+        const fileItems = document.getElementById('fileItems');
+        
+        fileItems.innerHTML = '';
+        
+        files.forEach((file, index) => {
+            const fileItem = createFileItem(file, index);
+            fileItems.appendChild(fileItem);
+        });
+        
+        fileList.classList.remove('d-none');
+        document.getElementById('processImportBtn').style.display = 'inline-block';
+    }
+
+    function createFileItem(file, index) {
+        const div = document.createElement('div');
+        div.className = 'file-item';
+        
+        const sizeFormatted = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+        const iconClass = file.name.endsWith('.csv') ? 'fa-file-csv' : 'fa-file-excel';
+        
+        div.innerHTML = `
+            <div class="file-icon">
+                <i class="fas ${iconClass} fa-2x text-success"></i>
+            </div>
+            <div class="file-info">
+                <div class="fw-bold">${file.name}</div>
+                <div class="text-muted small">${sizeFormatted} • ${new Date(file.lastModified).toLocaleDateString()}</div>
+            </div>
+            <div class="file-actions">
+                <button class="btn btn-sm btn-outline-danger" onclick="removeFile(${index})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+        
+        return div;
+    }
+
+    function removeFile(index) {
+        // Implementation for removing files
+        console.log('Remove file at index:', index);
+    }
+
+    function processImport() {
+        // Show import progress
+        const importStatus = document.getElementById('importStatus');
+        importStatus.innerHTML = `
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-spinner fa-spin me-2"></i>Processing Import...
+                </div>
+                <div class="card-body">
+                    <div class="progress mb-2">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 45%"></div>
+                    </div>
+                    <div class="text-center">Processing records...</div>
+                </div>
+            </div>
+        `;
+        
+        // Simulate import process
+        setTimeout(() => {
+            showImportResults(150, 145, 5, 2);
+        }, 3000);
+    }
+
+    function showImportResults(total, successful, failed, warnings) {
+        document.getElementById('totalRecords').textContent = total;
+        document.getElementById('successfulRecords').textContent = successful;
+        document.getElementById('failedRecords').textContent = failed;
+        document.getElementById('warningRecords').textContent = warnings;
+        document.getElementById('importResults').classList.remove('d-none');
+        document.getElementById('importStatus').classList.add('d-none');
+    }
+
+    function initializeColumnSelections() {
+        // Load column selections based on data type
+        document.getElementById('exportDataType').addEventListener('change', function() {
+            loadColumnSelections(this.value);
+        });
+        
+        // Initial load
+        loadColumnSelections('odd-registrations');
+    }
+
+    function loadColumnSelections(dataType) {
+        const columns = getColumnsForDataType(dataType);
+        const container = document.getElementById('columnSelections');
+        
+        container.innerHTML = '';
+        
+        columns.forEach(column => {
+            const div = document.createElement('div');
+            div.className = 'col-md-6';
+            div.innerHTML = `
+                <div class="form-check">
+                    <input class="form-check-input column-checkbox" type="checkbox" id="col_${column.key}" checked>
+                    <label class="form-check-label" for="col_${column.key}">
+                        ${column.label}
+                    </label>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+        
+        updateSelectedColumnsCount();
+    }
+
+    function getColumnsForDataType(dataType) {
+        const columns = {
+            'odd-registrations': [
+                { key: 'id', label: 'ID' },
+                { key: 'full_name', label: 'Full Name' },
+                { key: 'id_type', label: 'ID Type' },
+                { key: 'id_value', label: 'ID Number' },
+                { key: 'mobile_no', label: 'Mobile Number' },
+                { key: 'account_no', label: 'Account Number' },
+                { key: 'branch_id', label: 'Branch' },
+                { key: 'status', label: 'Status' },
+                { key: 'created_at', label: 'Created Date' },
+                { key: 'updated_at', label: 'Updated Date' }
+            ],
+            'users': [
+                { key: 'id', label: 'ID' },
+                { key: 'username', label: 'Username' },
+                { key: 'email', label: 'Email' },
+                { key: 'role', label: 'Role' },
+                { key: 'is_active', label: 'Active Status' },
+                { key: 'created_at', label: 'Created Date' }
+            ]
+        };
+        
+        return columns[dataType] || [];
+    }
+
+    function updateSelectedColumnsCount() {
+        const checkedColumns = document.querySelectorAll('.column-checkbox:checked').length;
+        document.getElementById('selectedColumns').textContent = checkedColumns;
+    }
+
+    // Export functions
+    function startExport() {
+        const exportProgress = document.getElementById('exportProgress');
+        const progressBar = document.getElementById('exportProgressBar');
+        const progressText = document.getElementById('exportProgressText');
+        
+        exportProgress.classList.remove('d-none');
+        
+        // Simulate export progress
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.random() * 20;
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(interval);
+                progressText.textContent = 'Export complete!';
+                setTimeout(() => {
+                    downloadExportFile();
+                    exportProgress.classList.add('d-none');
+                }, 1000);
+            }
+            progressBar.style.width = progress + '%';
+            progressText.textContent = `${Math.round(progress)}% complete`;
+        }, 500);
+    }
+
+    function downloadExportFile() {
+        // Simulate file download
+        showAlert('success', 'Export completed! File download started.');
+    }
+
+    function downloadTemplate(templateType) {
+        // Simulate template download
+        showAlert('info', `Downloading ${templateType} template...`);
+    }
+
+    function downloadErrorReport() {
+        // Simulate error report download
+        showAlert('info', 'Downloading error report...');
+    }
+
+    // Select all columns functionality
+    document.getElementById('selectAllColumns').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.column-checkbox');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+        updateSelectedColumnsCount();
+    });
+
+    // Individual column checkbox change
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('column-checkbox')) {
+            updateSelectedColumnsCount();
+            
+            // Update select all checkbox state
+            const selectAll = document.getElementById('selectAllColumns');
+            const allCheckboxes = document.querySelectorAll('.column-checkbox');
+            const checkedCheckboxes = document.querySelectorAll('.column-checkbox:checked');
+            
+            selectAll.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < allCheckboxes.length;
+            selectAll.checked = checkedCheckboxes.length === allCheckboxes.length;
+        }
+    });
+</script>

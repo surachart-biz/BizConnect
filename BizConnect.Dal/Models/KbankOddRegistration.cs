@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace BizConnect.Dal.Models;
 
 /// <summary>
-/// Tracks KBank Online Direct Debit registration requests and their status
+/// Consolidated table tracking KBank Online Direct Debit registration requests with integrated OTAC functionality
 /// </summary>
 public partial class KbankOddRegistration
 {
@@ -40,22 +40,76 @@ public partial class KbankOddRegistration
     public DateTime? UpdatedAt { get; set; }
 
     /// <summary>
-    /// User email address for ODD registration
-    /// </summary>
-    public string? Email { get; set; }
-
-    /// <summary>
-    /// User mobile number (format: 08xxxxxxxx or +66xxxxxxxx)
+    /// User mobile number in format 08xxxxxxxx or +66xxxxxxxx
     /// </summary>
     public string? MobileNo { get; set; }
 
     /// <summary>
-    /// ID type: National ID, Passport, Tax ID, or Company Tax ID
+    /// Type of identification: National ID, Passport, Tax ID, or Company Tax ID
     /// </summary>
     public string? IdType { get; set; }
 
     /// <summary>
-    /// ID number/value corresponding to the selected ID type
+    /// Identification document number/value corresponding to the selected ID type
     /// </summary>
     public string? IdValue { get; set; }
+
+    /// <summary>
+    /// Bank account number for the ODD registration (10-15 digits)
+    /// </summary>
+    public string? AccountNo { get; set; }
+
+    /// <summary>
+    /// Foreign key reference to Branch table
+    /// </summary>
+    public int? BranchId { get; set; }
+
+    /// <summary>
+    /// When the OTAC code expires (typically 30 minutes from creation)
+    /// </summary>
+    public DateTime? OtacExpiresAt { get; set; }
+
+    /// <summary>
+    /// User full name for registration
+    /// </summary>
+    public string? FullName { get; set; }
+
+    /// <summary>
+    /// The actual OTAC code (8-character alphanumeric)
+    /// </summary>
+    public string OtacCode { get; set; } = null!;
+
+    /// <summary>
+    /// OTAC state: Generated → Validated → Used
+    /// </summary>
+    public string OtacState { get; set; } = null!;
+
+    /// <summary>
+    /// User ID who generated this OTAC code
+    /// </summary>
+    public int GeneratedByUserId { get; set; }
+
+    /// <summary>
+    /// Number of OTAC validation attempts made
+    /// </summary>
+    public int AttemptCount { get; set; }
+
+    /// <summary>
+    /// TRUE if OTAC is locked due to too many failed attempts
+    /// </summary>
+    public bool IsLocked { get; set; }
+
+    /// <summary>
+    /// Timestamp of last OTAC validation attempt
+    /// </summary>
+    public DateTime? LastAttemptAt { get; set; }
+
+    /// <summary>
+    /// IP address of last OTAC validation attempt
+    /// </summary>
+    public string? LastAttemptIp { get; set; }
+
+    public virtual Branch? Branch { get; set; }
+
+    public virtual User GeneratedByUser { get; set; } = null!;
 }

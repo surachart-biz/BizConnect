@@ -2,12 +2,33 @@
 -- Migration: 20250713-02_AddContactColumns.sql
 -- Description: Adds Email, MobileNo, IdType, IdValue columns to KbankOddRegistration table for form data collection
 
--- Add contact information columns to KbankOddRegistration table
-ALTER TABLE "KbankOddRegistration"
-    ADD COLUMN "Email" VARCHAR(256),
-    ADD COLUMN "MobileNo" VARCHAR(20),
-    ADD COLUMN "IdType" VARCHAR(30),
-    ADD COLUMN "IdValue" VARCHAR(30);
+-- Add contact information columns to KbankOddRegistration table (only if they don't exist)
+DO $$
+BEGIN
+    -- Add Email column if it doesn't exist
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'KbankOddRegistration' AND column_name = 'Email') THEN
+        ALTER TABLE "KbankOddRegistration" ADD COLUMN "Email" VARCHAR(256);
+    END IF;
+    
+    -- Add MobileNo column if it doesn't exist
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'KbankOddRegistration' AND column_name = 'MobileNo') THEN
+        ALTER TABLE "KbankOddRegistration" ADD COLUMN "MobileNo" VARCHAR(20);
+    END IF;
+    
+    -- Add IdType column if it doesn't exist
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'KbankOddRegistration' AND column_name = 'IdType') THEN
+        ALTER TABLE "KbankOddRegistration" ADD COLUMN "IdType" VARCHAR(30);
+    END IF;
+    
+    -- Add IdValue column if it doesn't exist
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'KbankOddRegistration' AND column_name = 'IdValue') THEN
+        ALTER TABLE "KbankOddRegistration" ADD COLUMN "IdValue" VARCHAR(30);
+    END IF;
+END $$;
 
 -- Add comments for documentation
 COMMENT ON COLUMN "KbankOddRegistration"."Email" IS 'User email address for ODD registration';
@@ -17,4 +38,5 @@ COMMENT ON COLUMN "KbankOddRegistration"."IdValue" IS 'ID number/value correspon
 
 -- Record this migration in schema version tracking
 INSERT INTO "_SchemaVersion" ("Filename")
-VALUES ('20250713-02_AddContactColumns.sql');
+VALUES ('20250713-02_AddContactColumns.sql')
+ON CONFLICT ("Filename") DO NOTHING;

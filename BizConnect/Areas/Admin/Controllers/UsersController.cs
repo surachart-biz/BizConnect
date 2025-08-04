@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BizConnect.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(Roles = "Admin")]
+[Authorize(Policy = "AdminOnly")]
 public class UsersController : Controller
 {
     private readonly IUserService _userService;
@@ -146,7 +146,7 @@ public class CreateUserViewModel
     public string Username { get; set; } = string.Empty;
 
     [Required]
-    [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters long.")]
+    [StringLength(100, MinimumLength = 8, ErrorMessage = "Password must be at least 8 characters long.")]
     [DataType(DataType.Password)]
     [Display(Name = "Password")]
     public string Password { get; set; } = string.Empty;
@@ -171,7 +171,7 @@ public class ResetPasswordViewModel
     public string Username { get; set; } = string.Empty;
 
     [Required]
-    [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters long.")]
+    [StringLength(100, MinimumLength = 8, ErrorMessage = "Password must be at least 8 characters long.")]
     [DataType(DataType.Password)]
     [Display(Name = "New Password")]
     public string NewPassword { get; set; } = string.Empty;

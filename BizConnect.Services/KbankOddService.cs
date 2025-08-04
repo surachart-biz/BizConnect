@@ -132,7 +132,7 @@ public class KbankOddService : IKbankOddService
             // Build authentication hash
             var authParameter = OddUtils.BuildAuth(passPhrase, externalSystem, externalReference);
 
-            // Create initialization request with contact information
+            // Create initialization request with contact information (V1.9.7 - no email)
             var initRequest = new KBankInitRequest
             {
                 TransactionType = "0600",
@@ -140,10 +140,9 @@ public class KbankOddService : IKbankOddService
                 ExternalSystem = externalSystem,
                 ExternalReference = externalReference,
                 ServiceName = serviceName,
-                UserEmail = request.Email,
                 UserMobileNo = request.MobileNo,
                 Id = request.IdValue,
-                CallbackUrl = $"{appBaseUrl.TrimEnd('/')}/kbank/odd/callback?ref={externalReference}",
+                CallbackUrl = $"{appBaseUrl.TrimEnd('/')}/kbank/status-update",
                 AuthParameter = authParameter
             };
 
@@ -158,24 +157,26 @@ public class KbankOddService : IKbankOddService
                 throw new InvalidOperationException($"KBank initialization failed: {initResponse.ReturnMessage}");
             }
 
-            // Save registration record with Pending status and contact information
+            // Save registration record with Pending status and complete user information (V1.9.7)
             var registration = new KbankOddRegistration
             {
                 ExternalReference = externalReference,
                 RegId = initResponse.RegId,
                 Status = "Pending",
-                Email = request.Email,
+                FullName = request.FullName,
                 MobileNo = request.MobileNo,
                 IdType = request.IdType,
                 IdValue = request.IdValue,
+                AccountNo = request.AccountNo,
+                BranchId = request.BranchId,
                 CreatedAt = DateTime.UtcNow
             };
 
             _context.KbankOddRegistrations.Add(registration);
             await _context.SaveChangesAsync(cancellationToken);
 
-            _logger.LogInformation("KBank ODD registration record created with contact info: ExternalReference={ExternalReference}, RegId={RegId}, Email={Email}",
-                externalReference, initResponse.RegId, request.Email);
+            _logger.LogInformation("KBank ODD registration record created with contact info: ExternalReference={ExternalReference}, RegId={RegId}, FullName={FullName}",
+                externalReference, initResponse.RegId, request.FullName);
 
             // Build redirect URL
             var redirectUrl = $"{pgBaseUrl.TrimEnd('/')}/PGSRegistration.do?reg_id={initResponse.RegId}&langLocale=th_TH";
@@ -187,6 +188,91 @@ public class KbankOddService : IKbankOddService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to start KBank ODD registration process with contact information");
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<string> StartRegistrationWithExistingReferenceAsync(OddRegistrationRequest request, string existingExternalReference, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            _logger.LogInformation("Starting KBank ODD registration process with existing external reference: {ExternalReference}", existingExternalReference);
+
+            // Find the existing registration record
+            var registration = await _context.KbankOddRegistrations
+                .FirstOrDefaultAsync(r => r.ExternalReference == existingExternalReference, cancellationToken);
+
+            if (registration == null)
+            {
+                throw new InvalidOperationException($"Registration record not found for external reference: {existingExternalReference}");
+            }
+
+            if (registration.Status != "CodeIssued")
+            {
+                throw new InvalidOperationException($"Registration {registration.Id} is not in CodeIssued status: {registration.Status}");
+            }
+
+            // Get configuration values
+            var passPhrase = _configuration["KBankODD:PassPhrase"];
+            if (string.IsNullOrEmpty(passPhrase))
+            {
+                throw new InvalidOperationException("KBankODD:PassPhrase not configured");
+            }
+
+            var externalSystem = _configuration["KBankODD:ExternalSystem"] ?? "BIZCONNECT";
+            var serviceName = _configuration["KBankODD:ServiceName"] ?? "BizConnect ODD Service";
+            var pgBaseUrl = _configuration["KBankODD:PGBaseUrl"] ?? throw new InvalidOperationException("KBankODD:PGBaseUrl not configured");
+            var appBaseUrl = _configuration["KBankODD:AppBaseUrl"] ?? "https://localhost:7178"; // Application base URL
+
+            // Build authentication hash using existing external reference
+            var authParameter = OddUtils.BuildAuth(passPhrase, externalSystem, existingExternalReference);
+
+            // Create initialization request with contact information (V1.9.7 - no email)
+            var initRequest = new KBankInitRequest
+            {
+                TransactionType = "0600",
+                Encoding = "UTF8",
+                ExternalSystem = externalSystem,
+                ExternalReference = existingExternalReference,
+                ServiceName = serviceName,
+                UserMobileNo = request.MobileNo,
+                Id = request.IdValue,
+                CallbackUrl = $"{appBaseUrl.TrimEnd('/')}/kbank/status-update",
+                AuthParameter = authParameter
+            };
+
+            // Call KBank API
+            var initResponse = await _kbankClient.InitAsync(initRequest, cancellationToken);
+
+            // Check if initialization was successful
+            if (initResponse.ReturnStatus != "0" || string.IsNullOrEmpty(initResponse.RegId))
+            {
+                _logger.LogError("KBank initialization failed: Status={Status}, Code={Code}, Message={Message}",
+                    initResponse.ReturnStatus, initResponse.ReturnCode, initResponse.ReturnMessage);
+                throw new InvalidOperationException($"KBank initialization failed: {initResponse.ReturnMessage}");
+            }
+
+            // Update existing registration record with KBank response and change status to Pending
+            registration.RegId = initResponse.RegId;
+            registration.Status = "Pending";
+            registration.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation("KBank ODD registration record updated: ExternalReference={ExternalReference}, RegId={RegId}, FullName={FullName}",
+                existingExternalReference, initResponse.RegId, registration.FullName);
+
+            // Build redirect URL
+            var redirectUrl = $"{pgBaseUrl.TrimEnd('/')}/PGSRegistration.do?reg_id={initResponse.RegId}&langLocale=th_TH";
+
+            _logger.LogInformation("KBank ODD registration redirect URL generated for existing registration: {RedirectUrl}", redirectUrl);
+
+            return redirectUrl;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to start KBank ODD registration process with existing external reference: {ExternalReference}", existingExternalReference);
             throw;
         }
     }

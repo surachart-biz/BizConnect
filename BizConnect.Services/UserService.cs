@@ -71,8 +71,8 @@ public class UserService : IUserService
             throw new InvalidOperationException($"Username '{username}' already exists");
 
         // Validate role
-        if (role != "Admin" && role != "User")
-            throw new ArgumentException("Role must be either 'Admin' or 'User'", nameof(role));
+        if (role != "Admin" && role != "User" && role != "Employee")
+            throw new ArgumentException("Role must be 'Admin', 'Employee', or 'User'", nameof(role));
 
         var user = new User
         {

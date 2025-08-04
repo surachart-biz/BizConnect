@@ -1,5 +1,5 @@
 using BizConnect.Controllers;
-using BizConnect.Dal;
+using BizConnect.Dal.Models;
 using BizConnect.Services.Interfaces;
 using BizConnect.Services.Models.KBank;
 using BizConnect.ViewModels;
@@ -17,22 +17,26 @@ namespace BizConnect.Tests.Unit.Controllers;
 public class KBankControllerTests : IDisposable
 {
     private readonly Mock<IKbankOddService> _mockKbankOddService;
+    private readonly Mock<IOddRegistrationService> _mockOddRegistrationService;
+    private readonly Mock<IValidationService> _mockValidationService;
+    private readonly Mock<BizConnectContext> _mockContext;
     private readonly Mock<ILogger<KBankController>> _mockLogger;
-    private readonly BizConnectContext _context;
     private readonly KBankController _controller;
 
     public KBankControllerTests()
     {
         _mockKbankOddService = new Mock<IKbankOddService>();
+        _mockOddRegistrationService = new Mock<IOddRegistrationService>();
+        _mockValidationService = new Mock<IValidationService>();
+        _mockContext = new Mock<BizConnectContext>();
         _mockLogger = new Mock<ILogger<KBankController>>();
 
-        // Create in-memory database for testing
-        var options = new DbContextOptionsBuilder<BizConnectContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        _context = new BizConnectContext(options);
-
-        _controller = new KBankController(_mockKbankOddService.Object, _mockLogger.Object, _context);
+        _controller = new KBankController(
+            _mockKbankOddService.Object, 
+            _mockOddRegistrationService.Object,
+            _mockValidationService.Object,
+            _mockContext.Object,
+            _mockLogger.Object);
 
         // Setup controller context with authenticated user
         var user = new ClaimsPrincipal(new ClaimsIdentity(new[]
@@ -51,10 +55,10 @@ public class KBankControllerTests : IDisposable
     }
 
     [Fact]
-    public void Register_Get_ReturnsFormView()
+    public async Task Register_Get_ReturnsFormView()
     {
         // Act
-        var result = _controller.Register();
+        var result = await _controller.Register();
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
@@ -201,10 +205,10 @@ public class KBankControllerTests : IDisposable
     }
 
     [Fact]
-    public void Register_Get_ReturnsViewWithViewModel()
+    public async Task Register_Get_ReturnsViewWithViewModel()
     {
         // Act
-        var result = _controller.Register();
+        var result = await _controller.Register();
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
@@ -218,10 +222,12 @@ public class KBankControllerTests : IDisposable
         // Arrange
         var viewModel = new KBankOddRegisterViewModel
         {
-            Email = "test@example.com",
+            FullName = "Test User",
             MobileNo = "0812345678",
             IdType = "National ID",
-            IdValue = "1234567890123"
+            IdValue = "1234567890123",
+            AccountNo = "1234567890",
+            BranchId = 1
         };
 
         var expectedRedirectUrl = "https://test.kasikornbank.com/PGSRegistration.do?reg_id=TEST123&langLocale=th_TH";
@@ -237,10 +243,12 @@ public class KBankControllerTests : IDisposable
 
         _mockKbankOddService.Verify(s => s.StartRegistrationAsync(
             It.Is<OddRegistrationRequest>(req =>
-                req.Email == "test@example.com" &&
+                req.FullName == "Test User" &&
                 req.MobileNo == "0812345678" &&
                 req.IdType == "National ID" &&
-                req.IdValue == "1234567890123"
+                req.IdValue == "1234567890123" &&
+                req.AccountNo == "1234567890" &&
+                req.BranchId == 1
             ), It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -250,13 +258,11 @@ public class KBankControllerTests : IDisposable
         // Arrange
         var viewModel = new KBankOddRegisterViewModel
         {
-            Email = "invalid-email",
             MobileNo = "123", // Invalid mobile
             IdType = "",
             IdValue = ""
         };
 
-        _controller.ModelState.AddModelError("Email", "Please enter a valid email address");
         _controller.ModelState.AddModelError("MobileNo", "Mobile number must be in format 08xxxxxxxx or +66xxxxxxxx");
         _controller.ModelState.AddModelError("IdType", "ID type is required");
         _controller.ModelState.AddModelError("IdValue", "ID number is required");
@@ -279,10 +285,12 @@ public class KBankControllerTests : IDisposable
         // Arrange
         var viewModel = new KBankOddRegisterViewModel
         {
-            Email = "test@example.com",
+            FullName = "Test User",
             MobileNo = "0812345678",
             IdType = "National ID",
-            IdValue = "1234567890123"
+            IdValue = "1234567890123",
+            AccountNo = "1234567890",
+            BranchId = 1
         };
 
         _mockKbankOddService.Setup(s => s.StartRegistrationAsync(It.IsAny<OddRegistrationRequest>(), It.IsAny<CancellationToken>()))
@@ -301,6 +309,6 @@ public class KBankControllerTests : IDisposable
 
     public void Dispose()
     {
-        _context?.Dispose();
+        // No resources to dispose
     }
 }

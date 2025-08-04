@@ -42,4 +42,6 @@ public partial class User
     /// Whether the user account is active and can log in
     /// </summary>
     public bool IsActive { get; set; }
+
+    public virtual ICollection<KbankOddRegistration> KbankOddRegistrations { get; set; } = new List<KbankOddRegistration>();
 }

@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet list:*)",
+      "Bash(find:*)",
+      "Bash(dotnet restore:*)",
+      "Bash(psql:*)",
+      "Bash(./scripts/update-db.ps1)",
+      "Bash(powershell:*)",
+      "Bash(timeout:*)",
+      "Bash(.scriptsupdate-db.ps1)",
+      "Bash(dotnet test:*)",
+      "Bash(\"/c/Program Files/PostgreSQL/17/bin/psql.exe\" \"host=localhost dbname=bizconnect_test user=postgres password=bizitadmin\" -v ON_ERROR_STOP=1 -f \"D:/workspace/Code/BizConnect/db/migrations/20250804-01_MergeOtacIntoKbankRegistration.sql\")",
+      "Bash(\"/c/Program Files/PostgreSQL/17/bin/psql.exe\" \"host=localhost dbname=bizconnect_test user=postgres password=bizitadmin\" -c \"\nBEGIN;\n-- Remove added columns to rollback partial migration\nALTER TABLE \"\"KbankOddRegistration\"\" DROP COLUMN IF EXISTS \"\"OtacCode\"\";\nALTER TABLE \"\"KbankOddRegistration\"\" DROP COLUMN IF EXISTS \"\"OtacState\"\";\nALTER TABLE \"\"KbankOddRegistration\"\" DROP COLUMN IF EXISTS \"\"GeneratedByUserId\"\";\nALTER TABLE \"\"KbankOddRegistration\"\" DROP COLUMN IF EXISTS \"\"AttemptCount\"\";\nALTER TABLE \"\"KbankOddRegistration\"\" DROP COLUMN IF EXISTS \"\"IsLocked\"\";\nALTER TABLE \"\"KbankOddRegistration\"\" DROP COLUMN IF EXISTS \"\"LastAttemptAt\"\";\nALTER TABLE \"\"KbankOddRegistration\"\" DROP COLUMN IF EXISTS \"\"LastAttemptIp\"\";\n-- Drop backup tables\nDROP TABLE IF EXISTS \"\"_OtacCode_Backup_20250804\"\";\nDROP TABLE IF EXISTS \"\"_KbankOddRegistration_Backup_20250804\"\";\nCOMMIT;\n\")",
+      "Bash(dotnet ef dbcontext scaffold:*)",
+      "Bash(rm:*)"
+    ],
+    "deny": []
+  }
+}

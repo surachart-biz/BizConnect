@@ -1,0 +1,152 @@
+<!-- OTAC Modal Container - Include this in admin pages that need OTAC functionality -->
+
+<!-- Modal Container for Dynamic Loading -->
+<div id="otacModalContainer"></div>
+
+<!-- OTAC Action Buttons (can be included in toolbars) -->
+<div class="otac-actions d-none" id="otacActions">
+    <div class="btn-group" role="group" aria-label="OTAC Actions">
+        <button type="button" class="btn btn-primary" onclick="openGenerateOtacModal()">
+            <i class="fas fa-key me-1"></i>Generate OTAC
+        </button>
+        <button type="button" class="btn btn-info" onclick="openValidateOtacModal()">
+            <i class="fas fa-shield-check me-1"></i>Validate OTAC
+        </button>
+    </div>
+</div>
+
+<script>
+    // Global OTAC Modal Functions
+    window.OtacModals = {
+        // Generate OTAC Modal
+        openGenerate: function(registrationId = null) {
+            const url = registrationId ? 
+                `@Url.Action("GenerateModal", "Otac")?registrationId=${registrationId}` : 
+                `@Url.Action("GenerateModal", "Otac")`;
+                
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('otacModalContainer').innerHTML = html;
+                    const modal = new bootstrap.Modal(document.getElementById('generateOtacModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Error loading Generate OTAC modal:', error);
+                    showAlert('danger', 'Failed to load OTAC generation form.');
+                });
+        },
+        
+        // Validate OTAC Modal
+        openValidate: function() {
+            fetch(`@Url.Action("ValidateModal", "Otac")`)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('otacModalContainer').innerHTML = html;
+                    const modal = new bootstrap.Modal(document.getElementById('validateOtacModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Error loading Validate OTAC modal:', error);
+                    showAlert('danger', 'Failed to load OTAC validation form.');
+                });
+        }
+    };
+    
+    // Convenience functions for backward compatibility
+    function openGenerateOtacModal(registrationId = null) {
+        OtacModals.openGenerate(registrationId);
+    }
+    
+    function openValidateOtacModal() {
+        OtacModals.openValidate();
+    }
+    
+    function generateOTAC(registrationId) {
+        OtacModals.openGenerate(registrationId);
+    }
+    
+    // Show OTAC actions if user has appropriate permissions
+    document.addEventListener('DOMContentLoaded', function() {
+        // This would typically check user permissions
+        // For now, show for all admin users
+        @if (User.IsInRole("Admin") || User.IsInRole("Employee"))
+        {
+            <text>
+            document.getElementById('otacActions')?.classList.remove('d-none');
+            </text>
+        }
+    });
+    
+    // Alert helper function (if not already defined)
+    if (typeof showAlert === 'undefined') {
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 1060; min-width: 300px;';
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alertDiv);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+    }
+</script>
+
+<style>
+    .otac-actions {
+        margin: 0.5rem 0;
+    }
+    
+    .otac-actions .btn {
+        border-radius: 6px;
+    }
+    
+    .otac-actions .btn:not(:last-child) {
+        margin-right: 0.5rem;
+    }
+    
+    /* Enhanced modal animations */
+    .modal.fade .modal-dialog {
+        transform: translateY(-25px);
+        transition: transform 0.3s ease-out;
+    }
+    
+    .modal.show .modal-dialog {
+        transform: translateY(0);
+    }
+    
+    /* OTAC code styling */
+    .otac-code-display {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 1.5rem;
+        font-weight: bold;
+        letter-spacing: 0.2em;
+        text-align: center;
+        background: #f8f9fa;
+        border: 2px dashed #6c757d;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .otac-code-display.success {
+        background: #d4edda;
+        border-color: #28a745;
+        color: #155724;
+    }
+    
+    .otac-code-display.error {
+        background: #f8d7da;
+        border-color: #dc3545;
+        color: #721c24;
+    }
+</style>

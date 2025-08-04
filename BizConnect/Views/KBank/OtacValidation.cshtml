@@ -1,0 +1,195 @@
+@{
+    ViewData["Title"] = "Enter Access Code";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-xl-5">
+            <!-- Page Header -->
+            <div class="text-center mb-4">
+                <div class="bc-page-header">
+                    <div class="bc-icon-wrapper mb-3">
+                        <i class="fas fa-key text-warning" style="font-size: 3rem;"></i>
+                    </div>
+                    <h1 class="h2 mb-2">Enter Access Code</h1>
+                    <p class="text-muted">Please enter your 8-character access code to continue</p>
+                </div>
+            </div>
+
+            <!-- OTAC Entry Form -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>Access Code Required
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="RegisterForm" method="get" id="otacValidationForm" novalidate>
+                        
+                        <!-- Display any validation errors -->
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <div>@error.ErrorMessage</div>
+                                }
+                            </div>
+                        }
+
+                        <!-- OTAC Input Field -->
+                        <div class="mb-4">
+                            <label for="otac" class="form-label required">
+                                <i class="fas fa-key me-1"></i>Access Code
+                            </label>
+                            <input type="text" name="otac" id="otac" class="form-control form-control-lg text-center" 
+                                   placeholder="Enter 8-character code" maxlength="8" style="letter-spacing: 0.2em;" 
+                                   autocomplete="off" required />
+                            <div class="form-text">
+                                <small>Enter the 8-character code provided to you</small>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                <i class="fas fa-arrow-right me-2"></i>Continue to Registration
+                            </button>
+                            <a href="@Url.Action("Start", "KBank")" class="btn btn-outline-secondary">
+                                <i class="fas fa-plus me-1"></i>Generate New Code
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Help Card -->
+            <div class="card mt-4 border-info">
+                <div class="card-header bg-info text-white">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-question-circle me-2"></i>Need Help?
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Don't have an access code?</strong><br>
+                        <a href="@Url.Action("Start", "KBank")" class="btn btn-sm btn-outline-primary mt-1">
+                            <i class="fas fa-plus me-1"></i>Generate New Access Code
+                        </a>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Code not working?</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Check that you entered all 8 characters correctly</li>
+                            <li>Access codes expire after 30 minutes</li>
+                            <li>Each code can only be used once</li>
+                            <li>Codes are case-insensitive</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <small class="text-muted">
+                    <i class="fas fa-lock me-1"></i>
+                    Secure access codes expire after 30 minutes
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const otacInput = document.getElementById('otac');
+            const form = document.getElementById('otacValidationForm');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Auto-uppercase and format OTAC input
+            otacInput.addEventListener('input', function(e) {
+                let value = e.target.value.toUpperCase();
+                // Remove any non-alphanumeric characters
+                value = value.replace(/[^A-Z0-9]/g, '');
+                // Limit to 8 characters
+                value = value.substring(0, 8);
+                e.target.value = value;
+
+                // Clear invalid state when user starts typing
+                e.target.classList.remove('is-invalid');
+
+                // Enable/disable submit button based on length
+                if (value.length === 8) {
+                    submitBtn.disabled = false;
+                    e.target.classList.add('is-valid');
+                } else {
+                    submitBtn.disabled = true;
+                    e.target.classList.remove('is-valid');
+                }
+            });
+
+            // Focus on OTAC input when page loads
+            otacInput.focus();
+
+            // Form submission with loading state
+            form.addEventListener('submit', function(e) {
+                if (otacInput.value.length !== 8) {
+                    e.preventDefault();
+                    otacInput.classList.add('is-invalid');
+                    return;
+                }
+
+                if (form.checkValidity()) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Validating...';
+                }
+            });
+
+            // Initial state
+            submitBtn.disabled = true;
+        });
+    </script>
+
+    <style>
+        .required::after {
+            content: " *";
+            color: #dc3545;
+        }
+
+        .bc-page-header {
+            margin-bottom: 2rem;
+        }
+
+        .bc-icon-wrapper {
+            display: inline-block;
+            padding: 1rem;
+            background: rgba(255, 193, 7, 0.1);
+            border-radius: 50%;
+        }
+
+        .form-control:focus {
+            border-color: #ffc107;
+            box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+        }
+
+        .card {
+            border-radius: 0.5rem;
+        }
+
+        .card-header {
+            border-radius: 0.5rem 0.5rem 0 0 !important;
+        }
+
+        #otac {
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+
+        @@media (max-width: 576px) {
+            .form-control-lg {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+}

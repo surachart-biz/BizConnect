@@ -1,5 +1,6 @@
 using System;
 using BizConnect.Dal;
+using BizConnect.Dal.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BizConnect.Tests.Integration;

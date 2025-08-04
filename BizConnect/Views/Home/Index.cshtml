@@ -1,228 +1,160 @@
 @{
-    ViewData["Title"] = "BizConnect - Home";
+    ViewData["Title"] = "BizConnect - KBank ODD Registration";
 }
+
+@section Styles {
+    <style>
+        .kbank-hero {
+            background: linear-gradient(135deg, #0066CC 0%, #004499 100%);
+            color: white;
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .kbank-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+            opacity: 0.5;
+        }
+        .process-step {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .process-step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #0066CC, #004499);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .step-icon {
+            font-size: 3rem;
+            color: #0066CC;
+            margin-bottom: 1rem;
+        }
+        .lang-toggle {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 1050;
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            padding: 5px;
+        }
+        .lang-btn {
+            border: none;
+            background: transparent;
+            padding: 8px 15px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        .lang-btn.active {
+            background: #0066CC;
+            color: white;
+        }
+        .faq-item {
+            margin-bottom: 1rem;
+        }
+        .faq-button {
+            background: white;
+            border: 1px solid #e0e0e0;
+            padding: 1.25rem;
+            text-align: left;
+            width: 100%;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .faq-button:hover, .faq-button:not(.collapsed) {
+            background: #f8f9fa;
+            border-color: #0066CC;
+        }
+        .trust-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            margin: 0.25rem;
+            backdrop-filter: blur(10px);
+        }
+    </style>
+}
+
+<!-- Language Toggle -->
+<div class="lang-toggle">
+    <button class="lang-btn active" data-lang="en">
+        <i class="fas fa-globe me-1"></i> EN
+    </button>
+    <button class="lang-btn" data-lang="th">
+        <i class="fas fa-globe me-1"></i> TH
+    </button>
+</div>
 
 @if (User.Identity?.IsAuthenticated == true)
 {
-    <!-- Authenticated User Dashboard -->
-    <div class="bc-dashboard">
-        <!-- Welcome Hero Section -->
-        <section class="bc-hero-dashboard position-relative overflow-hidden">
-            <!-- Animated Background Elements -->
-            <div class="bc-hero-bg-elements">
-                <div class="bc-floating-shape bc-shape-1"></div>
-                <div class="bc-floating-shape bc-shape-2"></div>
-                <div class="bc-floating-shape bc-shape-3"></div>
-            </div>
-
+    <!-- Authenticated User - KBank ODD Dashboard -->
+    <div class="kbank-dashboard">
+        <!-- Quick Access Hero -->
+        <section class="kbank-hero">
             <div class="container position-relative">
                 <div class="row align-items-center">
                     <div class="col-lg-8">
-                        <div class="bc-welcome-content bc-fade-in">
-                            <!-- Time-based greeting -->
-                            <div class="bc-greeting-badge mb-3">
-                                <i class="fas fa-sun text-warning me-2"></i>
-                                <span id="greeting-text">Good morning</span>
+                        <div class="hero-content">
+                            <div class="trust-badge mb-3">
+                                <i class="fas fa-university text-warning me-2"></i>
+                                <span data-en="Official KBank Partner" data-th="พันธมิตรทางการของ KBank">Official KBank Partner</span>
                             </div>
-
-                            <h1 class="bc-hero-title bc-slide-in-left">
-                                Welcome back, <span class="text-primary bc-text-glow position-relative">
-                                    @User.Identity.Name
-                                    <div class="bc-sparkle-effect"></div>
-                                </span>!
+                            <h1 class="display-4 fw-bold mb-3">
+                                <span data-en="Welcome back," data-th="ยินดีต้อนรับกลับ,">Welcome back,</span> @User.Identity.Name
                             </h1>
-                            <p class="bc-hero-subtitle bc-slide-in-up mb-4">
-                                Ready to expand your professional network and discover new opportunities?
+                            <p class="lead mb-4">
+                                <span data-en="Manage your KBank ODD registrations and monitor your daily operations efficiently." data-th="จัดการการลงทะเบียน KBank ODD และติดตามการดำเนินงานประจำวันอย่างมีประสิทธิภาพ">Manage your KBank ODD registrations and monitor your daily operations efficiently.</span>
                             </p>
-
-                            <!-- Progress indicator -->
-                            <div class="bc-profile-progress mb-4">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="bc-progress-label">Profile Completion</span>
-                                    <span class="bc-progress-percentage">85%</span>
-                                </div>
-                                <div class="bc-progress-bar">
-                                    <div class="bc-progress-fill" style="width: 85%"></div>
-                                </div>
+                            <div class="hero-actions">
+                                <a asp-controller="KBank" asp-action="Register" class="btn btn-light btn-lg me-3">
+                                    <i class="fas fa-plus me-2"></i>
+                                    <span data-en="New Registration" data-th="ลงทะเบียนใหม่">New Registration</span>
+                                </a>
+                                <a asp-controller="KBank" asp-action="Start" class="btn btn-outline-light btn-lg">
+                                    <i class="fas fa-list me-2"></i>
+                                    <span data-en="View All" data-th="ดูทั้งหมด">View All</span>
+                                </a>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-4 text-center">
-                        <div class="bc-hero-stats">
-                            <!-- Interactive Connections Stat -->
-                            <div class="bc-stat-item bc-stat-animate bc-stat-interactive" style="animation-delay: 0.2s;" data-tooltip="Click to view your network">
-                                <div class="bc-stat-icon bc-icon-interactive">
-                                    <i class="fas fa-users"></i>
-                                    <div class="bc-pulse-ring"></div>
-                                </div>
-                                <div class="bc-stat-number" data-count="24">0</div>
-                                <div class="bc-stat-label">Connections</div>
-                                <div class="bc-stat-trend">
-                                    <i class="fas fa-arrow-up text-success"></i>
-                                    <span>+3 this week</span>
-                                </div>
-                                <!-- Mini connection preview -->
-                                <div class="bc-connection-preview">
-                                    <div class="bc-avatar-stack">
-                                        <div class="bc-avatar bc-avatar-1"></div>
-                                        <div class="bc-avatar bc-avatar-2"></div>
-                                        <div class="bc-avatar bc-avatar-3"></div>
-                                        <div class="bc-avatar-more">+21</div>
-                                    </div>
-                                </div>
+                        <div class="hero-stats">
+                            <div class="stat-item mb-3">
+                                <div class="h2 fw-bold">24</div>
+                                <div data-en="Pending Today" data-th="รอดำเนินการวันนี้">Pending Today</div>
                             </div>
-
-                            <!-- Interactive Opportunities Stat -->
-                            <div class="bc-stat-item bc-stat-animate bc-stat-interactive" style="animation-delay: 0.4s;" data-tooltip="Click to explore opportunities">
-                                <div class="bc-stat-icon bc-icon-interactive">
-                                    <i class="fas fa-briefcase"></i>
-                                    <div class="bc-pulse-ring"></div>
-                                </div>
-                                <div class="bc-stat-number" data-count="8">0</div>
-                                <div class="bc-stat-label">Opportunities</div>
-                                <div class="bc-stat-trend">
-                                    <i class="fas fa-arrow-up text-success"></i>
-                                    <span>+2 new</span>
-                                </div>
-                                <!-- Opportunity type indicators -->
-                                <div class="bc-opportunity-types">
-                                    <span class="bc-type-badge bc-type-remote">Remote</span>
-                                    <span class="bc-type-badge bc-type-fulltime">Full-time</span>
-                                    <span class="bc-type-badge bc-type-contract">Contract</span>
-                                </div>
+                            <div class="stat-item">
+                                <div class="h2 fw-bold text-warning">156</div>
+                                <div data-en="Completed This Month" data-th="เสร็จสิ้นเดือนนี้">Completed This Month</div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Quick Actions -->
-        <section class="bc-quick-actions py-5">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12 text-center mb-5">
-                        <h2 class="bc-section-title position-relative">
-                            Quick Actions
-                            <div class="bc-title-underline"></div>
-                        </h2>
-                        <p class="bc-section-subtitle">Everything you need to grow your professional network</p>
-                    </div>
-                </div>
-                <div class="row g-4">
-                    <div class="col-md-6 col-lg-3">
-                        <div class="bc-action-card hover-lift bc-tilt bc-ripple bc-slide-in-up position-relative bc-interactive-card" style="animation-delay: 0.1s;" data-action="connections">
-                            <div class="bc-action-badge bc-badge-animated">Popular</div>
-
-                            <!-- Interactive background pattern -->
-                            <div class="bc-card-pattern">
-                                <div class="bc-pattern-circle bc-circle-1"></div>
-                                <div class="bc-pattern-circle bc-circle-2"></div>
-                                <div class="bc-pattern-circle bc-circle-3"></div>
-                            </div>
-
-                            <div class="bc-action-icon bg-primary bc-glow bc-icon-hover">
-                                <i class="fas fa-users bc-rotate-sm"></i>
-                                <!-- Orbiting dots -->
-                                <div class="bc-orbit-container">
-                                    <div class="bc-orbit-dot bc-dot-1"></div>
-                                    <div class="bc-orbit-dot bc-dot-2"></div>
-                                    <div class="bc-orbit-dot bc-dot-3"></div>
-                                </div>
-                            </div>
-
-                            <h3 class="bc-action-title">Find Connections</h3>
-                            <p class="bc-action-description">Discover and connect with professionals in your industry</p>
-
-                            <div class="bc-action-stats">
-                                <span class="bc-stat-badge bc-stat-counter-badge">
-                                    <i class="fas fa-eye me-1"></i>
-                                    <span class="bc-counter" data-target="12">0</span> new matches
-                                </span>
-                            </div>
-
-                            <!-- Interactive progress bar -->
-                            <div class="bc-match-progress">
-                                <div class="bc-progress-label">Profile Match Score</div>
-                                <div class="bc-progress-bar-interactive">
-                                    <div class="bc-progress-fill-animated" data-progress="85"></div>
-                                    <span class="bc-progress-text">85%</span>
-                                </div>
-                            </div>
-
-                            <a href="#" class="bc-action-link bc-color-transition bc-link-interactive" onclick="return false;">
-                                <span>Explore Network</span>
-                                <i class="fas fa-arrow-right ms-2 bc-arrow-slide"></i>
-                            </a>
-
-                            <!-- Hover reveal content -->
-                            <div class="bc-hover-reveal">
-                                <div class="bc-quick-stats">
-                                    <div class="bc-quick-stat">
-                                        <i class="fas fa-user-tie"></i>
-                                        <span>5 Executives</span>
-                                    </div>
-                                    <div class="bc-quick-stat">
-                                        <i class="fas fa-code"></i>
-                                        <span>7 Developers</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-3">
-                        <div class="bc-action-card hover-lift bc-tilt bc-ripple bc-slide-in-up position-relative" style="animation-delay: 0.2s;">
-                            <div class="bc-action-badge bg-success">Hot</div>
-                            <div class="bc-action-icon bg-success bc-glow">
-                                <i class="fas fa-briefcase bc-rotate-sm"></i>
-                            </div>
-                            <h3 class="bc-action-title">Job Opportunities</h3>
-                            <p class="bc-action-description">Browse and apply to exciting career opportunities</p>
-                            <div class="bc-action-stats">
-                                <span class="bc-stat-badge">
-                                    <i class="fas fa-fire me-1"></i>5 new jobs
-                                </span>
-                            </div>
-                            <a href="#" class="bc-action-link bc-color-transition" onclick="return false;">
-                                <span>View Jobs</span>
-                                <i class="fas fa-arrow-right ms-2"></i>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-3">
-                        <div class="bc-action-card hover-lift bc-tilt bc-ripple bc-slide-in-up position-relative" style="animation-delay: 0.3s;">
-                            <div class="bc-action-icon bg-info bc-glow">
-                                <i class="fas fa-calendar-alt bc-rotate-sm"></i>
-                            </div>
-                            <h3 class="bc-action-title">Events</h3>
-                            <p class="bc-action-description">Join networking events and professional meetups</p>
-                            <div class="bc-action-stats">
-                                <span class="bc-stat-badge">
-                                    <i class="fas fa-calendar me-1"></i>3 this week
-                                </span>
-                            </div>
-                            <a href="#" class="bc-action-link bc-color-transition" onclick="return false;">
-                                <span>Find Events</span>
-                                <i class="fas fa-arrow-right ms-2"></i>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-3">
-                        <div class="bc-action-card hover-lift bc-tilt bc-ripple bc-slide-in-up position-relative" style="animation-delay: 0.4s;">
-                            <div class="bc-action-icon bg-warning bc-glow">
-                                <i class="fas fa-user-edit bc-rotate-sm"></i>
-                            </div>
-                            <h3 class="bc-action-title">Update Profile</h3>
-                            <p class="bc-action-description">Keep your professional profile up to date</p>
-                            <div class="bc-action-stats">
-                                <span class="bc-stat-badge">
-                                    <i class="fas fa-percentage me-1"></i>85% complete
-                                </span>
-                            </div>
-                            <a href="#" class="bc-action-link bc-color-transition" onclick="return false;">
-                                <span>Edit Profile</span>
-                                <i class="fas fa-arrow-right ms-2"></i>
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -232,417 +164,377 @@
         @if (User.IsInRole("Admin"))
         {
             <!-- Admin Quick Access -->
-            <section class="bc-admin-section">
+            <section class="py-4 bg-light">
                 <div class="container">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="bc-admin-card">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-center">
-                                        <div class="bc-admin-icon">
-                                            <i class="fas fa-shield-alt"></i>
-                                        </div>
-                                        <div>
-                                            <h3 class="bc-admin-title">Administrator Access</h3>
-                                            <p class="bc-admin-description">Manage users, monitor system activity, and configure settings</p>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <a asp-controller="Home" asp-action="Dashboard" asp-area="Admin" class="btn btn-primary">
-                                            <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="alert alert-info d-flex align-items-center">
+                        <i class="fas fa-shield-alt me-3"></i>
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1" data-en="Administrator Access" data-th="การเข้าถึงของผู้ดูแลระบบ">Administrator Access</h5>
+                            <p class="mb-0" data-en="Manage ODD registrations, generate OTAC codes, and monitor system activity" data-th="จัดการการลงทะเบียน ODD, สร้างรหัส OTAC และติดตามกิจกรรมของระบบ">Manage ODD registrations, generate OTAC codes, and monitor system activity</p>
                         </div>
+                        <a asp-controller="Home" asp-action="Dashboard" asp-area="Admin" class="btn btn-primary">
+                            <i class="fas fa-tachometer-alt me-2"></i>
+                            <span data-en="Admin Dashboard" data-th="แดชบอร์ดผู้ดูแล">Admin Dashboard</span>
+                        </a>
                     </div>
                 </div>
             </section>
         }
-
-        <!-- Recent Activity -->
-        <section class="bc-recent-activity py-5 bg-light">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12 text-center mb-5">
-                        <h2 class="bc-section-title position-relative">
-                            Recent Activity
-                            <div class="bc-title-underline"></div>
-                        </h2>
-                        <p class="bc-section-subtitle">Stay updated with your latest interactions and opportunities</p>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="bc-activity-feed bc-interactive-timeline">
-                            <!-- Interactive Activity Item 1 -->
-                            <div class="bc-activity-item bc-slide-in-left bc-activity-interactive" style="animation-delay: 0.1s;" data-activity="connection">
-                                <div class="bc-activity-timeline bc-timeline-animated"></div>
-                                <div class="bc-activity-icon bg-success bc-pulse bc-icon-expandable">
-                                    <i class="fas fa-user-plus"></i>
-                                    <div class="bc-icon-ripple"></div>
-                                </div>
-                                <div class="bc-activity-content">
-                                    <div class="bc-activity-header">
-                                        <div class="bc-activity-main">
-                                            <p class="bc-activity-text">You connected with <strong class="bc-name-highlight">Sarah Johnson</strong></p>
-                                            <!-- Profile preview on hover -->
-                                            <div class="bc-profile-preview">
-                                                <div class="bc-profile-avatar">
-                                                    <i class="fas fa-user"></i>
-                                                </div>
-                                                <div class="bc-profile-info">
-                                                    <div class="bc-profile-name">Sarah Johnson</div>
-                                                    <div class="bc-profile-title">Product Manager at TechCorp</div>
-                                                    <div class="bc-profile-mutual">3 mutual connections</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="bc-activity-actions">
-                                            <button class="btn btn-sm btn-outline-primary bc-btn-interactive">
-                                                <i class="fas fa-comment me-1"></i>Message
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-secondary bc-btn-more" data-bs-toggle="dropdown">
-                                                <i class="fas fa-ellipsis-h"></i>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>View Profile</a></li>
-                                                <li><a class="dropdown-item" href="#"><i class="fas fa-share me-2"></i>Share</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <span class="bc-activity-time bc-time-interactive">
-                                        <i class="fas fa-clock me-1"></i>
-                                        <span class="bc-relative-time" data-timestamp="2">2 hours ago</span>
-                                    </span>
-                                    <!-- Expandable details -->
-                                    <div class="bc-activity-details">
-                                        <div class="bc-connection-context">
-                                            <i class="fas fa-info-circle me-1"></i>
-                                            Connected through mutual connection: <strong>Mike Chen</strong>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bc-activity-item bc-slide-in-left" style="animation-delay: 0.2s;">
-                                <div class="bc-activity-timeline"></div>
-                                <div class="bc-activity-icon bg-info bc-pulse">
-                                    <i class="fas fa-briefcase"></i>
-                                </div>
-                                <div class="bc-activity-content">
-                                    <div class="bc-activity-header">
-                                        <p class="bc-activity-text">New job opportunity: <strong>Senior Developer</strong></p>
-                                        <div class="bc-activity-actions">
-                                            <button class="btn btn-sm btn-outline-success">
-                                                <i class="fas fa-eye me-1"></i>View
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <span class="bc-activity-time">
-                                        <i class="fas fa-clock me-1"></i>1 day ago
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="bc-activity-item bc-slide-in-left" style="animation-delay: 0.3s;">
-                                <div class="bc-activity-timeline"></div>
-                                <div class="bc-activity-icon bg-warning bc-pulse">
-                                    <i class="fas fa-calendar"></i>
-                                </div>
-                                <div class="bc-activity-content">
-                                    <div class="bc-activity-header">
-                                        <p class="bc-activity-text">Upcoming event: <strong>Tech Networking Meetup</strong></p>
-                                        <div class="bc-activity-actions">
-                                            <button class="btn btn-sm btn-outline-warning">
-                                                <i class="fas fa-calendar-plus me-1"></i>RSVP
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <span class="bc-activity-time">
-                                        <i class="fas fa-clock me-1"></i>3 days ago
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- View All Activity Button -->
-                        <div class="text-center mt-4">
-                            <button class="btn btn-outline-primary bc-gradient-border">
-                                <i class="fas fa-history me-2"></i>View All Activity
-                            </button>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="bc-suggestions-card bc-slide-in-right">
-                            <div class="bc-suggestions-header">
-                                <h3 class="bc-suggestions-title">
-                                    <i class="fas fa-users me-2 text-primary"></i>
-                                    Suggested Connections
-                                </h3>
-                                <span class="bc-suggestions-count">2 new</span>
+    </div>
+}
+else
+{
+    <!-- Non-Authenticated User Landing Page -->
+    <div class="kbank-landing">
+        <!-- Hero Section -->
+        <section class="kbank-hero">
+            <div class="container position-relative">
+                <div class="row align-items-center min-vh-75">
+                    <div class="col-lg-6">
+                        <div class="hero-content">
+                            <!-- Trust indicators -->
+                            <div class="trust-badges mb-4">
+                                <span class="trust-badge">
+                                    <i class="fas fa-shield-check text-success me-2"></i>
+                                    <span data-en="Bank-Grade Security" data-th="ความปลอดภัยระดับธนาคาร">Bank-Grade Security</span>
+                                </span>
+                                <span class="trust-badge">
+                                    <i class="fas fa-university text-warning me-2"></i>
+                                    <span data-en="KBank Official Partner" data-th="พันธมิตรทางการของ KBank">KBank Official Partner</span>
+                                </span>
+                                <span class="trust-badge">
+                                    <i class="fas fa-clock text-info me-2"></i>
+                                    <span data-en="24/7 Available" data-th="ใช้ได้ 24/7">24/7 Available</span>
+                                </span>
                             </div>
 
-                            <div class="bc-suggestion-item hover-lift">
-                                <div class="bc-suggestion-avatar bg-primary">
-                                    <i class="fas fa-user text-white"></i>
+                            <h1 class="display-3 fw-bold mb-4">
+                                <span data-en="KBank ODD Registration" data-th="การลงทะเบียน KBank ODD">KBank ODD Registration</span>
+                                <div class="text-warning" data-en="Made Simple" data-th="ง่ายดาย">Made Simple</div>
+                            </h1>
+                            
+                            <p class="lead mb-4">
+                                <span data-en="Streamline your KBank Omnibus Deposit Data registration process with our secure, user-friendly platform designed for financial institutions." data-th="ปรับปรุงกระบวนการลงทะเบียน KBank Omnibus Deposit Data ด้วยแพลตฟอร์มที่ปลอดภัยและเป็นมิตรกับผู้ใช้ที่ออกแบบมาสำหรับสถาบันการเงิน">Streamline your KBank Omnibus Deposit Data registration process with our secure, user-friendly platform designed for financial institutions.</span>
+                            </p>
+
+                            <!-- Key benefits -->
+                            <div class="hero-benefits mb-4">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-check-circle text-warning me-3"></i>
+                                    <span data-en="Automated OTAC code generation" data-th="การสร้างรหัส OTAC อัตโนมัติ">Automated OTAC code generation</span>
                                 </div>
-                                <div class="bc-suggestion-info">
-                                    <h4 class="bc-suggestion-name">Michael Chen</h4>
-                                    <p class="bc-suggestion-role">Product Manager</p>
-                                    <div class="bc-suggestion-mutual">
-                                        <i class="fas fa-users me-1"></i>3 mutual connections
-                                    </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-check-circle text-warning me-3"></i>
+                                    <span data-en="Real-time registration tracking" data-th="การติดตามการลงทะเบียนแบบเรียลไทม์">Real-time registration tracking</span>
                                 </div>
-                                <div class="bc-suggestion-actions">
-                                    <button class="btn btn-primary btn-sm bc-ripple">
-                                        <i class="fas fa-user-plus me-1"></i>Connect
-                                    </button>
-                                    <button class="btn btn-outline-secondary btn-sm">
-                                        <i class="fas fa-times"></i>
-                                    </button>
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-check-circle text-warning me-3"></i>
+                                    <span data-en="Secure data handling & encryption" data-th="การจัดการข้อมูลที่ปลอดภัยและการเข้ารหัส">Secure data handling & encryption</span>
                                 </div>
                             </div>
 
-                            <div class="bc-suggestion-item hover-lift">
-                                <div class="bc-suggestion-avatar bg-success">
-                                    <i class="fas fa-user text-white"></i>
-                                </div>
-                                <div class="bc-suggestion-info">
-                                    <h4 class="bc-suggestion-name">Emily Rodriguez</h4>
-                                    <p class="bc-suggestion-role">UX Designer</p>
-                                    <div class="bc-suggestion-mutual">
-                                        <i class="fas fa-users me-1"></i>5 mutual connections
-                                    </div>
-                                </div>
-                                <div class="bc-suggestion-actions">
-                                    <button class="btn btn-primary btn-sm bc-ripple">
-                                        <i class="fas fa-user-plus me-1"></i>Connect
-                                    </button>
-                                    <button class="btn btn-outline-secondary btn-sm">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="text-center mt-3">
-                                <a href="#" class="bc-link-primary" onclick="return false;">
-                                    View all suggestions <i class="fas fa-arrow-right ms-1"></i>
+                            <div class="hero-actions">
+                                <a asp-action="Verify" class="btn btn-warning btn-lg me-3 shadow">
+                                    <i class="fas fa-user-plus me-2"></i>
+                                    <span data-en="สมัครบริการหักบัญชีอัตโนมัติ" data-th="สมัครบริการหักบัญชีอัตโนมัติ">สมัครบริการหักบัญชีอัตโนมัติ</span>
+                                </a>
+                                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light btn-lg">
+                                    <i class="fas fa-sign-in-alt me-2"></i>
+                                    <span data-en="เข้าสู่ระบบ (เจ้าหน้าที่)" data-th="เข้าสู่ระบบ (เจ้าหน้าที่)">เข้าสู่ระบบ (เจ้าหน้าที่)</span>
                                 </a>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="hero-visual text-center">
+                            <div class="banking-graphic position-relative">
+                                <div class="shield-container">
+                                    <i class="fas fa-university" style="font-size: 8rem; color: rgba(255,255,255,0.9);"></i>
+                                    <div class="security-indicators position-absolute">
+                                        <div class="indicator indicator-1"><i class="fas fa-lock"></i></div>
+                                        <div class="indicator indicator-2"><i class="fas fa-shield-alt"></i></div>
+                                        <div class="indicator indicator-3"><i class="fas fa-key"></i></div>
+                                        <div class="indicator indicator-4"><i class="fas fa-check-circle"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4-Step Process Section -->
+        <section id="how-it-works" class="py-5 bg-light">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 text-center mb-5">
+                        <h2 class="display-5 fw-bold text-primary mb-3">
+                            <span data-en="How KBank ODD Registration Works" data-th="วิธีการทำงานของการลงทะเบียน KBank ODD">How KBank ODD Registration Works</span>
+                        </h2>
+                        <p class="lead text-muted">
+                            <span data-en="Simple 4-step process to complete your registration" data-th="กระบวนการ 4 ขั้นตอนง่ายๆ เพื่อลงทะเบียนให้เสร็จสมบูรณ์">Simple 4-step process to complete your registration</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Step 1 -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="process-step">
+                            <div class="step-number">1</div>
+                            <div class="step-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3" data-en="Registration" data-th="การลงทะเบียน">Registration</h4>
+                            <p class="text-muted" data-en="Fill out the secure registration form with your business and contact details" data-th="กรอกแบบฟอร์มลงทะเบียนที่ปลอดภัยด้วยรายละเอียดธุรกิจและการติดต่อของคุณ">Fill out the secure registration form with your business and contact details</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="process-step">
+                            <div class="step-number">2</div>
+                            <div class="step-icon">
+                                <i class="fas fa-key"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3" data-en="OTAC Generation" data-th="การสร้าง OTAC">OTAC Generation</h4>
+                            <p class="text-muted" data-en="System automatically generates your unique One-Time Authorization Code" data-th="ระบบสร้างรหัสอนุญาตครั้งเดียวที่ไม่ซ้ำกันของคุณโดยอัตโนมัติ">System automatically generates your unique One-Time Authorization Code</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="process-step">
+                            <div class="step-number">3</div>
+                            <div class="step-icon">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3" data-en="Validation" data-th="การตรวจสอบ">Validation</h4>
+                            <p class="text-muted" data-en="Enter your OTAC code to validate and confirm your registration details" data-th="ป้อนรหัส OTAC ของคุณเพื่อตรวจสอบและยืนยันรายละเอียดการลงทะเบียนของคุณ">Enter your OTAC code to validate and confirm your registration details</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="process-step">
+                            <div class="step-number">4</div>
+                            <div class="step-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3" data-en="Completion" data-th="การเสร็จสิ้น">Completion</h4>
+                            <p class="text-muted" data-en="Receive confirmation and access to your KBank ODD registration dashboard" data-th="รับการยืนยันและการเข้าถึงแดชบอร์ดการลงทะเบียน KBank ODD ของคุณ">Receive confirmation and access to your KBank ODD registration dashboard</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-5">
+                    <div class="col-12 text-center">
+                        <a asp-action="Verify" class="btn btn-primary btn-lg">
+                            <i class="fas fa-arrow-right me-2"></i>
+                            <span data-en="Begin Registration Process" data-th="เริ่มกระบวนการลงทะเบียน">Begin Registration Process</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="py-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 text-center mb-5">
+                        <h2 class="display-5 fw-bold text-primary mb-3">
+                            <span data-en="Frequently Asked Questions" data-th="คำถามที่พบบ่อย">Frequently Asked Questions</span>
+                        </h2>
+                        <p class="lead text-muted">
+                            <span data-en="Common questions about KBank ODD registration" data-th="คำถามทั่วไปเกี่ยวกับการลงทะเบียน KBank ODD">Common questions about KBank ODD registration</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="accordion" id="faqAccordion">
+                            <!-- FAQ 1 -->
+                            <div class="faq-item">
+                                <button class="faq-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">
+                                            <span data-en="What is KBank ODD Registration?" data-th="การลงทะเบียน KBank ODD คืออะไร?">What is KBank ODD Registration?</span>
+                                        </h5>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                </button>
+                                <div id="faq1" class="collapse" data-bs-parent="#faqAccordion">
+                                    <div class="p-4 bg-light">
+                                        <p data-en="KBank ODD (Omnibus Deposit Data) Registration is a secure process that allows financial institutions to register and manage deposit data with KBank's systems. This ensures compliance with banking regulations and secure data handling." data-th="การลงทะเบียน KBank ODD (Omnibus Deposit Data) เป็นกระบวนการที่ปลอดภัยที่ช่วยให้สถาบันการเงินสามารถลงทะเบียนและจัดการข้อมูลเงินฝากกับระบบของ KBank ได้ สิ่งนี้ช่วยให้มั่นใจในการปฏิบัติตามกฎระเบียบของธนาคารและการจัดการข้อมูลที่ปลอดภัย">KBank ODD (Omnibus Deposit Data) Registration is a secure process that allows financial institutions to register and manage deposit data with KBank's systems. This ensures compliance with banking regulations and secure data handling.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FAQ 2 -->
+                            <div class="faq-item">
+                                <button class="faq-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">
+                                            <span data-en="How secure is my data?" data-th="ข้อมูลของฉันปลอดภัยแค่ไหน?">How secure is my data?</span>
+                                        </h5>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                </button>
+                                <div id="faq2" class="collapse" data-bs-parent="#faqAccordion">
+                                    <div class="p-4 bg-light">
+                                        <p data-en="We use bank-grade security with end-to-end encryption, secure HTTPS connections, and comply with all financial industry standards. Your data is protected with the same level of security used by major banking institutions." data-th="เราใช้ความปลอดภัยระดับธนาคารพร้อมการเข้ารหัสแบบ end-to-end การเชื่อมต่อ HTTPS ที่ปลอดภัย และปฏิบัติตามมาตรฐานอุตสาหกรรมการเงินทั้งหมด ข้อมูลของคุณได้รับการปกป้องด้วยระดับความปลอดภัยเดียวกับที่ใช้โดยสถาบันการธนาคารขนาดใหญ่">We use bank-grade security with end-to-end encryption, secure HTTPS connections, and comply with all financial industry standards. Your data is protected with the same level of security used by major banking institutions.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FAQ 3 -->
+                            <div class="faq-item">
+                                <button class="faq-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">
+                                            <span data-en="What is an OTAC code?" data-th="รหัส OTAC คืออะไร?">What is an OTAC code?</span>
+                                        </h5>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                </button>
+                                <div id="faq3" class="collapse" data-bs-parent="#faqAccordion">
+                                    <div class="p-4 bg-light">
+                                        <p data-en="OTAC (One-Time Authorization Code) is a unique, time-limited code generated for each registration. It provides an additional layer of security and ensures that only authorized users can complete the registration process." data-th="OTAC (One-Time Authorization Code) เป็นรหัสเฉพาะที่มีเวลาจำกัดที่สร้างขึ้นสำหรับการลงทะเบียนแต่ละครั้ง ให้ความปลอดภัยเพิ่มเติมและรับประกันว่ามีเพียงผู้ใช้ที่ได้รับอนุญาตเท่านั้นที่สามารถดำเนินการลงทะเบียนให้เสร็จสิ้นได้">OTAC (One-Time Authorization Code) is a unique, time-limited code generated for each registration. It provides an additional layer of security and ensures that only authorized users can complete the registration process.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FAQ 4 -->
+                            <div class="faq-item">
+                                <button class="faq-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">
+                                            <span data-en="How long does the registration process take?" data-th="กระบวนการลงทะเบียนใช้เวลานานแค่ไหน?">How long does the registration process take?</span>
+                                        </h5>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                </button>
+                                <div id="faq4" class="collapse" data-bs-parent="#faqAccordion">
+                                    <div class="p-4 bg-light">
+                                        <p data-en="The registration process typically takes 5-10 minutes to complete. OTAC codes are generated instantly, and validation is processed in real-time. You'll receive immediate confirmation upon successful completion." data-th="กระบวนการลงทะเบียนโดยทั่วไปใช้เวลา 5-10 นาทีในการดำเนินการให้เสร็จสิ้น รหัส OTAC จะถูกสร้างขึ้นทันที และการตรวจสอบจะดำเนินการแบบเรียลไทม์ คุณจะได้รับการยืนยันทันทีเมื่อดำเนินการเสร็จสิ้นเรียบร้อยแล้ว">The registration process typically takes 5-10 minutes to complete. OTAC codes are generated instantly, and validation is processed in real-time. You'll receive immediate confirmation upon successful completion.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FAQ 5 -->
+                            <div class="faq-item">
+                                <button class="faq-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">
+                                            <span data-en="Who can I contact for support?" data-th="ฉันสามารถติดต่อใครเพื่อขอความช่วยเหลือได้?">Who can I contact for support?</span>
+                                        </h5>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                </button>
+                                <div id="faq5" class="collapse" data-bs-parent="#faqAccordion">
+                                    <div class="p-4 bg-light">
+                                        <p data-en="Our support team is available 24/7 to assist with any questions or issues. You can reach us through the contact form, email support@bizconnect.com, or call our dedicated helpline at +66-2-XXX-XXXX." data-th="ทีมสนับสนุนของเราพร้อมให้บริการตลอด 24 ชั่วโมงเพื่อช่วยเหลือเกี่ยวกับคำถามหรือปัญหาใดๆ คุณสามารถติดต่อเราผ่านแบบฟอร์มติดต่อ อีเมล support@bizconnect.com หรือโทรหาสายด่วนเฉพาะของเราที่ +66-2-XXX-XXXX">Our support team is available 24/7 to assist with any questions or issues. You can reach us through the contact form, email support@bizconnect.com, or call our dedicated helpline at +66-2-XXX-XXXX.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-5 bg-primary text-white">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <h2 class="display-5 fw-bold mb-3">
+                            <span data-en="Ready to Get Started?" data-th="พร้อมที่จะเริ่มต้นหรือยัง?">Ready to Get Started?</span>
+                        </h2>
+                        <p class="lead mb-4">
+                            <span data-en="Join thousands of financial institutions using our secure KBank ODD registration platform" data-th="เข้าร่วมกับสถาบันการเงินหลายพันแห่งที่ใช้แพลตฟอร์มการลงทะเบียน KBank ODD ที่ปลอดภัยของเรา">Join thousands of financial institutions using our secure KBank ODD registration platform</span>
+                        </p>
+                        <a asp-action="Verify" class="btn btn-warning btn-lg me-3">
+                            <i class="fas fa-user-plus me-2"></i>
+                            <span data-en="สมัครบริการหักบัญชีอัตโนมัติ" data-th="สมัครบริการหักบัญชีอัตโนมัติ">สมัครบริการหักบัญชีอัตโนมัติ</span>
+                        </a>
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            <span data-en="เข้าสู่ระบบ (เจ้าหน้าที่)" data-th="เข้าสู่ระบบ (เจ้าหน้าที่)">เข้าสู่ระบบ (เจ้าหน้าที่)</span>
+                        </a>
                     </div>
                 </div>
             </div>
         </section>
     </div>
 }
-else
-{
-    <!-- Non-Authenticated User Landing Page -->
-    <div class="bc-landing">
-        <!-- Hero Section -->
-        <section class="bc-hero position-relative overflow-hidden">
-            <!-- Animated Background -->
-            <div class="bc-hero-bg-animation">
-                <div class="bc-floating-element bc-element-1"></div>
-                <div class="bc-floating-element bc-element-2"></div>
-                <div class="bc-floating-element bc-element-3"></div>
-                <div class="bc-floating-element bc-element-4"></div>
-            </div>
 
-            <div class="container position-relative">
-                <div class="row align-items-center min-vh-75">
-                    <div class="col-lg-6">
-                        <div class="bc-hero-content bc-fade-in">
-                            <!-- Trust indicators -->
-                            <div class="bc-trust-badges mb-4">
-                                <span class="bc-trust-badge">
-                                    <i class="fas fa-shield-check text-success me-1"></i>
-                                    Secure Platform
-                                </span>
-                                <span class="bc-trust-badge">
-                                    <i class="fas fa-users text-primary me-1"></i>
-                                    10K+ Professionals
-                                </span>
-                                <span class="bc-trust-badge">
-                                    <i class="fas fa-star text-warning me-1"></i>
-                                    4.9/5 Rating
-                                </span>
-                            </div>
-
-                            <h1 class="bc-hero-title bc-slide-in-left">
-                                Welcome to <span class="text-primary position-relative">
-                                    BizConnect
-                                    <div class="bc-text-highlight"></div>
-                                </span>
-                            </h1>
-                            <p class="bc-hero-subtitle bc-slide-in-up">
-                                Your comprehensive business networking and collaboration
-                                platform. Connect with professionals, manage projects, and
-                                grow your business network.
-                            </p>
-
-                            <!-- Key benefits -->
-                            <div class="bc-hero-benefits mb-4">
-                                <div class="bc-benefit-item">
-                                    <i class="fas fa-check-circle text-success me-2"></i>
-                                    <span>Free to join and start networking</span>
-                                </div>
-                                <div class="bc-benefit-item">
-                                    <i class="fas fa-check-circle text-success me-2"></i>
-                                    <span>Connect with industry professionals</span>
-                                </div>
-                                <div class="bc-benefit-item">
-                                    <i class="fas fa-check-circle text-success me-2"></i>
-                                    <span>Discover career opportunities</span>
-                                </div>
-                            </div>
-
-                            <div class="bc-hero-actions">
-                                <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-lg me-3 bc-gradient-btn bc-ripple">
-                                    <i class="fas fa-rocket me-2"></i>Get Started Free
-                                </a>
-                                <a href="#features" class="btn btn-outline-primary btn-lg bc-smooth-scroll">
-                                    <i class="fas fa-play me-2"></i>Learn More
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="bc-hero-visual bc-slide-in-right">
-                            <div class="bc-network-graphic position-relative">
-                                <!-- Enhanced Interactive network visualization -->
-                                <div class="bc-network-container bc-interactive-network" data-network="demo">
-                                    <!-- Central User Node -->
-                                    <div class="bc-network-node bc-node-center bc-node-interactive" data-tooltip="You - The center of your network">
-                                        <i class="fas fa-user"></i>
-                                        <div class="bc-node-pulse"></div>
-                                        <div class="bc-node-label">You</div>
-                                    </div>
-
-                                    <!-- Career Node -->
-                                    <div class="bc-network-node bc-node-1 bc-node-interactive" data-tooltip="Career Opportunities - 8 active">
-                                        <i class="fas fa-briefcase"></i>
-                                        <div class="bc-node-badge">8</div>
-                                        <div class="bc-node-label">Jobs</div>
-                                    </div>
-
-                                    <!-- Connections Node -->
-                                    <div class="bc-network-node bc-node-2 bc-node-interactive" data-tooltip="Professional Network - 24 connections">
-                                        <i class="fas fa-users"></i>
-                                        <div class="bc-node-badge">24</div>
-                                        <div class="bc-node-label">Network</div>
-                                    </div>
-
-                                    <!-- Events Node -->
-                                    <div class="bc-network-node bc-node-3 bc-node-interactive" data-tooltip="Networking Events - 3 upcoming">
-                                        <i class="fas fa-calendar"></i>
-                                        <div class="bc-node-badge">3</div>
-                                        <div class="bc-node-label">Events</div>
-                                    </div>
-
-                                    <!-- Growth Node -->
-                                    <div class="bc-network-node bc-node-4 bc-node-interactive" data-tooltip="Career Growth - Track your progress">
-                                        <i class="fas fa-chart-line"></i>
-                                        <div class="bc-node-badge">↗</div>
-                                        <div class="bc-node-label">Growth</div>
-                                    </div>
-
-                                    <!-- Animated Connections -->
-                                    <div class="bc-network-connection bc-connection-1 bc-connection-interactive"></div>
-                                    <div class="bc-network-connection bc-connection-2 bc-connection-interactive"></div>
-                                    <div class="bc-network-connection bc-connection-3 bc-connection-interactive"></div>
-                                    <div class="bc-network-connection bc-connection-4 bc-connection-interactive"></div>
-
-                                    <!-- Data Flow Animation -->
-                                    <div class="bc-data-flow bc-flow-1"></div>
-                                    <div class="bc-data-flow bc-flow-2"></div>
-                                    <div class="bc-data-flow bc-flow-3"></div>
-                                    <div class="bc-data-flow bc-flow-4"></div>
-                                </div>
-
-                                <!-- Network Stats Overlay -->
-                                <div class="bc-network-stats">
-                                    <div class="bc-stat-item">
-                                        <span class="bc-stat-value">10K+</span>
-                                        <span class="bc-stat-label">Active Users</span>
-                                    </div>
-                                    <div class="bc-stat-item">
-                                        <span class="bc-stat-value">500+</span>
-                                        <span class="bc-stat-label">Companies</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Features Section -->
-        <section id="features" class="bc-features py-5 bg-light">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12 text-center mb-5">
-                        <h2 class="bc-section-title position-relative">
-                            Why Choose BizConnect?
-                            <div class="bc-title-underline"></div>
-                        </h2>
-                        <p class="bc-section-subtitle">
-                            Powerful features designed to enhance your business operations
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Feature Cards -->
-                <div class="row g-4">
-                    <div class="col-md-6 col-lg-4">
-                        <div class="bc-feature-card text-center bc-slide-in-up" style="animation-delay: 0.1s;">
-                            <div class="bc-feature-icon bg-primary">
-                                <i class="fas fa-network-wired"></i>
-                            </div>
-                            <h3 class="bc-feature-title">Smart Networking</h3>
-                            <p class="bc-feature-description">
-                                AI-powered recommendations to connect you with the right professionals in your industry.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4">
-                        <div class="bc-feature-card text-center bc-slide-in-up" style="animation-delay: 0.2s;">
-                            <div class="bc-feature-icon bg-success">
-                                <i class="fas fa-search"></i>
-                            </div>
-                            <h3 class="bc-feature-title">Job Discovery</h3>
-                            <p class="bc-feature-description">
-                                Find and apply to relevant job opportunities that match your skills and experience.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4">
-                        <div class="bc-feature-card text-center bc-slide-in-up" style="animation-delay: 0.3s;">
-                            <div class="bc-feature-icon bg-info">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <h3 class="bc-feature-title">Event Management</h3>
-                            <p class="bc-feature-description">
-                                Discover and attend networking events, workshops, and professional meetups.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CTA Section -->
-                <div class="row mt-5">
-                    <div class="col-12 text-center">
-                        <div class="bc-cta-section">
-                            <h3 class="bc-cta-title">Ready to expand your network?</h3>
-                            <p class="bc-cta-subtitle">Join thousands of professionals already using BizConnect</p>
-                            <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-lg bc-gradient-btn bc-ripple">
-                                <i class="fas fa-user-plus me-2"></i>Join BizConnect Today
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
+@section Scripts {
+    <script>
+        // Language Toggle Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const langButtons = document.querySelectorAll('.lang-btn');
+            const elementsWithLang = document.querySelectorAll('[data-en]');
+            
+            // Get saved language or default to English
+            let currentLang = localStorage.getItem('selectedLanguage') || 'en';
+            
+            // Apply saved language on page load
+            updateLanguage(currentLang);
+            
+            langButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    currentLang = lang;
+                    localStorage.setItem('selectedLanguage', lang);
+                    updateLanguage(lang);
+                    
+                    // Update button states
+                    langButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            function updateLanguage(lang) {
+                elementsWithLang.forEach(el => {
+                    const text = el.getAttribute('data-' + lang);
+                    if (text) {
+                        el.textContent = text;
+                    }
+                });
+                
+                // Update active button state
+                langButtons.forEach(btn => {
+                    btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+                });
+            }
+            
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+            
+            // Process step hover effects
+            document.querySelectorAll('.process-step').forEach(step => {
+                step.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px) scale(1.02)';
+                });
+                step.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        });
+    </script>
 }

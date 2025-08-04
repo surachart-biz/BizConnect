@@ -6,48 +6,6 @@ namespace BizConnect.Tests.Unit.ViewModels;
 
 public class KBankOddRegisterViewModelTests
 {
-    [Fact]
-    public void Email_WithValidEmail_PassesValidation()
-    {
-        // Arrange
-        var viewModel = new KBankOddRegisterViewModel
-        {
-            Email = "test@example.com",
-            MobileNo = "0812345678",
-            IdType = "National ID",
-            IdValue = "1234567890123"
-        };
-
-        // Act
-        var validationResults = ValidateModel(viewModel);
-
-        // Assert
-        Assert.DoesNotContain(validationResults, v => v.MemberNames.Contains("Email"));
-    }
-
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    [InlineData("invalid-email")]
-    [InlineData("@example.com")]
-    [InlineData("test@")]
-    public void Email_WithInvalidEmail_FailsValidation(string email)
-    {
-        // Arrange
-        var viewModel = new KBankOddRegisterViewModel
-        {
-            Email = email,
-            MobileNo = "0812345678",
-            IdType = "National ID",
-            IdValue = "1234567890123"
-        };
-
-        // Act
-        var validationResults = ValidateModel(viewModel);
-
-        // Assert
-        Assert.Contains(validationResults, v => v.MemberNames.Contains("Email"));
-    }
 
     [Theory]
     [InlineData("0812345678")]
@@ -58,7 +16,6 @@ public class KBankOddRegisterViewModelTests
         // Arrange
         var viewModel = new KBankOddRegisterViewModel
         {
-            Email = "test@example.com",
             MobileNo = mobileNo,
             IdType = "National ID",
             IdValue = "1234567890123"
@@ -83,7 +40,6 @@ public class KBankOddRegisterViewModelTests
         // Arrange
         var viewModel = new KBankOddRegisterViewModel
         {
-            Email = "test@example.com",
             MobileNo = mobileNo,
             IdType = "National ID",
             IdValue = "1234567890123"
@@ -106,7 +62,6 @@ public class KBankOddRegisterViewModelTests
         // Arrange
         var viewModel = new KBankOddRegisterViewModel
         {
-            Email = "test@example.com",
             MobileNo = "0812345678",
             IdType = idType,
             IdValue = "1234567890123"
@@ -127,7 +82,6 @@ public class KBankOddRegisterViewModelTests
         // Arrange
         var viewModel = new KBankOddRegisterViewModel
         {
-            Email = "test@example.com",
             MobileNo = "0812345678",
             IdType = idType,
             IdValue = "1234567890123"
@@ -146,7 +100,6 @@ public class KBankOddRegisterViewModelTests
         // Arrange
         var viewModel = new KBankOddRegisterViewModel
         {
-            Email = "test@example.com",
             MobileNo = "0812345678",
             IdType = "National ID",
             IdValue = "1234567890123"
@@ -165,7 +118,6 @@ public class KBankOddRegisterViewModelTests
         // Arrange
         var viewModel = new KBankOddRegisterViewModel
         {
-            Email = "test@example.com",
             MobileNo = "0812345678",
             IdType = "National ID",
             IdValue = "12345678901" // Only 11 digits
@@ -185,7 +137,6 @@ public class KBankOddRegisterViewModelTests
         // Arrange
         var viewModel = new KBankOddRegisterViewModel
         {
-            Email = "test@example.com",
             MobileNo = "0812345678",
             IdType = "Passport",
             IdValue = "AB1234567"
@@ -204,7 +155,6 @@ public class KBankOddRegisterViewModelTests
         // Arrange
         var viewModel = new KBankOddRegisterViewModel
         {
-            Email = "test@example.com",
             MobileNo = "0812345678",
             IdType = "Passport",
             IdValue = "AB123" // Too short
@@ -228,7 +178,6 @@ public class KBankOddRegisterViewModelTests
         // Arrange
         var viewModel = new KBankOddRegisterViewModel
         {
-            Email = "test@example.com",
             MobileNo = "0812345678",
             IdType = "National ID",
             IdValue = idValue

@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BizConnect Admin</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="BizConnect Admin Dashboard - Manage KBank ODD registrations, OTAC codes, and system operations" />
+    <meta name="theme-color" content="#0066CC" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="BizConnect Admin" />
+    <meta name="msapplication-TileColor" content="#0066CC" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/BizConnect.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+    <style>
+        :root {
+            --admin-primary: #0066CC;
+            --admin-secondary: #004499;
+            --admin-success: #28a745;
+            --admin-warning: #ffc107;
+            --admin-danger: #dc3545;
+            --admin-info: #17a2b8;
+            --admin-light: #f8f9fa;
+            --admin-dark: #343a40;
+            --sidebar-width: 280px;
+            --topbar-height: 70px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--admin-light);
+        }
+
+        /* Top Navigation */
+        .admin-topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--topbar-height);
+            background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
+            color: white;
+            z-index: 1030;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .admin-topbar .navbar-brand {
+            color: white !important;
+            font-weight: 700;
+            font-size: 1.5rem;
+            text-decoration: none;
+        }
+
+        .admin-topbar .navbar-brand:hover {
+            color: #ffc107 !important;
+        }
+
+        .admin-topbar .navbar-nav .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin: 0 0.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .admin-topbar .navbar-nav .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white !important;
+        }
+
+        .admin-topbar .dropdown-menu {
+            border: none;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+            border-radius: 8px;
+        }
+
+        /* Sidebar */
+        .admin-sidebar {
+            position: fixed;
+            top: var(--topbar-height);
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--topbar-height));
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            overflow-y: auto;
+            z-index: 1020;
+            transition: all 0.3s ease;
+        }
+
+        .admin-sidebar.collapsed {
+            width: 80px;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--admin-primary);
+            margin: 0;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin: 0;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #6c757d;
+            padding: 0 1.5rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: #495057;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: var(--admin-light);
+            color: var(--admin-primary);
+            border-left-color: var(--admin-primary);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
+            color: white;
+            border-left-color: var(--admin-warning);
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+
+        .nav-link .badge {
+            margin-left: auto;
+        }
+
+        /* Main Content */
+        .admin-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--topbar-height);
+            padding: 2rem;
+            min-height: calc(100vh - var(--topbar-height));
+            transition: all 0.3s ease;
+        }
+
+        .admin-content.sidebar-collapsed {
+            margin-left: 80px;
+        }
+
+        /* Content Header */
+        .content-header {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .content-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--admin-dark);
+            margin: 0;
+        }
+
+        .content-subtitle {
+            color: #6c757d;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .breadcrumb-custom {
+            background: none;
+            padding: 0;
+            margin: 1rem 0 0 0;
+        }
+
+        .breadcrumb-custom .breadcrumb-item a {
+            color: var(--admin-primary);
+            text-decoration: none;
+        }
+
+        .breadcrumb-custom .breadcrumb-item.active {
+            color: #6c757d;
+        }
+
+        /* Toggle Button */
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Cards */
+        .admin-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+            margin-bottom: 2rem;
+        }
+
+        .admin-card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px 10px 0 0;
+        }
+
+        .admin-card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--admin-dark);
+            margin: 0;
+        }
+
+        .admin-card-body {
+            padding: 1.5rem;
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+            }
+
+            .admin-sidebar.show {
+                transform: translateX(0);
+            }
+
+            .admin-content {
+                margin-left: 0;
+            }
+
+            .sidebar-toggle-mobile {
+                display: block !important;
+            }
+        }
+
+        @@media (min-width: 769px) {
+            .sidebar-toggle-mobile {
+                display: none !important;
+            }
+        }
+
+        /* Utilities */
+        .text-admin-primary { color: var(--admin-primary) !important; }
+        .bg-admin-primary { background-color: var(--admin-primary) !important; }
+        .border-admin-primary { border-color: var(--admin-primary) !important; }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="admin-topbar navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <!-- Sidebar Toggle -->
+            <button class="sidebar-toggle me-3" type="button" id="sidebarToggle" aria-label="Toggle sidebar navigation" aria-expanded="true" aria-controls="adminSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Brand -->
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="fas fa-university me-2"></i>
+                <span>BizConnect Admin</span>
+            </a>
+
+            <!-- Mobile Toggle -->
+            <button class="navbar-toggler sidebar-toggle-mobile" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar">
+                <i class="fas fa-ellipsis-v text-white"></i>
+            </button>
+
+            <!-- Top Navigation Items -->
+            <div class="collapse navbar-collapse" id="topNavbar">
+                <ul class="navbar-nav ms-auto">
+                    <!-- Notifications -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning">
+                                3
+                                <span class="visually-hidden">unread notifications</span>
+                            </span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" style="width: 300px;">
+                            <li><h6 class="dropdown-header">Recent Notifications</h6></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0">
+                                            <i class="fas fa-user-plus text-success"></i>
+                                        </div>
+                                        <div class="flex-grow-1 ms-2">
+                                            <div class="fw-bold">New ODD Registration</div>
+                                            <small class="text-muted">Company ABC submitted registration</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0">
+                                            <i class="fas fa-key text-warning"></i>
+                                        </div>
+                                        <div class="flex-grow-1 ms-2">
+                                            <div class="fw-bold">OTAC Generated</div>
+                                            <small class="text-muted">15 new codes generated today</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-center" href="#">View all notifications</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- User Menu -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i>
+                            @User.Identity?.Name
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">Administrator</h6></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" asp-controller="Home" asp-action="Index" asp-area=""><i class="fas fa-home me-2"></i>Back to Site</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" asp-controller="Account" asp-action="Logout" asp-area=""><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <nav class="admin-sidebar" id="adminSidebar" role="navigation" aria-label="Admin navigation">
+        <div class="sidebar-header">
+            <h5 class="sidebar-title">KBank ODD System</h5>
+            <p class="sidebar-subtitle">Administration Panel</p>
+        </div>
+
+        <div class="sidebar-nav">
+            <!-- Dashboard Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">Dashboard</div>
+                <div class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")" 
+                       asp-controller="Home" asp-action="Dashboard" asp-area="Admin">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Overview</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                        <span class="badge bg-success">New</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ODD Management Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">ODD Management</div>
+                <div class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "OddRegistration" ? "active" : "")" 
+                       asp-controller="OddRegistration" asp-action="Index" asp-area="Admin">
+                        <i class="fas fa-list"></i>
+                        <span>Registrations</span>
+                        <span class="badge bg-primary">24</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-clock"></i>
+                        <span>Pending</span>
+                        <span class="badge bg-warning">8</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Completed</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-times-circle"></i>
+                        <span>Failed</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- OTAC Management Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">OTAC Management</div>
+                <div class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Otac" ? "active" : "")" 
+                       asp-controller="Otac" asp-action="Index" asp-area="Admin">
+                        <i class="fas fa-key"></i>
+                        <span>Generate OTAC</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-history"></i>
+                        <span>OTAC History</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-calendar-times"></i>
+                        <span>Expired Codes</span>
+                        <span class="badge bg-danger">5</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- User Management Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">User Management</div>
+                <div class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" ? "active" : "")" 
+                       asp-controller="Users" asp-action="Index" asp-area="Admin">
+                        <i class="fas fa-users"></i>
+                        <span>All Users</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" asp-controller="Users" asp-action="Create" asp-area="Admin">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Add User</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Roles & Permissions</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Data Management Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">Data Management</div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-upload"></i>
+                        <span>Import Data</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-download"></i>
+                        <span>Export Data</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-database"></i>
+                        <span>Backup</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- System Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">System</div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-cogs"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Logs</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-info-circle"></i>
+                        <span>System Info</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="admin-content" id="adminContent">
+        <!-- Content Header -->
+        <div class="content-header fade-in">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h1 class="content-title">@ViewData["Title"]</h1>
+                    @if (!string.IsNullOrEmpty(ViewBag.Subtitle as string))
+                    {
+                        <p class="content-subtitle">@ViewBag.Subtitle</p>
+                    }
+                    
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-custom">
+                            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Dashboard" asp-area="Admin">Admin</a></li>
+                            @if (!string.IsNullOrEmpty(ViewBag.BreadcrumbSection as string))
+                            {
+                                <li class="breadcrumb-item">@ViewBag.BreadcrumbSection</li>
+                            }
+                            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+                        </ol>
+                    </nav>
+                </div>
+                
+                @if (IsSectionDefined("HeaderActions"))
+                {
+                    <div class="header-actions">
+                        @await RenderSectionAsync("HeaderActions", required: false)
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div class="page-content fade-in">
+            @RenderBody()
+        </div>
+    </main>
+
+    <!-- Include OTAC Modals -->
+    @await Html.PartialAsync("_OtacModals")
+    
+    <!-- Include Excel Import/Export Modal -->
+    @await Html.PartialAsync("_ExcelImportExportModal")
+    
+    <!-- Include Notification Toast System -->
+    @await Html.PartialAsync("_NotificationToast")
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        // Sidebar Toggle Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('adminSidebar');
+            const content = document.getElementById('adminContent');
+            
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                content.classList.toggle('sidebar-collapsed');
+                
+                // Store preference
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            });
+            
+            // Restore sidebar state
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (isCollapsed) {
+                sidebar.classList.add('collapsed');
+                content.classList.add('sidebar-collapsed');
+            }
+            
+            // Mobile sidebar toggle
+            const mobileToggle = document.querySelector('.sidebar-toggle-mobile');
+            if (mobileToggle) {
+                mobileToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                });
+            }
+            
+            // Close mobile sidebar when clicking outside
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768) {
+                    if (!sidebar.contains(e.target) && !mobileToggle.contains(e.target)) {
+                        sidebar.classList.remove('show');
+                    }
+                }
+            });
+            
+            // Auto-hide mobile sidebar on window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('show');
+                }
+            });
+        });
+        
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

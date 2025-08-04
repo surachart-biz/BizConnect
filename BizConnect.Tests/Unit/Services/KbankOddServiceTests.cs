@@ -266,7 +266,6 @@ public class KbankOddServiceTests : IDisposable
         // Arrange
         var request = new OddRegistrationRequest
         {
-            Email = "test@example.com",
             MobileNo = "0812345678",
             IdType = "National ID",
             IdValue = "1234567890123"
@@ -294,7 +293,6 @@ public class KbankOddServiceTests : IDisposable
         Assert.NotNull(registration);
         Assert.Equal("TEST123456", registration.RegId);
         Assert.Equal("Pending", registration.Status);
-        Assert.Equal("test@example.com", registration.Email);
         Assert.Equal("0812345678", registration.MobileNo);
         Assert.Equal("National ID", registration.IdType);
         Assert.Equal("1234567890123", registration.IdValue);
@@ -306,7 +304,6 @@ public class KbankOddServiceTests : IDisposable
         // Arrange
         var request = new OddRegistrationRequest
         {
-            Email = "user@test.com",
             MobileNo = "+66812345678",
             IdType = "Passport",
             IdValue = "AB1234567"
@@ -328,7 +325,6 @@ public class KbankOddServiceTests : IDisposable
 
         // Assert
         _mockKbankClient.Verify(c => c.InitAsync(It.Is<KBankInitRequest>(req =>
-            req.UserEmail == "user@test.com" &&
             req.UserMobileNo == "+66812345678" &&
             req.Id == "AB1234567"
         ), It.IsAny<CancellationToken>()), Times.Once);
@@ -340,7 +336,6 @@ public class KbankOddServiceTests : IDisposable
         // Arrange
         var request = new OddRegistrationRequest
         {
-            Email = "test@example.com",
             MobileNo = "0812345678",
             IdType = "National ID",
             IdValue = "1234567890123"
@@ -371,7 +366,6 @@ public class KbankOddServiceTests : IDisposable
         // Arrange
         var request = new OddRegistrationRequest
         {
-            Email = "test@example.com",
             MobileNo = "0812345678",
             IdType = "National ID",
             IdValue = "1234567890123"

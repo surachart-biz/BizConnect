@@ -1,0 +1,246 @@
+<!-- Global Notification Toast Container -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+    <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <div class="toast-icon me-2">
+                <i id="toastIcon" class="fas fa-info-circle"></i>
+            </div>
+            <strong id="toastTitle" class="me-auto">Notification</strong>
+            <small id="toastTime" class="text-muted">now</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toastMessage">
+            Default message
+        </div>
+    </div>
+</div>
+
+<!-- Multiple Toast Container -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1055;" id="toastContainer">
+    <!-- Dynamic toasts will be added here -->
+</div>
+
+<style>
+    .toast {
+        min-width: 300px;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .toast-header {
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .toast-icon {
+        width: 20px;
+        text-align: center;
+    }
+    
+    /* Success Toast */
+    .toast.toast-success .toast-header {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        border-bottom-color: rgba(255,255,255,0.2);
+    }
+    
+    .toast.toast-success .toast-icon {
+        color: white;
+    }
+    
+    .toast.toast-success .btn-close {
+        filter: invert(1);
+    }
+    
+    /* Error Toast */
+    .toast.toast-error .toast-header {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+        border-bottom-color: rgba(255,255,255,0.2);
+    }
+    
+    .toast.toast-error .toast-icon {
+        color: white;
+    }
+    
+    .toast.toast-error .btn-close {
+        filter: invert(1);
+    }
+    
+    /* Warning Toast */
+    .toast.toast-warning .toast-header {
+        background: linear-gradient(135deg, #ffc107, #e0a800);
+        color: #212529;
+        border-bottom-color: rgba(0,0,0,0.1);
+    }
+    
+    /* Info Toast */
+    .toast.toast-info .toast-header {
+        background: linear-gradient(135deg, #17a2b8, #138496);
+        color: white;
+        border-bottom-color: rgba(255,255,255,0.2);
+    }
+    
+    .toast.toast-info .toast-icon {
+        color: white;
+    }
+    
+    .toast.toast-info .btn-close {
+        filter: invert(1);
+    }
+    
+    /* Animation enhancements */
+    .toast {
+        transition: all 0.3s ease;
+    }
+    
+    .toast.showing {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    
+    .toast.hide {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+</style>
+
+<script>
+    // Global Toast Notification System for Admin
+    window.AdminNotifications = {
+        // Show a toast notification
+        show: function(message, options = {}) {
+            const defaults = {
+                type: 'info', // success, error, warning, info
+                title: 'Notification',
+                duration: 5000,
+                icon: null,
+                allowHtml: false
+            };
+            
+            const config = { ...defaults, ...options };
+            
+            // Create unique toast element
+            const toastId = 'toast_' + Date.now();
+            const toastElement = this.createToastElement(toastId, message, config);
+            
+            // Add to container
+            const container = document.getElementById('toastContainer');
+            container.appendChild(toastElement);
+            
+            // Initialize Bootstrap toast
+            const toast = new bootstrap.Toast(toastElement, {
+                delay: config.duration
+            });
+            
+            // Show toast
+            toast.show();
+            
+            // Auto-remove after hiding
+            toastElement.addEventListener('hidden.bs.toast', function() {
+                toastElement.remove();
+            });
+            
+            return toast;
+        },
+        
+        // Create toast element
+        createToastElement: function(id, message, config) {
+            const iconMap = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-triangle',
+                warning: 'fa-exclamation-circle',
+                info: 'fa-info-circle'
+            };
+            
+            const icon = config.icon || iconMap[config.type];
+            
+            const toastHtml = `
+                <div id="${id}" class="toast toast-${config.type}" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <div class="toast-icon me-2">
+                            <i class="fas ${icon}"></i>
+                        </div>
+                        <strong class="me-auto">${this.escapeHtml(config.title)}</strong>
+                        <small class="text-muted">now</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${config.allowHtml ? message : this.escapeHtml(message)}
+                    </div>
+                </div>
+            `;
+            
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = toastHtml;
+            return wrapper.firstElementChild;
+        },
+        
+        // Escape HTML to prevent XSS
+        escapeHtml: function(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        },
+        
+        // Convenience methods
+        success: function(message, title = 'Success') {
+            return this.show(message, { type: 'success', title: title });
+        },
+        
+        error: function(message, title = 'Error') {
+            return this.show(message, { type: 'error', title: title, duration: 8000 });
+        },
+        
+        warning: function(message, title = 'Warning') {
+            return this.show(message, { type: 'warning', title: title, duration: 6000 });
+        },
+        
+        info: function(message, title = 'Information') {
+            return this.show(message, { type: 'info', title: title });
+        },
+        
+        // Clear all toasts
+        clearAll: function() {
+            const container = document.getElementById('toastContainer');
+            const toasts = container.querySelectorAll('.toast');
+            
+            toasts.forEach(toast => {
+                const bsToast = bootstrap.Toast.getInstance(toast);
+                if (bsToast) {
+                    bsToast.hide();
+                } else {
+                    toast.remove();
+                }
+            });
+        }
+    };
+    
+    // Make it globally available as a shorter alias
+    window.notify = window.AdminNotifications;
+    
+    // Override the existing showAlert function to use the new toast system
+    if (typeof showAlert !== 'undefined') {
+        const originalShowAlert = showAlert;
+        window.showAlert = function(type, message, title) {
+            // Map old types to new system
+            const typeMap = {
+                'danger': 'error',
+                'primary': 'info'
+            };
+            
+            const mappedType = typeMap[type] || type;
+            return AdminNotifications.show(message, { 
+                type: mappedType, 
+                title: title || (mappedType.charAt(0).toUpperCase() + mappedType.slice(1))
+            });
+        };
+    }
+    
+    // Example usage for testing (remove in production)
+    function testNotifications() {
+        notify.success('Operation completed successfully!');
+        setTimeout(() => notify.warning('This is a warning message'), 1000);
+        setTimeout(() => notify.error('Something went wrong'), 2000);
+        setTimeout(() => notify.info('Here is some information'), 3000);
+    }
+</script>

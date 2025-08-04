@@ -1,0 +1,477 @@
+@model VerifyOtacViewModel
+@{
+    ViewData["Title"] = "ยืนยันรหัส OTAC";
+}
+
+@section Styles {
+    <style>
+        .verify-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0066CC 0%, #004499 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+        }
+
+        .verify-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            padding: 3rem;
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .verify-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #0066CC, #004499);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            color: white;
+            font-size: 2rem;
+        }
+
+        .verify-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .verify-subtitle {
+            color: #6c757d;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .otac-input-group {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .otac-input {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            letter-spacing: 0.5em;
+            padding: 1rem;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .otac-input:focus {
+            border-color: #0066CC;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+            outline: none;
+        }
+
+        .otac-input.is-invalid {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .verify-btn {
+            background: linear-gradient(135deg, #0066CC, #004499);
+            border: none;
+            color: white;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+
+        .verify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 102, 204, 0.3);
+            color: white;
+        }
+
+        .verify-btn:disabled {
+            background: #6c757d;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .info-section {
+            background: #e3f2fd;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border-left: 4px solid #0066CC;
+        }
+
+        .info-title {
+            font-weight: 600;
+            color: #0066CC;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-text {
+            color: #495057;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .character-counter {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+
+        .security-badges {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .back-link {
+            color: #6c757d;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #0066CC;
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .verify-card {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+                border-radius: 15px;
+            }
+
+            .verify-title {
+                font-size: 1.5rem;
+            }
+
+            .otac-input {
+                font-size: 1.5rem;
+                letter-spacing: 0.3em;
+            }
+
+            .security-badges {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
+        /* Loading animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+}
+
+<div class="verify-container">
+    <div class="verify-card">
+        <!-- Logo -->
+        <div class="verify-logo">
+            <i class="fas fa-shield-check"></i>
+        </div>
+
+        <!-- Title -->
+        <h1 class="verify-title">ยืนยันรหัส OTAC</h1>
+        <p class="verify-subtitle">
+            กรุณากรอกรหัส OTAC 8 หลัก เพื่อเข้าสู่ขั้นตอนการลงทะเบียน
+        </p>
+
+        <!-- Security Badges -->
+        <div class="security-badges">
+            <div class="security-badge">
+                <i class="fas fa-lock me-2"></i>
+                ปลอดภัย 100%
+            </div>
+            <div class="security-badge">
+                <i class="fas fa-clock me-2"></i>
+                หมดอายุ 30 นาที
+            </div>
+        </div>
+
+        <!-- Verification Form -->
+        <form asp-action="Verify" method="post" id="verifyForm">
+            @Html.AntiForgeryToken()
+            
+            <div class="otac-input-group">
+                <input asp-for="OtacCode" 
+                       class="form-control otac-input" 
+                       placeholder="XXXXXXXX"
+                       maxlength="8"
+                       autocomplete="off"
+                       id="otacInput" />
+                <div class="character-counter">
+                    <span id="charCount">0</span>/8
+                </div>
+                <span asp-validation-for="OtacCode" class="text-danger d-block mt-2"></span>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn verify-btn" id="verifyBtn">
+                <i class="fas fa-check-circle me-2"></i>
+                ยืนยันรหัส OTAC
+            </button>
+
+            <!-- Alternative Actions -->
+            <div class="text-center">
+                <small class="text-muted">
+                    ยังไม่มีรหัส OTAC? 
+                    <a href="#" class="text-primary fw-bold" onclick="showContactInfo()">ติดต่อเจ้าหน้าที่</a>
+                </small>
+            </div>
+        </form>
+
+        <!-- Information Section -->
+        <div class="info-section">
+            <div class="info-title">
+                <i class="fas fa-info-circle me-2"></i>
+                ข้อมูลเกี่ยวกับรหัส OTAC
+            </div>
+            <p class="info-text">
+                รหัส OTAC (One-Time Authorization Code) เป็นรหัสยืนยันตัวตนที่ใช้ครั้งเดียว 
+                และหมดอายุภายใน 30 นาที โดยจะได้รับจากเจ้าหน้าที่ผ่านช่องทางที่ปลอดภัย
+            </p>
+        </div>
+
+        <!-- Back Link -->
+        <a asp-action="Index" class="back-link">
+            <i class="fas fa-arrow-left me-2"></i>
+            กลับสู่หน้าหลัก
+        </a>
+    </div>
+</div>
+
+<!-- Contact Info Modal -->
+<div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="contactModalLabel">
+                    <i class="fas fa-phone me-2"></i>ติดต่อเจ้าหน้าที่
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="contact-info text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-phone fa-2x text-primary mb-2"></i>
+                        <h6>โทรศัพท์</h6>
+                        <p class="mb-0">
+                            <a href="tel:+6622345678" class="text-primary fw-bold">02-234-5678</a><br>
+                            <small class="text-muted">วันจันทร์-ศุกร์ 8:00-17:00 น.</small>
+                        </p>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <i class="fas fa-envelope fa-2x text-primary mb-2"></i>
+                        <h6>อีเมล</h6>
+                        <p class="mb-0">
+                            <a href="mailto:support@bizconnect.com" class="text-primary fw-bold">support@bizconnect.com</a><br>
+                            <small class="text-muted">ตอบกลับภายใน 24 ชั่วโมง</small>
+                        </p>
+                    </div>
+                    <hr>
+                    <div class="alert alert-info">
+                        <small>
+                            <i class="fas fa-info-circle me-1"></i>
+                            กรุณาแจ้งรายละเอียดการลงทะเบียนและข้อมูลที่ติดต่อได้ เพื่อให้เจ้าหน้าที่ดำเนินการออกรหัส OTAC ให้
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const otacInput = document.getElementById('otacInput');
+            const charCount = document.getElementById('charCount');
+            const verifyBtn = document.getElementById('verifyBtn');
+            const form = document.getElementById('verifyForm');
+
+            // Auto-focus on input
+            otacInput.focus();
+
+            // Format input and update counter
+            otacInput.addEventListener('input', function(e) {
+                // Remove non-alphanumeric characters and convert to uppercase
+                let value = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+                
+                // Limit to 8 characters
+                if (value.length > 8) {
+                    value = value.substring(0, 8);
+                }
+                
+                e.target.value = value;
+                charCount.textContent = value.length;
+
+                // Remove invalid state when user types
+                e.target.classList.remove('is-invalid');
+            });
+
+            // Auto-submit when 8 characters are entered
+            otacInput.addEventListener('input', function() {
+                if (this.value.length === 8) {
+                    // Small delay to allow user to see the complete code
+                    setTimeout(() => {
+                        if (this.value.length === 8) {
+                            form.submit();
+                        }
+                    }, 500);
+                }
+            });
+
+            // Form submission with loading state
+            form.addEventListener('submit', function(e) {
+                // Validate input
+                const otacValue = otacInput.value.trim();
+                if (otacValue.length !== 8) {
+                    e.preventDefault();
+                    otacInput.classList.add('is-invalid');
+                    otacInput.focus();
+                    showAlert('warning', 'กรุณากรอกรหัส OTAC ให้ครบ 8 ตัวอักษร');
+                    return;
+                }
+
+                // Show loading state
+                verifyBtn.disabled = true;
+                verifyBtn.innerHTML = '<span class="loading-spinner me-2"></span>กำลังตรวจสอบ...';
+            });
+
+            // Paste handler
+            otacInput.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const paste = (e.clipboardData || window.clipboardData).getData('text');
+                const cleanPaste = paste.replace(/[^A-Za-z0-9]/g, '').toUpperCase().substring(0, 8);
+                this.value = cleanPaste;
+                charCount.textContent = cleanPaste.length;
+                
+                // Auto-submit if complete
+                if (cleanPaste.length === 8) {
+                    setTimeout(() => form.submit(), 500);
+                }
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Escape to clear input
+                if (e.key === 'Escape') {
+                    otacInput.value = '';
+                    charCount.textContent = '0';
+                    otacInput.focus();
+                }
+                
+                // Enter to submit (if valid)
+                if (e.key === 'Enter' && otacInput.value.length === 8) {
+                    form.submit();
+                }
+            });
+
+            // Show validation errors with animation
+            @if (ViewData.ModelState.Values.Any(v => v.Errors.Count > 0))
+            {
+                <text>
+                setTimeout(() => {
+                    otacInput.classList.add('is-invalid');
+                    otacInput.focus();
+                    otacInput.select();
+                }, 100);
+                </text>
+            }
+
+            // Display TempData messages
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <text>
+                showAlert('danger', '@Html.Raw(TempData["ErrorMessage"])');
+                </text>
+            }
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <text>
+                showAlert('success', '@Html.Raw(TempData["SuccessMessage"])');
+                </text>
+            }
+        });
+
+        // Show contact information modal
+        function showContactInfo() {
+            const modal = new bootstrap.Modal(document.getElementById('contactModal'));
+            modal.show();
+        }
+
+        // Alert helper function
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 1060; min-width: 300px; max-width: 500px;';
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alertDiv);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.classList.remove('show');
+                    setTimeout(() => alertDiv.remove(), 150);
+                }
+            }, 5000);
+        }
+    </script>
+}

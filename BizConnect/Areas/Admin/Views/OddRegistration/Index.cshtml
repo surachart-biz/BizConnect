@@ -1,0 +1,1141 @@
+@model OddRegistrationListViewModel
+@{
+    ViewData["Title"] = "ODD Registrations";
+    ViewBag.Subtitle = "Manage KBank Omnibus Deposit Data registrations";
+    ViewBag.BreadcrumbSection = "ODD Management";
+}
+
+@section HeaderActions {
+    <div class="d-flex gap-2">
+        <button class="btn btn-success" onclick="generateOtacImmediately()">
+            <i class="fas fa-key me-1"></i>เพิ่มข้อมูล
+        </button>
+        <button class="btn btn-outline-success" onclick="exportData('excel')">
+            <i class="fas fa-file-excel me-1"></i>Export Excel
+        </button>
+        <button class="btn btn-outline-info" onclick="exportData('csv')">
+            <i class="fas fa-file-csv me-1"></i>Export CSV
+        </button>
+        <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-cog me-1"></i>Actions
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" href="#" onclick="bulkAction('approve')">
+                        <i class="fas fa-check me-2"></i>Bulk Approve
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="#" onclick="bulkAction('reject')">
+                        <i class="fas fa-times me-2"></i>Bulk Reject
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" href="#" onclick="refreshTable()">
+                        <i class="fas fa-sync-alt me-2"></i>Refresh
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+}
+
+@section Styles {
+    <style>
+        .filters-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+            margin-bottom: 1.5rem;
+        }
+
+        .data-table {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .table-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .table-subtitle {
+            color: #6c757d;
+            margin: 0.5rem 0 0 0;
+            font-size: 0.9rem;
+        }
+
+        .table-responsive-custom {
+            max-height: 70vh;
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+
+        .table th {
+            background: #f8f9fa;
+            border-top: none;
+            border-bottom: 2px solid #e0e0e0;
+            font-weight: 600;
+            color: #495057;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .table td {
+            vertical-align: middle;
+            border-color: #f0f0f0;
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #b8dabd;
+        }
+
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f1aeb5;
+        }
+
+        .action-buttons .btn {
+            padding: 0.375rem 0.5rem;
+            margin: 0 0.125rem;
+        }
+
+        .pagination-info {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .search-filters {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .no-data-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: #6c757d;
+        }
+
+        .no-data-icon {
+            font-size: 3rem;
+            opacity: 0.3;
+            margin-bottom: 1rem;
+        }
+
+        .checkbox-column {
+            width: 40px;
+        }
+
+        .company-cell {
+            max-width: 200px;
+        }
+
+        .company-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .company-details {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .contact-info {
+            font-size: 0.85rem;
+        }
+
+        .date-cell {
+            white-space: nowrap;
+            font-size: 0.85rem;
+        }
+
+        .otac-cell {
+            min-width: 150px;
+            max-width: 180px;
+        }
+
+        .otac-display {
+            text-align: center;
+        }
+
+        .otac-code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            background: #f8f9fa;
+            color: #495057;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge i {
+            font-size: 0.7rem;
+        }
+
+        /* Enhanced responsive design */
+        @@media (max-width: 768px) {
+            .filters-card .row.g-3 {
+                gap: 1rem !important;
+            }
+
+            .table-header .d-flex {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 1rem;
+            }
+
+            .table-stats {
+                order: -1;
+                width: 100%;
+            }
+
+            .company-cell,
+            .contact-info {
+                max-width: 150px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+                .action-buttons .btn {
+                    font-size: 0.8rem;
+                    padding: 0.25rem 0.4rem;
+                }
+        }
+
+        @@media (max-width: 576px) {
+            .content-header {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .search-filters {
+                padding: 1rem;
+            }
+
+            .filters-card .row.g-3 .col-md-4,
+            .filters-card .row.g-3 .col-md-3,
+            .filters-card .row.g-3 .col-md-2 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+
+            .table th,
+            .table td {
+                padding: 0.5rem 0.25rem;
+                font-size: 0.8rem;
+            }
+
+            .company-name {
+                font-size: 0.85rem;
+            }
+
+            .status-badge {
+                font-size: 0.7rem;
+                padding: 0.3rem 0.6rem;
+            }
+        }
+
+        /* Accessibility enhancements */
+        .table-row-focused {
+            background-color: rgba(0, 102, 204, 0.1) !important;
+            outline: 2px solid var(--admin-primary);
+            outline-offset: -2px;
+        }
+
+        .btn:focus,
+        .form-control:focus,
+        .form-select:focus {
+            outline: 2px solid var(--admin-primary);
+            outline-offset: 2px;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.2);
+        }
+
+        /* Skip to content link for screen readers */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 6px;
+            background: var(--admin-primary);
+            color: white;
+            padding: 8px;
+            text-decoration: none;
+            z-index: 1100;
+            border-radius: 4px;
+        }
+
+            .skip-link:focus {
+                top: 6px;
+            }
+    </style>
+}
+
+<!-- Skip link for accessibility -->
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- Search and Filters -->
+<div class="filters-card">
+    <div class="search-filters">
+        <form method="get" id="filterForm">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="search" class="form-label">Search</label>
+                    <input type="text" class="form-control" id="search" name="search"
+                           value="@Model.SearchQuery" placeholder="Full name, ID number, mobile, or reference">
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">All Status</option>
+                        <option value="Pending" selected="@(Model.StatusFilter == "Pending")">Pending</option>
+                        <option value="Success" selected="@(Model.StatusFilter == "Success")">Success</option>
+                        <option value="Fail" selected="@(Model.StatusFilter == "Fail")">Fail</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="pageSize" class="form-label">Per Page</label>
+                    <select class="form-select" id="pageSize" name="pageSize">
+                        <option value="10" selected="@(Model.PageSize == 10)">10</option>
+                        <option value="25" selected="@(Model.PageSize == 25)">25</option>
+                        <option value="50" selected="@(Model.PageSize == 50)">50</option>
+                        <option value="100" selected="@(Model.PageSize == 100)">100</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i>Filter
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>Clear
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Data Table -->
+<div class="data-table" id="main-content">
+    <div class="table-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h3 class="table-title">ODD Registrations</h3>
+                <p class="table-subtitle">
+                    Showing @Model.StartRecord-@Model.EndRecord of @Model.TotalRecords registrations
+                </p>
+            </div>
+            <div class="table-stats">
+                <span class="badge bg-warning me-2">
+                    @Model.Registrations.Count(r => r.Status == "Pending") Pending
+                </span>
+                <span class="badge bg-success me-2">
+                    @Model.Registrations.Count(r => r.Status == "Completed") Completed
+                </span>
+                <span class="badge bg-danger">
+                    @Model.Registrations.Count(r => r.Status == "Failed") Failed
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive-custom">
+        @if (Model.Registrations.Any())
+        {
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th class="checkbox-column">
+                            <input type="checkbox" class="form-check-input" id="selectAll" aria-label="Select all registrations">
+                        </th>
+                        <th>Registration</th>
+                        <th>Contact</th>
+                        <th>OTAC Code</th>
+                        <th>OTAC Status</th>
+                        <th>Registration Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var registration in Model.Registrations)
+                    {
+                        <tr>
+                            <td class="checkbox-column">
+                                <input type="checkbox" class="form-check-input row-checkbox" value="@registration.Id" aria-label="Select registration @registration.Id">
+                            </td>
+                            <td class="company-cell">
+                                <div class="company-name">Registration @registration.ExternalReference</div>
+                                <div class="company-details">
+                                    @if (registration.Branch != null)
+                                    {
+                                        <span class="badge bg-light text-dark">@registration.Branch.Name</span>
+                                    }
+                                    @if (!string.IsNullOrEmpty(registration.IdValue))
+                                    {
+                                        <div class="small text-muted mt-1">
+                                            <i class="fas fa-id-card me-1"></i>@registration.IdType: @registration.IdValue
+                                        </div>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <div class="contact-info">
+                                    @if (!string.IsNullOrEmpty(registration.FullName))
+                                    {
+                                        <div><i class="fas fa-user me-1"></i>@registration.FullName</div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(registration.MobileNo))
+                                    {
+                                        <div><i class="fas fa-phone me-1"></i>@registration.MobileNo</div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(registration.AccountNo))
+                                    {
+                                        <div class="small text-muted"><i class="fas fa-university me-1"></i>@registration.AccountNo</div>
+                                    }
+                                </div>
+                            </td>
+                            <td class="otac-cell">
+                                @if (!string.IsNullOrEmpty(registration.OtacCode))
+                                {
+                                    <div class="otac-display">
+                                        <code class="otac-code">@registration.OtacCode</code>
+                                        @if (registration.OtacExpiresAt.HasValue)
+                                        {
+                                            <div class="small text-muted mt-1">
+                                                <i class="fas fa-clock me-1"></i>
+                                                Expires: @registration.OtacExpiresAt.Value.ToString("MM/dd HH:mm")
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(registration.OtacState))
+                                {
+                                    @switch (registration.OtacState)
+                                    {
+                                        case "Generated":
+                                            <span class="badge bg-primary">
+                                                <i class="fas fa-key me-1"></i>Generated
+                                            </span>
+                                            break;
+                                        case "Validated":
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check-circle me-1"></i>Validated
+                                            </span>
+                                            break;
+                                        case "Used":
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-check-double me-1"></i>Used
+                                            </span>
+                                            break;
+                                        case "Expired":
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-clock me-1"></i>Expired
+                                            </span>
+                                            break;
+                                        case "Locked":
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-lock me-1"></i>Locked
+                                            </span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-secondary">@registration.OtacState</span>
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-dark">No OTAC</span>
+                                }
+                            </td>
+                            <td>
+                                @switch (registration.Status)
+                                {
+                                    case "Pending":
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-hourglass-half me-1"></i>Pending
+                                        </span>
+                                        break;
+                                    case "Success":
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i>Success
+                                        </span>
+                                        break;
+                                    case "Fail":
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times-circle me-1"></i>Failed
+                                        </span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">@registration.Status</span>
+                                        break;
+                                }
+                            </td>
+                            <td class="date-cell">
+                                <div>@registration.CreatedAt.ToString("MMM dd, yyyy")</div>
+                                <div class="text-muted">@registration.CreatedAt.ToString("HH:mm")</div>
+                                @if (registration.GeneratedByUserId.HasValue)
+                                {
+                                    <div class="small badge bg-info mt-1">
+                                        User ID: @registration.GeneratedByUserId
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a asp-action="Details" asp-route-id="@registration.Id"
+                                       class="btn btn-sm btn-outline-primary" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+
+                                    @if (registration.Status == "Pending")
+                                    {
+                                        <button class="btn btn-sm btn-outline-success"
+                                                onclick="updateStatus(@registration.Id, 'Completed')" title="Approve">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                onclick="updateStatus(@registration.Id, 'Failed')" title="Reject">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    }
+
+                                    <div class="dropdown d-inline-block">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-h"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a class="dropdown-item" href="#" onclick="generateOTAC(@registration.Id)">
+                                                    <i class="fas fa-key me-2"></i>Generate OTAC
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="#" onclick="viewHistory(@registration.Id)">
+                                                    <i class="fas fa-history me-2"></i>View History
+                                                </a>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a class="dropdown-item text-danger" href="#" onclick="deleteRegistration(@registration.Id)">
+                                                    <i class="fas fa-trash me-2"></i>Delete
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th class="checkbox-column">
+                            <input type="checkbox" class="form-check-input" id="selectAll" aria-label="Select all registrations">
+                        </th>
+                        <th>Registration</th>
+                        <th>Contact</th>
+                        <th>OTAC Code</th>
+                        <th>OTAC Status</th>
+                        <th>Registration Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="8" class="text-center py-5">
+                            <div class="no-data-state">
+                                <div class="no-data-icon">
+                                    <i class="fas fa-database"></i>
+                                </div>
+                                <h5>ไม่มีข้อมูลการลงทะเบียน</h5>
+                                <p class="text-muted">
+                                    @if (!string.IsNullOrEmpty(Model.SearchQuery) || !string.IsNullOrEmpty(Model.StatusFilter))
+                                    {
+                                        <span>ไม่พบข้อมูลที่ตรงกับการค้นหา / No registrations match your current filters</span>
+                                    }
+                                    else
+                                    {
+                                        <span>ยังไม่มีการลงทะเบียน ODD ในระบบ / No ODD registrations have been submitted yet</span>
+                                    }
+                                </p>
+                                <div class="mt-3">
+                                    @if (!string.IsNullOrEmpty(Model.SearchQuery) || !string.IsNullOrEmpty(Model.StatusFilter))
+                                    {
+                                        <a asp-action="Index" class="btn btn-outline-primary me-2">
+                                            <i class="fas fa-times me-1"></i>ล้างตัวกรอง
+                                        </a>
+                                    }
+                                    <button class="btn btn-success" onclick="generateOtacImmediately()">
+                                        <i class="fas fa-plus me-1"></i>เพิ่มข้อมูลใหม่
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+    </div>
+
+    @if (Model.Registrations.Any())
+    {
+        <!-- Pagination -->
+        <div class="pagination-info">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <div class="pagination-text">
+                    <span class="text-muted">
+                        Showing @Model.StartRecord to @Model.EndRecord of @Model.TotalRecords entries
+                    </span>
+                </div>
+
+                @if (Model.TotalPages > 1)
+                {
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                                <a class="page-link" href="@Url.Action("Index", new {
+                                    page = Model.CurrentPage - 1,
+                                    pageSize = Model.PageSize,
+                                    status = Model.StatusFilter,
+                                    search = Model.SearchQuery
+                                })">
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </a>
+                            </li>
+
+                            @{
+                                var startPage = Math.Max(1, Model.CurrentPage - 2);
+                                var endPage = Math.Min(Model.TotalPages, Model.CurrentPage + 2);
+                            }
+
+                            @if (startPage > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new {
+                                        page = 1,
+                                        pageSize = Model.PageSize,
+                                        status = Model.StatusFilter,
+                                        search = Model.SearchQuery
+                                    })">1</a>
+                                </li>
+                                @if (startPage > 2)
+                                {
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                }
+                            }
+
+                            @for (var i = startPage; i <= endPage; i++)
+                            {
+                                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new {
+                                        page = i,
+                                        pageSize = Model.PageSize,
+                                        status = Model.StatusFilter,
+                                        search = Model.SearchQuery
+                                    })">@i</a>
+                                </li>
+                            }
+
+                            @if (endPage < Model.TotalPages)
+                            {
+                                @if (endPage < Model.TotalPages - 1)
+                                {
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                }
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new {
+                                        page = Model.TotalPages,
+                                        pageSize = Model.PageSize,
+                                        status = Model.StatusFilter,
+                                        search = Model.SearchQuery
+                                    })">@Model.TotalPages</a>
+                                </li>
+                            }
+
+                            <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                                <a class="page-link" href="@Url.Action("Index", new {
+                                    page = Model.CurrentPage + 1,
+                                    pageSize = Model.PageSize,
+                                    status = Model.StatusFilter,
+                                    search = Model.SearchQuery
+                                })">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @Html.AntiForgeryToken()
+    <script>
+        // Select All Functionality
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        // Update individual checkbox state
+        document.querySelectorAll('.row-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const selectAll = document.getElementById('selectAll');
+                const allCheckboxes = document.querySelectorAll('.row-checkbox');
+                const checkedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
+
+                selectAll.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < allCheckboxes.length;
+                selectAll.checked = checkedCheckboxes.length === allCheckboxes.length;
+            });
+        });
+
+        // Auto-submit filter form on change
+        document.getElementById('status').addEventListener('change', function() {
+            document.getElementById('filterForm').submit();
+        });
+
+        document.getElementById('pageSize').addEventListener('change', function() {
+            document.getElementById('filterForm').submit();
+        });
+
+        // Status update function
+        function updateStatus(id, status) {
+            if (!confirm(`Are you sure you want to ${status.toLowerCase()} this registration?`)) {
+                return;
+            }
+
+            fetch('@Url.Action("UpdateStatus")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                },
+                body: `id=${id}&status=${status}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('success', data.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showAlert('danger', data.message);
+                }
+            })
+            .catch(error => {
+                showAlert('danger', 'An error occurred while updating the status.');
+                console.error('Error:', error);
+            });
+        }
+
+        // Delete registration function
+        function deleteRegistration(id) {
+            if (!confirm('Are you sure you want to delete this registration? This action cannot be undone.')) {
+                return;
+            }
+
+            fetch(`@Url.Action("Delete")/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('success', data.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showAlert('danger', data.message);
+                }
+            })
+            .catch(error => {
+                showAlert('danger', 'An error occurred while deleting the registration.');
+                console.error('Error:', error);
+            });
+        }
+
+        // Export data function
+        function exportData(format) {
+            fetch(`@Url.Action("Export")?format=${format}`)
+            .then(response => response.json())
+            .then(data => {
+                showAlert('info', data.message);
+            })
+            .catch(error => {
+                showAlert('danger', 'Export functionality is being implemented.');
+                console.error('Error:', error);
+            });
+        }
+
+        // Generate OTAC function
+        function generateOTAC(id) {
+            window.location.href = `@Url.Action("Index", "Otac")?registrationId=${id}`;
+        }
+
+        // Generate OTAC immediately without form input
+        function generateOtacImmediately() {
+            // Show loading alert immediately
+            showAlert('info', 'กำลังสร้าง OTAC Code...');
+
+            // Get anti-forgery token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+            // Call the controller method directly
+            fetch('@Url.Action("GenerateForKBankOdd", "Otac")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': token || ''
+                },
+                body: `__RequestVerificationToken=${encodeURIComponent(token || '')}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showOtacResultsModal(data);
+                    // Reload table after a short delay to show new registration
+                    setTimeout(() => location.reload(), 3000);
+                } else {
+                    showAlert('danger', data.message || 'เกิดข้อผิดพลาดในการสร้าง OTAC Code');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('danger', 'เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง');
+            });
+        }
+
+        // Show OTAC results using existing modal template
+        function showOtacResultsModal(data) {
+            // Load the modal template via AJAX first
+            fetch('@Url.Action("GenerateModal", "Otac")')
+            .then(response => response.text())
+            .then(html => {
+                // Remove existing modal if present
+                const existingModal = document.getElementById('generateOtacModal');
+                if (existingModal) {
+                    existingModal.remove();
+                }
+
+                // Add modal to body
+                document.body.insertAdjacentHTML('beforeend', html);
+
+                // Populate modal with generated data
+                populateOtacModal(data);
+
+                // Initialize and show modal
+                const modal = new bootstrap.Modal(document.getElementById('generateOtacModal'));
+                modal.show();
+
+                // Clean up on modal close
+                document.getElementById('generateOtacModal').addEventListener('hidden.bs.modal', function () {
+                    this.remove();
+                });
+            })
+            .catch(error => {
+                console.error('Error loading modal:', error);
+                // Fallback to inline modal
+                showFallbackOtacModal(data);
+            });
+        }
+
+        // Fallback modal creation (simplified version)
+        function showFallbackOtacModal(data) {
+            const expiryDate = new Date(data.expiresAt);
+            const expiryTimeLocal = expiryDate.toLocaleString('th-TH', {
+                year: 'numeric',
+                month: 'short',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            const modalHtml = `
+                <div class="modal fade" id="otacResultsModal" tabindex="-1" aria-labelledby="otacResultsModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-success text-white">
+                                <h5 class="modal-title" id="otacResultsModalLabel">
+                                    <i class="fas fa-check-circle me-2"></i>🎯 OTAC สร้างสำเร็จ!
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-center">
+                                <div class="alert alert-success border-0 shadow-sm">
+                                    <div class="mb-4">
+                                        <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                                        <h4 class="text-success mb-2">OTAC Code พร้อมใช้งาน</h4>
+                                    </div>
+
+                                    <div class="code-display p-4 bg-white rounded border mb-4">
+                                        <label class="form-label small text-muted mb-2">รหัสยืนยัน</label>
+                                        <div class="input-group justify-content-center">
+                                            <input type="text" id="resultGeneratedCode" class="form-control form-control-lg font-monospace fw-bold text-center"
+                                                   value="${data.code}" readonly style="font-size: 2rem; letter-spacing: 0.5em; background: #f8f9fa; max-width: 300px;">
+                                            <button class="btn btn-outline-success" type="button" onclick="copyToClipboard('resultGeneratedCode')" title="คัดลอก">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+
+                                        <div class="mt-3">
+                                            <small class="text-muted">หมดอายุ: ${expiryTimeLocal}</small>
+                                            <div id="resultCountdown" class="small text-warning mt-1"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-muted">
+                                        <small><i class="fas fa-shield-alt me-1"></i>รหัสนี้ใช้ได้เพียงครั้งเดียว กรุณาเก็บรักษาให้ปลอดภัย</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer justify-content-center">
+                                <button type="button" class="btn btn-success" onclick="copyToClipboard('resultGeneratedCode')">
+                                    <i class="fas fa-copy me-1"></i>คัดลอก
+                                </button>
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-1"></i>ปิด
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Remove existing modal if present
+            const existingModal = document.getElementById('otacResultsModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            // Add modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            // Initialize and show modal
+            const modal = new bootstrap.Modal(document.getElementById('otacResultsModal'));
+            modal.show();
+
+            // Start countdown
+            startResultCountdown(data.expiresAt);
+
+            // Clean up on modal close
+            document.getElementById('otacResultsModal').addEventListener('hidden.bs.modal', function () {
+                this.remove();
+            });
+        }
+
+        // Countdown for results modal
+        let resultCountdownInterval;
+        function startResultCountdown(expiresAt) {
+            const expiryDate = new Date(expiresAt);
+            const countdownElement = document.getElementById('resultCountdown');
+
+            if (!countdownElement) return;
+
+            if (resultCountdownInterval) {
+                clearInterval(resultCountdownInterval);
+            }
+
+            resultCountdownInterval = setInterval(() => {
+                const now = new Date();
+                const timeLeft = expiryDate - now;
+
+                if (timeLeft <= 0) {
+                    countdownElement.innerHTML = '<span class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>หมดอายุแล้ว</span>';
+                    clearInterval(resultCountdownInterval);
+                    return;
+                }
+
+                const minutes = Math.floor(timeLeft / 60000);
+                const seconds = Math.floor((timeLeft % 60000) / 1000);
+
+                let cssClass = 'text-success';
+                let icon = 'fas fa-clock';
+                if (minutes < 2) {
+                    cssClass = 'text-danger';
+                    icon = 'fas fa-exclamation-triangle';
+                } else if (minutes < 5) {
+                    cssClass = 'text-warning';
+                    icon = 'fas fa-hourglass-half';
+                }
+
+                countdownElement.innerHTML = `<span class="${cssClass}"><i class="${icon} me-1"></i>เหลือ ${minutes} นาที ${seconds} วินาที</span>`;
+            }, 1000);
+        }
+
+        // Copy to clipboard helper function
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            element.select();
+            element.setSelectionRange(0, 99999); // For mobile devices
+
+            try {
+                document.execCommand('copy');
+                showAlert('success', 'คัดลอกรหัสเรียบร้อยแล้ว!');
+
+                // Visual feedback
+                const button = element.nextElementSibling;
+                if (button) {
+                    const originalContent = button.innerHTML;
+                    button.innerHTML = '<i class="fas fa-check"></i>';
+                    button.classList.add('btn-success');
+                    button.classList.remove('btn-outline-success', 'btn-outline-secondary');
+
+                    setTimeout(() => {
+                        button.innerHTML = originalContent;
+                        button.classList.remove('btn-success');
+                        button.classList.add('btn-outline-success');
+                    }, 2000);
+                }
+            } catch (err) {
+                // Fallback for browsers that don't support execCommand
+                showAlert('warning', 'ไม่สามารถคัดลอกอัตโนมัติได้ กรุณาคัดลอกด้วยตนเอง');
+            }
+        }
+
+        // View history function
+        function viewHistory(id) {
+            showAlert('info', 'History view functionality will be implemented.');
+        }
+
+        // Bulk actions
+        function bulkAction(action) {
+            const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+            if (checkedBoxes.length === 0) {
+                showAlert('warning', 'Please select at least one registration.');
+                return;
+            }
+
+            const ids = Array.from(checkedBoxes).map(cb => cb.value);
+            showAlert('info', `Bulk ${action} functionality will be implemented for ${ids.length} registrations.`);
+        }
+
+        // Refresh table function
+        function refreshTable() {
+            location.reload();
+        }
+
+        // Alert helper function
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alertDiv);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+        // Search on Enter key
+        document.getElementById('search').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('filterForm').submit();
+            }
+        });
+
+        // Enhanced keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            // Escape key to clear search when focused on search input
+            if (e.key === 'Escape' && e.target.id === 'search') {
+                e.target.value = '';
+                document.getElementById('filterForm').submit();
+            }
+
+            // Ctrl+F to focus search
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('search').focus();
+            }
+        });
+
+        // Improve table row focus for screen readers
+        document.querySelectorAll('.action-buttons .btn').forEach(button => {
+            button.addEventListener('focus', function() {
+                this.closest('tr').classList.add('table-row-focused');
+            });
+
+            button.addEventListener('blur', function() {
+                this.closest('tr').classList.remove('table-row-focused');
+            });
+        });
+    </script>
+}

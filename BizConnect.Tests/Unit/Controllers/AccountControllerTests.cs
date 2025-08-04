@@ -2,7 +2,6 @@ using BizConnect.Controllers;
 using BizConnect.Services.Interfaces;
 using BizConnect.Dal.Models;
 using BizConnect.ViewModels;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -11,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System.Security.Claims;
 using Xunit;
+using AuthService = Microsoft.AspNetCore.Authentication.IAuthenticationService;
 
 namespace BizConnect.Tests.Unit.Controllers;
 
@@ -18,17 +18,25 @@ public class AccountControllerTests
 {
     private readonly Mock<IUserService> _mockUserService;
     private readonly Mock<ILogger<AccountController>> _mockLogger;
+    private readonly Mock<IRateLimitingService> _mockRateLimitingService;
+    private readonly Mock<ISecurityAuditService> _mockSecurityAuditService;
     private readonly AccountController _controller;
 
     public AccountControllerTests()
     {
         _mockUserService = new Mock<IUserService>();
         _mockLogger = new Mock<ILogger<AccountController>>();
-        _controller = new AccountController(_mockUserService.Object, _mockLogger.Object);
+        _mockRateLimitingService = new Mock<IRateLimitingService>();
+        _mockSecurityAuditService = new Mock<ISecurityAuditService>();
+        _controller = new AccountController(
+            _mockUserService.Object, 
+            _mockLogger.Object, 
+            _mockRateLimitingService.Object, 
+            _mockSecurityAuditService.Object);
 
         // Setup service collection for authentication
         var services = new ServiceCollection();
-        var mockAuthService = new Mock<IAuthenticationService>();
+        var mockAuthService = new Mock<AuthService>();
         services.AddSingleton(mockAuthService.Object);
         var serviceProvider = services.BuildServiceProvider();
 
