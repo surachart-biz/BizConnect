@@ -1,0 +1,1255 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using BizConnect.Services.Caching;
+using BizConnect.Dal.UnitOfWork;
+using BizConnect.Services.Interfaces;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+
+namespace BizConnect.Services.Security;
+
+/// <summary>
+/// Advanced security monitoring service with real-time threat detection,
+/// pattern analysis, and automated response capabilities.
+/// </summary>
+public class SecurityMonitoringService : ISecurityMonitoringService
+{
+    private readonly ICacheService _cacheService;
+    private readonly ILogger<SecurityMonitoringService> _logger;
+    private readonly IConfiguration _configuration;
+    private readonly IDateTimeProvider _dateTimeProvider;
+    
+    // Cache key prefixes
+    private const string SecurityEventPrefix = "SecurityMonitoring:Event";
+    private const string ThreatAnalysisPrefix = "SecurityMonitoring:ThreatAnalysis";
+    private const string PatternDetectionPrefix = "SecurityMonitoring:PatternDetection";
+    private const string WatchlistPrefix = "SecurityMonitoring:Watchlist";
+    private const string AlertPrefix = "SecurityMonitoring:Alert";
+    private const string StatisticsPrefix = "SecurityMonitoring:Statistics";
+    private const string ResponseRulesPrefix = "SecurityMonitoring:ResponseRules";
+    
+    // Configuration
+    private readonly SecurityMonitoringConfiguration _config;
+    private readonly ConcurrentDictionary<string, SecurityResponseRule> _responseRules;
+    private readonly Timer _patternDetectionTimer;
+    private readonly Timer _cleanupTimer;
+    
+    public SecurityMonitoringService(
+        ICacheService cacheService,
+        ILogger<SecurityMonitoringService> logger,
+        IConfiguration configuration,
+        IDateTimeProvider dateTimeProvider)
+    {
+        _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        _dateTimeProvider = dateTimeProvider ?? throw new ArgumentNullException(nameof(dateTimeProvider));
+        
+        _config = LoadConfiguration();
+        _responseRules = new ConcurrentDictionary<string, SecurityResponseRule>();
+        
+        // Initialize timers
+        _patternDetectionTimer = new Timer(PerformPatternDetection, null, 
+            TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
+        _cleanupTimer = new Timer(PerformCleanup, null, 
+            TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(5));
+            
+        LoadDefaultResponseRules();
+        
+        _logger.LogInformation("Security monitoring service initialized with pattern detection every {PatternInterval} minutes",
+            1);
+    }
+    
+    #region ISecurityMonitoringService Implementation
+    
+    public async Task<ThreatAnalysisResult> AnalyzeThreatAsync(SecurityEvent securityEvent, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var analysisResult = new ThreatAnalysisResult
+            {
+                ThreatScore = 0,
+                Severity = ThreatSeverity.Low
+            };
+            
+            // Store the security event
+            await StoreSecurityEventAsync(securityEvent);
+            
+            // Perform multi-dimensional threat analysis
+            var analysisScores = new Dictionary<string, double>();
+            
+            // 1. Frequency analysis
+            analysisScores["Frequency"] = await AnalyzeFrequencyAsync(securityEvent);
+            
+            // 2. Pattern analysis
+            analysisScores["Pattern"] = await AnalyzePatternAsync(securityEvent);
+            
+            // 3. Behavioral analysis
+            analysisScores["Behavioral"] = await AnalyzeBehaviorAsync(securityEvent);
+            
+            // 4. Reputation analysis
+            analysisScores["Reputation"] = await AnalyzeReputationAsync(securityEvent);
+            
+            // 5. Temporal analysis
+            analysisScores["Temporal"] = await AnalyzeTemporalAsync(securityEvent);
+            
+            // Calculate weighted threat score
+            analysisResult.ThreatScore = CalculateWeightedThreatScore(analysisScores);
+            analysisResult.AnalysisScores = analysisScores;
+            
+            // Determine threat level and indicators
+            (analysisResult.Severity, analysisResult.ThreatIndicators) = DetermineThreatLevel(analysisResult.ThreatScore, analysisScores);
+            analysisResult.IsThreat = analysisResult.ThreatScore >= _config.ThreatThreshold;
+            
+            // Generate recommended action
+            analysisResult.RecommendedAction = GenerateRecommendedAction(analysisResult);
+            
+            // Cache analysis result
+            var cacheKey = $"{ThreatAnalysisPrefix}:{securityEvent.Id}";
+            await _cacheService.SetAsync(analysisResult, cacheKey, TimeSpan.FromHours(24));
+            
+            _logger.LogInformation("Threat analysis completed for event {EventId}: Score={ThreatScore}, Severity={Severity}",
+                securityEvent.Id, analysisResult.ThreatScore, analysisResult.Severity);
+                
+            return analysisResult;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error analyzing threat for security event {EventId}", securityEvent.Id);
+            return new ThreatAnalysisResult
+            {
+                ThreatScore = 0,
+                Severity = ThreatSeverity.Low,
+                IsThreat = false
+            };
+        }
+    }
+    
+    public async Task<List<SuspiciousPattern>> DetectSuspiciousPatternsAsync(TimeSpan timeWindow, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var patterns = new List<SuspiciousPattern>();
+            var cutoffTime = _dateTimeProvider.UtcNow - timeWindow;
+            
+            // Get recent security events
+            var recentEvents = await GetRecentSecurityEventsAsync(cutoffTime);
+            
+            // Pattern 1: Rapid OTAC attempts
+            patterns.AddRange(await DetectRapidOtacAttemptsAsync(recentEvents));
+            
+            // Pattern 2: Multiple failed logins from different IPs
+            patterns.AddRange(await DetectMultipleFailedLoginsAsync(recentEvents));
+            
+            // Pattern 3: Brute force attack signatures
+            patterns.AddRange(await DetectBruteForceAttacksAsync(recentEvents));
+            
+            // Pattern 4: Session manipulation attempts
+            patterns.AddRange(await DetectSessionManipulationAsync(recentEvents));
+            
+            // Pattern 5: Geographic anomalies
+            patterns.AddRange(await DetectGeographicAnomaliesAsync(recentEvents));
+            
+            // Pattern 6: Time-based anomalies
+            patterns.AddRange(await DetectTimeBasedAnomaliesAsync(recentEvents));
+            
+            // Cache detected patterns
+            var cacheKey = $"{PatternDetectionPrefix}:{_dateTimeProvider.UtcNow:yyyyMMddHHmm}";
+            await _cacheService.SetAsync(patterns, cacheKey, TimeSpan.FromHours(1));
+            
+            _logger.LogInformation("Pattern detection completed: {PatternCount} suspicious patterns detected", patterns.Count);
+            
+            return patterns;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error detecting suspicious patterns");
+            return new List<SuspiciousPattern>();
+        }
+    }
+    
+    public async Task<SecurityResponseResult> ExecuteAutomatedResponseAsync(DetectedThreat threat, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var result = new SecurityResponseResult
+            {
+                ExecutedAt = _dateTimeProvider.UtcNow
+            };
+            
+            var startTime = _dateTimeProvider.UtcNow;
+            
+            // Get applicable response rules
+            var applicableRules = GetApplicableResponseRules(threat);
+            
+            foreach (var rule in applicableRules.OrderBy(r => r.Priority))
+            {
+                try
+                {
+                    foreach (var action in rule.Actions)
+                    {
+                        await ExecuteResponseActionAsync(action, threat);
+                        result.ActionsExecuted.Add($"{rule.Name}:{action.ActionType}");
+                        
+                        if (action.DelaySeconds > 0)
+                        {
+                            await Task.Delay(TimeSpan.FromSeconds(action.DelaySeconds), cancellationToken);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error executing response rule {RuleName} for threat {ThreatId}", 
+                        rule.Name, threat.Id);
+                    result.ErrorMessage += $"Rule {rule.Name}: {ex.Message}; ";
+                }
+            }
+            
+            result.Duration = _dateTimeProvider.UtcNow - startTime;
+            result.Success = !result.ActionsExecuted.Any() || string.IsNullOrEmpty(result.ErrorMessage);
+            
+            _logger.LogInformation("Automated response executed for threat {ThreatId}: {ActionCount} actions, Success={Success}",
+                threat.Id, result.ActionsExecuted.Count, result.Success);
+                
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error executing automated response for threat {ThreatId}", threat.Id);
+            return new SecurityResponseResult
+            {
+                Success = false,
+                ErrorMessage = ex.Message,
+                ExecutedAt = _dateTimeProvider.UtcNow
+            };
+        }
+    }
+    
+    public async Task<SecurityDashboardData> GetSecurityDashboardAsync(TimeSpan timeRange, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var dashboard = new SecurityDashboardData
+            {
+                GeneratedAt = _dateTimeProvider.UtcNow,
+                TimeRange = timeRange
+            };
+            
+            var cutoffTime = _dateTimeProvider.UtcNow - timeRange;
+            
+            // Get metrics
+            dashboard.Metrics = await GetSecurityMetricsAsync(cutoffTime);
+            
+            // Get active alerts
+            dashboard.ActiveAlerts = await GetActiveAlertsAsync();
+            
+            // Get top threat IPs
+            dashboard.TopThreatIps = await GetTopThreatIpsAsync(10, cutoffTime);
+            
+            // Get recent events
+            dashboard.RecentEvents = await GetRecentSecurityEventSummariesAsync(cutoffTime, 50);
+            
+            // Get event type counts
+            dashboard.EventTypeCounts = await GetEventTypeCountsAsync(cutoffTime);
+            
+            // Get threat trend data
+            dashboard.ThreatTrendData = await GetThreatTrendDataAsync(timeRange);
+            
+            return dashboard;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating security dashboard");
+            return new SecurityDashboardData
+            {
+                GeneratedAt = _dateTimeProvider.UtcNow,
+                TimeRange = timeRange
+            };
+        }
+    }
+    
+    public async Task<ThreatIntelligence> GetThreatIntelligenceAsync(string ipAddress, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var intelligence = new ThreatIntelligence
+            {
+                IpAddress = ipAddress
+            };
+            
+            // Get IP-specific events
+            var ipEvents = await GetIpSecurityEventsAsync(ipAddress, TimeSpan.FromDays(30));
+            
+            if (ipEvents.Any())
+            {
+                intelligence.FirstSeen = ipEvents.Min(e => e.Timestamp);
+                intelligence.LastSeen = ipEvents.Max(e => e.Timestamp);
+                intelligence.EventCount = ipEvents.Count;
+                intelligence.FailedAttempts = ipEvents.Count(e => e.EventType.Contains("Failed"));
+                intelligence.AssociatedUsernames = ipEvents.Where(e => !string.IsNullOrEmpty(e.Username))
+                    .Select(e => e.Username!).Distinct().ToList();
+                intelligence.TargetedEndpoints = ipEvents.Where(e => !string.IsNullOrEmpty(e.Endpoint))
+                    .Select(e => e.Endpoint!).Distinct().ToList();
+            }
+            
+            // Calculate threat score and risk level
+            intelligence.ThreatScore = await CalculateIpThreatScoreAsync(ipAddress);
+            intelligence.RiskLevel = DetermineThreatSeverity(intelligence.ThreatScore);
+            
+            // Get threat categories
+            intelligence.ThreatCategories = await GetThreatCategoriesAsync(ipAddress);
+            
+            // Get geolocation (placeholder - integrate with geolocation service)
+            intelligence.Geolocation = await GetGeolocationAsync(ipAddress);
+            
+            // Get reputation (placeholder - integrate with reputation service)
+            intelligence.Reputation = await GetReputationAsync(ipAddress);
+            
+            return intelligence;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting threat intelligence for IP {IpAddress}", ipAddress);
+            return new ThreatIntelligence { IpAddress = ipAddress };
+        }
+    }
+    
+    public async Task AddToWatchlistAsync(string ipAddress, string reason, ThreatSeverity severity, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var watchlistEntry = new WatchlistEntry
+            {
+                IpAddress = ipAddress,
+                Reason = reason,
+                Severity = severity,
+                AddedAt = _dateTimeProvider.UtcNow,
+                IsActive = true
+            };
+            
+            var cacheKey = $"{WatchlistPrefix}:{ipAddress}";
+            await _cacheService.SetAsync(watchlistEntry, cacheKey, TimeSpan.FromDays(30));
+            
+            _logger.LogInformation("Added IP {IpAddress} to watchlist with severity {Severity}: {Reason}",
+                ipAddress, severity, reason);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error adding IP {IpAddress} to watchlist", ipAddress);
+        }
+    }
+    
+    public async Task RemoveFromWatchlistAsync(string ipAddress, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var cacheKey = $"{WatchlistPrefix}:{ipAddress}";
+            await _cacheService.RemoveAsync(cacheKey);
+            
+            _logger.LogInformation("Removed IP {IpAddress} from watchlist", ipAddress);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error removing IP {IpAddress} from watchlist", ipAddress);
+        }
+    }
+    
+    public async Task<List<SecurityAlert>> GetActiveAlertsAsync(ThreatSeverity? severity = null, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // Get all active alerts from cache
+            var alerts = new List<SecurityAlert>();
+            var alertKeys = await GetActiveAlertKeysAsync();
+            
+            foreach (var key in alertKeys)
+            {
+                var alert = await _cacheService.GetAsync<SecurityAlert>(key);
+                if (alert != null && alert.Status != SecurityAlertStatus.Resolved && alert.Status != SecurityAlertStatus.Dismissed)
+                {
+                    if (severity == null || alert.Severity >= severity)
+                    {
+                        alerts.Add(alert);
+                    }
+                }
+            }
+            
+            return alerts.OrderByDescending(a => a.Severity).ThenByDescending(a => a.CreatedAt).ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting active alerts");
+            return new List<SecurityAlert>();
+        }
+    }
+    
+    public async Task ResolveAlertAsync(string alertId, SecurityAlertResolution resolution, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var cacheKey = $"{AlertPrefix}:{alertId}";
+            var alert = await _cacheService.GetAsync<SecurityAlert>(cacheKey);
+            
+            if (alert != null)
+            {
+                alert.Status = SecurityAlertStatus.Resolved;
+                alert.Metadata["Resolution"] = resolution;
+                
+                await _cacheService.SetAsync(alert, cacheKey, TimeSpan.FromDays(30));
+                
+                _logger.LogInformation("Resolved security alert {AlertId} by {ResolvedBy}", alertId, resolution.ResolvedBy);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error resolving alert {AlertId}", alertId);
+        }
+    }
+    
+    public async Task<SecurityMonitoringStatistics> GetStatisticsAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var cacheKey = $"{StatisticsPrefix}:current";
+            var stats = await _cacheService.GetAsync<SecurityMonitoringStatistics>(cacheKey);
+            
+            if (stats == null)
+            {
+                stats = await CalculateStatisticsAsync();
+                await _cacheService.SetAsync(stats, cacheKey, TimeSpan.FromMinutes(5));
+            }
+            
+            return stats;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting security monitoring statistics");
+            return new SecurityMonitoringStatistics { GeneratedAt = _dateTimeProvider.UtcNow };
+        }
+    }
+    
+    public async Task ConfigureResponseRulesAsync(List<SecurityResponseRule> rules, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            _responseRules.Clear();
+            
+            foreach (var rule in rules)
+            {
+                _responseRules.TryAdd(rule.Id, rule);
+            }
+            
+            // Cache the rules
+            var cacheKey = $"{ResponseRulesPrefix}:current";
+            await _cacheService.SetAsync(rules, cacheKey, TimeSpan.FromDays(1));
+            
+            _logger.LogInformation("Configured {RuleCount} security response rules", rules.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error configuring response rules");
+        }
+    }
+    
+    #endregion
+    
+    #region Private Helper Methods
+    
+    private async Task StoreSecurityEventAsync(SecurityEvent securityEvent)
+    {
+        var cacheKey = $"{SecurityEventPrefix}:{securityEvent.Id}";
+        await _cacheService.SetAsync(securityEvent, cacheKey, TimeSpan.FromDays(7));
+        
+        // Also store in time-based index for efficient retrieval
+        var timeKey = $"{SecurityEventPrefix}:ByTime:{securityEvent.Timestamp:yyyyMMddHH}";
+        var eventIds = await _cacheService.GetAsync<List<string>>(timeKey) ?? new List<string>();
+        eventIds.Add(securityEvent.Id);
+        await _cacheService.SetAsync(eventIds, timeKey, TimeSpan.FromDays(7));
+        
+        // Store by IP for IP-based analysis
+        var ipKey = $"{SecurityEventPrefix}:ByIp:{securityEvent.IpAddress}";
+        var ipEventIds = await _cacheService.GetAsync<List<string>>(ipKey) ?? new List<string>();
+        ipEventIds.Add(securityEvent.Id);
+        await _cacheService.SetAsync(ipEventIds, ipKey, TimeSpan.FromDays(30));
+    }
+    
+    private async Task<double> AnalyzeFrequencyAsync(SecurityEvent securityEvent)
+    {
+        // Analyze frequency of similar events from same IP
+        var recentEvents = await GetIpSecurityEventsAsync(securityEvent.IpAddress, TimeSpan.FromMinutes(15));
+        var similarEvents = recentEvents.Where(e => e.EventType == securityEvent.EventType).Count();
+        
+        return Math.Min(100, similarEvents * 10);
+    }
+    
+    private async Task<double> AnalyzePatternAsync(SecurityEvent securityEvent)
+    {
+        // Look for suspicious patterns in timing and behavior
+        var recentEvents = await GetIpSecurityEventsAsync(securityEvent.IpAddress, TimeSpan.FromMinutes(5));
+        
+        if (recentEvents.Count < 3) return 0;
+        
+        // Check for regular intervals (bot behavior)
+        var intervals = new List<double>();
+        for (int i = 1; i < recentEvents.Count; i++)
+        {
+            intervals.Add((recentEvents[i].Timestamp - recentEvents[i - 1].Timestamp).TotalSeconds);
+        }
+        
+        var avgInterval = intervals.Average();
+        var variance = intervals.Select(x => Math.Pow(x - avgInterval, 2)).Average();
+        var stdDev = Math.Sqrt(variance);
+        
+        // Low variance suggests automated behavior
+        if (stdDev < 2 && avgInterval < 10)
+        {
+            return Math.Min(100, 70 + recentEvents.Count * 5);
+        }
+        
+        return Math.Min(100, recentEvents.Count * 3);
+    }
+    
+    private async Task<double> AnalyzeBehaviorAsync(SecurityEvent securityEvent)
+    {
+        var score = 0.0;
+        
+        // Check for known malicious patterns
+        if (securityEvent.EventType.Contains("Failed") && securityEvent.Details?.Contains("brute") == true)
+        {
+            score += 50;
+        }
+        
+        // Check user agent patterns
+        if (!string.IsNullOrEmpty(securityEvent.UserAgent))
+        {
+            if (securityEvent.UserAgent.Contains("bot") || securityEvent.UserAgent.Contains("crawler"))
+            {
+                score += 30;
+            }
+        }
+        
+        // Check for rapid successive attempts
+        var recentEvents = await GetIpSecurityEventsAsync(securityEvent.IpAddress, TimeSpan.FromMinutes(1));
+        if (recentEvents.Count > 10)
+        {
+            score += 40;
+        }
+        
+        return Math.Min(100, score);
+    }
+    
+    private async Task<double> AnalyzeReputationAsync(SecurityEvent securityEvent)
+    {
+        // Check if IP is on watchlist
+        var watchlistKey = $"{WatchlistPrefix}:{securityEvent.IpAddress}";
+        var watchlistEntry = await _cacheService.GetAsync<WatchlistEntry>(watchlistKey);
+        
+        if (watchlistEntry != null && watchlistEntry.IsActive)
+        {
+            return watchlistEntry.Severity switch
+            {
+                ThreatSeverity.Critical => 100,
+                ThreatSeverity.High => 80,
+                ThreatSeverity.Medium => 60,
+                ThreatSeverity.Low => 40,
+                _ => 0
+            };
+        }
+        
+        // TODO: Integrate with external IP reputation services
+        return 0;
+    }
+    
+    private async Task<double> AnalyzeTemporalAsync(SecurityEvent securityEvent)
+    {
+        var score = 0.0;
+        
+        // Check for off-hours activity (assuming business hours 9-17)
+        var hour = securityEvent.Timestamp.Hour;
+        if (hour < 8 || hour > 18)
+        {
+            score += 20;
+        }
+        
+        // Check for weekend activity
+        if (securityEvent.Timestamp.DayOfWeek == DayOfWeek.Saturday || 
+            securityEvent.Timestamp.DayOfWeek == DayOfWeek.Sunday)
+        {
+            score += 15;
+        }
+        
+        return score;
+    }
+    
+    private double CalculateWeightedThreatScore(Dictionary<string, double> analysisScores)
+    {
+        var weights = new Dictionary<string, double>
+        {
+            ["Frequency"] = 0.25,
+            ["Pattern"] = 0.25,
+            ["Behavioral"] = 0.20,
+            ["Reputation"] = 0.20,
+            ["Temporal"] = 0.10
+        };
+        
+        return analysisScores.Sum(kvp => kvp.Value * weights.GetValueOrDefault(kvp.Key, 0));
+    }
+    
+    private (ThreatSeverity severity, List<string> indicators) DetermineThreatLevel(double threatScore, Dictionary<string, double> analysisScores)
+    {
+        var indicators = new List<string>();
+        
+        // Add indicators based on analysis scores
+        if (analysisScores["Frequency"] > 50) indicators.Add("High frequency activity");
+        if (analysisScores["Pattern"] > 60) indicators.Add("Automated behavior detected");
+        if (analysisScores["Behavioral"] > 40) indicators.Add("Suspicious behavior patterns");
+        if (analysisScores["Reputation"] > 50) indicators.Add("Known malicious IP");
+        if (analysisScores["Temporal"] > 25) indicators.Add("Off-hours activity");
+        
+        var severity = threatScore switch
+        {
+            >= 80 => ThreatSeverity.Critical,
+            >= 60 => ThreatSeverity.High,
+            >= 40 => ThreatSeverity.Medium,
+            _ => ThreatSeverity.Low
+        };
+        
+        return (severity, indicators);
+    }
+    
+    private string GenerateRecommendedAction(ThreatAnalysisResult analysisResult)
+    {
+        return analysisResult.Severity switch
+        {
+            ThreatSeverity.Critical => "IMMEDIATE: Block IP, terminate sessions, alert admin",
+            ThreatSeverity.High => "Block IP temporarily, increase monitoring, alert admin",
+            ThreatSeverity.Medium => "Rate limit requests, monitor closely, log for review",
+            ThreatSeverity.Low => "Continue monitoring, log for analysis",
+            _ => "No action required"
+        };
+    }
+    
+    // Pattern detection methods
+    private async Task<List<SuspiciousPattern>> DetectRapidOtacAttemptsAsync(List<SecurityEvent> events)
+    {
+        var patterns = new List<SuspiciousPattern>();
+        
+        var otacEvents = events.Where(e => e.EventType.Contains("OTAC")).ToList();
+        var groupedByIp = otacEvents.GroupBy(e => e.IpAddress);
+        
+        foreach (var group in groupedByIp)
+        {
+            if (group.Count() >= 10) // 10+ OTAC attempts
+            {
+                patterns.Add(new SuspiciousPattern
+                {
+                    PatternType = "RapidOtacAttempts",
+                    Description = $"IP {group.Key} made {group.Count()} OTAC attempts in short time",
+                    DetectedAt = _dateTimeProvider.UtcNow,
+                    IpAddress = group.Key,
+                    EventCount = group.Count(),
+                    Severity = group.Count() >= 20 ? ThreatSeverity.Critical : ThreatSeverity.High,
+                    Confidence = Math.Min(1.0, group.Count() / 10.0),
+                    Evidence = new Dictionary<string, object>
+                    {
+                        ["AttemptCount"] = group.Count(),
+                        ["TimeSpan"] = (group.Max(e => e.Timestamp) - group.Min(e => e.Timestamp)).TotalMinutes
+                    }
+                });
+            }
+        }
+        
+        return patterns;
+    }
+    
+    private async Task<List<SuspiciousPattern>> DetectMultipleFailedLoginsAsync(List<SecurityEvent> events)
+    {
+        var patterns = new List<SuspiciousPattern>();
+        
+        var failedLogins = events.Where(e => e.EventType.Contains("Failed") && e.EventType.Contains("Login")).ToList();
+        var groupedByUser = failedLogins.GroupBy(e => e.Username).Where(g => !string.IsNullOrEmpty(g.Key));
+        
+        foreach (var group in groupedByUser)
+        {
+            var distinctIps = group.Select(e => e.IpAddress).Distinct().Count();
+            if (distinctIps >= 3 && group.Count() >= 10) // Multiple IPs, many attempts
+            {
+                patterns.Add(new SuspiciousPattern
+                {
+                    PatternType = "DistributedBruteForce",
+                    Description = $"User {group.Key} failed login from {distinctIps} different IPs",
+                    DetectedAt = _dateTimeProvider.UtcNow,
+                    IpAddress = string.Join(",", group.Select(e => e.IpAddress).Distinct()),
+                    EventCount = group.Count(),
+                    Severity = ThreatSeverity.High,
+                    Confidence = 0.9,
+                    Evidence = new Dictionary<string, object>
+                    {
+                        ["Username"] = group.Key!,
+                        ["DistinctIps"] = distinctIps,
+                        ["FailedAttempts"] = group.Count()
+                    }
+                });
+            }
+        }
+        
+        return patterns;
+    }
+    
+    private async Task<List<SuspiciousPattern>> DetectBruteForceAttacksAsync(List<SecurityEvent> events)
+    {
+        var patterns = new List<SuspiciousPattern>();
+        
+        var failedAttempts = events.Where(e => e.EventType.Contains("Failed")).ToList();
+        var groupedByIp = failedAttempts.GroupBy(e => e.IpAddress);
+        
+        foreach (var group in groupedByIp)
+        {
+            if (group.Count() >= 20) // 20+ failed attempts from single IP
+            {
+                var timeSpan = (group.Max(e => e.Timestamp) - group.Min(e => e.Timestamp)).TotalMinutes;
+                var rate = group.Count() / Math.Max(1, timeSpan);
+                
+                if (rate >= 2) // 2+ attempts per minute
+                {
+                    patterns.Add(new SuspiciousPattern
+                    {
+                        PatternType = "BruteForceAttack",
+                        Description = $"IP {group.Key} made {group.Count()} failed attempts at {rate:F1} attempts/min",
+                        DetectedAt = _dateTimeProvider.UtcNow,
+                        IpAddress = group.Key,
+                        EventCount = group.Count(),
+                        Severity = rate >= 5 ? ThreatSeverity.Critical : ThreatSeverity.High,
+                        Confidence = Math.Min(1.0, rate / 5.0),
+                        Evidence = new Dictionary<string, object>
+                        {
+                            ["AttemptsPerMinute"] = rate,
+                            ["TotalAttempts"] = group.Count(),
+                            ["Duration"] = timeSpan
+                        }
+                    });
+                }
+            }
+        }
+        
+        return patterns;
+    }
+    
+    private async Task<List<SuspiciousPattern>> DetectSessionManipulationAsync(List<SecurityEvent> events)
+    {
+        // Placeholder for session manipulation detection
+        return new List<SuspiciousPattern>();
+    }
+    
+    private async Task<List<SuspiciousPattern>> DetectGeographicAnomaliesAsync(List<SecurityEvent> events)
+    {
+        // Placeholder for geographic anomaly detection
+        return new List<SuspiciousPattern>();
+    }
+    
+    private async Task<List<SuspiciousPattern>> DetectTimeBasedAnomaliesAsync(List<SecurityEvent> events)
+    {
+        var patterns = new List<SuspiciousPattern>();
+        
+        // Detect off-hours activity spikes
+        var offHoursEvents = events.Where(e => e.Timestamp.Hour < 6 || e.Timestamp.Hour > 22).ToList();
+        var groupedByIp = offHoursEvents.GroupBy(e => e.IpAddress);
+        
+        foreach (var group in groupedByIp)
+        {
+            if (group.Count() >= 10) // Significant off-hours activity
+            {
+                patterns.Add(new SuspiciousPattern
+                {
+                    PatternType = "OffHoursActivity",
+                    Description = $"IP {group.Key} had {group.Count()} events during off-hours",
+                    DetectedAt = _dateTimeProvider.UtcNow,
+                    IpAddress = group.Key,
+                    EventCount = group.Count(),
+                    Severity = ThreatSeverity.Medium,
+                    Confidence = 0.7,
+                    Evidence = new Dictionary<string, object>
+                    {
+                        ["OffHoursEvents"] = group.Count(),
+                        ["Hours"] = group.Select(e => e.Timestamp.Hour).Distinct().ToList()
+                    }
+                });
+            }
+        }
+        
+        return patterns;
+    }
+    
+    // Response execution methods
+    private List<SecurityResponseRule> GetApplicableResponseRules(DetectedThreat threat)
+    {
+        return _responseRules.Values
+            .Where(r => r.IsEnabled && 
+                       (r.ThreatType == "*" || r.ThreatType == threat.ThreatType) &&
+                       r.MinSeverity <= threat.Severity)
+            .ToList();
+    }
+    
+    private async Task ExecuteResponseActionAsync(SecurityResponseAction action, DetectedThreat threat)
+    {
+        switch (action.ActionType.ToUpper())
+        {
+            case "BLOCK_IP":
+                await BlockIpAddressAsync(threat.IpAddress, action.Parameters);
+                break;
+            case "LOCKOUT_USER":
+                if (!string.IsNullOrEmpty(threat.Username))
+                    await LockoutUserAsync(threat.Username, action.Parameters);
+                break;
+            case "ALERT_ADMIN":
+                await CreateSecurityAlertAsync(threat);
+                break;
+            case "INCREASE_MONITORING":
+                await IncreaseMonitoringAsync(threat.IpAddress, action.Parameters);
+                break;
+            case "LOG_EVENT":
+                _logger.LogWarning("Security response action executed for threat {ThreatId}: {ThreatType}", 
+                    threat.Id, threat.ThreatType);
+                break;
+        }
+    }
+    
+    private async Task BlockIpAddressAsync(string ipAddress, Dictionary<string, object> parameters)
+    {
+        var duration = parameters.ContainsKey("DurationMinutes") 
+            ? TimeSpan.FromMinutes(Convert.ToInt32(parameters["DurationMinutes"]))
+            : TimeSpan.FromHours(1);
+            
+        var blockKey = $"SecurityBlock:IP:{ipAddress}";
+        await _cacheService.SetAsync(new { BlockedAt = _dateTimeProvider.UtcNow, Reason = "Automated security response" }, 
+            blockKey, duration);
+            
+        _logger.LogWarning("Blocked IP {IpAddress} for {Duration} minutes", ipAddress, duration.TotalMinutes);
+    }
+    
+    private async Task LockoutUserAsync(string username, Dictionary<string, object> parameters)
+    {
+        var duration = parameters.ContainsKey("DurationMinutes")
+            ? TimeSpan.FromMinutes(Convert.ToInt32(parameters["DurationMinutes"]))
+            : TimeSpan.FromMinutes(30);
+            
+        var lockoutKey = $"SecurityLockout:User:{username}";
+        await _cacheService.SetAsync(new { LockedAt = _dateTimeProvider.UtcNow, Reason = "Automated security response" }, 
+            lockoutKey, duration);
+            
+        _logger.LogWarning("Locked out user {Username} for {Duration} minutes", username, duration.TotalMinutes);
+    }
+    
+    private async Task CreateSecurityAlertAsync(DetectedThreat threat)
+    {
+        var alert = new SecurityAlert
+        {
+            Title = $"Security Threat Detected: {threat.ThreatType}",
+            Description = $"Threat detected from IP {threat.IpAddress} with severity {threat.Severity}",
+            Severity = threat.Severity,
+            CreatedAt = _dateTimeProvider.UtcNow,
+            Status = SecurityAlertStatus.New,
+            IpAddress = threat.IpAddress,
+            Username = threat.Username,
+            RelatedEventIds = threat.RelatedEvents.Select(e => e.Id).ToList(),
+            Metadata = new Dictionary<string, object>
+            {
+                ["ThreatId"] = threat.Id,
+                ["ThreatType"] = threat.ThreatType,
+                ["ThreatIndicators"] = threat.ThreatIndicators
+            }
+        };
+        
+        var alertKey = $"{AlertPrefix}:{alert.Id}";
+        await _cacheService.SetAsync(alert, alertKey, TimeSpan.FromDays(30));
+        
+        _logger.LogWarning("Created security alert {AlertId} for threat {ThreatId}", alert.Id, threat.Id);
+    }
+    
+    private async Task IncreaseMonitoringAsync(string ipAddress, Dictionary<string, object> parameters)
+    {
+        var duration = parameters.ContainsKey("DurationMinutes")
+            ? TimeSpan.FromMinutes(Convert.ToInt32(parameters["DurationMinutes"]))
+            : TimeSpan.FromHours(4);
+            
+        var monitoringKey = $"SecurityMonitoring:Enhanced:{ipAddress}";
+        await _cacheService.SetAsync(new { StartedAt = _dateTimeProvider.UtcNow }, monitoringKey, duration);
+        
+        _logger.LogInformation("Increased monitoring for IP {IpAddress} for {Duration} minutes", 
+            ipAddress, duration.TotalMinutes);
+    }
+    
+    // Data retrieval methods
+    private async Task<List<SecurityEvent>> GetRecentSecurityEventsAsync(DateTime cutoffTime)
+    {
+        var events = new List<SecurityEvent>();
+        var currentHour = _dateTimeProvider.UtcNow;
+        
+        // Get events from recent hours
+        for (int i = 0; i <= (int)(_dateTimeProvider.UtcNow - cutoffTime).TotalHours + 1; i++)
+        {
+            var hour = currentHour.AddHours(-i);
+            var timeKey = $"{SecurityEventPrefix}:ByTime:{hour:yyyyMMddHH}";
+            var eventIds = await _cacheService.GetAsync<List<string>>(timeKey);
+            
+            if (eventIds != null)
+            {
+                foreach (var eventId in eventIds)
+                {
+                    var eventKey = $"{SecurityEventPrefix}:{eventId}";
+                    var securityEvent = await _cacheService.GetAsync<SecurityEvent>(eventKey);
+                    if (securityEvent != null && securityEvent.Timestamp >= cutoffTime)
+                    {
+                        events.Add(securityEvent);
+                    }
+                }
+            }
+        }
+        
+        return events.OrderBy(e => e.Timestamp).ToList();
+    }
+    
+    private async Task<List<SecurityEvent>> GetIpSecurityEventsAsync(string ipAddress, TimeSpan timeWindow)
+    {
+        var events = new List<SecurityEvent>();
+        var ipKey = $"{SecurityEventPrefix}:ByIp:{ipAddress}";
+        var eventIds = await _cacheService.GetAsync<List<string>>(ipKey);
+        
+        if (eventIds != null)
+        {
+            var cutoffTime = _dateTimeProvider.UtcNow - timeWindow;
+            
+            foreach (var eventId in eventIds)
+            {
+                var eventKey = $"{SecurityEventPrefix}:{eventId}";
+                var securityEvent = await _cacheService.GetAsync<SecurityEvent>(eventKey);
+                if (securityEvent != null && securityEvent.Timestamp >= cutoffTime)
+                {
+                    events.Add(securityEvent);
+                }
+            }
+        }
+        
+        return events.OrderBy(e => e.Timestamp).ToList();
+    }
+    
+    // Additional helper methods for dashboard and statistics
+    private async Task<SecurityMetrics> GetSecurityMetricsAsync(DateTime cutoffTime)
+    {
+        var recentEvents = await GetRecentSecurityEventsAsync(cutoffTime);
+        var threatEvents = recentEvents.Where(e => e.Severity >= ThreatSeverity.Medium).Count();
+        var activeAlerts = await GetActiveAlertsAsync();
+        
+        return new SecurityMetrics
+        {
+            TotalEvents = recentEvents.Count,
+            ThreatEvents = threatEvents,
+            BlockedAttempts = recentEvents.Count(e => e.EventType.Contains("Blocked")),
+            ActiveAlerts = activeAlerts.Count,
+            WatchlistedIps = await GetWatchlistedIpCountAsync(),
+            ThreatDetectionRate = recentEvents.Any() ? (double)threatEvents / recentEvents.Count : 0,
+            FalsePositiveRate = 0.05 // Placeholder
+        };
+    }
+    
+    private async Task<List<TopThreatIp>> GetTopThreatIpsAsync(int count, DateTime cutoffTime)
+    {
+        var recentEvents = await GetRecentSecurityEventsAsync(cutoffTime);
+        var ipGroups = recentEvents.GroupBy(e => e.IpAddress);
+        
+        var topIps = ipGroups
+            .Select(g => new TopThreatIp
+            {
+                IpAddress = g.Key,
+                EventCount = g.Count(),
+                FailedAttempts = g.Count(e => e.EventType.Contains("Failed")),
+                LastActivity = g.Max(e => e.Timestamp),
+                ThreatScore = CalculateSimpleThreatScore(g.ToList()),
+                ThreatTypes = g.Select(e => e.EventType).Distinct().ToList()
+            })
+            .OrderByDescending(ip => ip.ThreatScore)
+            .Take(count)
+            .ToList();
+            
+        return topIps;
+    }
+    
+    private double CalculateSimpleThreatScore(List<SecurityEvent> events)
+    {
+        var score = events.Count * 2; // Base score
+        score += events.Count(e => e.EventType.Contains("Failed")) * 5; // Failed attempts
+        score += events.Count(e => e.Severity >= ThreatSeverity.High) * 10; // High severity events
+        return Math.Min(100, score);
+    }
+    
+    private async Task<List<SecurityEventSummary>> GetRecentSecurityEventSummariesAsync(DateTime cutoffTime, int count)
+    {
+        var recentEvents = await GetRecentSecurityEventsAsync(cutoffTime);
+        return recentEvents
+            .OrderByDescending(e => e.Timestamp)
+            .Take(count)
+            .Select(e => new SecurityEventSummary
+            {
+                Id = e.Id,
+                Timestamp = e.Timestamp,
+                EventType = e.EventType,
+                IpAddress = e.IpAddress,
+                Severity = e.Severity,
+                Description = e.Details ?? e.EventType
+            })
+            .ToList();
+    }
+    
+    private async Task<Dictionary<string, int>> GetEventTypeCountsAsync(DateTime cutoffTime)
+    {
+        var recentEvents = await GetRecentSecurityEventsAsync(cutoffTime);
+        return recentEvents.GroupBy(e => e.EventType)
+            .ToDictionary(g => g.Key, g => g.Count());
+    }
+    
+    private async Task<Dictionary<string, int>> GetThreatTrendDataAsync(TimeSpan timeRange)
+    {
+        // Generate hourly threat counts for the given time range
+        var trendData = new Dictionary<string, int>();
+        var currentTime = _dateTimeProvider.UtcNow;
+        
+        for (int i = 0; i < (int)timeRange.TotalHours; i++)
+        {
+            var hour = currentTime.AddHours(-i);
+            var hourKey = hour.ToString("HH:mm");
+            
+            var timeKey = $"{SecurityEventPrefix}:ByTime:{hour:yyyyMMddHH}";
+            var eventIds = await _cacheService.GetAsync<List<string>>(timeKey);
+            var threatCount = 0;
+            
+            if (eventIds != null)
+            {
+                foreach (var eventId in eventIds)
+                {
+                    var eventKey = $"{SecurityEventPrefix}:{eventId}";
+                    var securityEvent = await _cacheService.GetAsync<SecurityEvent>(eventKey);
+                    if (securityEvent != null && securityEvent.Severity >= ThreatSeverity.Medium)
+                    {
+                        threatCount++;
+                    }
+                }
+            }
+            
+            trendData[hourKey] = threatCount;
+        }
+        
+        return trendData;
+    }
+    
+    private async Task<double> CalculateIpThreatScoreAsync(string ipAddress)
+    {
+        var events = await GetIpSecurityEventsAsync(ipAddress, TimeSpan.FromDays(7));
+        return CalculateSimpleThreatScore(events);
+    }
+    
+    private ThreatSeverity DetermineThreatSeverity(double threatScore)
+    {
+        return threatScore switch
+        {
+            >= 80 => ThreatSeverity.Critical,
+            >= 60 => ThreatSeverity.High,
+            >= 40 => ThreatSeverity.Medium,
+            _ => ThreatSeverity.Low
+        };
+    }
+    
+    private async Task<List<string>> GetThreatCategoriesAsync(string ipAddress)
+    {
+        var events = await GetIpSecurityEventsAsync(ipAddress, TimeSpan.FromDays(30));
+        var categories = new List<string>();
+        
+        if (events.Any(e => e.EventType.Contains("Failed"))) categories.Add("Brute Force");
+        if (events.Any(e => e.EventType.Contains("OTAC"))) categories.Add("OTAC Abuse");
+        if (events.Count(e => e.Timestamp.Hour < 6 || e.Timestamp.Hour > 22) > events.Count / 2) 
+            categories.Add("Off-Hours Activity");
+        if (events.GroupBy(e => e.EventType).Count() == 1) categories.Add("Focused Attack");
+        
+        return categories;
+    }
+    
+    private async Task<GeolocationInfo?> GetGeolocationAsync(string ipAddress)
+    {
+        // Placeholder for geolocation service integration
+        return null;
+    }
+    
+    private async Task<ReputationInfo?> GetReputationAsync(string ipAddress)
+    {
+        // Placeholder for reputation service integration
+        return null;
+    }
+    
+    private async Task<List<string>> GetActiveAlertKeysAsync()
+    {
+        // In a real implementation, you would maintain an index of active alerts
+        // For now, return empty list as placeholder
+        return new List<string>();
+    }
+    
+    private async Task<int> GetWatchlistedIpCountAsync()
+    {
+        // Placeholder - would need to maintain a count or scan watchlist entries
+        return 0;
+    }
+    
+    private async Task<SecurityMonitoringStatistics> CalculateStatisticsAsync()
+    {
+        var cutoffTime = _dateTimeProvider.UtcNow.AddHours(-24);
+        var recentEvents = await GetRecentSecurityEventsAsync(cutoffTime);
+        
+        return new SecurityMonitoringStatistics
+        {
+            GeneratedAt = _dateTimeProvider.UtcNow,
+            TotalEventsProcessed = recentEvents.Count,
+            ThreatsDetected = recentEvents.Count(e => e.Severity >= ThreatSeverity.Medium),
+            AlertsGenerated = (await GetActiveAlertsAsync()).Count,
+            ResponsesExecuted = 0, // Would track from actual responses
+            AverageResponseTime = 2.5, // Placeholder
+            ThreatTypeBreakdown = recentEvents.GroupBy(e => e.EventType).ToDictionary(g => g.Key, g => g.Count()),
+            ResponseActionBreakdown = new Dictionary<string, int>() // Would track actual responses
+        };
+    }
+    
+    private SecurityMonitoringConfiguration LoadConfiguration()
+    {
+        var config = new SecurityMonitoringConfiguration();
+        _configuration.GetSection("SecurityMonitoring").Bind(config);
+        
+        // Set defaults
+        if (config.ThreatThreshold == 0) config.ThreatThreshold = 60;
+        if (config.PatternDetectionIntervalMinutes == 0) config.PatternDetectionIntervalMinutes = 1;
+        if (config.EventRetentionDays == 0) config.EventRetentionDays = 30;
+        
+        return config;
+    }
+    
+    private void LoadDefaultResponseRules()
+    {
+        var defaultRules = new List<SecurityResponseRule>
+        {
+            new SecurityResponseRule
+            {
+                Name = "Critical Threat Response",
+                ThreatType = "*",
+                MinSeverity = ThreatSeverity.Critical,
+                Actions = new List<SecurityResponseAction>
+                {
+                    new SecurityResponseAction { ActionType = "BLOCK_IP", Parameters = new Dictionary<string, object> { ["DurationMinutes"] = 1440 } },
+                    new SecurityResponseAction { ActionType = "ALERT_ADMIN" },
+                    new SecurityResponseAction { ActionType = "INCREASE_MONITORING", Parameters = new Dictionary<string, object> { ["DurationMinutes"] = 480 } }
+                },
+                Priority = 1
+            },
+            new SecurityResponseRule
+            {
+                Name = "High Threat Response",
+                ThreatType = "*",
+                MinSeverity = ThreatSeverity.High,
+                Actions = new List<SecurityResponseAction>
+                {
+                    new SecurityResponseAction { ActionType = "BLOCK_IP", Parameters = new Dictionary<string, object> { ["DurationMinutes"] = 240 } },
+                    new SecurityResponseAction { ActionType = "ALERT_ADMIN" },
+                    new SecurityResponseAction { ActionType = "INCREASE_MONITORING", Parameters = new Dictionary<string, object> { ["DurationMinutes"] = 120 } }
+                },
+                Priority = 2
+            }
+        };
+        
+        foreach (var rule in defaultRules)
+        {
+            _responseRules.TryAdd(rule.Id, rule);
+        }
+    }
+    
+    private void PerformPatternDetection(object? state)
+    {
+        Task.Run(async () =>
+        {
+            try
+            {
+                var patterns = await DetectSuspiciousPatternsAsync(TimeSpan.FromMinutes(_config.PatternDetectionIntervalMinutes));
+                
+                // Process detected patterns
+                foreach (var pattern in patterns.Where(p => p.Severity >= ThreatSeverity.High))
+                {
+                    var threat = new DetectedThreat
+                    {
+                        ThreatType = pattern.PatternType,
+                        Severity = pattern.Severity,
+                        IpAddress = pattern.IpAddress,
+                        DetectedAt = pattern.DetectedAt,
+                        ThreatIndicators = new List<string> { pattern.Description },
+                        RequiresImmediateAction = pattern.Severity == ThreatSeverity.Critical
+                    };
+                    
+                    await ExecuteAutomatedResponseAsync(threat);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during pattern detection");
+            }
+        });
+    }
+    
+    private void PerformCleanup(object? state)
+    {
+        Task.Run(async () =>
+        {
+            try
+            {
+                // Cleanup old events
+                var cutoffTime = _dateTimeProvider.UtcNow.AddDays(-_config.EventRetentionDays);
+                // Implementation would remove old events from cache
+                
+                _logger.LogDebug("Performed security monitoring cleanup");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during security monitoring cleanup");
+            }
+        });
+    }
+    
+    public void Dispose()
+    {
+        _patternDetectionTimer?.Dispose();
+        _cleanupTimer?.Dispose();
+    }
+
+    #endregion
+}
+
+#region Supporting Classes
+
+public class SecurityMonitoringConfiguration
+{
+    public double ThreatThreshold { get; set; } = 60;
+    public int PatternDetectionIntervalMinutes { get; set; } = 1;
+    public int EventRetentionDays { get; set; } = 30;
+    public bool EnableAutomatedResponse { get; set; } = true;
+    public bool EnableGeolocationChecks { get; set; } = false;
+    public bool EnableReputationChecks { get; set; } = false;
+}
+
+public class WatchlistEntry
+{
+    public string IpAddress { get; set; } = string.Empty;
+    public string Reason { get; set; } = string.Empty;
+    public ThreatSeverity Severity { get; set; }
+    public DateTime AddedAt { get; set; }
+    public bool IsActive { get; set; }
+    public string? AddedBy { get; set; }
+}
+
+#endregion

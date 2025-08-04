@@ -2,14 +2,15 @@ using BizConnect.Dal.Models;
 using BizConnect.Extensions;
 using BizConnect.Middleware;
 using BizConnect.Services;
+using BizConnect.Services.Caching;
 using BizConnect.Services.Clients;
 using BizConnect.Services.Interfaces;
 using BizConnect.Services.Jobs;
-using Microsoft.AspNetCore.Authorization;
+using BizConnect.Services.Security;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,20 +58,47 @@ builder.Services.AddHangfireServer(options =>
     options.WorkerCount = Environment.ProcessorCount * 2;
 });
 
-// Add core services
-builder.Services.AddScoped<IUserService, UserService>();
+// Add core services with caching decorators
+builder.Services.AddScoped<UserService>(); // Inner service
+builder.Services.AddScoped<IUserService>(provider => 
+    new CachedUserService(
+        provider.GetRequiredService<UserService>(),
+        provider.GetRequiredService<ICacheService>(),
+        provider.GetRequiredService<ILogger<CachedUserService>>()));
+
+builder.Services.AddScoped<BranchService>(); // Inner service  
+builder.Services.AddScoped<IBranchService>(provider =>
+    new CachedBranchService(
+        provider.GetRequiredService<BranchService>(),
+        provider.GetRequiredService<ICacheService>(),
+        provider.GetRequiredService<ILogger<CachedBranchService>>()));
+
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IOddRegistrationService, OddRegistrationService>();
 builder.Services.AddScoped<IValidationService, ValidationService>();
-builder.Services.AddScoped<IBranchService, BranchService>();
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 
-// Add security services
+// Add core security services
 builder.Services.AddScoped<ISecurityAuditService, SecurityAuditService>();
-builder.Services.AddScoped<IRateLimitingService, RateLimitingService>();
 builder.Services.AddScoped<IPasswordPolicyService, PasswordPolicyService>();
 
-// Add memory cache for rate limiting and security features
-builder.Services.AddMemoryCache();
+// Add advanced security services - Phase 3B.1
+builder.Services.AddScoped<IDateTimeProvider, DateTimeProvider>();
+builder.Services.AddScoped<IRateLimitingService, AdvancedRateLimitingService>();
+// TODO: Fix SecurityMonitoringService interface implementation mismatch
+// builder.Services.AddScoped<ISecurityMonitoringService, SecurityMonitoringService>();
+builder.Services.AddScoped<IThreatResponseService, ThreatResponseService>();
+builder.Services.AddScoped<IEnhancedSecurityAuditService, EnhancedSecurityAuditService>();
+
+// Add memory cache with size limits for Phase 3A.1 specification
+builder.Services.AddMemoryCache(options =>
+{
+    options.SizeLimit = 104857600; // 100MB default size limit
+    options.CompactionPercentage = 0.25; // Remove 25% when limit reached
+});
+
+// Add caching services as Singleton for optimal performance
+builder.Services.AddSingleton<ICacheService, MemoryCacheService>();
 
 // Add KBank ODD services
 builder.Services.AddHttpClient<KBankOddClient>(client =>
@@ -189,6 +217,74 @@ builder.Services.AddSession(options =>
     options.Cookie.SameSite = SameSiteMode.Strict;
 });
 
+// Add API versioning support for .NET 8
+builder.Services.AddApiVersioning(options =>
+{
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.DefaultApiVersion = new Asp.Versioning.ApiVersion(1, 0);
+    options.ApiVersionReader = Asp.Versioning.ApiVersionReader.Combine(
+        new Asp.Versioning.UrlSegmentApiVersionReader(),
+        new Asp.Versioning.HeaderApiVersionReader("X-Version"),
+        new Asp.Versioning.QueryStringApiVersionReader("version"));
+}).AddApiExplorer(setup =>
+{
+    setup.GroupNameFormat = "'v'VVV";
+    setup.SubstituteApiVersionInUrl = true;
+});
+
+// Add Swagger/OpenAPI support for API documentation
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "BizConnect API",
+        Version = "v1",
+        Description = "RESTful API for BizConnect KBank ODD Registration System",
+        Contact = new Microsoft.OpenApi.Models.OpenApiContact
+        {
+            Name = "BizConnect Development Team",
+            Email = "dev@bizconnect.com"
+        }
+    });
+
+    // Add JWT authentication support in Swagger
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+
+    // Include XML comments for better API documentation
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        options.IncludeXmlComments(xmlPath);
+    }
+});
+
+// TODO: Add rate limiting for API endpoints (implementation pending)
+// Rate limiting will be implemented in a future iteration
+
 // Add MVC services with enhanced model validation
 builder.Services.AddControllersWithViews(options =>
 {
@@ -197,6 +293,12 @@ builder.Services.AddControllersWithViews(options =>
     
     // Global anti-forgery token validation for state-changing operations
     options.Filters.Add(new Microsoft.AspNetCore.Mvc.AutoValidateAntiforgeryTokenAttribute());
+}).AddJsonOptions(options =>
+{
+    // Configure JSON serialization for API responses
+    options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    options.JsonSerializerOptions.WriteIndented = builder.Environment.IsDevelopment();
+    options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
 });
 
 // Add health checks
@@ -315,11 +417,30 @@ else
 
 app.UseRouting();
 
+// TODO: Add rate limiting middleware when implemented
+
 // Add session middleware before authentication
 app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Add Swagger in development and UAT environments
+if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "UAT")
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "BizConnect API v1");
+        options.RoutePrefix = "api/docs"; // Serve Swagger UI at /api/docs
+        options.DisplayRequestDuration();
+        options.EnableDeepLinking();
+        options.EnableFilter();
+        options.ShowExtensions();
+        options.ShowCommonExtensions();
+        options.DefaultModelRendering(Swashbuckle.AspNetCore.SwaggerUI.ModelRendering.Model);
+    });
+}
 
 // Configure Hangfire dashboard with authorization
 app.UseHangfireDashboard("/hangfire", new DashboardOptions

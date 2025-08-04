@@ -53,5 +53,48 @@ namespace BizConnect.Services.Interfaces
         /// <param name="toDate">Optional end date for statistics calculation</param>
         /// <returns>Result containing registration statistics</returns>
         Task<Result<RegistrationStatistics>> GetStatisticsAsync(DateTime? fromDate = null, DateTime? toDate = null);
+
+        /// <summary>
+        /// Searches registrations with advanced filtering (API compatible method)
+        /// </summary>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Items per page</param>
+        /// <param name="status">Status filter</param>
+        /// <param name="search">Search term</param>
+        /// <param name="fromDate">Start date filter</param>
+        /// <param name="toDate">End date filter</param>
+        /// <returns>Result with paged search results</returns>
+        Task<Result<PagedResult<KbankOddRegistration>>> SearchRegistrationsAsync(
+            int page = 1, 
+            int pageSize = 20, 
+            string? status = null, 
+            string? search = null, 
+            DateTime? fromDate = null, 
+            DateTime? toDate = null);
+
+        /// <summary>
+        /// Gets registration by ID (API compatible method)
+        /// </summary>
+        /// <param name="id">Registration ID</param>
+        /// <returns>Result with registration data</returns>
+        Task<Result<KbankOddRegistration>> GetRegistrationByIdAsync(int id);
+
+        /// <summary>
+        /// Gets registration statistics (API compatible method)
+        /// </summary>
+        /// <param name="fromDate">Start date</param>
+        /// <param name="toDate">End date</param>
+        /// <returns>Result with statistics</returns>
+        Task<Result<RegistrationStatistics>> GetRegistrationStatisticsAsync(DateTime? fromDate = null, DateTime? toDate = null);
+
+        /// <summary>
+        /// Exports registrations data
+        /// </summary>
+        /// <param name="format">Export format</param>
+        /// <param name="status">Status filter</param>
+        /// <param name="fromDate">Start date filter</param>
+        /// <param name="toDate">End date filter</param>
+        /// <returns>Result with exported data</returns>
+        Task<Result<byte[]>> ExportRegistrationsAsync(string format = "csv", string? status = null, DateTime? fromDate = null, DateTime? toDate = null);
     }
 }

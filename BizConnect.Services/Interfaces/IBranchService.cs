@@ -1,4 +1,5 @@
 using BizConnect.Dal.Models;
+using BizConnect.Services.Models.Results;
 
 namespace BizConnect.Services.Interfaces;
 
@@ -39,4 +40,23 @@ public interface IBranchService
     /// <param name="branchId">Branch ID</param>
     /// <returns>Branch name or null if not found</returns>
     Task<string?> GetBranchNameAsync(int branchId);
+
+    /// <summary>
+    /// Gets all branches (both active and inactive) for analytics
+    /// </summary>
+    /// <returns>Enumerable of all Branch entities</returns>
+    Task<IEnumerable<Branch>> GetAllBranchesAsync();
+
+    /// <summary>
+    /// Gets all active branches (Result pattern compatible method)
+    /// </summary>
+    /// <returns>Result with list of active branches</returns>
+    Task<Result<IEnumerable<Branch>>> GetActiveBranchesAsync();
+
+    /// <summary>
+    /// Gets branch performance data
+    /// </summary>
+    /// <param name="days">Number of days to analyze</param>
+    /// <returns>Result with branch performance metrics</returns>
+    Task<Result<List<BranchPerformance>>> GetBranchPerformanceAsync(int days = 30);
 }

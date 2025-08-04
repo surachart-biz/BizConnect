@@ -427,5 +427,91 @@ namespace BizConnect.Services
                 return events;
             }, "AUDIT_QUERY_FAILED");
         }
+
+        public async Task LogThreatResponseAsync(string ipAddress, string threatLevel, int actionCount)
+        {
+            await LogEventAsync(new SecurityAuditEntry
+            {
+                EventType = "THREAT_RESPONSE",
+                IpAddress = ipAddress,
+                Details = $"Threat response executed: Level={threatLevel}, Actions={actionCount}",
+                Severity = "Warning",
+                Success = true,
+                Timestamp = DateTime.UtcNow,
+                AdditionalData = JsonSerializer.Serialize(new { ThreatLevel = threatLevel, ActionCount = actionCount })
+            });
+
+            _logger.LogWarning("Security Audit: Threat response executed for IP {IP} - Level: {Level}, Actions: {Count}", 
+                ipAddress, threatLevel, actionCount);
+        }
+
+        public async Task LogIpBlockAsync(string ipAddress, string reason)
+        {
+            await LogEventAsync(new SecurityAuditEntry
+            {
+                EventType = "IP_BLOCK",
+                IpAddress = ipAddress,
+                Details = $"IP address blocked: {reason}",
+                Severity = "Warning",
+                Success = true,
+                Timestamp = DateTime.UtcNow,
+                AdditionalData = JsonSerializer.Serialize(new { Reason = reason })
+            });
+
+            _logger.LogWarning("Security Audit: IP {IP} blocked - Reason: {Reason}", ipAddress, reason);
+        }
+
+        public async Task LogIpBlockAsync(string ipAddress, string reason, TimeSpan duration)
+        {
+            await LogEventAsync(new SecurityAuditEntry
+            {
+                EventType = "IP_BLOCK",
+                IpAddress = ipAddress,
+                Details = $"IP address blocked: {reason} (Duration: {duration.TotalMinutes:F1} minutes)",
+                Severity = "Warning",
+                Success = true,
+                Timestamp = DateTime.UtcNow,
+                AdditionalData = JsonSerializer.Serialize(new { Reason = reason, DurationMinutes = duration.TotalMinutes })
+            });
+
+            _logger.LogWarning("Security Audit: IP {IP} blocked for {Duration} minutes - Reason: {Reason}", 
+                ipAddress, duration.TotalMinutes, reason);
+        }
+
+        public async Task LogSecurityEventAsync(string category, string action, object details, System.Threading.CancellationToken cancellationToken = default)
+        {
+            var detailsJson = details != null ? JsonSerializer.Serialize(details) : string.Empty;
+            
+            await LogEventAsync(new SecurityAuditEntry
+            {
+                EventType = $"{category}:{action}",
+                Details = detailsJson,
+                Severity = "Info",
+                Success = true,
+                Timestamp = DateTime.UtcNow,
+                AdditionalData = detailsJson
+            });
+
+            _logger.LogInformation("Security Audit: Event logged - Category: {Category}, Action: {Action}", category, action);
+        }
+
+        public async Task LogSecurityEventAsync(BizConnect.Services.Security.Models.SecurityEvent securityEvent, System.Threading.CancellationToken cancellationToken = default)
+        {
+            await LogEventAsync(new SecurityAuditEntry
+            {
+                EventType = securityEvent.EventType,
+                Username = securityEvent.Username,
+                IpAddress = securityEvent.IpAddress,
+                UserAgent = securityEvent.UserAgent,
+                Details = securityEvent.Details ?? string.Empty,
+                Severity = securityEvent.Severity.ToString(),
+                Success = !securityEvent.IsResolved, // Assuming unresolved events are successful operations
+                Timestamp = securityEvent.Timestamp,
+                AdditionalData = JsonSerializer.Serialize(securityEvent.Metadata)
+            });
+
+            _logger.LogInformation("Security Audit: Security event logged - Type: {EventType}, IP: {IP}", 
+                securityEvent.EventType, securityEvent.IpAddress);
+        }
     }
 }

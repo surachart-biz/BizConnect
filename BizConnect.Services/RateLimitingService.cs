@@ -2,10 +2,12 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BizConnect.Dal;
 using BizConnect.Dal.Models;
 using BizConnect.Services.Interfaces;
+using BizConnect.Services.Security.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -86,6 +88,12 @@ namespace BizConnect.Services
                     ? $"You have {remainingAttempts} attempts remaining." 
                     : "Maximum attempts reached."
             };
+        }
+
+        public async Task<RateLimitStatus> CheckRateLimitAsync(string operation, string identifier, CancellationToken cancellationToken = default)
+        {
+            // Delegate to the existing method with parameter mapping
+            return await CheckRateLimitAsync(identifier, operation);
         }
 
         public async Task RecordFailedAttemptAsync(string ipAddress, string context = "login", string username = null)
@@ -265,13 +273,6 @@ namespace BizConnect.Services
             return new List<DateTime>();
         }
 
-        private class UserLockoutInfo
-        {
-            public string Username { get; set; }
-            public int FailedAttempts { get; set; }
-            public DateTime? LockoutEnd { get; set; }
-            public string LastFailedIpAddress { get; set; }
-            public DateTime? LastFailedAttempt { get; set; }
-        }
+        // UserLockoutInfo is now defined in BizConnect.Services.Security.Models.SecurityModels
     }
 }

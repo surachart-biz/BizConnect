@@ -1,0 +1,343 @@
+@model BizConnect.Services.Models.Analytics.DashboardMetrics
+@{
+    ViewData["Title"] = "Analytics Dashboard";
+    ViewBag.Subtitle = "Real-time system insights and performance metrics";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/analytics.css" asp-append-version="true" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header mb-4">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h2 class="mb-1">Analytics Overview</h2>
+            <p class="text-muted mb-0">Real-time system performance and business metrics</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="dashboard-status">
+                <span class="badge bg-success fs-6" id="connectionStatus">
+                    <i class="fas fa-circle pulse-icon"></i> Live
+                </span>
+                <small class="text-muted ms-2" id="lastUpdated">
+                    Updated: @Model.LastUpdated.ToString("HH:mm:ss")
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Metric Cards Row -->
+<div class="row mb-4" id="metricCards">
+    <!-- Active OTAC Count -->
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+        <div class="metric-card otac-card">
+            <div class="metric-card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="metric-label">Active OTAC Codes</p>
+                        <h3 class="metric-value" id="activeOtacCount">@Model.ActiveOtacCount</h3>
+                        <div class="metric-trend">
+                            <i class="fas fa-arrow-up trend-icon-positive"></i>
+                            <span class="trend-text">Live count</span>
+                        </div>
+                    </div>
+                    <div class="metric-icon">
+                        <i class="fas fa-key"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registrations Today -->
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+        <div class="metric-card registration-card">
+            <div class="metric-card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="metric-label">Registrations Today</p>
+                        <h3 class="metric-value" id="registrationsToday">@Model.Registrations.Today</h3>
+                        <div class="metric-trend">
+                            <i class="fas fa-arrow-@(Model.Registrations.DailyGrowthPercent >= 0 ? "up" : "down") trend-icon-@(Model.Registrations.DailyGrowthPercent >= 0 ? "positive" : "negative")"></i>
+                            <span class="trend-text" id="dailyGrowth">@Model.Registrations.DailyGrowthPercent.ToString("F1")%</span>
+                        </div>
+                    </div>
+                    <div class="metric-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Rate -->
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+        <div class="metric-card success-card">
+            <div class="metric-card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="metric-label">Success Rate</p>
+                        <h3 class="metric-value" id="successRate">@Model.SuccessRate.ToString("F1")%</h3>
+                        <div class="metric-trend">
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: @(Model.SuccessRate)%" id="successRateBar"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Response Time -->
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+        <div class="metric-card performance-card">
+            <div class="metric-card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="metric-label">Avg Response Time</p>
+                        <h3 class="metric-value" id="responseTime">@Model.AverageResponseTime.ToString("F0")<small>ms</small></h3>
+                        <div class="metric-trend">
+                            <span class="trend-text performance-status" id="performanceStatus">
+                                @(Model.AverageResponseTime < 1000 ? "Excellent" : Model.AverageResponseTime < 2000 ? "Good" : "Needs Attention")
+                            </span>
+                        </div>
+                    </div>
+                    <div class="metric-icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Secondary Metrics Row -->
+<div class="row mb-4">
+    <!-- KBank Integration Status -->
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+        <div class="metric-card integration-card">
+            <div class="metric-card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="metric-label">KBank Integration</p>
+                        <h3 class="metric-value integration-status" id="kbankStatus">@Model.KBankStatus.Status</h3>
+                        <div class="metric-trend">
+                            <span class="trend-text" id="kbankSuccessRate">@Model.KBankStatus.SuccessRate.ToString("F1")% success</span>
+                        </div>
+                    </div>
+                    <div class="metric-icon">
+                        <i class="fas fa-link"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Events -->
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+        <div class="metric-card security-card">
+            <div class="metric-card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="metric-label">Security Events</p>
+                        <h3 class="metric-value" id="securityEvents">@Model.Security.EventsToday</h3>
+                        <div class="metric-trend">
+                            <span class="badge bg-@(Model.Security.ThreatLevel.ToLower() == "low" ? "success" : Model.Security.ThreatLevel.ToLower() == "medium" ? "warning" : "danger")" id="threatLevel">
+                                @Model.Security.ThreatLevel
+                            </span>
+                        </div>
+                    </div>
+                    <div class="metric-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cache Hit Rate -->
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+        <div class="metric-card cache-card">
+            <div class="metric-card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="metric-label">Cache Hit Rate</p>
+                        <h3 class="metric-value" id="cacheHitRate">@Model.Cache.HitRate.ToString("F1")%</h3>
+                        <div class="metric-trend">
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar bg-info" role="progressbar" style="width: @(Model.Cache.HitRate)%" id="cacheHitRateBar"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Health Score -->
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+        <div class="metric-card health-card">
+            <div class="metric-card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="metric-label">System Health</p>
+                        <h3 class="metric-value" id="systemHealth">@Model.SystemHealthScore.ToString("F0")</h3>
+                        <div class="metric-trend">
+                            <span class="trend-text health-status" id="healthStatus">
+                                @(Model.SystemHealthScore >= 90 ? "Excellent" : Model.SystemHealthScore >= 80 ? "Good" : Model.SystemHealthScore >= 70 ? "Fair" : "Needs Attention")
+                            </span>
+                        </div>
+                    </div>
+                    <div class="metric-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <!-- OTAC Trends Chart -->
+    <div class="col-xl-6 col-lg-12 mb-4">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h5 class="admin-card-title">OTAC Generation Trends</h5>
+                <div class="card-tools">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-primary active" data-period="7">7 Days</button>
+                        <button type="button" class="btn btn-outline-primary" data-period="30">30 Days</button>
+                        <button type="button" class="btn btn-outline-primary" data-period="90">90 Days</button>
+                    </div>
+                </div>
+            </div>
+            <div class="admin-card-body">
+                <div class="chart-container">
+                    <canvas id="otacTrendsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Status Distribution -->
+    <div class="col-xl-6 col-lg-12 mb-4">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h5 class="admin-card-title">Registration Status Distribution</h5>
+            </div>
+            <div class="admin-card-body">
+                <div class="chart-container">
+                    <canvas id="statusDistributionChart"></canvas>
+                </div>
+                <div class="status-legend mt-3">
+                    <div class="row text-center">
+                        <div class="col-3">
+                            <div class="status-item">
+                                <div class="status-count text-success">@Model.Registrations.StatusBreakdown.Success</div>
+                                <div class="status-label">Success</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="status-item">
+                                <div class="status-count text-warning">@Model.Registrations.StatusBreakdown.Pending</div>
+                                <div class="status-label">Pending</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="status-item">
+                                <div class="status-count text-danger">@Model.Registrations.StatusBreakdown.Failed</div>
+                                <div class="status-label">Failed</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="status-item">
+                                <div class="status-count text-secondary">@Model.Registrations.StatusBreakdown.Expired</div>
+                                <div class="status-label">Expired</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance and Branch Charts Row -->
+<div class="row mb-4">
+    <!-- Performance Timeline -->
+    <div class="col-xl-8 col-lg-12 mb-4">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h5 class="admin-card-title">Performance Timeline</h5>
+                <small class="text-muted">Response times and success rates over time</small>
+            </div>
+            <div class="admin-card-body">
+                <div class="chart-container">
+                    <canvas id="performanceTimelineChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Branches -->
+    <div class="col-xl-4 col-lg-12 mb-4">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h5 class="admin-card-title">Top Performing Branches</h5>
+            </div>
+            <div class="admin-card-body">
+                <div class="branch-list" id="topBranchesList">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading branch data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Alerts -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h5 class="admin-card-title">System Alerts</h5>
+                <span class="badge bg-info" id="alertCount">Loading...</span>
+            </div>
+            <div class="admin-card-body">
+                <div id="systemAlerts">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading system alerts...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/analytics-dashboard.js" asp-append-version="true"></script>
+    <script>
+        // Initialize dashboard with server data
+        const initialMetrics = @Html.Raw(Json.Serialize(Model));
+        
+        // Initialize the real-time dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            const dashboard = new RealTimeDashboard();
+            dashboard.initialize(initialMetrics);
+        });
+    </script>
+}

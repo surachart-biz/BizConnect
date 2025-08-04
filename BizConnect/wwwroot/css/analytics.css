@@ -1,0 +1,579 @@
+/* =========================================
+   Analytics Dashboard Styles
+   Professional, modern styling for real-time dashboard
+   ========================================= */
+
+/* Dashboard Header */
+.dashboard-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #e0e0e0;
+}
+
+.dashboard-status {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.pulse-icon {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* Metric Cards */
+.metric-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e0e6ed;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    position: relative;
+    height: 140px;
+}
+
+.metric-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+.metric-card-body {
+    padding: 1.5rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metric-value {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.metric-value small {
+    font-size: 0.6em;
+    font-weight: 400;
+    color: #6c757d;
+}
+
+.metric-icon {
+    font-size: 2.5rem;
+    color: #e9ecef;
+    opacity: 0.7;
+}
+
+.metric-trend {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.trend-icon-positive {
+    color: #28a745;
+}
+
+.trend-icon-negative {
+    color: #dc3545;
+}
+
+.trend-text {
+    font-weight: 500;
+    color: #495057;
+}
+
+/* Specific card color themes */
+.otac-card::before {
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+.registration-card::before {
+    background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+}
+
+.success-card::before {
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.performance-card::before {
+    background: linear-gradient(90deg, #a8edea 0%, #fed6e3 100%);
+}
+
+.integration-card::before {
+    background: linear-gradient(90deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+.security-card::before {
+    background: linear-gradient(90deg, #ff9a9e 0%, #fecfef 100%);
+}
+
+.cache-card::before {
+    background: linear-gradient(90deg, #a8e6cf 0%, #dcedc8 100%);
+}
+
+.health-card::before {
+    background: linear-gradient(90deg, #ffd89b 0%, #19547b 100%);
+}
+
+/* Status indicators */
+.integration-status {
+    text-transform: capitalize;
+}
+
+.integration-status.online,
+.health-status:contains("Excellent"),
+.performance-status:contains("Excellent") {
+    color: #28a745;
+}
+
+.integration-status.degraded,
+.health-status:contains("Good"),
+.performance-status:contains("Good") {
+    color: #ffc107;
+}
+
+.integration-status.offline,
+.health-status:contains("Needs Attention"),
+.performance-status:contains("Needs Attention") {
+    color: #dc3545;
+}
+
+/* Chart containers */
+.chart-container {
+    position: relative;
+    height: 350px;
+    margin-bottom: 1rem;
+}
+
+.admin-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e0e6ed;
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.admin-card-header {
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #e0e6ed;
+    display: flex;
+    justify-content: between;
+    align-items: center;
+}
+
+.admin-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.admin-card-body {
+    padding: 1.5rem;
+}
+
+.card-tools {
+    margin-left: auto;
+}
+
+.card-tools .btn-group .btn {
+    font-size: 0.8rem;
+    padding: 0.375rem 0.75rem;
+}
+
+/* Status Legend */
+.status-legend {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.status-item {
+    text-align: center;
+}
+
+.status-count {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.status-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* Branch List */
+.branch-list {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.branch-item {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    transition: all 0.2s ease;
+}
+
+.branch-item:hover {
+    background: #e9ecef;
+    transform: translateX(3px);
+}
+
+.branch-info {
+    flex: 1;
+}
+
+.branch-name {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.25rem;
+}
+
+.branch-code {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.branch-metrics {
+    text-align: right;
+}
+
+.branch-count {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.branch-rate {
+    font-size: 0.875rem;
+    color: #28a745;
+}
+
+.branch-rank {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.875rem;
+    margin-right: 1rem;
+}
+
+/* System Alerts */
+.alert-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    border-left: 4px solid;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.alert-item.alert-info {
+    border-left-color: #17a2b8;
+    background: linear-gradient(135deg, #fff 0%, #e1f5fe 100%);
+}
+
+.alert-item.alert-warning {
+    border-left-color: #ffc107;
+    background: linear-gradient(135deg, #fff 0%, #fff8e1 100%);
+}
+
+.alert-item.alert-error {
+    border-left-color: #dc3545;
+    background: linear-gradient(135deg, #fff 0%, #ffebee 100%);
+}
+
+.alert-item.alert-critical {
+    border-left-color: #6f42c1;
+    background: linear-gradient(135deg, #fff 0%, #f3e5f5 100%);
+}
+
+.alert-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.alert-content {
+    flex: 1;
+}
+
+.alert-title {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.25rem;
+}
+
+.alert-description {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.alert-timestamp {
+    font-size: 0.75rem;
+    color: #adb5bd;
+}
+
+.alert-severity {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-left: auto;
+}
+
+/* No data states */
+.no-data {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+.no-data i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* Loading states */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Real-time update indicators */
+.update-indicator {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    background: #28a745;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    z-index: 1050;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+}
+
+.update-indicator.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .metric-card {
+        height: 120px;
+    }
+    
+    .metric-value {
+        font-size: 1.875rem;
+    }
+    
+    .chart-container {
+        height: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        text-align: center;
+    }
+    
+    .dashboard-status {
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    
+    .metric-card {
+        height: 110px;
+        margin-bottom: 1rem;
+    }
+    
+    .metric-card-body {
+        padding: 1rem;
+    }
+    
+    .metric-value {
+        font-size: 1.5rem;
+    }
+    
+    .metric-icon {
+        font-size: 2rem;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+    
+    .admin-card-header {
+        padding: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .card-tools {
+        margin-left: 0;
+        margin-top: 0.5rem;
+    }
+    
+    .branch-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .branch-metrics {
+        margin-top: 0.5rem;
+        text-align: left;
+    }
+}
+
+@media (max-width: 576px) {
+    .metric-card {
+        height: 100px;
+    }
+    
+    .metric-value {
+        font-size: 1.25rem;
+    }
+    
+    .admin-card-body {
+        padding: 1rem;
+    }
+    
+    .chart-container {
+        height: 200px;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .metric-card {
+        border: 2px solid #000;
+    }
+    
+    .metric-value {
+        color: #000;
+    }
+    
+    .trend-icon-positive {
+        color: #0f5132;
+    }
+    
+    .trend-icon-negative {
+        color: #721c24;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .metric-card {
+        transition: none;
+    }
+    
+    .metric-card:hover {
+        transform: none;
+    }
+    
+    .pulse-icon {
+        animation: none;
+    }
+    
+    .loading-spinner {
+        animation: none;
+    }
+}
+
+/* Print styles */
+@media print {
+    .metric-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .chart-container {
+        height: 300px;
+    }
+    
+    .admin-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+}

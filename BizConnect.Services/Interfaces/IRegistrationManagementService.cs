@@ -41,5 +41,27 @@ namespace BizConnect.Services.Interfaces
         /// <param name="regId">KBank registration ID</param>
         /// <returns>Result containing the registration or failure if not found</returns>
         Task<Result<KbankOddRegistration>> GetByRegIdAsync(string regId);
+
+        /// <summary>
+        /// Updates registration status (API compatible method)
+        /// </summary>
+        /// <param name="id">Registration ID</param>
+        /// <param name="status">New status</param>
+        /// <returns>Result indicating success/failure</returns>
+        Task<Result> UpdateRegistrationStatusAsync(int id, string status);
+
+        /// <summary>
+        /// Processes a registration with business logic
+        /// </summary>
+        /// <param name="registration">Registration to process</param>
+        /// <returns>Result with processing outcome</returns>
+        Task<Result<KbankOddRegistration>> ProcessRegistrationAsync(KbankOddRegistration registration);
+
+        /// <summary>
+        /// Gets registration trends over time
+        /// </summary>
+        /// <param name="days">Number of days to analyze</param>
+        /// <returns>Result with trend data</returns>
+        Task<Result<RegistrationTrends>> GetRegistrationTrendsAsync(int days = 30);
     }
 }

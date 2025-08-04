@@ -77,6 +77,21 @@ namespace BizConnect.Services.Interfaces
         Task LogDataAccessAsync(string username, string dataType, string operation, string entityId);
 
         /// <summary>
+        /// Log threat response actions
+        /// </summary>
+        Task LogThreatResponseAsync(string ipAddress, string threatLevel, int actionCount);
+
+        /// <summary>
+        /// Log IP blocking event
+        /// </summary>
+        Task LogIpBlockAsync(string ipAddress, string reason);
+
+        /// <summary>
+        /// Log IP blocking event with duration
+        /// </summary>
+        Task LogIpBlockAsync(string ipAddress, string reason, TimeSpan duration);
+
+        /// <summary>
         /// Get recent security events for monitoring
         /// </summary>
         Task<IEnumerable<SecurityAuditEntry>> GetRecentEventsAsync(int count = 100);
@@ -151,6 +166,16 @@ namespace BizConnect.Services.Interfaces
         /// Get security events from a specific IP address with Result pattern
         /// </summary>
         Task<Result<IEnumerable<SecurityAuditEntry>>> GetIpEventsResultAsync(string ipAddress, DateTime? fromDate = null);
+
+        /// <summary>
+        /// Log a security event with category, action, and details
+        /// </summary>
+        Task LogSecurityEventAsync(string category, string action, object details, System.Threading.CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Log a security event object for monitoring and analysis
+        /// </summary>
+        Task LogSecurityEventAsync(BizConnect.Services.Security.Models.SecurityEvent securityEvent, System.Threading.CancellationToken cancellationToken = default);
     }
 
     /// <summary>

@@ -56,6 +56,11 @@ namespace BizConnect.Services.Models.Responses
         public Dictionary<string, int> StatusCounts { get; set; } = new Dictionary<string, int>();
 
         /// <summary>
+        /// Registration counts by status (API compatible property)
+        /// </summary>
+        public Dictionary<string, int> StatusBreakdown { get; set; } = new Dictionary<string, int>();
+
+        /// <summary>
         /// Registration counts by branch
         /// </summary>
         public Dictionary<string, int> BranchCounts { get; set; } = new Dictionary<string, int>();
@@ -64,6 +69,11 @@ namespace BizConnect.Services.Models.Responses
         /// Registration counts by day for the last 30 days
         /// </summary>
         public Dictionary<DateTime, int> DailyCounts { get; set; } = new Dictionary<DateTime, int>();
+
+        /// <summary>
+        /// Registration counts by time periods (API compatible property)
+        /// </summary>
+        public Dictionary<string, int> TimeBreakdown { get; set; } = new Dictionary<string, int>();
 
         /// <summary>
         /// Average processing time in minutes for completed registrations

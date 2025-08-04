@@ -44,5 +44,40 @@ namespace BizConnect.Services.Interfaces
         /// </summary>
         /// <returns>Result indicating success with error details if purge fails</returns>
         Task<Result> PurgeExpiredAsync();
+
+        /// <summary>
+        /// Generates a new OTAC code for a registration (API compatible method)
+        /// </summary>
+        /// <param name="registrationId">Registration ID for generating OTAC</param>
+        /// <returns>Result with OTAC information</returns>
+        Task<Result<OtacInfo>> GenerateOtacAsync(int registrationId);
+
+        /// <summary>
+        /// Validates an OTAC code (API compatible method)
+        /// </summary>
+        /// <param name="code">The OTAC code to validate</param>
+        /// <returns>Result with validation information</returns>
+        Task<Result<OtacInfo>> ValidateOtacAsync(string code);
+
+        /// <summary>
+        /// Retrieves OTAC information (API compatible method)
+        /// </summary>
+        /// <param name="code">The OTAC code</param>
+        /// <returns>Result with OTAC information</returns>
+        Task<Result<OtacInfo>> GetOtacInfoAsync(string code);
+
+        /// <summary>
+        /// Invalidates an OTAC code
+        /// </summary>
+        /// <param name="code">The OTAC code to invalidate</param>
+        /// <returns>Result indicating success/failure</returns>
+        Task<Result> InvalidateOtacAsync(string code);
+
+        /// <summary>
+        /// Gets OTAC statistics for a given time period
+        /// </summary>
+        /// <param name="period">Time period for statistics</param>
+        /// <returns>Result with OTAC statistics</returns>
+        Task<Result<OtacStatistics>> GetOtacStatisticsAsync(TimeSpan period);
     }
 }

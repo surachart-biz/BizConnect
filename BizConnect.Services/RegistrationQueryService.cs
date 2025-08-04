@@ -344,5 +344,213 @@ namespace BizConnect.Services
                 return Result<RegistrationStatistics>.Failure($"Failed to generate statistics: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Searches registrations with advanced filtering (API compatible method)
+        /// </summary>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Items per page</param>
+        /// <param name="status">Status filter</param>
+        /// <param name="search">Search term</param>
+        /// <param name="fromDate">Start date filter</param>
+        /// <param name="toDate">End date filter</param>
+        /// <returns>Result with paged search results</returns>
+        public async Task<Result<PagedResult<KbankOddRegistration>>> SearchRegistrationsAsync(
+            int page = 1, 
+            int pageSize = 20, 
+            string? status = null, 
+            string? search = null, 
+            DateTime? fromDate = null, 
+            DateTime? toDate = null)
+        {
+            try
+            {
+                // Validate parameters
+                if (page < 1) page = 1;
+                if (pageSize < 1 || pageSize > 1000) pageSize = 20;
+
+                _logger.LogDebug("Searching registrations: page={Page}, pageSize={PageSize}, status={Status}, search={Search}, fromDate={FromDate}, toDate={ToDate}", 
+                    page, pageSize, status, search, fromDate, toDate);
+
+                var baseQuery = _unitOfWork.KbankOddRegistrations.Query();
+
+                // Apply status filter
+                if (!string.IsNullOrWhiteSpace(status))
+                {
+                    baseQuery = baseQuery.Where(r => r.Status == status);
+                }
+
+                // Apply search filter
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    var searchTerm = search.Trim().ToLower();
+                    baseQuery = baseQuery.Where(r => 
+                        (r.FullName != null && r.FullName.ToLower().Contains(searchTerm)) ||
+                        (r.MobileNo != null && r.MobileNo.Contains(searchTerm)) ||
+                        (r.AccountNo != null && r.AccountNo.Contains(searchTerm)) ||
+                        r.ExternalReference.ToLower().Contains(searchTerm) ||
+                        (r.RegId != null && r.RegId.ToLower().Contains(searchTerm)));
+                }
+
+                // Apply date range filters
+                if (fromDate.HasValue)
+                {
+                    baseQuery = baseQuery.Where(r => r.CreatedAt >= fromDate.Value);
+                }
+
+                if (toDate.HasValue)
+                {
+                    var endOfDay = toDate.Value.Date.AddDays(1).AddTicks(-1);
+                    baseQuery = baseQuery.Where(r => r.CreatedAt <= endOfDay);
+                }
+
+                // Get total count for pagination
+                var totalCount = await baseQuery.CountAsync();
+
+                // Apply pagination and includes
+                var items = await baseQuery
+                    .Include(r => r.Branch)
+                    .Include(r => r.GeneratedByUser)
+                    .OrderByDescending(r => r.CreatedAt)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                var pagedResult = PagedResult<KbankOddRegistration>.Create(items, page, pageSize, totalCount);
+
+                _logger.LogDebug("Found {ItemCount} registrations out of {TotalCount} total matching search criteria", 
+                    items.Count, totalCount);
+
+                return Result<PagedResult<KbankOddRegistration>>.Success(pagedResult);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error searching registrations");
+                return Result<PagedResult<KbankOddRegistration>>.Failure($"Failed to search registrations: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Gets registration by ID (API compatible method)
+        /// </summary>
+        /// <param name="id">Registration ID</param>
+        /// <returns>Result with registration data</returns>
+        public async Task<Result<KbankOddRegistration>> GetRegistrationByIdAsync(int id)
+        {
+            return await GetByIdAsync(id);
+        }
+
+        /// <summary>
+        /// Gets registration statistics (API compatible method)
+        /// </summary>
+        /// <param name="fromDate">Start date</param>
+        /// <param name="toDate">End date</param>
+        /// <returns>Result with statistics</returns>
+        public async Task<Result<RegistrationStatistics>> GetRegistrationStatisticsAsync(DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            return await GetStatisticsAsync(fromDate, toDate);
+        }
+
+        /// <summary>
+        /// Exports registrations data
+        /// </summary>
+        /// <param name="format">Export format</param>
+        /// <param name="status">Status filter</param>
+        /// <param name="fromDate">Start date filter</param>
+        /// <param name="toDate">End date filter</param>
+        /// <returns>Result with exported data</returns>
+        public async Task<Result<byte[]>> ExportRegistrationsAsync(string format = "csv", string? status = null, DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            try
+            {
+                _logger.LogInformation("Exporting registrations: format={Format}, status={Status}, fromDate={FromDate}, toDate={ToDate}", 
+                    format, status, fromDate, toDate);
+
+                var exportResult = await GetForExportAsync(status, fromDate, toDate);
+                if (!exportResult.IsSuccess)
+                {
+                    return Result<byte[]>.Failure(exportResult.ErrorMessage);
+                }
+
+                var registrations = exportResult.Data.ToList();
+                byte[] exportData;
+
+                switch (format.ToLower())
+                {
+                    case "csv":
+                        exportData = ExportToCsv(registrations);
+                        break;
+                    case "json":
+                        exportData = ExportToJson(registrations);
+                        break;
+                    default:
+                        return Result<byte[]>.Failure($"Unsupported export format: {format}");
+                }
+
+                _logger.LogInformation("Exported {Count} registrations in {Format} format", registrations.Count, format);
+                return Result<byte[]>.Success(exportData);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error exporting registrations");
+                return Result<byte[]>.Failure($"Failed to export registrations: {ex.Message}");
+            }
+        }
+
+        private byte[] ExportToCsv(List<KbankOddRegistration> registrations)
+        {
+            var lines = new List<string>
+            {
+                "Id,ExternalReference,RegId,Status,FullName,MobileNo,AccountNo,Branch,CreatedAt,UpdatedAt,OtacCode,GeneratedByUser"
+            };
+
+            foreach (var reg in registrations)
+            {
+                var line = $"{reg.Id}," +
+                          $"\"{reg.ExternalReference?.Replace("\"", "\"\"")}\"," +
+                          $"\"{reg.RegId?.Replace("\"", "\"\"")}\"," +
+                          $"\"{reg.Status?.Replace("\"", "\"\"")}\"," +
+                          $"\"{reg.FullName?.Replace("\"", "\"\"")}\"," +
+                          $"\"{reg.MobileNo?.Replace("\"", "\"\"")}\"," +
+                          $"\"{reg.AccountNo?.Replace("\"", "\"\"")}\"," +
+                          $"\"{reg.Branch?.Name?.Replace("\"", "\"\"")}\"," +
+                          $"{reg.CreatedAt:yyyy-MM-dd HH:mm:ss}," +
+                          $"{reg.UpdatedAt?.ToString("yyyy-MM-dd HH:mm:ss")}," +
+                          $"\"{reg.OtacCode?.Replace("\"", "\"\"")}\"," +
+                          $"\"{reg.GeneratedByUser?.Username?.Replace("\"", "\"\"")}\"";
+                
+                lines.Add(line);
+            }
+
+            var csvContent = string.Join("\r\n", lines);
+            return System.Text.Encoding.UTF8.GetBytes(csvContent);
+        }
+
+        private byte[] ExportToJson(List<KbankOddRegistration> registrations)
+        {
+            var exportData = registrations.Select(reg => new
+            {
+                reg.Id,
+                reg.ExternalReference,
+                reg.RegId,
+                reg.Status,
+                reg.FullName,
+                reg.MobileNo,
+                reg.AccountNo,
+                Branch = reg.Branch?.Name,
+                reg.CreatedAt,
+                reg.UpdatedAt,
+                reg.OtacCode,
+                GeneratedByUser = reg.GeneratedByUser?.Username
+            });
+
+            var json = System.Text.Json.JsonSerializer.Serialize(exportData, new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true,
+                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+            });
+
+            return System.Text.Encoding.UTF8.GetBytes(json);
+        }
     }
 }

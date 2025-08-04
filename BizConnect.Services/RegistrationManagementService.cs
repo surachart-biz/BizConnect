@@ -338,5 +338,228 @@ namespace BizConnect.Services
                 return null;
             }
         }
+
+        /// <summary>
+        /// Updates registration status (API compatible method)
+        /// </summary>
+        /// <param name="id">Registration ID</param>
+        /// <param name="status">New status</param>
+        /// <returns>Result indicating success/failure</returns>
+        public async Task<Result> UpdateRegistrationStatusAsync(int id, string status)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    return Result.Failure("Invalid registration ID");
+                }
+
+                if (string.IsNullOrWhiteSpace(status))
+                {
+                    return Result.Failure("Status is required");
+                }
+
+                _logger.LogInformation("Updating registration status for ID {Id} to {Status}", id, status);
+
+                var registration = await _unitOfWork.KbankOddRegistrations
+                    .QueryWithTracking()
+                    .FirstOrDefaultAsync(r => r.Id == id);
+
+                if (registration == null)
+                {
+                    _logger.LogWarning("Registration with ID {Id} not found", id);
+                    return Result.Failure($"Registration with ID {id} not found");
+                }
+
+                // Update registration status
+                registration.Status = status;
+                registration.UpdatedAt = _dateTimeProvider.UtcNow;
+
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Registration status updated successfully for ID {Id}: {Status}", id, status);
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating registration status for ID {Id}", id);
+                return Result.Failure($"Failed to update registration status: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Processes a registration with business logic
+        /// </summary>
+        /// <param name="registration">Registration to process</param>
+        /// <returns>Result with processing outcome</returns>
+        public async Task<Result<KbankOddRegistration>> ProcessRegistrationAsync(KbankOddRegistration registration)
+        {
+            try
+            {
+                if (registration == null)
+                {
+                    return Result<KbankOddRegistration>.Failure("Registration is required");
+                }
+
+                _logger.LogInformation("Processing registration {Id} with status {Status}", registration.Id, registration.Status);
+
+                // Apply business rules based on current status
+                switch (registration.Status)
+                {
+                    case "Pending":
+                        // No additional processing needed for pending registrations
+                        break;
+
+                    case "Success":
+                        // Mark OTAC as used if not already
+                        if (registration.OtacState != "Used")
+                        {
+                            registration.OtacState = "Used";
+                        }
+                        break;
+
+                    case "Fail":
+                        // Keep OTAC as validated for potential retry
+                        if (registration.OtacState == "Used")
+                        {
+                            registration.OtacState = "Validated";
+                        }
+                        break;
+
+                    default:
+                        _logger.LogWarning("Unknown status {Status} for registration {Id}", registration.Status, registration.Id);
+                        break;
+                }
+
+                registration.UpdatedAt = _dateTimeProvider.UtcNow;
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Registration {Id} processed successfully", registration.Id);
+                return Result<KbankOddRegistration>.Success(registration);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing registration {Id}", registration?.Id);
+                return Result<KbankOddRegistration>.Failure($"Failed to process registration: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Gets registration trends over time
+        /// </summary>
+        /// <param name="days">Number of days to analyze</param>
+        /// <returns>Result with trend data</returns>
+        public async Task<Result<RegistrationTrends>> GetRegistrationTrendsAsync(int days = 30)
+        {
+            try
+            {
+                if (days <= 0 || days > 365) days = 30;
+
+                var now = _dateTimeProvider.UtcNow;
+                var startDate = now.AddDays(-days).Date;
+                var endDate = now.Date;
+
+                _logger.LogDebug("Calculating registration trends for {Days} days ({StartDate} to {EndDate})", 
+                    days, startDate, endDate);
+
+                var registrations = await _unitOfWork.KbankOddRegistrations
+                    .Query()
+                    .Where(r => r.CreatedAt.Date >= startDate && r.CreatedAt.Date <= endDate)
+                    .ToListAsync();
+
+                // Calculate daily counts
+                var dailyCounts = new Dictionary<DateTime, int>();
+                var dailySuccessCounts = new Dictionary<DateTime, int>();
+                var dailyFailureCounts = new Dictionary<DateTime, int>();
+
+                // Initialize all dates with zero counts
+                for (var date = startDate; date <= endDate; date = date.AddDays(1))
+                {
+                    dailyCounts[date] = 0;
+                    dailySuccessCounts[date] = 0;
+                    dailyFailureCounts[date] = 0;
+                }
+
+                // Populate actual counts
+                foreach (var reg in registrations)
+                {
+                    var date = reg.CreatedAt.Date;
+                    dailyCounts[date] = dailyCounts.GetValueOrDefault(date, 0) + 1;
+
+                    if (reg.Status == "Success")
+                    {
+                        dailySuccessCounts[date] = dailySuccessCounts.GetValueOrDefault(date, 0) + 1;
+                    }
+                    else if (reg.Status == "Fail")
+                    {
+                        dailyFailureCounts[date] = dailyFailureCounts.GetValueOrDefault(date, 0) + 1;
+                    }
+                }
+
+                // Calculate metrics
+                var totalRegistrations = registrations.Count;
+                var successfulRegistrations = registrations.Count(r => r.Status == "Success");
+                var failedRegistrations = registrations.Count(r => r.Status == "Fail");
+                
+                var overallSuccessRate = totalRegistrations > 0 
+                    ? (decimal)successfulRegistrations / totalRegistrations * 100 
+                    : 0;
+
+                var averageDailyCount = days > 0 ? (decimal)totalRegistrations / days : 0;
+
+                // Find peak day
+                var peakEntry = dailyCounts.OrderByDescending(kvp => kvp.Value).FirstOrDefault();
+                var peakDay = peakEntry.Key != default ? peakEntry.Key : (DateTime?)null;
+                var peakCount = peakEntry.Value;
+
+                // Calculate trend direction (simple linear trend)
+                var trendDirection = CalculateTrendDirection(dailyCounts);
+
+                var trends = new RegistrationTrends
+                {
+                    DailyCounts = dailyCounts,
+                    DailySuccessCounts = dailySuccessCounts,
+                    DailyFailureCounts = dailyFailureCounts,
+                    OverallSuccessRate = overallSuccessRate,
+                    TrendDirection = trendDirection,
+                    PeakDay = peakDay,
+                    PeakCount = peakCount,
+                    AverageDailyCount = averageDailyCount,
+                    PeriodStart = startDate,
+                    PeriodEnd = endDate,
+                    DaysAnalyzed = days,
+                    GeneratedAt = now
+                };
+
+                _logger.LogInformation("Generated registration trends: {TotalRegistrations} total, {SuccessRate}% success rate, trend {TrendDirection}", 
+                    totalRegistrations, overallSuccessRate, trendDirection);
+
+                return Result<RegistrationTrends>.Success(trends);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calculating registration trends for {Days} days", days);
+                return Result<RegistrationTrends>.Failure($"Failed to calculate trends: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Calculates trend direction based on daily counts
+        /// </summary>
+        private string CalculateTrendDirection(Dictionary<DateTime, int> dailyCounts)
+        {
+            if (dailyCounts.Count < 2) return "stable";
+
+            var sortedData = dailyCounts.OrderBy(kvp => kvp.Key).ToList();
+            var firstHalf = sortedData.Take(sortedData.Count / 2).Sum(kvp => kvp.Value);
+            var secondHalf = sortedData.Skip(sortedData.Count / 2).Sum(kvp => kvp.Value);
+
+            var difference = secondHalf - firstHalf;
+            var threshold = Math.Max(1, sortedData.Sum(kvp => kvp.Value) * 0.1); // 10% threshold
+
+            if (difference > threshold) return "increasing";
+            if (difference < -threshold) return "decreasing";
+            return "stable";
+        }
     }
 }

@@ -15,18 +15,23 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Registers the Repository and Unit of Work patterns with the dependency injection container.
     /// This method configures:
-    /// - Generic Repository pattern as Scoped
+    /// - Generic Repository pattern as Scoped with Caching Decorator
     /// - Unit of Work pattern as Scoped
+    /// - OptimizedRegistrationRepository for KbankOddRegistration
     /// - Proper lifetime management for database operations
     /// </summary>
     /// <param name="services">The service collection to configure</param>
     /// <returns>The service collection for method chaining</returns>
     public static IServiceCollection AddRepositoryPattern(this IServiceCollection services)
     {
-        // Register generic repository interface and implementation
-        // Using Scoped lifetime to ensure single instance per HTTP request
-        // This aligns with Entity Framework DbContext lifetime
+        // Register base repository implementation
+        services.AddScoped(typeof(Repository<>));
+        
+        // Register base repository (caching is handled at Services layer via CachedUserService, etc.)
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+        // Register specialized optimized repository for KbankOddRegistration
+        services.AddScoped<OptimizedRegistrationRepository>();
 
         // Register Unit of Work interface and implementation
         // Using Scoped lifetime to ensure consistent transaction boundaries

@@ -82,7 +82,7 @@ namespace BizConnect.Services
                 {
                     Code = otacCode,
                     ExpiresAt = expiresAt,
-                    RegistrationId = Guid.NewGuid(), // Using registration.Id would require conversion logic
+                    RegistrationId = userId, // Using the user ID as registration ID
                     Purpose = purpose,
                     RemainingAttempts = MaxValidationAttempts,
                     DeliveryMethod = "Display",
@@ -176,7 +176,7 @@ namespace BizConnect.Services
                 {
                     Code = normalizedCode,
                     ExpiresAt = registration.OtacExpiresAt ?? now.AddMinutes(OtacExpiryMinutes),
-                    RegistrationId = Guid.NewGuid(),
+                    RegistrationId = registration.Id,
                     Purpose = "Registration",
                     RemainingAttempts = remainingAttempts
                 };
@@ -278,7 +278,7 @@ namespace BizConnect.Services
                 {
                     Code = normalizedCode,
                     ExpiresAt = registration.OtacExpiresAt ?? _dateTimeProvider.UtcNow.AddMinutes(OtacExpiryMinutes),
-                    RegistrationId = Guid.NewGuid(),
+                    RegistrationId = registration.Id,
                     Purpose = "Registration",
                     RemainingAttempts = remainingAttempts
                 };
@@ -335,6 +335,179 @@ namespace BizConnect.Services
             {
                 _logger.LogError(ex, "Error purging expired OTAC codes");
                 return Result.Failure($"Failed to purge expired OTAC codes: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Generates a new OTAC code for a registration (API compatible method)
+        /// </summary>
+        /// <param name="registrationId">Registration ID for generating OTAC</param>
+        /// <returns>Result with OTAC information</returns>
+        public async Task<Result<OtacInfo>> GenerateOtacAsync(int registrationId)
+        {
+            try
+            {
+                var otacResult = await GenerateAsync(registrationId, "Registration");
+                if (otacResult.IsSuccess)
+                {
+                    return Result<OtacInfo>.Success(otacResult.Data);
+                }
+                return Result<OtacInfo>.Failure(otacResult.ErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GenerateOtacAsync for registration {RegistrationId}", registrationId);
+                return Result<OtacInfo>.Failure($"Failed to generate OTAC: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Validates an OTAC code (API compatible method)
+        /// </summary>
+        /// <param name="code">The OTAC code to validate</param>
+        /// <returns>Result with validation information</returns>
+        public async Task<Result<OtacInfo>> ValidateOtacAsync(string code)
+        {
+            try
+            {
+                var otacResult = await ValidateAsync(code, "API");
+                if (otacResult.IsSuccess)
+                {
+                    return Result<OtacInfo>.Success(otacResult.Data);
+                }
+                return Result<OtacInfo>.Failure(otacResult.ErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in ValidateOtacAsync for code {Code}", code);
+                return Result<OtacInfo>.Failure($"Failed to validate OTAC: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Retrieves OTAC information (API compatible method)
+        /// </summary>
+        /// <param name="code">The OTAC code</param>
+        /// <returns>Result with OTAC information</returns>
+        public async Task<Result<OtacInfo>> GetOtacInfoAsync(string code)
+        {
+            try
+            {
+                var otacResult = await GetInfoAsync(code);
+                if (otacResult.IsSuccess)
+                {
+                    return Result<OtacInfo>.Success(otacResult.Data);
+                }
+                return Result<OtacInfo>.Failure(otacResult.ErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetOtacInfoAsync for code {Code}", code);
+                return Result<OtacInfo>.Failure($"Failed to get OTAC info: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Invalidates an OTAC code
+        /// </summary>
+        /// <param name="code">The OTAC code to invalidate</param>
+        /// <returns>Result indicating success/failure</returns>
+        public async Task<Result> InvalidateOtacAsync(string code)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(code))
+                {
+                    return Result.Failure("OTAC code is required");
+                }
+
+                if (!_otacCodeGenerator.IsValidFormat(code))
+                {
+                    return Result.Failure("Invalid OTAC code format");
+                }
+
+                var normalizedCode = _otacCodeGenerator.NormalizeCode(code);
+                var now = _dateTimeProvider.UtcNow;
+
+                var registration = await _unitOfWork.KbankOddRegistrations
+                    .QueryWithTracking()
+                    .FirstOrDefaultAsync(r => r.OtacCode == normalizedCode);
+
+                if (registration == null)
+                {
+                    return Result.Failure("OTAC code not found");
+                }
+
+                if (registration.OtacState == "Invalidated")
+                {
+                    return Result.Failure("OTAC code is already invalidated");
+                }
+
+                registration.OtacState = "Invalidated";
+                registration.UpdatedAt = now;
+                registration.IsLocked = true;
+
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("OTAC {Code} invalidated successfully", normalizedCode);
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error invalidating OTAC code {Code}", code);
+                return Result.Failure($"Failed to invalidate OTAC: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Gets OTAC statistics for a given time period
+        /// </summary>
+        /// <param name="period">Time period for statistics</param>
+        /// <returns>Result with OTAC statistics</returns>
+        public async Task<Result<OtacStatistics>> GetOtacStatisticsAsync(TimeSpan period)
+        {
+            try
+            {
+                var now = _dateTimeProvider.UtcNow;
+                var periodStart = now.Subtract(period);
+
+                var registrations = await _unitOfWork.KbankOddRegistrations
+                    .Query()
+                    .Where(r => r.CreatedAt >= periodStart && r.CreatedAt <= now)
+                    .ToListAsync();
+
+                var totalGenerated = registrations.Count;
+                var totalValidated = registrations.Count(r => r.OtacState == "Validated" || r.OtacState == "Used");
+                var totalExpired = registrations.Count(r => r.OtacState == "Expired");
+                var totalLocked = registrations.Count(r => r.IsLocked);
+                var totalInvalidated = registrations.Count(r => r.OtacState == "Invalidated");
+
+                var averageAttempts = registrations.Any() 
+                    ? (decimal)registrations.Sum(r => r.AttemptCount) / registrations.Count 
+                    : 0;
+
+                var statistics = new OtacStatistics
+                {
+                    TotalGenerated = totalGenerated,
+                    TotalValidated = totalValidated,
+                    TotalExpired = totalExpired,
+                    TotalLocked = totalLocked,
+                    TotalInvalidated = totalInvalidated,
+                    AverageAttempts = averageAttempts,
+                    Period = period,
+                    PeriodStart = periodStart,
+                    PeriodEnd = now
+                };
+
+                _logger.LogInformation("Generated OTAC statistics for period {Period}: {TotalGenerated} generated, {TotalValidated} validated", 
+                    period, totalGenerated, totalValidated);
+
+                return Result<OtacStatistics>.Success(statistics);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating OTAC statistics for period {Period}", period);
+                return Result<OtacStatistics>.Failure($"Failed to generate OTAC statistics: {ex.Message}");
             }
         }
     }

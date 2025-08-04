@@ -1,5 +1,7 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
+using BizConnect.Services.Security.Models;
 
 namespace BizConnect.Services.Interfaces
 {
@@ -12,6 +14,11 @@ namespace BizConnect.Services.Interfaces
         /// Check if an IP address is currently locked out
         /// </summary>
         Task<RateLimitStatus> CheckRateLimitAsync(string ipAddress, string context = "login");
+
+        /// <summary>
+        /// Check rate limit for a specific operation and identifier with cancellation support
+        /// </summary>
+        Task<RateLimitStatus> CheckRateLimitAsync(string operation, string identifier, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Record a failed attempt for rate limiting
@@ -54,18 +61,7 @@ namespace BizConnect.Services.Interfaces
         Task CleanupExpiredEntriesAsync();
     }
 
-    /// <summary>
-    /// Status of rate limiting check
-    /// </summary>
-    public class RateLimitStatus
-    {
-        public bool IsLocked { get; set; }
-        public DateTime? LockoutEndTime { get; set; }
-        public int RemainingAttempts { get; set; }
-        public int TotalAttempts { get; set; }
-        public string Message { get; set; }
-        public TimeSpan? TimeUntilUnlock { get; set; }
-    }
+    // RateLimitStatus is now defined in BizConnect.Services.Security.Models.SecurityModels
 
     /// <summary>
     /// User-specific lockout status

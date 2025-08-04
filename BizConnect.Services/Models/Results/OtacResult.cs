@@ -8,12 +8,68 @@ namespace BizConnect.Services.Models.Results
     /// </summary>
     public class OtacInfo
     {
-        public string Code { get; set; } = string.Empty;
+        /// <summary>
+        /// The OTAC code (may be masked for security)
+        /// </summary>
+        public string OtacCode { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Legacy Code property for backward compatibility
+        /// </summary>
+        public string Code
+        {
+            get => OtacCode;
+            set => OtacCode = value;
+        }
+        
+        /// <summary>
+        /// When the OTAC was generated
+        /// </summary>
+        public DateTime GeneratedAt { get; set; }
+        
+        /// <summary>
+        /// When the OTAC expires
+        /// </summary>
         public DateTime ExpiresAt { get; set; }
-        public Guid RegistrationId { get; set; }
+        
+        /// <summary>
+        /// The associated registration ID
+        /// </summary>
+        public int RegistrationId { get; set; }
+        
+        /// <summary>
+        /// Current status of the OTAC
+        /// </summary>
+        public string Status { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Number of validation attempts made
+        /// </summary>
+        public int AttemptCount { get; set; }
+        
+        /// <summary>
+        /// Time remaining until expiry in seconds
+        /// </summary>
+        public int TimeRemainingSeconds => Math.Max(0, (int)(ExpiresAt - DateTime.UtcNow).TotalSeconds);
+        
+        /// <summary>
+        /// Remaining validation attempts
+        /// </summary>
+        public int RemainingAttempts { get; set; } = 5;
+        
+        /// <summary>
+        /// Purpose of the OTAC (legacy property)
+        /// </summary>
         public string Purpose { get; set; } = string.Empty;
-        public int RemainingAttempts { get; set; }
+        
+        /// <summary>
+        /// Delivery method (legacy property)
+        /// </summary>
         public string DeliveryMethod { get; set; } = "Email";
+        
+        /// <summary>
+        /// Delivery destination (legacy property)
+        /// </summary>
         public string DeliveryDestination { get; set; } = string.Empty;
     }
 
@@ -35,7 +91,7 @@ namespace BizConnect.Services.Models.Results
         /// <summary>
         /// Convenience property for accessing registration ID
         /// </summary>
-        public Guid? RegistrationId => Data?.RegistrationId;
+        public int? RegistrationId => Data?.RegistrationId;
 
         /// <summary>
         /// Convenience property for accessing remaining attempts
@@ -45,7 +101,7 @@ namespace BizConnect.Services.Models.Results
         /// <summary>
         /// Creates a successful OTAC result
         /// </summary>
-        public static OtacResult Success(string code, DateTime expiresAt, Guid registrationId, string purpose = "Registration", int remainingAttempts = 5)
+        public static OtacResult Success(string code, DateTime expiresAt, int registrationId, string purpose = "Registration", int remainingAttempts = 5)
         {
             return new OtacResult
             {
