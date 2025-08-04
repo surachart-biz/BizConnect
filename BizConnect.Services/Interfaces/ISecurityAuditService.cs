@@ -1,13 +1,16 @@
 using System;
 using System.Threading.Tasks;
+using BizConnect.Services.Common;
 
 namespace BizConnect.Services.Interfaces
 {
     /// <summary>
-    /// Service for logging and auditing security-related events
+    /// Service for logging and auditing security-related events.
+    /// Provides both traditional async methods (backward compatibility) and Result-pattern methods (enhanced error handling).
     /// </summary>
     public interface ISecurityAuditService
     {
+        // Traditional async methods for backward compatibility
         /// <summary>
         /// Log a successful authentication event
         /// </summary>
@@ -87,6 +90,67 @@ namespace BizConnect.Services.Interfaces
         /// Get security events from a specific IP address
         /// </summary>
         Task<IEnumerable<SecurityAuditEntry>> GetIpEventsAsync(string ipAddress, DateTime? fromDate = null);
+
+        // Enhanced Result-pattern methods for improved error handling
+        /// <summary>
+        /// Log a successful authentication event with Result pattern
+        /// </summary>
+        Task<Result> LogSuccessfulLoginResultAsync(string username, string ipAddress, string userAgent = null);
+
+        /// <summary>
+        /// Log a failed authentication attempt with Result pattern
+        /// </summary>
+        Task<Result> LogFailedLoginResultAsync(string username, string ipAddress, string reason, string userAgent = null);
+
+        /// <summary>
+        /// Log a user logout event with Result pattern
+        /// </summary>
+        Task<Result> LogLogoutResultAsync(string username, string ipAddress);
+
+        /// <summary>
+        /// Log an account lockout event with Result pattern
+        /// </summary>
+        Task<Result> LogAccountLockoutResultAsync(string ipAddress, int failedAttempts);
+
+        /// <summary>
+        /// Log unauthorized access attempts with Result pattern
+        /// </summary>
+        Task<Result> LogUnauthorizedAccessResultAsync(string username, string resource, string ipAddress);
+
+        /// <summary>
+        /// Log OTAC generation event with Result pattern
+        /// </summary>
+        Task<Result> LogOtacGeneratedResultAsync(string code, string purpose, string generatedBy);
+
+        /// <summary>
+        /// Log OTAC validation attempt with Result pattern
+        /// </summary>
+        Task<Result> LogOtacValidationResultAsync(string code, bool success, string ipAddress, int attemptNumber);
+
+        /// <summary>
+        /// Log OTAC lockout event with Result pattern
+        /// </summary>
+        Task<Result> LogOtacLockoutResultAsync(string code, int failedAttempts);
+
+        /// <summary>
+        /// Log suspicious activity with Result pattern
+        /// </summary>
+        Task<Result> LogSuspiciousActivityResultAsync(string activityType, string details, string ipAddress);
+
+        /// <summary>
+        /// Get recent security events for monitoring with Result pattern
+        /// </summary>
+        Task<Result<IEnumerable<SecurityAuditEntry>>> GetRecentEventsResultAsync(int count = 100);
+
+        /// <summary>
+        /// Get security events for a specific user with Result pattern
+        /// </summary>
+        Task<Result<IEnumerable<SecurityAuditEntry>>> GetUserEventsResultAsync(string username, DateTime? fromDate = null);
+
+        /// <summary>
+        /// Get security events from a specific IP address with Result pattern
+        /// </summary>
+        Task<Result<IEnumerable<SecurityAuditEntry>>> GetIpEventsResultAsync(string ipAddress, DateTime? fromDate = null);
     }
 
     /// <summary>

@@ -2,6 +2,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using BizConnect.Models;
 using BizConnect.Services.Interfaces;
+using BizConnect.Services.Models.Requests;
+using BizConnect.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,13 +13,15 @@ namespace BizConnect.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly IOddRegistrationService _oddRegistrationService;
+    private readonly IOtacManagementService _otacService;
+    private readonly IRegistrationManagementService _registrationService;
     private readonly IBranchService _branchService;
 
-    public HomeController(ILogger<HomeController> logger, IOddRegistrationService oddRegistrationService, IBranchService branchService)
+    public HomeController(ILogger<HomeController> logger, IOtacManagementService otacService, IRegistrationManagementService registrationService, IBranchService branchService)
     {
         _logger = logger;
-        _oddRegistrationService = oddRegistrationService;
+        _otacService = otacService;
+        _registrationService = registrationService;
         _branchService = branchService;
     }
 
@@ -54,34 +58,25 @@ public class HomeController : Controller
             return View(model);
         }
 
-        try
+        var clientIp = HttpContext.GetClientIpAddress();
+        var result = await _otacService.ValidateAsync(model.OtacCode, clientIp);
+
+        if (result.IsSuccess)
         {
-            var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
-            var (isValid, errorMessage) = await _oddRegistrationService.ValidateOtacAsync(model.OtacCode, clientIp);
+            _logger.LogInformation("Guest OTAC verification successful: {OtacCode} from IP: {ClientIp}", 
+                model.OtacCode, clientIp);
 
-            if (isValid)
-            {
-                _logger.LogInformation("Guest OTAC verification successful: {OtacCode} from IP: {ClientIp}", 
-                    model.OtacCode, clientIp);
+            // Store validated OTAC in session
+            HttpContext.SetValidatedOtac(model.OtacCode);
 
-                // Store validated OTAC in session
-                HttpContext.Session.SetString("validated_otac", model.OtacCode);
-                HttpContext.Session.SetString("otac_validated_at", DateTime.UtcNow.ToString());
-
-                TempData["SuccessMessage"] = "รหัส OTAC ถูกต้อง กรุณากรอกข้อมูลสำหรับการลงทะเบียน";
-                return RedirectToAction("Register");
-            }
-            else
-            {
-                _logger.LogWarning("Guest OTAC verification failed: {OtacCode} from IP: {ClientIp}, Error: {ErrorMessage}", 
-                    model.OtacCode, clientIp, errorMessage);
-                ModelState.AddModelError(string.Empty, errorMessage);
-            }
+            TempData["SuccessMessage"] = "รหัส OTAC ถูกต้อง กรุณากรอกข้อมูลสำหรับการลงทะเบียน";
+            return RedirectToAction("Register");
         }
-        catch (Exception ex)
+        else
         {
-            _logger.LogError(ex, "Error during guest OTAC verification: {OtacCode}", model.OtacCode);
-            ModelState.AddModelError(string.Empty, "เกิดข้อผิดพลาดในระบบ กรุณาลองใหม่อีกครั้ง");
+            _logger.LogWarning("Guest OTAC verification failed: {OtacCode} from IP: {ClientIp}, Error: {ErrorMessage}", 
+                model.OtacCode, clientIp, result.ErrorMessage);
+            ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "รหัส OTAC ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
         }
 
         return View(model);
@@ -94,7 +89,7 @@ public class HomeController : Controller
     public async Task<IActionResult> Register()
     {
         // Check if OTAC is validated
-        var validatedOtac = HttpContext.Session.GetString("validated_otac");
+        var validatedOtac = HttpContext.GetValidatedOtac();
         if (string.IsNullOrEmpty(validatedOtac))
         {
             TempData["ErrorMessage"] = "กรุณายืนยันรหัส OTAC ก่อนการลงทะเบียน";
@@ -102,10 +97,10 @@ public class HomeController : Controller
         }
 
         // Check if OTAC is still valid
-        if (!await _oddRegistrationService.IsOtacValidAsync(validatedOtac))
+        var validationResult = await _otacService.IsValidAsync(validatedOtac);
+        if (!validationResult.IsValid)
         {
-            HttpContext.Session.Remove("validated_otac");
-            HttpContext.Session.Remove("otac_validated_at");
+            HttpContext.ClearOtacVerification();
             TempData["ErrorMessage"] = "รหัส OTAC หมดอายุแล้ว กรุณาขอรหัสใหม่";
             return RedirectToAction("Verify");
         }
@@ -135,7 +130,7 @@ public class HomeController : Controller
     public async Task<IActionResult> Register(GuestRegistrationViewModel model)
     {
         // Validate OTAC session
-        var validatedOtac = HttpContext.Session.GetString("validated_otac");
+        var validatedOtac = HttpContext.GetValidatedOtac();
         if (string.IsNullOrEmpty(validatedOtac) || validatedOtac != model.OtacCode)
         {
             TempData["ErrorMessage"] = "Session หมดอายุ กรุณายืนยันรหัส OTAC ใหม่";
@@ -154,44 +149,37 @@ public class HomeController : Controller
             return View(model);
         }
 
-        try
+        // Create registration request
+        var registrationRequest = new RegistrationRequest
         {
-            // Create registration form data (IdType is always "National ID")
-            var formData = new RegistrationFormData
-            {
-                FullName = model.FullName,
-                IdType = "National ID", // Always National ID as per requirements
-                IdValue = model.IdValue,
-                MobileNo = model.MobileNo,
-                AccountNo = model.AccountNo,
-                BranchId = model.BranchId
-            };
+            OtacCode = model.OtacCode,
+            FullName = model.FullName,
+            IdType = "National ID", // Always National ID as per requirements
+            IdValue = model.IdValue,
+            MobileNo = model.MobileNo,
+            AccountNo = model.AccountNo,
+            BranchId = model.BranchId
+        };
 
-            // Start registration process
-            var (isSuccess, result) = await _oddRegistrationService.StartRegistrationAsync(model.OtacCode, formData);
+        // Start registration process
+        var result = await _registrationService.StartAsync(registrationRequest);
 
-            if (isSuccess)
-            {
-                _logger.LogInformation("Guest registration started successfully for OTAC: {OtacCode}", model.OtacCode);
+        if (result.IsSuccess)
+        {
+            _logger.LogInformation("Guest registration started successfully for OTAC: {OtacCode}, External Reference: {ExternalReference}", 
+                model.OtacCode, result.ExternalReference);
 
-                // Clear session
-                HttpContext.Session.Remove("validated_otac");
-                HttpContext.Session.Remove("otac_validated_at");
+            // Clear session
+            HttpContext.ClearOtacVerification();
 
-                // Redirect to KBank registration page
-                return Redirect(result);
-            }
-            else
-            {
-                _logger.LogWarning("Guest registration failed for OTAC: {OtacCode}, Error: {ErrorMessage}", 
-                    model.OtacCode, result);
-                ModelState.AddModelError(string.Empty, result);
-            }
+            // Redirect to KBank registration page
+            return Redirect(result.RedirectUrl ?? "/KBank/Pending");
         }
-        catch (Exception ex)
+        else
         {
-            _logger.LogError(ex, "Error during guest registration for OTAC: {OtacCode}", model.OtacCode);
-            ModelState.AddModelError(string.Empty, "เกิดข้อผิดพลาดในระบบ กรุณาลองใหม่อีกครั้ง");
+            _logger.LogWarning("Guest registration failed for OTAC: {OtacCode}, Error: {ErrorMessage}", 
+                model.OtacCode, result.ErrorMessage);
+            ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "เกิดข้อผิดพลาดในการลงทะเบียน กรุณาลองใหม่อีกครั้ง");
         }
 
         // Reload branches on error

@@ -1,4 +1,6 @@
 using BizConnect.Dal.Models;
+using BizConnect.Extensions;
+using BizConnect.Middleware;
 using BizConnect.Services;
 using BizConnect.Services.Clients;
 using BizConnect.Services.Interfaces;
@@ -22,6 +24,12 @@ builder.Configuration
 // Add services to the container.
 builder.Services.AddDbContext<BizConnectContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Add Repository and Unit of Work patterns
+builder.Services.AddRepositoryPattern();
+
+// Add Registration and OTAC management services
+builder.Services.AddRegistrationServices();
 
 // Configure Hangfire with PostgreSQL storage
 builder.Services.AddHangfire(configuration => configuration
@@ -240,6 +248,9 @@ if (!app.Environment.IsDevelopment())
         app.UseHsts();
     }
 }
+
+// Add global exception handling middleware (must be before other middleware)
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 // Add performance middleware based on configuration
 var appPerformanceConfig = app.Configuration.GetSection("Performance");

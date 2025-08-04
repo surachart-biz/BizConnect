@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using BizConnect.Dal;
 using BizConnect.Dal.Models;
+using BizConnect.Services.Common;
 using BizConnect.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -324,6 +325,107 @@ namespace BizConnect.Services
             var bytes = System.Text.Encoding.UTF8.GetBytes(code);
             var hash = sha256.ComputeHash(bytes);
             return Convert.ToBase64String(hash).Substring(0, 10); // First 10 chars of hash
+        }
+
+        // Result-pattern methods for enhanced error handling
+        
+        public async Task<Result> LogSuccessfulLoginResultAsync(string username, string ipAddress, string userAgent = null)
+        {
+            return await ResultExtensions.TryAsync(async () =>
+            {
+                await LogSuccessfulLoginAsync(username, ipAddress, userAgent);
+            }, "AUDIT_LOG_FAILED");
+        }
+
+        public async Task<Result> LogFailedLoginResultAsync(string username, string ipAddress, string reason, string userAgent = null)
+        {
+            return await ResultExtensions.TryAsync(async () =>
+            {
+                await LogFailedLoginAsync(username, ipAddress, reason, userAgent);
+            }, "AUDIT_LOG_FAILED");
+        }
+
+        public async Task<Result> LogLogoutResultAsync(string username, string ipAddress)
+        {
+            return await ResultExtensions.TryAsync(async () =>
+            {
+                await LogLogoutAsync(username, ipAddress);
+            }, "AUDIT_LOG_FAILED");
+        }
+
+        public async Task<Result> LogAccountLockoutResultAsync(string ipAddress, int failedAttempts)
+        {
+            return await ResultExtensions.TryAsync(async () =>
+            {
+                await LogAccountLockoutAsync(ipAddress, failedAttempts);
+            }, "AUDIT_LOG_FAILED");
+        }
+
+        public async Task<Result> LogUnauthorizedAccessResultAsync(string username, string resource, string ipAddress)
+        {
+            return await ResultExtensions.TryAsync(async () =>
+            {
+                await LogUnauthorizedAccessAsync(username, resource, ipAddress);
+            }, "AUDIT_LOG_FAILED");
+        }
+
+        public async Task<Result> LogOtacGeneratedResultAsync(string code, string purpose, string generatedBy)
+        {
+            return await ResultExtensions.TryAsync(async () =>
+            {
+                await LogOtacGeneratedAsync(code, purpose, generatedBy);
+            }, "AUDIT_LOG_FAILED");
+        }
+
+        public async Task<Result> LogOtacValidationResultAsync(string code, bool success, string ipAddress, int attemptNumber)
+        {
+            return await ResultExtensions.TryAsync(async () =>
+            {
+                await LogOtacValidationAsync(code, success, ipAddress, attemptNumber);
+            }, "AUDIT_LOG_FAILED");
+        }
+
+        public async Task<Result> LogOtacLockoutResultAsync(string code, int failedAttempts)
+        {
+            return await ResultExtensions.TryAsync(async () =>
+            {
+                await LogOtacLockoutAsync(code, failedAttempts);
+            }, "AUDIT_LOG_FAILED");
+        }
+
+        public async Task<Result> LogSuspiciousActivityResultAsync(string activityType, string details, string ipAddress)
+        {
+            return await ResultExtensions.TryAsync(async () =>
+            {
+                await LogSuspiciousActivityAsync(activityType, details, ipAddress);
+            }, "AUDIT_LOG_FAILED");
+        }
+
+        public async Task<Result<IEnumerable<SecurityAuditEntry>>> GetRecentEventsResultAsync(int count = 100)
+        {
+            return await ResultExtensions.TryAsync(async () =>
+            {
+                var events = await GetRecentEventsAsync(count);
+                return events;
+            }, "AUDIT_QUERY_FAILED");
+        }
+
+        public async Task<Result<IEnumerable<SecurityAuditEntry>>> GetUserEventsResultAsync(string username, DateTime? fromDate = null)
+        {
+            return await ResultExtensions.TryAsync(async () =>
+            {
+                var events = await GetUserEventsAsync(username, fromDate);
+                return events;
+            }, "AUDIT_QUERY_FAILED");
+        }
+
+        public async Task<Result<IEnumerable<SecurityAuditEntry>>> GetIpEventsResultAsync(string ipAddress, DateTime? fromDate = null)
+        {
+            return await ResultExtensions.TryAsync(async () =>
+            {
+                var events = await GetIpEventsAsync(ipAddress, fromDate);
+                return events;
+            }, "AUDIT_QUERY_FAILED");
         }
     }
 }
