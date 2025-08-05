@@ -152,10 +152,9 @@ public class HomeController : BaseController
             return View(model);
         }
 
-        // Create registration request
+        // Create registration request (excluding OTAC code - passed separately)
         var registrationRequest = new RegistrationRequest
         {
-            OtacCode = model.OtacCode,
             FullName = model.FullName,
             IdType = "National ID", // Always National ID as per requirements
             IdValue = model.IdValue,
@@ -164,8 +163,8 @@ public class HomeController : BaseController
             BranchId = model.BranchId
         };
 
-        // Start registration process
-        var result = await _registrationService.StartAsync(registrationRequest);
+        // Submit registration using 3-phase flow (Phase 3: Submit validated OTAC with registration data)
+        var result = await _registrationService.SubmitAsync(model.OtacCode, registrationRequest);
 
         if (result.IsSuccess)
         {

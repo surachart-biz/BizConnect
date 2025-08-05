@@ -10,8 +10,8 @@ namespace BizConnect.Services.Models.Results
     public class RegistrationInfo
     {
         public string RedirectUrl { get; set; } = string.Empty;
-        public string ExternalReference { get; set; } = string.Empty;
-        public string RegId { get; set; } = string.Empty;
+        public string? ExternalReference { get; set; }
+        public string? RegId { get; set; }
         public Guid RegistrationId { get; set; }
         public string Status { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }

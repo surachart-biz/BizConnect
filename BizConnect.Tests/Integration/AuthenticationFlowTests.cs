@@ -614,12 +614,3 @@ public class AuthenticationFlowTests : IDisposable
     }
 }
 
-/// <summary>
-/// Simple implementation of IDateTimeProvider for testing
-/// </summary>
-public class DateTimeProvider : IDateTimeProvider
-{
-    public DateTime UtcNow => DateTime.UtcNow;
-    public DateTime Now => DateTime.Now;
-    public DateTime Today => DateTime.Today;
-}

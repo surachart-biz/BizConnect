@@ -67,9 +67,9 @@ namespace BizConnect.Services
                 // Create new registration record
                 var registration = new KbankOddRegistration
                 {
-                    ExternalReference = string.Empty, // Will be set later when form is submitted
-                    RegId = string.Empty, // Will be set by KBank
-                    Status = string.Empty, // Will be set when KBank call is made
+                    ExternalReference = null, // Will be set later when form is submitted
+                    RegId = null, // Will be set by KBank
+                    Status = null, // Will be set when KBank call is made
                     CreatedAt = now,
                     GeneratedByUserId = userId,
                     OtacCode = otacCode,

@@ -63,5 +63,14 @@ namespace BizConnect.Services.Interfaces
         /// <param name="days">Number of days to analyze</param>
         /// <returns>Result with trend data</returns>
         Task<Result<RegistrationTrends>> GetRegistrationTrendsAsync(int days = 30);
+
+        /// <summary>
+        /// Submits a validated OTAC registration to KBank (Phase 3 of OTAC flow)
+        /// This method specifically handles the transition from validated OTAC to KBank submission
+        /// </summary>
+        /// <param name="validatedOtacCode">The OTAC code that has been validated in Phase 2</param>
+        /// <param name="registrationData">Guest registration form data</param>
+        /// <returns>RegistrationResult containing redirect URL and external reference</returns>
+        Task<RegistrationResult> SubmitAsync(string validatedOtacCode, RegistrationRequest registrationData);
     }
 }

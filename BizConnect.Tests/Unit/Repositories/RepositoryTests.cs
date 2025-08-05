@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using BizConnect.Dal;
 using BizConnect.Dal.Models;
 using BizConnect.Dal.Repositories;
 

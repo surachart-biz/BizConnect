@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
 using BizConnect.Dal.Models;
+using BizConnect.Dal.Repositories;
 using BizConnect.Dal.UnitOfWork;
 using BizConnect.Services;
 using BizConnect.Services.Interfaces;

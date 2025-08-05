@@ -217,9 +217,13 @@ public class KbankOddService : IKbankOddService
                 throw new InvalidOperationException($"Registration record not found for external reference: {existingExternalReference}");
             }
 
-            if (registration.Status != "CodeIssued")
+            // In the 3-phase OTAC flow:
+            // Phase 1 & 2: Status = null (OTAC generated and validated)
+            // Phase 3: Registration form submitted, ExternalReference assigned, KBank API called
+            // Only allow records with null status (not yet submitted to KBank) or specific retry scenarios
+            if (registration.Status != null && registration.Status != "Fail")
             {
-                throw new InvalidOperationException($"Registration {registration.Id} is not in CodeIssued status: {registration.Status}");
+                throw new InvalidOperationException($"Registration {registration.Id} cannot be resubmitted. Current status: {registration.Status}");
             }
 
             // Get configuration values

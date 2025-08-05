@@ -367,13 +367,13 @@ public class OptimizedRegistrationRepository : Repository<KbankOddRegistration>
 public class RegistrationSummary
 {
     public int Id { get; set; }
-    public string FullName { get; set; } = string.Empty;
-    public string IdValue { get; set; } = string.Empty;
-    public string Status { get; set; } = string.Empty;
+    public string? FullName { get; set; }
+    public string? IdValue { get; set; }
+    public string? Status { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
-    public string ExternalReference { get; set; } = string.Empty;
-    public string MobileNo { get; set; } = string.Empty;
+    public string? ExternalReference { get; set; }
+    public string? MobileNo { get; set; }
 }
 
 /// <summary>

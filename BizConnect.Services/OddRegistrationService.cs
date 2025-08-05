@@ -71,8 +71,8 @@ public class OddRegistrationService : IOddRegistrationService
             // Create registration record with OTAC (Status = null initially, ExternalReference = null until form submission)
             var registration = new KbankOddRegistration
             {
-                ExternalReference = string.Empty, // Will be set when form is submitted
-                RegId = string.Empty, // Will be set when KBank API is called
+                ExternalReference = null, // Will be set when form is submitted
+                RegId = null, // Will be set when KBank API is called
                 Status = null, // No status initially - will be set to "Pending" after form submission
                 CreatedAt = _dateTimeProvider.UtcNow,
                 OtacCode = otacCode,

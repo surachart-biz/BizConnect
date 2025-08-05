@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using BizConnect.Dal.Models;
+using BizConnect.Dal.Repositories;
 using BizConnect.Dal.UnitOfWork;
 using BizConnect.Services.Interfaces;
 using BizConnect.Services.Caching;

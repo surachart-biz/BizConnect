@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
+using BizConnect.Dal;
 using BizConnect.Dal.Models;
 using BizConnect.Dal.Repositories;
 using BizConnect.Dal.UnitOfWork;

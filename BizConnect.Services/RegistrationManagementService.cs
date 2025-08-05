@@ -644,5 +644,169 @@ namespace BizConnect.Services
             if (difference < -threshold) return "decreasing";
             return "stable";
         }
+
+        /// <summary>
+        /// Submits a validated OTAC registration to KBank (Phase 3 of OTAC flow)
+        /// This method specifically handles the transition from validated OTAC to KBank submission
+        /// </summary>
+        /// <param name="validatedOtacCode">The OTAC code that has been validated in Phase 2</param>
+        /// <param name="registrationData">Guest registration form data</param>
+        /// <returns>RegistrationResult containing redirect URL and external reference</returns>
+        public async Task<RegistrationResult> SubmitAsync(string validatedOtacCode, RegistrationRequest registrationData)
+        {
+            try
+            {
+                _logger.LogInformation("Submitting validated OTAC {OtacCode} for KBank registration", validatedOtacCode);
+
+                // Validate input parameters
+                if (string.IsNullOrWhiteSpace(validatedOtacCode))
+                {
+                    return RegistrationResult.Failure("OTAC code is required");
+                }
+
+                if (registrationData == null)
+                {
+                    return RegistrationResult.Failure("Registration data is required");
+                }
+
+                // Find and validate the OTAC record (must be in "Validated" state)
+                var normalizedOtac = _otacCodeGenerator.NormalizeCode(validatedOtacCode);
+                var registration = await _unitOfWork.KbankOddRegistrations
+                    .QueryWithTracking()
+                    .Include(r => r.Branch)
+                    .FirstOrDefaultAsync(r => r.OtacCode == normalizedOtac && r.OtacState == "Validated");
+
+                if (registration == null)
+                {
+                    _logger.LogWarning("OTAC code {OtacCode} not found or not in validated state", normalizedOtac);
+                    return RegistrationResult.Failure("Invalid or unvalidated OTAC code");
+                }
+
+                // Check if OTAC has expired
+                var now = _dateTimeProvider.UtcNow;
+                if (registration.OtacExpiresAt.HasValue && registration.OtacExpiresAt.Value <= now)
+                {
+                    _logger.LogWarning("OTAC code {OtacCode} has expired", normalizedOtac);
+                    return RegistrationResult.Failure("OTAC code has expired");
+                }
+
+                // Ensure this OTAC hasn't already been used
+                if (!string.IsNullOrEmpty(registration.ExternalReference))
+                {
+                    _logger.LogWarning("OTAC code {OtacCode} has already been used (ExternalReference: {ExternalReference})", 
+                        normalizedOtac, registration.ExternalReference);
+                    return RegistrationResult.Failure("OTAC code has already been used");
+                }
+
+                // Phase 3: Generate ExternalReference and submit to KBank
+                return await _unitOfWork.ExecuteInTransactionAsync(async (uow, ct) =>
+                {
+                    // Generate unique external reference with retry logic
+                    string externalReference;
+                    var maxRetries = 3;
+                    var retryCount = 0;
+                    
+                    do
+                    {
+                        externalReference = OddUtils.GenerateExternalReference();
+                        retryCount++;
+                        
+                        // Check if this external reference already exists
+                        var existingRegistration = await uow.KbankOddRegistrations
+                            .Query()
+                            .FirstOrDefaultAsync(r => r.ExternalReference == externalReference, ct);
+                            
+                        if (existingRegistration == null)
+                        {
+                            break; // Unique reference found
+                        }
+                        
+                        if (retryCount >= maxRetries)
+                        {
+                            _logger.LogError("Failed to generate unique external reference after {MaxRetries} attempts", maxRetries);
+                            throw new InvalidOperationException("Unable to generate unique external reference");
+                        }
+                        
+                        // Add small delay before retry to reduce collision probability
+                        await Task.Delay(10 * retryCount, ct);
+                        
+                    } while (retryCount < maxRetries);
+
+                    // Update registration with form data and external reference
+                    registration.ExternalReference = externalReference;
+                    registration.FullName = registrationData.FullName;
+                    registration.IdType = registrationData.IdType;
+                    registration.IdValue = registrationData.IdValue;
+                    registration.MobileNo = registrationData.MobileNo;
+                    registration.AccountNo = registrationData.AccountNo;
+                    registration.BranchId = registrationData.BranchId;
+                    registration.OtacState = "Used";
+                    registration.UpdatedAt = now;
+                    registration.StatusMessageTh = "กำลังส่งข้อมูลไปยัง KBank";
+                    registration.StatusMessageEn = "Submitting data to KBank";
+
+                    // Prepare KBank registration request
+                    var kbankRequest = new OddRegistrationRequest
+                    {
+                        FullName = registrationData.FullName,
+                        MobileNo = registrationData.MobileNo,
+                        IdType = registrationData.IdType,
+                        IdValue = registrationData.IdValue,
+                        AccountNo = registrationData.AccountNo,
+                        BranchId = registrationData.BranchId
+                    };
+
+                    // Call KBank API with the generated external reference
+                    string redirectUrl;
+                    try
+                    {
+                        redirectUrl = await _kbankOddService.StartRegistrationWithExistingReferenceAsync(
+                            kbankRequest, externalReference, ct);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "KBank API call failed for external reference {ExternalReference}", externalReference);
+                        return RegistrationResult.ExternalServiceError("KBank", ex.Message);
+                    }
+
+                    // Extract RegId from redirect URL
+                    var regId = ExtractRegIdFromRedirectUrl(redirectUrl);
+                    if (string.IsNullOrEmpty(regId))
+                    {
+                        _logger.LogWarning("Failed to extract RegId from redirect URL {RedirectUrl}", redirectUrl);
+                        return RegistrationResult.Failure("Failed to extract registration ID from KBank response");
+                    }
+
+                    // Update registration with KBank response
+                    registration.RegId = regId;
+                    registration.Status = "Pending";
+                    registration.StatusMessageTh = "กำลังดำเนินการลงทะเบียน";
+                    registration.StatusMessageEn = "Registration in progress";
+
+                    await uow.SaveChangesAsync(ct);
+
+                    var registrationInfo = new RegistrationInfo
+                    {
+                        RedirectUrl = redirectUrl,
+                        ExternalReference = externalReference,
+                        RegId = regId,
+                        RegistrationId = Guid.NewGuid(), // Using a placeholder GUID
+                        Status = "Pending",
+                        CreatedAt = registration.CreatedAt,
+                        ContactPhone = registrationData.MobileNo
+                    };
+
+                    _logger.LogInformation("OTAC registration submitted successfully with external reference {ExternalReference} and RegId {RegId}", 
+                        externalReference, regId);
+
+                    return RegistrationResult.Success(registrationInfo);
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error submitting OTAC registration for code {OtacCode}", validatedOtacCode);
+                return RegistrationResult.Failure(ex);
+            }
+        }
     }
 }
