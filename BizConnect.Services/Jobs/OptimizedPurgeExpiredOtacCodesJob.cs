@@ -190,6 +190,7 @@ public class OptimizedPurgeExpiredOtacCodesJob
 
     /// <summary>
     /// Gets expired OTAC code records in batches for efficient processing with cache key information.
+    /// CRITICAL: Excludes Used state records as they are PERMANENT and required for daily payments.
     /// </summary>
     private async Task<List<ExpiredOtacRecord>> GetExpiredOtacRecordsAsync(DateTime currentTime, int batchSize)
     {
@@ -199,15 +200,30 @@ public class OptimizedPurgeExpiredOtacCodesJob
             var expiredRecords = await repository.Query()
                 .Where(r => r.OtacExpiresAt != null && 
                            r.OtacExpiresAt < currentTime && 
-                           (r.OtacState == "Generated" || r.OtacState == "Validated"))
+                           (r.OtacState == "Generated" || r.OtacState == "Validated") &&
+                           r.OtacState != "Used") // CRITICAL: Never process Used records
                 .Select(r => new ExpiredOtacRecord
                 {
                     Id = r.Id,
                     OtacCode = r.OtacCode,
-                    CreatedAt = r.CreatedAt
+                    CreatedAt = r.CreatedAt,
+                    CurrentState = r.OtacState // Add current state for logging
                 })
                 .Take(batchSize)
                 .ToListAsync();
+
+            // Log protection of Used records if any were encountered
+            var usedRecordsCount = await repository.Query()
+                .Where(r => r.OtacExpiresAt != null && 
+                           r.OtacExpiresAt < currentTime && 
+                           r.OtacState == "Used")
+                .CountAsync();
+
+            if (usedRecordsCount > 0)
+            {
+                _logger.LogInformation("PROTECTION: {UsedCount} Used state records protected from purging (required for daily payments)", 
+                    usedRecordsCount);
+            }
 
             return expiredRecords;
         }
@@ -220,6 +236,7 @@ public class OptimizedPurgeExpiredOtacCodesJob
 
     /// <summary>
     /// Processes a batch of expired OTAC codes with bulk operations and cache invalidation.
+    /// CRITICAL: Double-checks that Used state records are never processed for safety.
     /// </summary>
     private async Task<int> ProcessExpiredOtacBatchAsync(List<ExpiredOtacRecord> expiredRecords)
     {
@@ -233,19 +250,42 @@ public class OptimizedPurgeExpiredOtacCodesJob
             
             // Update each record individually since bulk operations aren't supported in the generic repository
             var updatedCount = 0;
+            var protectedCount = 0;
+            
             foreach (var recordId in expiredIds)
             {
                 var record = await repository.GetByIdAsync(recordId);
                 if (record != null)
                 {
-                    record.OtacState = "Expired";
-                    record.UpdatedAt = _dateTimeProvider.UtcNow;
-                    record.IsLocked = true; // Lock the code to prevent further attempts
-                    record.StatusMessageTh = "รหัส OTAC หมดอายุแล้ว";
-                    record.StatusMessageEn = "OTAC code expired";
+                    // CRITICAL SAFETY CHECK: Never modify Used state records
+                    if (record.OtacState == "Used")
+                    {
+                        protectedCount++;
+                        _logger.LogWarning("PROTECTION: Skipping Used state record ID {RecordId} - required for daily payments", recordId);
+                        continue;
+                    }
                     
-                    repository.Update(record);
-                    updatedCount++;
+                    // Only process Generated or Validated states
+                    if (record.OtacState == "Generated" || record.OtacState == "Validated")
+                    {
+                        var oldState = record.OtacState;
+                        record.OtacState = "Expired";
+                        record.UpdatedAt = _dateTimeProvider.UtcNow;
+                        record.IsLocked = true; // Lock the code to prevent further attempts
+                        record.StatusMessageTh = "รหัส OTAC หมดอายุแล้ว";
+                        record.StatusMessageEn = "OTAC code expired";
+                        
+                        repository.Update(record);
+                        updatedCount++;
+                        
+                        _logger.LogDebug("State transition: Record {RecordId} from {OldState} to Expired", 
+                            recordId, oldState);
+                    }
+                    else
+                    {
+                        _logger.LogDebug("Skipping record {RecordId} with state {State} - not eligible for expiration", 
+                            recordId, record.OtacState);
+                    }
                 }
             }
             
@@ -255,7 +295,13 @@ public class OptimizedPurgeExpiredOtacCodesJob
             // Invalidate cache entries for the processed OTAC codes
             await InvalidateOtacBatchCacheAsync(expiredRecords);
 
-            _logger.LogDebug("Processed {UpdatedCount} expired OTAC records with cache invalidation", updatedCount);
+            if (protectedCount > 0)
+            {
+                _logger.LogInformation("PROTECTION: {ProtectedCount} Used state records protected from modification", protectedCount);
+            }
+            
+            _logger.LogDebug("Processed {UpdatedCount} expired OTAC records with cache invalidation. Protected: {ProtectedCount}", 
+                updatedCount, protectedCount);
             return updatedCount;
         }
         catch (Exception ex)
@@ -515,6 +561,7 @@ public class ExpiredOtacRecord
     public int Id { get; set; }
     public string? OtacCode { get; set; }
     public DateTime CreatedAt { get; set; }
+    public string? CurrentState { get; set; }
 }
 
 /// <summary>

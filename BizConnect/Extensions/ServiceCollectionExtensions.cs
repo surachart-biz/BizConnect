@@ -61,6 +61,10 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IOtacManagementService, OtacManagementService>();
         services.AddScoped<IRegistrationManagementService, RegistrationManagementService>();
         services.AddScoped<IRegistrationQueryService, RegistrationQueryService>();
+        
+        // Register OTAC state management services for enhanced lifecycle control
+        services.AddScoped<IOtacStateService, OtacStateService>();
+        services.AddScoped<IOtacLifecycleMonitoringService, OtacLifecycleMonitoringService>();
 
         return services;
     }

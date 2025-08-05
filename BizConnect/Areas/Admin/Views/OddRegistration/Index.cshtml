@@ -7,7 +7,7 @@
 
 @section HeaderActions {
     <div class="d-flex gap-2">
-        <button class="btn btn-success" onclick="generateOtacImmediately()">
+        <button type="button" class="btn btn-success" onclick="generateOtacImmediately(); return false;">
             <i class="fas fa-key me-1"></i>เพิ่มข้อมูล
         </button>
         <button class="btn btn-outline-success" onclick="exportData('excel')">
@@ -631,7 +631,7 @@
                                             <i class="fas fa-times me-1"></i>ล้างตัวกรอง
                                         </a>
                                     }
-                                    <button class="btn btn-success" onclick="generateOtacImmediately()">
+                                    <button type="button" class="btn btn-success" onclick="generateOtacImmediately(); return false;">
                                         <i class="fas fa-plus me-1"></i>เพิ่มข้อมูลใหม่
                                     </button>
                                 </div>
@@ -867,8 +867,8 @@
             .then(data => {
                 if (data.success) {
                     showOtacResultsModal(data);
-                    // Reload table after a short delay to show new registration
-                    setTimeout(() => location.reload(), 3000);
+                    // ✅ FIXED: No auto-refresh - let employee copy code peacefully
+                    // setTimeout(() => location.reload(), 3000); // REMOVED
                 } else {
                     showAlert('danger', data.message || 'เกิดข้อผิดพลาดในการสร้าง OTAC Code');
                 }
@@ -881,41 +881,13 @@
 
         // Show OTAC results using existing modal template
         function showOtacResultsModal(data) {
-            // Load the modal template via AJAX first
-            fetch('@Url.Action("GenerateModal", "Otac")')
-            .then(response => response.text())
-            .then(html => {
-                // Remove existing modal if present
-                const existingModal = document.getElementById('generateOtacModal');
-                if (existingModal) {
-                    existingModal.remove();
-                }
-
-                // Add modal to body
-                document.body.insertAdjacentHTML('beforeend', html);
-
-                // Populate modal with generated data
-                populateOtacModal(data);
-
-                // Initialize and show modal
-                const modal = new bootstrap.Modal(document.getElementById('generateOtacModal'));
-                modal.show();
-
-                // Clean up on modal close
-                document.getElementById('generateOtacModal').addEventListener('hidden.bs.modal', function () {
-                    this.remove();
-                });
-            })
-            .catch(error => {
-                console.error('Error loading modal:', error);
-                // Fallback to inline modal
-                showFallbackOtacModal(data);
-            });
+            // Skip the complex modal loading and go straight to the working fallback
+            showFallbackOtacModal(data);
         }
 
         // Fallback modal creation (simplified version)
         function showFallbackOtacModal(data) {
-            const expiryDate = new Date(data.otacExpiresAt);
+            const expiryDate = new Date(data.expiresAt);
             const expiryTimeLocal = expiryDate.toLocaleString('th-TH', {
                 year: 'numeric',
                 month: 'short',
@@ -945,7 +917,7 @@
                                         <label class="form-label small text-muted mb-2">รหัสยืนยัน</label>
                                         <div class="input-group justify-content-center">
                                             <input type="text" id="resultGeneratedCode" class="form-control form-control-lg font-monospace fw-bold text-center"
-                                                   value="${data.otacCode}" readonly style="font-size: 2rem; letter-spacing: 0.5em; background: #f8f9fa; max-width: 300px;">
+                                                   value="${data.code}" readonly style="font-size: 2rem; letter-spacing: 0.5em; background: #f8f9fa; max-width: 300px;">
                                             <button class="btn btn-outline-success" type="button" onclick="copyToClipboard('resultGeneratedCode')" title="คัดลอก">
                                                 <i class="fas fa-copy"></i>
                                             </button>
@@ -965,6 +937,9 @@
                             <div class="modal-footer justify-content-center">
                                 <button type="button" class="btn btn-success" onclick="copyToClipboard('resultGeneratedCode')">
                                     <i class="fas fa-copy me-1"></i>คัดลอก
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="refreshTable()">
+                                    <i class="fas fa-sync-alt me-1"></i>รีเฟรช
                                 </button>
                                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
                                     <i class="fas fa-times me-1"></i>ปิด
@@ -989,7 +964,7 @@
             modal.show();
 
             // Start countdown
-            startResultCountdown(data.otacExpiresAt);
+            startResultCountdown(data.expiresAt);
 
             // Clean up on modal close
             document.getElementById('otacResultsModal').addEventListener('hidden.bs.modal', function () {

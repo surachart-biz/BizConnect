@@ -71,7 +71,7 @@ public partial class KbankOddRegistration
     public string OtacCode { get; set; } = null!;
 
     /// <summary>
-    /// OTAC state: Generated → Validated → Used
+    /// OTAC lifecycle state. CRITICAL: Used state is PERMANENT - required for daily payment processing. Valid states: Generated, Validated, Used, Expired, Invalidated, Purged. State transitions: Generated→Validated→Used (permanent), Generated/Validated→Expired→Purged (cleanup), Generated→Invalidated→Purged (failed validation)
     /// </summary>
     public string OtacState { get; set; } = null!;
 
