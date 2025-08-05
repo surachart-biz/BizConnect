@@ -1,6 +1,7 @@
 @model GuestRegistrationViewModel
 @{
-    ViewData["Title"] = "ลงทะเบียนหักบัญชีอัตโนมัติ";
+    await Html.PartialAsync("_LanguageTexts");
+    ViewData["Title"] = ViewBag.IsThaiLanguage ? "ลงทะเบียนหักบัญชีอัตโนมัติ" : "Direct Debit Registration";
 }
 
 @section Styles {
@@ -318,17 +319,17 @@
                 <div class="step-number">
                     <i class="fas fa-check"></i>
                 </div>
-                <span>ยืนยัน OTAC</span>
+                <span>@(ViewBag.IsThaiLanguage ? "ยืนยัน OTAC" : "Verify OTAC")</span>
             </div>
             <div class="step-connector"></div>
             <div class="step active">
                 <div class="step-number">2</div>
-                <span>กรอกข้อมูล</span>
+                <span>@(ViewBag.IsThaiLanguage ? "กรอกข้อมูล" : "Fill Information")</span>
             </div>
             <div class="step-connector"></div>
             <div class="step">
                 <div class="step-number">3</div>
-                <span>ลงทะเบียน</span>
+                <span>@ViewBag.TextRegister</span>
             </div>
         </div>
 
@@ -337,16 +338,16 @@
             <div class="register-logo">
                 <i class="fas fa-user-plus"></i>
             </div>
-            <h1 class="register-title">ลงทะเบียนหักบัญชีอัตโนมัติ</h1>
+            <h1 class="register-title">@ViewData["Title"]</h1>
             <p class="register-subtitle">
-                กรุณากรอกข้อมูลของท่านให้ครบถ้วนและถูกต้อง
+                @(ViewBag.IsThaiLanguage ? "กรุณากรอกข้อมูลของท่านให้ครบถ้วนและถูกต้อง" : "Please fill in your information completely and accurately")
             </p>
 
             <!-- OTAC Display -->
             <div class="otac-display">
                 <div class="d-flex align-items-center justify-content-center">
                     <i class="fas fa-shield-check text-success me-2"></i>
-                    <small class="text-muted me-2">รหัส OTAC ที่ยืนยันแล้ว:</small>
+                    <small class="text-muted me-2">@(ViewBag.IsThaiLanguage ? "รหัส OTAC ที่ยืนยันแล้ว:" : "Verified OTAC Code:"):</small>
                     <span class="otac-code">@Model.OtacCode</span>
                 </div>
             </div>

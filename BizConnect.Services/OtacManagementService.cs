@@ -41,19 +41,23 @@ namespace BizConnect.Services
         /// </summary>
         /// <param name="userId">ID of the user generating the OTAC</param>
         /// <param name="purpose">Purpose of the OTAC (e.g., "Registration", "Verification")</param>
+        /// <param name="language">Language code ('th' for Thai, 'en' for English). Defaults to 'en'</param>
         /// <returns>OtacResult containing the generated code and expiry information</returns>
-        public async Task<OtacResult> GenerateAsync(int userId, string purpose = "Registration")
+        public async Task<OtacResult> GenerateAsync(int userId, string purpose = "Registration", string language = "en")
         {
             try
             {
-                _logger.LogInformation("Generating OTAC for user {UserId} with purpose {Purpose}", userId, purpose);
+                _logger.LogInformation("Generating OTAC for user {UserId} with purpose {Purpose} in language {Language}", userId, purpose, language);
 
                 // Verify user exists
                 var user = await _unitOfWork.Users.GetByIdAsync(userId);
                 if (user == null)
                 {
                     _logger.LogWarning("OTAC generation failed: User {UserId} not found", userId);
-                    return OtacResult.Failure("User not found");
+                    var userNotFoundMessage = language.ToLower() == "th" 
+                        ? "ไม่พบผู้ใช้งาน" 
+                        : "User not found";
+                    return OtacResult.Failure(userNotFoundMessage);
                 }
 
                 var now = _dateTimeProvider.UtcNow;
@@ -72,7 +76,9 @@ namespace BizConnect.Services
                     OtacState = "Generated",
                     OtacExpiresAt = expiresAt,
                     AttemptCount = 0,
-                    IsLocked = false
+                    IsLocked = false,
+                    StatusMessageTh = "รหัส OTAC ถูกสร้างแล้ว",
+                    StatusMessageEn = "OTAC code generated"
                 };
 
                 await _unitOfWork.KbankOddRegistrations.AddAsync(registration);
@@ -106,21 +112,28 @@ namespace BizConnect.Services
         /// </summary>
         /// <param name="code">The OTAC code to validate (case-insensitive)</param>
         /// <param name="clientIp">IP address of the client making the validation request</param>
+        /// <param name="language">Language code ('th' for Thai, 'en' for English). Defaults to 'en'</param>
         /// <returns>OtacResult indicating validation success/failure with remaining attempts</returns>
-        public async Task<OtacResult> ValidateAsync(string code, string clientIp)
+        public async Task<OtacResult> ValidateAsync(string code, string clientIp, string language = "en")
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(code))
                 {
                     _logger.LogWarning("OTAC validation failed: Code is null or empty");
-                    return OtacResult.Failure("OTAC code is required");
+                    var requiredMessage = language.ToLower() == "th" 
+                        ? "จำเป็นต้องระบุรหัส OTAC" 
+                        : "OTAC code is required";
+                    return OtacResult.Failure(requiredMessage);
                 }
 
                 if (!_otacCodeGenerator.IsValidFormat(code))
                 {
                     _logger.LogWarning("OTAC validation failed: Invalid format for code {Code}", code);
-                    return OtacResult.Failure("Invalid OTAC code format");
+                    var formatMessage = language.ToLower() == "th" 
+                        ? "รูปแบบรหัส OTAC ไม่ถูกต้อง" 
+                        : "Invalid OTAC code format";
+                    return OtacResult.Failure(formatMessage);
                 }
 
                 var normalizedCode = _otacCodeGenerator.NormalizeCode(code);
@@ -133,14 +146,14 @@ namespace BizConnect.Services
                 if (registration == null)
                 {
                     _logger.LogWarning("OTAC validation failed: Code {Code} not found", normalizedCode);
-                    return OtacResult.NotFound();
+                    return OtacResult.NotFound(language);
                 }
 
                 // Check if locked
                 if (registration.IsLocked)
                 {
                     _logger.LogWarning("OTAC validation failed: Code {Code} is locked", normalizedCode);
-                    return OtacResult.LockedCode();
+                    return OtacResult.LockedCode(language);
                 }
 
                 // Check if expired
@@ -148,7 +161,7 @@ namespace BizConnect.Services
                 {
                     _logger.LogWarning("OTAC validation failed: Code {Code} has expired at {ExpiresAt}", 
                         normalizedCode, registration.OtacExpiresAt.Value);
-                    return OtacResult.ExpiredCode();
+                    return OtacResult.ExpiredCode(language);
                 }
 
                 // Increment attempt count and update tracking
@@ -164,11 +177,13 @@ namespace BizConnect.Services
                     
                     _logger.LogWarning("OTAC {Code} locked after {AttemptCount} failed attempts", 
                         normalizedCode, registration.AttemptCount);
-                    return OtacResult.LockedCode();
+                    return OtacResult.LockedCode(language);
                 }
 
                 // Update state to validated
                 registration.OtacState = "Validated";
+                registration.StatusMessageTh = "รหัส OTAC ผ่านการตรวจสอบแล้ว";
+                registration.StatusMessageEn = "OTAC code validated";
                 await _unitOfWork.SaveChangesAsync();
 
                 var remainingAttempts = MaxValidationAttempts - registration.AttemptCount;
@@ -197,19 +212,26 @@ namespace BizConnect.Services
         /// Checks if an OTAC code is valid without incrementing attempt counter
         /// </summary>
         /// <param name="code">The OTAC code to check</param>
+        /// <param name="language">Language code ('th' for Thai, 'en' for English). Defaults to 'en'</param>
         /// <returns>ValidationResult indicating whether the code is valid</returns>
-        public async Task<ValidationResult> IsValidAsync(string code)
+        public async Task<ValidationResult> IsValidAsync(string code, string language = "en")
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(code))
                 {
-                    return ValidationResult.Invalid("OTAC code is required");
+                    var requiredMessage = language.ToLower() == "th" 
+                        ? "จำเป็นต้องระบุรหัส OTAC" 
+                        : "OTAC code is required";
+                    return ValidationResult.Invalid(requiredMessage);
                 }
 
                 if (!_otacCodeGenerator.IsValidFormat(code))
                 {
-                    return ValidationResult.Invalid("Invalid OTAC code format");
+                    var formatMessage = language.ToLower() == "th" 
+                        ? "รูปแบบรหัส OTAC ไม่ถูกต้อง" 
+                        : "Invalid OTAC code format";
+                    return ValidationResult.Invalid(formatMessage);
                 }
 
                 var normalizedCode = _otacCodeGenerator.NormalizeCode(code);
@@ -221,17 +243,26 @@ namespace BizConnect.Services
 
                 if (registration == null)
                 {
-                    return ValidationResult.Invalid("OTAC code not found");
+                    var notFoundMessage = language.ToLower() == "th" 
+                        ? "ไม่พบรหัส OTAC" 
+                        : "OTAC code not found";
+                    return ValidationResult.Invalid(notFoundMessage);
                 }
 
                 if (registration.IsLocked)
                 {
-                    return ValidationResult.Invalid("OTAC code is locked");
+                    var lockedMessage = language.ToLower() == "th" 
+                        ? "รหัส OTAC ถูกล็อก" 
+                        : "OTAC code is locked";
+                    return ValidationResult.Invalid(lockedMessage);
                 }
 
                 if (registration.OtacExpiresAt.HasValue && registration.OtacExpiresAt.Value <= now)
                 {
-                    return ValidationResult.Invalid("OTAC code has expired");
+                    var expiredMessage = language.ToLower() == "th" 
+                        ? "รหัส OTAC หมดอายุแล้ว" 
+                        : "OTAC code has expired";
+                    return ValidationResult.Invalid(expiredMessage);
                 }
 
                 return ValidationResult.Valid();
@@ -247,19 +278,26 @@ namespace BizConnect.Services
         /// Retrieves information about an OTAC code without affecting its state
         /// </summary>
         /// <param name="code">The OTAC code to retrieve information for</param>
+        /// <param name="language">Language code ('th' for Thai, 'en' for English). Defaults to 'en'</param>
         /// <returns>OtacResult containing code information or failure if not found</returns>
-        public async Task<OtacResult> GetInfoAsync(string code)
+        public async Task<OtacResult> GetInfoAsync(string code, string language = "en")
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(code))
                 {
-                    return OtacResult.Failure("OTAC code is required");
+                    var requiredMessage = language.ToLower() == "th" 
+                        ? "จำเป็นต้องระบุรหัส OTAC" 
+                        : "OTAC code is required";
+                    return OtacResult.Failure(requiredMessage);
                 }
 
                 if (!_otacCodeGenerator.IsValidFormat(code))
                 {
-                    return OtacResult.Failure("Invalid OTAC code format");
+                    var formatMessage = language.ToLower() == "th" 
+                        ? "รูปแบบรหัส OTAC ไม่ถูกต้อง" 
+                        : "Invalid OTAC code format";
+                    return OtacResult.Failure(formatMessage);
                 }
 
                 var normalizedCode = _otacCodeGenerator.NormalizeCode(code);
@@ -270,7 +308,7 @@ namespace BizConnect.Services
 
                 if (registration == null)
                 {
-                    return OtacResult.NotFound();
+                    return OtacResult.NotFound(language);
                 }
 
                 var remainingAttempts = Math.Max(0, MaxValidationAttempts - registration.AttemptCount);
@@ -318,6 +356,8 @@ namespace BizConnect.Services
                     {
                         registration.OtacState = "Expired";
                         registration.UpdatedAt = now;
+                        registration.StatusMessageTh = "รหัส OTAC หมดอายุแล้ว";
+                        registration.StatusMessageEn = "OTAC code expired";
                     }
 
                     await _unitOfWork.SaveChangesAsync();
@@ -342,12 +382,13 @@ namespace BizConnect.Services
         /// Generates a new OTAC code for a registration (API compatible method)
         /// </summary>
         /// <param name="registrationId">Registration ID for generating OTAC</param>
+        /// <param name="language">Language code ('th' for Thai, 'en' for English). Defaults to 'en'</param>
         /// <returns>Result with OTAC information</returns>
-        public async Task<Result<OtacInfo>> GenerateOtacAsync(int registrationId)
+        public async Task<Result<OtacInfo>> GenerateOtacAsync(int registrationId, string language = "en")
         {
             try
             {
-                var otacResult = await GenerateAsync(registrationId, "Registration");
+                var otacResult = await GenerateAsync(registrationId, "Registration", language);
                 if (otacResult.IsSuccess)
                 {
                     return Result<OtacInfo>.Success(otacResult.Data);
@@ -365,12 +406,13 @@ namespace BizConnect.Services
         /// Validates an OTAC code (API compatible method)
         /// </summary>
         /// <param name="code">The OTAC code to validate</param>
+        /// <param name="language">Language code ('th' for Thai, 'en' for English). Defaults to 'en'</param>
         /// <returns>Result with validation information</returns>
-        public async Task<Result<OtacInfo>> ValidateOtacAsync(string code)
+        public async Task<Result<OtacInfo>> ValidateOtacAsync(string code, string language = "en")
         {
             try
             {
-                var otacResult = await ValidateAsync(code, "API");
+                var otacResult = await ValidateAsync(code, "API", language);
                 if (otacResult.IsSuccess)
                 {
                     return Result<OtacInfo>.Success(otacResult.Data);
@@ -388,12 +430,13 @@ namespace BizConnect.Services
         /// Retrieves OTAC information (API compatible method)
         /// </summary>
         /// <param name="code">The OTAC code</param>
+        /// <param name="language">Language code ('th' for Thai, 'en' for English). Defaults to 'en'</param>
         /// <returns>Result with OTAC information</returns>
-        public async Task<Result<OtacInfo>> GetOtacInfoAsync(string code)
+        public async Task<Result<OtacInfo>> GetOtacInfoAsync(string code, string language = "en")
         {
             try
             {
-                var otacResult = await GetInfoAsync(code);
+                var otacResult = await GetInfoAsync(code, language);
                 if (otacResult.IsSuccess)
                 {
                     return Result<OtacInfo>.Success(otacResult.Data);
@@ -411,19 +454,26 @@ namespace BizConnect.Services
         /// Invalidates an OTAC code
         /// </summary>
         /// <param name="code">The OTAC code to invalidate</param>
+        /// <param name="language">Language code ('th' for Thai, 'en' for English). Defaults to 'en'</param>
         /// <returns>Result indicating success/failure</returns>
-        public async Task<Result> InvalidateOtacAsync(string code)
+        public async Task<Result> InvalidateOtacAsync(string code, string language = "en")
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(code))
                 {
-                    return Result.Failure("OTAC code is required");
+                    var requiredMessage = language.ToLower() == "th" 
+                        ? "จำเป็นต้องระบุรหัส OTAC" 
+                        : "OTAC code is required";
+                    return Result.Failure(requiredMessage);
                 }
 
                 if (!_otacCodeGenerator.IsValidFormat(code))
                 {
-                    return Result.Failure("Invalid OTAC code format");
+                    var formatMessage = language.ToLower() == "th" 
+                        ? "รูปแบบรหัส OTAC ไม่ถูกต้อง" 
+                        : "Invalid OTAC code format";
+                    return Result.Failure(formatMessage);
                 }
 
                 var normalizedCode = _otacCodeGenerator.NormalizeCode(code);
@@ -435,17 +485,25 @@ namespace BizConnect.Services
 
                 if (registration == null)
                 {
-                    return Result.Failure("OTAC code not found");
+                    var notFoundMessage = language.ToLower() == "th" 
+                        ? "ไม่พบรหัส OTAC" 
+                        : "OTAC code not found";
+                    return Result.Failure(notFoundMessage);
                 }
 
                 if (registration.OtacState == "Invalidated")
                 {
-                    return Result.Failure("OTAC code is already invalidated");
+                    var alreadyInvalidatedMessage = language.ToLower() == "th" 
+                        ? "รหัส OTAC ถูกยกเลิกแล้ว" 
+                        : "OTAC code is already invalidated";
+                    return Result.Failure(alreadyInvalidatedMessage);
                 }
 
                 registration.OtacState = "Invalidated";
                 registration.UpdatedAt = now;
                 registration.IsLocked = true;
+                registration.StatusMessageTh = "รหัส OTAC ถูกยกเลิก";
+                registration.StatusMessageEn = "OTAC code invalidated";
 
                 await _unitOfWork.SaveChangesAsync();
 

@@ -43,15 +43,16 @@ public class CachedBranchService : IBranchService
     }
 
     /// <inheritdoc />
-    public async Task<List<(int BranchId, string Name)>> GetActiveBranchesForDropdownAsync()
+    public async Task<List<(int BranchId, string Name)>> GetActiveBranchesForDropdownAsync(string language = "en")
     {
+        var cacheKey = $"{ActiveBranchesDropdownKey}:{language}";
         return await _cacheService.GetOrCreateAsync(
-            ActiveBranchesDropdownKey,
+            cacheKey,
             async () =>
             {
-                _logger.LogDebug("Cache miss for active branches dropdown, fetching from service");
-                var branches = await _innerBranchService.GetActiveBranchesForDropdownAsync();
-                _logger.LogDebug("Cached {Count} active branches for dropdown", branches.Count);
+                _logger.LogDebug("Cache miss for active branches dropdown in {Language}, fetching from service", language);
+                var branches = await _innerBranchService.GetActiveBranchesForDropdownAsync(language);
+                _logger.LogDebug("Cached {Count} active branches for dropdown in {Language}", branches.Count, language);
                 return branches;
             },
             DropdownCacheDuration
@@ -121,24 +122,24 @@ public class CachedBranchService : IBranchService
     }
 
     /// <inheritdoc />
-    public async Task<string?> GetBranchNameAsync(int branchId)
+    public async Task<string?> GetBranchNameAsync(int branchId, string language = "en")
     {
-        var cacheKey = $"{BranchNameKeyPrefix}:{branchId}";
+        var cacheKey = $"{BranchNameKeyPrefix}:{branchId}:{language}";
         
         return await _cacheService.GetOrCreateAsync(
             cacheKey,
             async () =>
             {
-                _logger.LogDebug("Cache miss for branch name {BranchId}, fetching from service", branchId);
-                var name = await _innerBranchService.GetBranchNameAsync(branchId);
+                _logger.LogDebug("Cache miss for branch name {BranchId} in {Language}, fetching from service", branchId, language);
+                var name = await _innerBranchService.GetBranchNameAsync(branchId, language);
                 
                 if (name != null)
                 {
-                    _logger.LogDebug("Cached branch name: {BranchName} for ID {BranchId}", name, branchId);
+                    _logger.LogDebug("Cached branch name: {BranchName} for ID {BranchId} in {Language}", name, branchId, language);
                 }
                 else
                 {
-                    _logger.LogDebug("Branch name not found for ID {BranchId}, caching null result", branchId);
+                    _logger.LogDebug("Branch name not found for ID {BranchId} in {Language}, caching null result", branchId, language);
                 }
                 
                 return name;
@@ -185,11 +186,11 @@ public class CachedBranchService : IBranchService
     }
 
     /// <inheritdoc />
-    public async Task<Result<List<BranchPerformance>>> GetBranchPerformanceAsync(int days = 30)
+    public async Task<Result<List<BranchPerformance>>> GetBranchPerformanceAsync(int days = 30, string language = "en")
     {
         // Don't cache performance data as it changes frequently and is computationally expensive
-        _logger.LogDebug("Fetching branch performance data for {Days} days (not cached)", days);
-        return await _innerBranchService.GetBranchPerformanceAsync(days);
+        _logger.LogDebug("Fetching branch performance data for {Days} days in {Language} (not cached)", days, language);
+        return await _innerBranchService.GetBranchPerformanceAsync(days, language);
     }
 
     /// <summary>
@@ -251,8 +252,9 @@ public class CachedBranchService : IBranchService
         {
             _logger.LogInformation("Starting branch cache warm-up");
 
-            // Warm up the most commonly accessed data
-            await GetActiveBranchesForDropdownAsync();
+            // Warm up the most commonly accessed data for both languages
+            await GetActiveBranchesForDropdownAsync("en");
+            await GetActiveBranchesForDropdownAsync("th");
             await GetAllActiveBranchesAsync();
 
             _logger.LogInformation("Branch cache warm-up completed successfully");

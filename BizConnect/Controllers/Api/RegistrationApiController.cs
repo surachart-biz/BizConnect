@@ -92,7 +92,7 @@ public class RegistrationApiController : ControllerBase
                 {
                     if (!branchCache.TryGetValue(registration.BranchId.Value, out branchName))
                     {
-                        branchName = await _branchService.GetBranchNameAsync(registration.BranchId.Value);
+                        branchName = await _branchService.GetBranchNameAsync(registration.BranchId.Value, "en");
                         branchCache[registration.BranchId.Value] = branchName ?? string.Empty;
                     }
                 }
@@ -166,7 +166,7 @@ public class RegistrationApiController : ControllerBase
             string? branchName = null;
             if (result.Data.BranchId.HasValue && result.Data.BranchId > 0)
             {
-                branchName = await _branchService.GetBranchNameAsync(result.Data.BranchId.Value);
+                branchName = await _branchService.GetBranchNameAsync(result.Data.BranchId.Value, "en");
             }
 
             // Convert to DTO
@@ -262,7 +262,7 @@ public class RegistrationApiController : ControllerBase
             string? branchName = null;
             if (updatedResult.Data?.BranchId.HasValue == true && updatedResult.Data.BranchId > 0)
             {
-                branchName = await _branchService.GetBranchNameAsync(updatedResult.Data.BranchId.Value);
+                branchName = await _branchService.GetBranchNameAsync(updatedResult.Data.BranchId.Value, "en");
             }
 
             var registrationDto = RegistrationDto.FromDomainModel(updatedResult.Data!, branchName);

@@ -20,8 +20,9 @@ namespace BizConnect.Services.Interfaces
         /// <param name="pageSize">Number of items per page</param>
         /// <param name="status">Optional status filter</param>
         /// <param name="search">Optional search term for full name, mobile, or account number</param>
+        /// <param name="language">Language code for localization (optional, defaults to "en")</param>
         /// <returns>Result containing paged registration data</returns>
-        Task<Result<Models.Responses.PagedResult<KbankOddRegistration>>> GetPagedAsync(int page = 1, int pageSize = 20, string? status = null, string? search = null);
+        Task<Result<Models.Responses.PagedResult<KbankOddRegistration>>> GetPagedAsync(int page = 1, int pageSize = 20, string? status = null, string? search = null, string language = "en");
 
         /// <summary>
         /// Retrieves a single registration by its ID

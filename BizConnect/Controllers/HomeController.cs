@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BizConnect.Controllers;
 
-public class HomeController : Controller
+public class HomeController : BaseController
 {
     private readonly ILogger<HomeController> _logger;
     private readonly IOtacManagementService _otacService;
@@ -59,7 +59,8 @@ public class HomeController : Controller
         }
 
         var clientIp = HttpContext.GetClientIpAddress();
-        var result = await _otacService.ValidateAsync(model.OtacCode, clientIp);
+        var language = GetCurrentLanguage();
+        var result = await _otacService.ValidateAsync(model.OtacCode, clientIp, language);
 
         if (result.IsSuccess)
         {
@@ -97,7 +98,8 @@ public class HomeController : Controller
         }
 
         // Check if OTAC is still valid
-        var validationResult = await _otacService.IsValidAsync(validatedOtac);
+        var language = GetCurrentLanguage();
+        var validationResult = await _otacService.IsValidAsync(validatedOtac, language);
         if (!validationResult.IsValid)
         {
             HttpContext.ClearOtacVerification();
@@ -105,8 +107,8 @@ public class HomeController : Controller
             return RedirectToAction("Verify");
         }
 
-        // Load branches for dropdown
-        var branchData = await _branchService.GetActiveBranchesForDropdownAsync();
+        // Load branches for dropdown with language support
+        var branchData = await _branchService.GetActiveBranchesForDropdownAsync(language);
         var branches = branchData.Select(b => new SelectListItem 
         { 
             Value = b.BranchId.ToString(), 
@@ -139,8 +141,9 @@ public class HomeController : Controller
 
         if (!ModelState.IsValid)
         {
-            // Reload branches
-            var branchDataForError = await _branchService.GetActiveBranchesForDropdownAsync();
+            // Reload branches with language support
+            var languageForError = GetCurrentLanguage();
+            var branchDataForError = await _branchService.GetActiveBranchesForDropdownAsync(languageForError);
             model.Branches = branchDataForError.Select(b => new SelectListItem 
             { 
                 Value = b.BranchId.ToString(), 
@@ -182,8 +185,9 @@ public class HomeController : Controller
             ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "เกิดข้อผิดพลาดในการลงทะเบียน กรุณาลองใหม่อีกครั้ง");
         }
 
-        // Reload branches on error
-        var branchData = await _branchService.GetActiveBranchesForDropdownAsync();
+        // Reload branches on error with language support
+        var languageForReload = GetCurrentLanguage();
+        var branchData = await _branchService.GetActiveBranchesForDropdownAsync(languageForReload);
         model.Branches = branchData.Select(b => new SelectListItem 
         { 
             Value = b.BranchId.ToString(), 

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -75,11 +77,13 @@ public class MemoryCacheService : ICacheService
         try
         {
             var cacheExpiration = expiration ?? DefaultCacheDuration;
+            var entrySize = CalculateCacheEntrySize(value, key);
             
             var options = new MemoryCacheEntryOptions
             {
                 SlidingExpiration = cacheExpiration,
-                Priority = CacheItemPriority.Normal
+                Priority = CacheItemPriority.Normal,
+                Size = entrySize
             };
 
             // Register callback to track key removal
@@ -88,11 +92,17 @@ public class MemoryCacheService : ICacheService
             _memoryCache.Set(key, value, options);
             _keyTracker.TryAdd(key, true);
             
-            _logger.LogDebug("Set cache entry for key: {Key} with expiration: {Expiration}", key, cacheExpiration);
+            _logger.LogDebug("Set cache entry for key: {Key} with expiration: {Expiration}, size: {Size} bytes", key, cacheExpiration, entrySize);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Size"))
+        {
+            _logger.LogError(ex, "Cache size configuration error for key: {Key}. Ensure SizeLimit is properly configured.", key);
+            throw new InvalidOperationException($"Cache entry size configuration failed for key '{key}'. The memory cache SizeLimit is set but cache entry Size is invalid.", ex);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error setting cache value for key: {Key}", key);
+            throw;
         }
 
         return Task.CompletedTask;
@@ -180,10 +190,25 @@ public class MemoryCacheService : ICacheService
             _logger.LogDebug("Cache miss for key: {Key}, executing factory function", key);
             var value = await factory();
             
-            // Cache the result
+            // Cache the result with proper size calculation
             await SetAsync(value, key, expiration);
             
             return value;
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Size"))
+        {
+            _logger.LogError(ex, "Cache size configuration error in GetOrCreateAsync for key: {Key}", key);
+            
+            // If caching fails due to size issues, still try to get the value
+            try
+            {
+                return await factory();
+            }
+            catch (Exception getEx)
+            {
+                _logger.LogError(getEx, "Error executing factory function for key: {Key}", key);
+                throw;
+            }
         }
         catch (Exception ex)
         {
@@ -213,6 +238,84 @@ public class MemoryCacheService : ICacheService
             CurrentEntryCount = _keyTracker.Count,
             Timestamp = DateTime.UtcNow
         };
+    }
+
+    /// <summary>
+    /// Calculates the approximate memory size of a cache entry including key and value.
+    /// Used for memory cache size limiting when SizeLimit is configured.
+    /// </summary>
+    /// <param name="value">The value to cache</param>
+    /// <param name="key">The cache key</param>
+    /// <returns>Estimated size in bytes</returns>
+    private long CalculateCacheEntrySize<T>(T value, string key)
+    {
+        try
+        {
+            long size = 0;
+            
+            // Add key size (UTF-8 encoding)
+            size += Encoding.UTF8.GetByteCount(key);
+            
+            // Calculate value size based on type
+            if (value == null)
+            {
+                size += 8; // null reference size
+            }
+            else if (value is string stringValue)
+            {
+                size += Encoding.UTF8.GetByteCount(stringValue);
+            }
+            else if (value is byte[] byteArray)
+            {
+                size += byteArray.Length;
+            }
+            else if (value.GetType().IsPrimitive)
+            {
+                // Handle primitive types
+                size += value.GetType().Name switch
+                {
+                    "Boolean" => 1,
+                    "Byte" => 1,
+                    "SByte" => 1,
+                    "Char" => 2,
+                    "Int16" => 2,
+                    "UInt16" => 2,
+                    "Int32" => 4,
+                    "UInt32" => 4,
+                    "Int64" => 8,
+                    "UInt64" => 8,
+                    "Single" => 4,
+                    "Double" => 8,
+                    "Decimal" => 16,
+                    _ => 8 // Default for unknown primitives
+                };
+            }
+            else
+            {
+                // For complex objects, serialize to JSON to estimate size
+                try
+                {
+                    var json = JsonSerializer.Serialize(value);
+                    size += Encoding.UTF8.GetByteCount(json);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Unable to serialize object for size calculation, using default size estimate for key: {Key}", key);
+                    size += 1024; // Default 1KB for complex objects we can't serialize
+                }
+            }
+            
+            // Add overhead for cache entry metadata (approximately 64 bytes)
+            size += 64;
+            
+            // Ensure minimum size of 1 byte
+            return Math.Max(1, size);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Error calculating cache entry size for key: {Key}, using default size", key);
+            return 1024; // Default 1KB when calculation fails
+        }
     }
 
     /// <summary>

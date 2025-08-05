@@ -1,3 +1,4 @@
+using BizConnect.Dal;
 using BizConnect.Dal.Models;
 using BizConnect.Services.Interfaces;
 using BizConnect.Services.Models.Results;
@@ -23,21 +24,25 @@ public class BranchService : IBranchService
     /// <summary>
     /// Gets all active branches for dropdowns
     /// </summary>
+    /// <param name="language">Language code ('th' for Thai, 'en' for English). Defaults to 'en'</param>
     /// <returns>List of branches with ID and Name for dropdown population</returns>
-    public async Task<List<(int BranchId, string Name)>> GetActiveBranchesForDropdownAsync()
+    public async Task<List<(int BranchId, string Name)>> GetActiveBranchesForDropdownAsync(string language = "en")
     {
         try
         {
-            _logger.LogInformation("Fetching active branches for dropdown");
+            _logger.LogInformation("Fetching active branches for dropdown in language: {Language}", language);
 
             var branches = await _context.Branches
                 .Where(b => b.IsActive)
+                .Select(b => new { 
+                    b.BranchId, 
+                    Name = language.ToLower() == "th" ? b.NameTh ?? b.NameEn : b.NameEn 
+                })
                 .OrderBy(b => b.Name)
-                .Select(b => new { b.BranchId, b.Name })
                 .ToListAsync();
 
             var result = branches.Select(b => (b.BranchId, b.Name)).ToList();
-            _logger.LogInformation("Successfully fetched {Count} active branches", result.Count);
+            _logger.LogInformation("Successfully fetched {Count} active branches in {Language}", result.Count, language);
             return result;
         }
         catch (Exception ex)
@@ -132,16 +137,17 @@ public class BranchService : IBranchService
     /// Gets branch name by ID
     /// </summary>
     /// <param name="branchId">Branch ID</param>
+    /// <param name="language">Language code ('th' for Thai, 'en' for English). Defaults to 'en'</param>
     /// <returns>Branch name or null if not found</returns>
-    public async Task<string?> GetBranchNameAsync(int branchId)
+    public async Task<string?> GetBranchNameAsync(int branchId, string language = "en")
     {
         try
         {
-            _logger.LogInformation("Fetching branch name for ID: {BranchId}", branchId);
+            _logger.LogInformation("Fetching branch name for ID: {BranchId} in language: {Language}", branchId, language);
 
             var name = await _context.Branches
                 .Where(b => b.BranchId == branchId)
-                .Select(b => b.Name)
+                .Select(b => language.ToLower() == "th" ? b.NameTh ?? b.NameEn : b.NameEn)
                 .FirstOrDefaultAsync();
 
             if (name == null)
@@ -150,7 +156,7 @@ public class BranchService : IBranchService
             }
             else
             {
-                _logger.LogInformation("Successfully fetched branch name: {BranchName} for ID: {BranchId}", name, branchId);
+                _logger.LogInformation("Successfully fetched branch name: {BranchName} for ID: {BranchId} in {Language}", name, branchId, language);
             }
 
             return name;
@@ -211,14 +217,15 @@ public class BranchService : IBranchService
     /// Gets branch performance data
     /// </summary>
     /// <param name="days">Number of days to analyze</param>
+    /// <param name="language">Language code ('th' for Thai, 'en' for English). Defaults to 'en'</param>
     /// <returns>Result with branch performance metrics</returns>
-    public async Task<Result<List<BranchPerformance>>> GetBranchPerformanceAsync(int days = 30)
+    public async Task<Result<List<BranchPerformance>>> GetBranchPerformanceAsync(int days = 30, string language = "en")
     {
         try
         {
             if (days <= 0 || days > 365) days = 30;
 
-            _logger.LogInformation("Calculating branch performance for {Days} days", days);
+            _logger.LogInformation("Calculating branch performance for {Days} days in language: {Language}", days, language);
 
             var startDate = DateTime.UtcNow.AddDays(-days).Date;
             var endDate = DateTime.UtcNow.Date;
@@ -228,7 +235,7 @@ public class BranchService : IBranchService
                 .Select(b => new BranchPerformance
                 {
                     BranchId = b.BranchId,
-                    BranchName = b.Name,
+                    BranchName = language.ToLower() == "th" ? b.NameTh ?? b.NameEn : b.NameEn,
                     TotalRegistrations = b.KbankOddRegistrations
                         .Count(r => r.CreatedAt.Date >= startDate && r.CreatedAt.Date <= endDate),
                     SuccessfulRegistrations = b.KbankOddRegistrations

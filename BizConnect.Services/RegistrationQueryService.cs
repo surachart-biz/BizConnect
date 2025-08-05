@@ -38,8 +38,9 @@ namespace BizConnect.Services
         /// <param name="pageSize">Number of items per page</param>
         /// <param name="status">Optional status filter</param>
         /// <param name="search">Optional search term for full name, mobile, or account number</param>
+        /// <param name="language">Language code for localization (optional, defaults to "en")</param>
         /// <returns>Result containing paged registration data</returns>
-        public async Task<Result<Models.Responses.PagedResult<KbankOddRegistration>>> GetPagedAsync(int page = 1, int pageSize = 20, string? status = null, string? search = null)
+        public async Task<Result<Models.Responses.PagedResult<KbankOddRegistration>>> GetPagedAsync(int page = 1, int pageSize = 20, string? status = null, string? search = null, string language = "en")
         {
             try
             {
@@ -47,8 +48,8 @@ namespace BizConnect.Services
                 if (page < 1) page = 1;
                 if (pageSize < 1 || pageSize > 1000) pageSize = 20;
 
-                _logger.LogDebug("Retrieving paged registrations: page={Page}, pageSize={PageSize}, status={Status}, search={Search}", 
-                    page, pageSize, status, search);
+                _logger.LogDebug("Retrieving paged registrations: page={Page}, pageSize={PageSize}, status={Status}, search={Search}, language={Language}", 
+                    page, pageSize, status, search, language);
 
                 var baseQuery = _unitOfWork.KbankOddRegistrations.Query();
 

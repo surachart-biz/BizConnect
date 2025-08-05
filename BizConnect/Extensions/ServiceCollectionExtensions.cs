@@ -2,6 +2,10 @@ using BizConnect.Dal.Repositories;
 using BizConnect.Dal.UnitOfWork;
 using BizConnect.Services;
 using BizConnect.Services.Interfaces;
+using BizConnect.Services.Caching;
+using BizConnect.Services.Clients;
+using BizConnect.Services.Jobs;
+using BizConnect.Services.Security;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BizConnect.Extensions;
@@ -10,7 +14,7 @@ namespace BizConnect.Extensions;
 /// Extension methods for IServiceCollection to register Repository and Unit of Work patterns.
 /// Provides clean, fluent configuration of data access layer dependencies.
 /// </summary>
-public static class ServiceCollectionExtensions
+public static partial class ServiceCollectionExtensions
 {
     /// <summary>
     /// Registers the Repository and Unit of Work patterns with the dependency injection container.
@@ -139,4 +143,124 @@ public class RepositoryOptions
     /// Default is 30 seconds. Set to 0 for no timeout.
     /// </summary>
     public int OperationTimeoutSeconds { get; set; } = 30;
+}
+
+/// <summary>
+/// Additional extension methods for BizConnect service registrations.
+/// Provides organized registration of core services, cached services, and background jobs.
+/// </summary>    
+public static partial class ServiceCollectionExtensions
+{
+    /// <summary>
+    /// Registers BizConnect caching services with the dependency injection container.
+    /// This method configures memory cache and cache service implementations.
+    /// </summary>
+    /// <param name="services">The service collection to configure</param>
+    /// <returns>The service collection for method chaining</returns>
+    public static IServiceCollection AddBizConnectCaching(this IServiceCollection services)
+    {
+        // Add memory cache with size limits for Phase 3A.1 specification
+        services.AddMemoryCache(options =>
+        {
+            options.SizeLimit = 104857600; // 100MB default size limit
+            options.CompactionPercentage = 0.25; // Remove 25% when limit reached
+        });
+
+        // Add caching services as Singleton for optimal performance
+        services.AddSingleton<ICacheService, MemoryCacheService>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers core BizConnect services (without caching decorators) with the dependency injection container.
+    /// These are the inner services that will be wrapped by cached decorators.
+    /// </summary>
+    /// <param name="services">The service collection to configure</param>
+    /// <returns>The service collection for method chaining</returns>
+    public static IServiceCollection AddBizConnectCoreServices(this IServiceCollection services)
+    {
+        // Register inner services (these will be wrapped by cached decorators)
+        services.AddScoped<UserService>();
+        services.AddScoped<BranchService>();
+        
+        // Register other core services
+        services.AddScoped<IDashboardService, DashboardService>();
+        services.AddScoped<IOddRegistrationService, OddRegistrationService>();
+        services.AddScoped<IValidationService, ValidationService>();
+        services.AddScoped<IAnalyticsService, AnalyticsService>();
+        
+        // Add core security services
+        services.AddScoped<ISecurityAuditService, SecurityAuditService>();
+        services.AddScoped<IPasswordPolicyService, PasswordPolicyService>();
+        
+        // Add advanced security services - Phase 3B.1
+        // Note: IDateTimeProvider is registered in AddRegistrationServices()
+        services.AddScoped<IRateLimitingService, AdvancedRateLimitingService>();
+        services.AddScoped<IThreatResponseService, ThreatResponseService>();
+        services.AddScoped<IEnhancedSecurityAuditService, EnhancedSecurityAuditService>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers cached decorator services for BizConnect with the dependency injection container.
+    /// These decorators wrap the core services with caching functionality.
+    /// </summary>
+    /// <param name="services">The service collection to configure</param>
+    /// <returns>The service collection for method chaining</returns> 
+    public static IServiceCollection AddBizConnectCachedServices(this IServiceCollection services)
+    {
+        // Register cached decorator services
+        services.AddScoped<IUserService>(provider => 
+            new CachedUserService(
+                provider.GetRequiredService<UserService>(),
+                provider.GetRequiredService<ICacheService>(),
+                provider.GetRequiredService<ILogger<CachedUserService>>()));
+
+        services.AddScoped<IBranchService>(provider =>
+            new CachedBranchService(
+                provider.GetRequiredService<BranchService>(),
+                provider.GetRequiredService<ICacheService>(),
+                provider.GetRequiredService<ILogger<CachedBranchService>>()));
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers KBank ODD integration services with the dependency injection container.
+    /// This method configures HTTP clients and service implementations for KBank integration.
+    /// </summary>
+    /// <param name="services">The service collection to configure</param>
+    /// <returns>The service collection for method chaining</returns>
+    public static IServiceCollection AddKBankOddServices(this IServiceCollection services)
+    {
+        // Add KBank ODD services
+        services.AddHttpClient<KBankOddClient>(client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(30);
+            client.DefaultRequestHeaders.Add("User-Agent", "BizConnect/1.0");
+        });
+        services.AddScoped<IKBankOddClient, KBankOddClient>();
+        services.AddScoped<IKbankOddService, KbankOddService>();
+        services.AddScoped<IPaymentProcessingService, PaymentProcessingService>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers Hangfire background job services with the dependency injection container.
+    /// This method configures background job implementations with proper dependency injection.
+    /// </summary>
+    /// <param name="services">The service collection to configure</param>
+    /// <returns>The service collection for method chaining</returns>
+    public static IServiceCollection AddBizConnectBackgroundJobs(this IServiceCollection services)
+    {
+        // Add Hangfire background job services
+        services.AddScoped<PurgeExpiredOtacCodesJob>();
+        services.AddScoped<OptimizedPurgeExpiredOtacCodesJob>();
+        services.AddScoped<DailyPaymentJob>();
+
+        return services;
+    }
 }

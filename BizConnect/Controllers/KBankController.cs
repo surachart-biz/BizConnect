@@ -11,7 +11,7 @@ namespace BizConnect.Controllers;
 /// Controller for KBank Online Direct Debit (ODD) operations
 /// </summary>
 [Route("kbank")]
-public class KBankController : Controller
+public class KBankController : BaseController
 {
     private readonly IKbankOddService _kbankOddService;
     private readonly IOddRegistrationService _oddRegistrationService;
@@ -48,7 +48,8 @@ public class KBankController : Controller
         _logger.LogInformation("User {UserId} accessed KBank ODD registration form", User.Identity?.Name);
 
         // Load active branches for dropdown
-        var branchData = await _branchService.GetActiveBranchesForDropdownAsync();
+        var language = GetCurrentLanguage();
+        var branchData = await _branchService.GetActiveBranchesForDropdownAsync(language);
         var branches = branchData.Select(b => new SelectListItem 
         { 
             Value = b.BranchId.ToString(), 
@@ -91,7 +92,8 @@ public class KBankController : Controller
                 _logger.LogWarning("User {UserId} submitted invalid KBank ODD registration form", User.Identity?.Name);
                 
                 // Reload branches for dropdown
-                var branchData = await _branchService.GetActiveBranchesForDropdownAsync();
+                var language = GetCurrentLanguage();
+                var branchData = await _branchService.GetActiveBranchesForDropdownAsync(language);
                 viewModel.Branches = branchData.Select(b => new SelectListItem 
                 { 
                     Value = b.BranchId.ToString(), 
@@ -127,7 +129,8 @@ public class KBankController : Controller
             ModelState.AddModelError(string.Empty, "Unable to process registration. Please try again later.");
             
             // Reload branches for dropdown
-            var branchData = await _branchService.GetActiveBranchesForDropdownAsync();
+            var languageForError = GetCurrentLanguage();
+            var branchData = await _branchService.GetActiveBranchesForDropdownAsync(languageForError);
             viewModel.Branches = branchData.Select(b => new SelectListItem 
             { 
                 Value = b.BranchId.ToString(), 

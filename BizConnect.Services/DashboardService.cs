@@ -1,3 +1,4 @@
+using BizConnect.Dal;
 using BizConnect.Dal.Models;
 using BizConnect.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -27,12 +28,13 @@ public class DashboardService : IDashboardService
     /// <summary>
     /// Gets comprehensive dashboard statistics including user, ODD registration, and OTAC metrics
     /// </summary>
+    /// <param name="language">Language code for localization (optional, defaults to "en")</param>
     /// <returns>Dashboard statistics model</returns>
-    public async Task<DashboardStatistics> GetDashboardStatisticsAsync()
+    public async Task<DashboardStatistics> GetDashboardStatisticsAsync(string language = "en")
     {
         try
         {
-            _logger.LogInformation("Fetching dashboard statistics");
+            _logger.LogInformation("Fetching dashboard statistics for language {Language}", language);
 
             // Get user statistics from user service
             var users = await _userService.GetAllUsersAsync();

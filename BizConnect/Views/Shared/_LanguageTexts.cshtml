@@ -1,0 +1,105 @@
+@{
+    var isThaiLanguage = ViewBag.IsThaiLanguage ?? false;
+}
+
+@*
+This partial view contains language-specific text resources for the UI.
+Usage: @await Html.PartialAsync("_LanguageTexts")
+Then reference texts using the stored variables.
+*@
+
+@{
+    // Common UI Text
+    ViewBag.TextHome = isThaiLanguage ? "หน้าหลัก" : "Home";
+    ViewBag.TextLogin = isThaiLanguage ? "เข้าสู่ระบบ" : "Login";
+    ViewBag.TextLogout = isThaiLanguage ? "ออกจากระบบ" : "Logout";
+    ViewBag.TextRegister = isThaiLanguage ? "ลงทะเบียน" : "Register";
+    ViewBag.TextDashboard = isThaiLanguage ? "แดชบอร์ด" : "Dashboard";
+    ViewBag.TextAdmin = isThaiLanguage ? "ผู้ดูแลระบบ" : "Admin";
+    ViewBag.TextSettings = isThaiLanguage ? "การตั้งค่า" : "Settings";
+    ViewBag.TextProfile = isThaiLanguage ? "โปรไฟล์" : "Profile";
+    ViewBag.TextPrivacy = isThaiLanguage ? "นโยบายความเป็นส่วนตัว" : "Privacy";
+    
+    // OTAC Related Text
+    ViewBag.TextOtacCode = isThaiLanguage ? "รหัส OTAC" : "OTAC Code";
+    ViewBag.TextOtacGenerate = isThaiLanguage ? "สร้างรหัส OTAC" : "Generate OTAC";
+    ViewBag.TextOtacValidate = isThaiLanguage ? "ตรวจสอบรหัส OTAC" : "Validate OTAC";
+    ViewBag.TextOtacHistory = isThaiLanguage ? "ประวัติรหัส OTAC" : "OTAC History";
+    ViewBag.TextOtacExpired = isThaiLanguage ? "รหัสหมดอายุ" : "Expired Codes";
+    ViewBag.TextOtacActive = isThaiLanguage ? "รหัสที่ใช้งานได้" : "Active Codes";
+    ViewBag.TextOtacUsed = isThaiLanguage ? "รหัสที่ใช้แล้ว" : "Used Codes";
+    
+    // Registration Related Text
+    ViewBag.TextRegistrations = isThaiLanguage ? "การลงทะเบียน" : "Registrations";
+    ViewBag.TextPending = isThaiLanguage ? "รอดำเนินการ" : "Pending";
+    ViewBag.TextCompleted = isThaiLanguage ? "เสร็จสิ้น" : "Completed";
+    ViewBag.TextFailed = isThaiLanguage ? "ล้มเหลว" : "Failed";
+    ViewBag.TextSuccess = isThaiLanguage ? "สำเร็จ" : "Success";
+    
+    // Form Fields
+    ViewBag.TextFullName = isThaiLanguage ? "ชื่อ-นามสกุล" : "Full Name";
+    ViewBag.TextIdNumber = isThaiLanguage ? "เลขบัตรประจำตัวประชาชน" : "ID Number";
+    ViewBag.TextMobileNumber = isThaiLanguage ? "เบอร์มือถือ" : "Mobile Number";
+    ViewBag.TextAccountNumber = isThaiLanguage ? "เลขที่บัญชี" : "Account Number";
+    ViewBag.TextBranch = isThaiLanguage ? "สาขา" : "Branch";
+    ViewBag.TextPurpose = isThaiLanguage ? "วัตถุประสงค์" : "Purpose";
+    ViewBag.TextIssuedTo = isThaiLanguage ? "ออกให้กับ" : "Issued To";
+    
+    // Actions
+    ViewBag.TextSubmit = isThaiLanguage ? "ส่งข้อมูล" : "Submit";
+    ViewBag.TextCancel = isThaiLanguage ? "ยกเลิก" : "Cancel";
+    ViewBag.TextEdit = isThaiLanguage ? "แก้ไข" : "Edit";
+    ViewBag.TextDelete = isThaiLanguage ? "ลบ" : "Delete";
+    ViewBag.TextView = isThaiLanguage ? "ดู" : "View";
+    ViewBag.TextSave = isThaiLanguage ? "บันทึก" : "Save";
+    ViewBag.TextClose = isThaiLanguage ? "ปิด" : "Close";
+    ViewBag.TextConfirm = isThaiLanguage ? "ยืนยัน" : "Confirm";
+    
+    // Status Messages
+    ViewBag.TextLoading = isThaiLanguage ? "กำลังโหลด..." : "Loading...";
+    ViewBag.TextNoData = isThaiLanguage ? "ไม่มีข้อมูล" : "No data";
+    ViewBag.TextError = isThaiLanguage ? "เกิดข้อผิดพลาด" : "Error";
+    ViewBag.TextSuccessMessage = isThaiLanguage ? "ดำเนินการสำเร็จ" : "Operation successful";
+    
+    // User Management
+    ViewBag.TextUsers = isThaiLanguage ? "ผู้ใช้งาน" : "Users";
+    ViewBag.TextAddUser = isThaiLanguage ? "เพิ่มผู้ใช้งาน" : "Add User";
+    ViewBag.TextUserManagement = isThaiLanguage ? "จัดการผู้ใช้งาน" : "User Management";
+    ViewBag.TextRoles = isThaiLanguage ? "บทบาท" : "Roles";
+    ViewBag.TextPermissions = isThaiLanguage ? "สิทธิ์การใช้งาน" : "Permissions";
+    
+    // System
+    ViewBag.TextSystem = isThaiLanguage ? "ระบบ" : "System";
+    ViewBag.TextLogs = isThaiLanguage ? "บันทึกเหตุการณ์" : "Logs";
+    ViewBag.TextBackup = isThaiLanguage ? "สำรองข้อมูล" : "Backup";
+    ViewBag.TextImport = isThaiLanguage ? "นำเข้าข้อมูล" : "Import Data";
+    ViewBag.TextExport = isThaiLanguage ? "ส่งออกข้อมูล" : "Export Data";
+    
+    // Date and Time
+    ViewBag.TextToday = isThaiLanguage ? "วันนี้" : "Today";
+    ViewBag.TextThisMonth = isThaiLanguage ? "เดือนนี้" : "This Month";
+    ViewBag.TextThisYear = isThaiLanguage ? "ปีนี้" : "This Year";
+    ViewBag.TextCreatedAt = isThaiLanguage ? "สร้างเมื่อ" : "Created At";
+    ViewBag.TextUpdatedAt = isThaiLanguage ? "อัปเดตเมื่อ" : "Updated At";
+    ViewBag.TextExpiresAt = isThaiLanguage ? "หมดอายุเมื่อ" : "Expires At";
+    
+    // KBank ODD Specific
+    ViewBag.TextOddRegistration = isThaiLanguage ? "การลงทะเบียน KBank ODD" : "KBank ODD Registration";
+    ViewBag.TextOddManagement = isThaiLanguage ? "จัดการ ODD" : "ODD Management";
+    ViewBag.TextKBankSystem = isThaiLanguage ? "ระบบ KBank ODD" : "KBank ODD System";
+    
+    // Validation Messages
+    ViewBag.TextRequired = isThaiLanguage ? "กรุณากรอกข้อมูล" : "This field is required";
+    ViewBag.TextInvalidFormat = isThaiLanguage ? "รูปแบบข้อมูลไม่ถูกต้อง" : "Invalid format";
+    ViewBag.TextOtacInvalid = isThaiLanguage ? "รหัส OTAC ไม่ถูกต้อง" : "Invalid OTAC code";
+    ViewBag.TextOtacExpiredMsg = isThaiLanguage ? "รหัส OTAC หมดอายุแล้ว" : "OTAC code has expired";
+    
+    // Statistics
+    ViewBag.TextTotal = isThaiLanguage ? "ทั้งหมด" : "Total";
+    ViewBag.TextActive = isThaiLanguage ? "ใช้งานได้" : "Active";
+    ViewBag.TextExpired = isThaiLanguage ? "หมดอายุ" : "Expired";
+    ViewBag.TextUsed = isThaiLanguage ? "ใช้แล้ว" : "Used";
+    ViewBag.TextGenerated = isThaiLanguage ? "สร้างแล้ว" : "Generated";
+    ViewBag.TextSuccessRate = isThaiLanguage ? "อัตราความสำเร็จ" : "Success Rate";
+    ViewBag.TextUsageRate = isThaiLanguage ? "อัตราการใช้งาน" : "Usage Rate";
+}

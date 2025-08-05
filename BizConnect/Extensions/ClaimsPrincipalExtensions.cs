@@ -72,15 +72,6 @@ public static class ClaimsPrincipalExtensions
         return principal?.IsInAnyRole("Admin", "Employee") == true;
     }
 
-    /// <summary>
-    /// Gets the user's email from claims
-    /// </summary>
-    /// <param name="principal">The claims principal</param>
-    /// <returns>Email address or empty string if not found</returns>
-    public static string GetUserEmail(this ClaimsPrincipal principal)
-    {
-        return principal?.FindFirst(ClaimTypes.Email)?.Value ?? string.Empty;
-    }
 
     /// <summary>
     /// Gets all roles for the user

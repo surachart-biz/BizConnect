@@ -84,8 +84,36 @@ namespace BizConnect.Services
                 // Use transaction for atomic operations
                 return await _unitOfWork.ExecuteInTransactionAsync(async (uow, ct) =>
                 {
-                    // Generate external reference
-                    var externalReference = OddUtils.GenerateExternalReference();
+                    // Generate unique external reference with retry logic
+                    string externalReference;
+                    var maxRetries = 3;
+                    var retryCount = 0;
+                    
+                    do
+                    {
+                        externalReference = OddUtils.GenerateExternalReference();
+                        retryCount++;
+                        
+                        // Check if this external reference already exists
+                        var existingRegistration = await uow.KbankOddRegistrations
+                            .Query()
+                            .FirstOrDefaultAsync(r => r.ExternalReference == externalReference, ct);
+                            
+                        if (existingRegistration == null)
+                        {
+                            break; // Unique reference found
+                        }
+                        
+                        if (retryCount >= maxRetries)
+                        {
+                            _logger.LogError("Failed to generate unique external reference after {MaxRetries} attempts", maxRetries);
+                            throw new InvalidOperationException("Unable to generate unique external reference");
+                        }
+                        
+                        // Add small delay before retry to reduce collision probability
+                        await Task.Delay(10 * retryCount, ct);
+                        
+                    } while (retryCount < maxRetries);
 
                     // Update registration with form data
                     registration.ExternalReference = externalReference;
@@ -97,6 +125,8 @@ namespace BizConnect.Services
                     registration.BranchId = request.BranchId;
                     registration.OtacState = "Used";
                     registration.UpdatedAt = now;
+                    registration.StatusMessageTh = "รหัส OTAC ถูกใช้งานแล้ว";
+                    registration.StatusMessageEn = "OTAC code used";
 
                     // Prepare KBank registration request
                     var kbankRequest = new OddRegistrationRequest
@@ -133,6 +163,8 @@ namespace BizConnect.Services
                     // Update registration with KBank response
                     registration.RegId = regId;
                     registration.Status = "Pending";
+                    registration.StatusMessageTh = "กำลังดำเนินการลงทะเบียน";
+                    registration.StatusMessageEn = "Registration in progress";
 
                     await uow.SaveChangesAsync(ct);
 
@@ -194,11 +226,37 @@ namespace BizConnect.Services
                     return Result.Failure($"Registration with RegId {regId} not found");
                 }
 
-                // Update registration status
+                // Update registration status and set appropriate messages
                 registration.Status = status;
                 registration.ReturnCode = returnCode;
                 registration.EspaId = espaId;
                 registration.UpdatedAt = _dateTimeProvider.UtcNow;
+                
+                // Set status messages based on status
+                switch (status.ToLower())
+                {
+                    case "success":
+                        registration.StatusMessageTh = "ลงทะเบียนสำเร็จ";
+                        registration.StatusMessageEn = "Registration successful";
+                        break;
+                    case "fail":
+                        registration.StatusMessageTh = "ลงทะเบียนไม่สำเร็จ";
+                        registration.StatusMessageEn = "Registration failed";
+                        if (!string.IsNullOrEmpty(returnCode))
+                        {
+                            registration.ErrorMessageTh = $"รหัสข้อผิดพลาด: {returnCode}";
+                            registration.ErrorMessageEn = $"Error code: {returnCode}";
+                        }
+                        break;
+                    case "pending":
+                        registration.StatusMessageTh = "กำลังดำเนินการลงทะเบียน";
+                        registration.StatusMessageEn = "Registration in progress";
+                        break;
+                    default:
+                        registration.StatusMessageTh = $"สถานะ: {status}";
+                        registration.StatusMessageEn = $"Status: {status}";
+                        break;
+                }
 
                 await _unitOfWork.SaveChangesAsync();
 
@@ -371,9 +429,30 @@ namespace BizConnect.Services
                     return Result.Failure($"Registration with ID {id} not found");
                 }
 
-                // Update registration status
+                // Update registration status and set appropriate messages
                 registration.Status = status;
                 registration.UpdatedAt = _dateTimeProvider.UtcNow;
+                
+                // Set status messages based on status
+                switch (status.ToLower())
+                {
+                    case "success":
+                        registration.StatusMessageTh = "ลงทะเบียนสำเร็จ";
+                        registration.StatusMessageEn = "Registration successful";
+                        break;
+                    case "fail":
+                        registration.StatusMessageTh = "ลงทะเบียนไม่สำเร็จ";
+                        registration.StatusMessageEn = "Registration failed";
+                        break;
+                    case "pending":
+                        registration.StatusMessageTh = "กำลังดำเนินการลงทะเบียน";
+                        registration.StatusMessageEn = "Registration in progress";
+                        break;
+                    default:
+                        registration.StatusMessageTh = $"สถานะ: {status}";
+                        registration.StatusMessageEn = $"Status: {status}";
+                        break;
+                }
 
                 await _unitOfWork.SaveChangesAsync();
 
@@ -415,6 +494,8 @@ namespace BizConnect.Services
                         if (registration.OtacState != "Used")
                         {
                             registration.OtacState = "Used";
+                            registration.StatusMessageTh = "ลงทะเบียนสำเร็จ";
+                            registration.StatusMessageEn = "Registration successful";
                         }
                         break;
 
@@ -423,6 +504,8 @@ namespace BizConnect.Services
                         if (registration.OtacState == "Used")
                         {
                             registration.OtacState = "Validated";
+                            registration.StatusMessageTh = "ลงทะเบียนไม่สำเร็จ - สามารถลองใหม่ได้";
+                            registration.StatusMessageEn = "Registration failed - can retry";
                         }
                         break;
 

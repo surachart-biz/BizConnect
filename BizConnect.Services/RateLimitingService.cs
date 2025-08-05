@@ -1,10 +1,12 @@
+using BizConnect.Dal;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using BizConnect.Dal;
 using BizConnect.Dal.Models;
 using BizConnect.Services.Interfaces;
 using BizConnect.Services.Security.Models;
@@ -109,7 +111,12 @@ namespace BizConnect.Services
             
             // Store updated attempts
             var attemptKey = $"{cacheKey}:attempts";
-            _cache.Set(attemptKey, attempts, TimeSpan.FromMinutes(config.AttemptWindowMinutes));
+            var attemptOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(config.AttemptWindowMinutes),
+                Size = CalculateCacheEntrySize(attempts, attemptKey)
+            };
+            _cache.Set(attemptKey, attempts, attemptOptions);
 
             // Check if we've exceeded max attempts
             if (attempts.Count >= config.MaxAttempts)
@@ -117,7 +124,12 @@ namespace BizConnect.Services
                 // Lock the IP
                 var lockKey = $"{cacheKey}:locked";
                 var lockoutEnd = DateTime.UtcNow.AddMinutes(config.LockoutDurationMinutes);
-                _cache.Set(lockKey, lockoutEnd, TimeSpan.FromMinutes(config.LockoutDurationMinutes));
+                var lockOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(config.LockoutDurationMinutes),
+                    Size = CalculateCacheEntrySize(lockoutEnd, lockKey)
+                };
+                _cache.Set(lockKey, lockoutEnd, lockOptions);
 
                 // Log the lockout
                 await _auditService.LogAccountLockoutAsync(ipAddress, attempts.Count);
@@ -224,7 +236,12 @@ namespace BizConnect.Services
             }
 
             // Store in cache
-            _cache.Set(cacheKey, lockoutInfo, TimeSpan.FromMinutes(config.LockoutDurationMinutes));
+            var lockoutOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(config.LockoutDurationMinutes),
+                Size = CalculateCacheEntrySize(lockoutInfo, cacheKey)
+            };
+            _cache.Set(cacheKey, lockoutInfo, lockoutOptions);
         }
 
         public async Task ClearUserLockoutAsync(string username)
@@ -274,5 +291,87 @@ namespace BizConnect.Services
         }
 
         // UserLockoutInfo is now defined in BizConnect.Services.Security.Models.SecurityModels
+
+        /// <summary>
+        /// Calculates the approximate memory size of a cache entry including key and value.
+        /// Used for memory cache size limiting when SizeLimit is configured.
+        /// </summary>
+        /// <param name="value">The value to cache</param>
+        /// <param name="key">The cache key</param>
+        /// <returns>Estimated size in bytes</returns>
+        private long CalculateCacheEntrySize<T>(T value, string key)
+        {
+            try
+            {
+                long size = 0;
+                
+                // Add key size (UTF-8 encoding)
+                size += Encoding.UTF8.GetByteCount(key);
+                
+                // Calculate value size based on type
+                if (value == null)
+                {
+                    size += 8; // null reference size
+                }
+                else if (value is string stringValue)
+                {
+                    size += Encoding.UTF8.GetByteCount(stringValue);
+                }
+                else if (value is DateTime)
+                {
+                    size += 8; // DateTime is 8 bytes
+                }
+                else if (value is List<DateTime> dateTimeList)
+                {
+                    size += dateTimeList.Count * 8 + 32; // DateTime list overhead
+                }
+                else if (value.GetType().IsPrimitive)
+                {
+                    // Handle primitive types
+                    size += value.GetType().Name switch
+                    {
+                        "Boolean" => 1,
+                        "Byte" => 1,
+                        "SByte" => 1,
+                        "Char" => 2,
+                        "Int16" => 2,
+                        "UInt16" => 2,
+                        "Int32" => 4,
+                        "UInt32" => 4,
+                        "Int64" => 8,
+                        "UInt64" => 8,
+                        "Single" => 4,
+                        "Double" => 8,
+                        "Decimal" => 16,
+                        _ => 8 // Default for unknown primitives
+                    };
+                }
+                else
+                {
+                    // For complex objects, serialize to JSON to estimate size
+                    try
+                    {
+                        var json = JsonSerializer.Serialize(value);
+                        size += Encoding.UTF8.GetByteCount(json);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Unable to serialize object for size calculation, using default size estimate for key: {Key}", key);
+                        size += 512; // Default 512 bytes for rate limiting objects
+                    }
+                }
+                
+                // Add overhead for cache entry metadata (approximately 64 bytes)
+                size += 64;
+                
+                // Ensure minimum size of 1 byte
+                return Math.Max(1, size);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error calculating cache entry size for key: {Key}, using default size", key);
+                return 512; // Default 512 bytes when calculation fails
+            }
+        }
     }
 }

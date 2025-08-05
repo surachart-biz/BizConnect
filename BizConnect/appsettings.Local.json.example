@@ -1,6 +1,7 @@
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Database=bizconnect_local;Username=postgres;Password=postgres"
+    "DefaultConnection": "Host=localhost;Database=bizconnect_local;Username=postgres;Password=postgres",
+    "HangfireConnection": "Host=localhost;Database=bizconnect_local_hangfire;Username=postgres;Password=postgres"
   },
   "Logging": {
     "LogLevel": {

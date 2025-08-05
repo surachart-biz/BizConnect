@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace BizConnect.Dal.Models;
 
 /// <summary>
-/// Bank branch information for ODD registration management
+/// Bank branch information with multi-language support for ODD registration management
 /// </summary>
 public partial class Branch
 {
@@ -14,9 +14,19 @@ public partial class Branch
     public int BranchId { get; set; }
 
     /// <summary>
-    /// Human-readable branch name
+    /// Default branch name (fallback)
     /// </summary>
     public string Name { get; set; } = null!;
+
+    /// <summary>
+    /// Branch name in Thai language
+    /// </summary>
+    public string? NameTh { get; set; }
+
+    /// <summary>
+    /// Branch name in English language
+    /// </summary>
+    public string? NameEn { get; set; }
 
     /// <summary>
     /// Unique branch code for identification
@@ -24,9 +34,19 @@ public partial class Branch
     public string? Code { get; set; }
 
     /// <summary>
-    /// Physical address of the branch
+    /// Default physical address (fallback)
     /// </summary>
     public string? Address { get; set; }
+
+    /// <summary>
+    /// Physical address in Thai language
+    /// </summary>
+    public string? AddressTh { get; set; }
+
+    /// <summary>
+    /// Physical address in English language
+    /// </summary>
+    public string? AddressEn { get; set; }
 
     /// <summary>
     /// Whether the branch is currently active and accepting registrations

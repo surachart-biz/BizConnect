@@ -1,3 +1,4 @@
+using BizConnect.Dal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,7 +6,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using BizConnect.Dal;
 using BizConnect.Dal.Models;
 using BizConnect.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;

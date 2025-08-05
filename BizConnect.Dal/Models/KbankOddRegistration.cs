@@ -18,7 +18,7 @@ public partial class KbankOddRegistration
     /// <summary>
     /// Registration ID returned by KBank after initialization
     /// </summary>
-    public string RegId { get; set; } = null!;
+    public string? RegId { get; set; }
 
     /// <summary>
     /// ESPA ID returned by KBank after successful registration
@@ -26,23 +26,14 @@ public partial class KbankOddRegistration
     public string? EspaId { get; set; }
 
     /// <summary>
-    /// Registration status: Pending, Success, or Fail
+    /// Registration status: NULL (unprocessed), Pending, Success, or Fail - set by KBank integration
     /// </summary>
-    public string Status { get; set; } = null!;
+    public string? Status { get; set; }
 
     /// <summary>
     /// Return code from KBank status update
     /// </summary>
     public string? ReturnCode { get; set; }
-
-    public DateTime CreatedAt { get; set; }
-
-    public DateTime? UpdatedAt { get; set; }
-
-    /// <summary>
-    /// User mobile number in format 08xxxxxxxx or +66xxxxxxxx
-    /// </summary>
-    public string? MobileNo { get; set; }
 
     /// <summary>
     /// Type of identification: National ID, Passport, Tax ID, or Company Tax ID
@@ -55,6 +46,16 @@ public partial class KbankOddRegistration
     public string? IdValue { get; set; }
 
     /// <summary>
+    /// Customer full name for registration
+    /// </summary>
+    public string? FullName { get; set; }
+
+    /// <summary>
+    /// Customer mobile number in format 08xxxxxxxx or +66xxxxxxxx
+    /// </summary>
+    public string? MobileNo { get; set; }
+
+    /// <summary>
     /// Bank account number for the ODD registration (10-15 digits)
     /// </summary>
     public string? AccountNo { get; set; }
@@ -63,16 +64,6 @@ public partial class KbankOddRegistration
     /// Foreign key reference to Branch table
     /// </summary>
     public int? BranchId { get; set; }
-
-    /// <summary>
-    /// When the OTAC code expires (typically 30 minutes from creation)
-    /// </summary>
-    public DateTime? OtacExpiresAt { get; set; }
-
-    /// <summary>
-    /// User full name for registration
-    /// </summary>
-    public string? FullName { get; set; }
 
     /// <summary>
     /// The actual OTAC code (8-character alphanumeric)
@@ -108,6 +99,51 @@ public partial class KbankOddRegistration
     /// IP address of last OTAC validation attempt
     /// </summary>
     public string? LastAttemptIp { get; set; }
+
+    /// <summary>
+    /// When the OTAC code expires (typically 30 minutes from creation)
+    /// </summary>
+    public DateTime? OtacExpiresAt { get; set; }
+
+    /// <summary>
+    /// Timestamp when record was created
+    /// </summary>
+    public DateTime CreatedAt { get; set; }
+
+    /// <summary>
+    /// Timestamp when record was last updated (auto-updated by trigger)
+    /// </summary>
+    public DateTime? UpdatedAt { get; set; }
+
+    /// <summary>
+    /// Status message in Thai language for UI display
+    /// </summary>
+    public string? StatusMessageTh { get; set; }
+
+    /// <summary>
+    /// Status message in English language for UI display
+    /// </summary>
+    public string? StatusMessageEn { get; set; }
+
+    /// <summary>
+    /// Error message in Thai language for UI display
+    /// </summary>
+    public string? ErrorMessageTh { get; set; }
+
+    /// <summary>
+    /// Error message in English language for UI display
+    /// </summary>
+    public string? ErrorMessageEn { get; set; }
+
+    /// <summary>
+    /// National identification number (separate from IdValue for clarity)
+    /// </summary>
+    public string? NationalId { get; set; }
+
+    /// <summary>
+    /// Mobile phone number in international format (alternative to MobileNo)
+    /// </summary>
+    public string? MobileNumber { get; set; }
 
     public virtual Branch? Branch { get; set; }
 

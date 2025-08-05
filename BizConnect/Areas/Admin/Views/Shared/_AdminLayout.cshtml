@@ -339,6 +339,11 @@
             <!-- Top Navigation Items -->
             <div class="collapse navbar-collapse" id="topNavbar">
                 <ul class="navbar-nav ms-auto">
+                    <!-- Language Toggle -->
+                    <li class="nav-item me-2">
+                        @await Html.PartialAsync("_LanguageToggle")
+                    </li>
+                    
                     <!-- Notifications -->
                     <li class="nav-item dropdown">
                         <a class="nav-link position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
@@ -613,6 +618,7 @@
     <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
+    <script src="~/js/language-switcher.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     <script>

@@ -141,6 +141,11 @@
 
                     <!-- User Menu -->
                     <ul class="navbar-nav">
+                        <!-- Language Toggle -->
+                        <li class="nav-item me-2">
+                            @await Html.PartialAsync("_LanguageToggle")
+                        </li>
+                        
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <!-- Notifications (placeholder) -->
@@ -230,6 +235,7 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
+    <script src="~/js/language-switcher.js" asp-append-version="true"></script>
     <script src="~/js/loading.js" asp-append-version="true"></script>
     <script src="~/js/interactions.js" asp-append-version="true"></script>
     <script src="~/js/guided-tour.js" asp-append-version="true"></script>

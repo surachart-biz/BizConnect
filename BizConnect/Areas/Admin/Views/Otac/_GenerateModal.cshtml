@@ -1,5 +1,88 @@
 @model GenerateOtacViewModel
 
+<!-- Generate OTAC Modal (Form for generating new OTAC) -->
+<div class="modal fade" id="generateModal" tabindex="-1" aria-labelledby="generateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title" id="generateModalLabel">
+                    <i class="fas fa-key me-2"></i>Generate New OTAC Code
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <form id="generateOtacForm" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <!-- Purpose Field -->
+                    <div class="mb-4">
+                        <label asp-for="Purpose" class="form-label">
+                            <i class="fas fa-tag me-1"></i>Purpose
+                        </label>
+                        <input asp-for="Purpose" class="form-control form-control-lg" 
+                               placeholder="Enter purpose for this OTAC code" 
+                               value="KBank ODD Guest Registration" />
+                        <div class="form-text">
+                            Describe what this OTAC code will be used for
+                        </div>
+                        <span asp-validation-for="Purpose" class="text-danger"></span>
+                    </div>
+
+                    <!-- Issued To Field -->
+                    <div class="mb-4">
+                        <label asp-for="IssuedTo" class="form-label">
+                            <i class="fas fa-user me-1"></i>Issued To
+                        </label>
+                        <input asp-for="IssuedTo" class="form-control form-control-lg" 
+                               placeholder="Enter name or identifier of recipient" />
+                        <div class="form-text">
+                            Who will be using this OTAC code?
+                        </div>
+                        <span asp-validation-for="IssuedTo" class="text-danger"></span>
+                    </div>
+
+                    <!-- Information Panel -->
+                    <div class="alert alert-info border-0">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-info-circle me-3 mt-1"></i>
+                            <div>
+                                <h6 class="alert-heading">OTAC Code Information</h6>
+                                <ul class="mb-0 ps-3">
+                                    <li>Codes are 8 characters long (alphanumeric)</li>
+                                    <li>Valid for 30 minutes after generation</li>
+                                    <li>Single-use only - expires after validation</li>
+                                    <li>All activity is logged for security</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="generateLoadingState" class="d-none text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Generating...</span>
+                        </div>
+                        <div class="mt-2 text-muted">Generating your OTAC code...</div>
+                        <div class="mt-2 small text-muted">
+                            <i class="fas fa-shield-alt me-1"></i>
+                            Secure generation in progress
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="generateSubmitBtn">
+                        <i class="fas fa-key me-1"></i>Generate OTAC Code
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- OTAC Results Modal (Results Display Only) -->
 <div class="modal fade" id="generateOtacModal" tabindex="-1" aria-labelledby="generateOtacModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -119,6 +202,107 @@
 
 <script>
     let countdownInterval;
+
+    // Form submission handler for generate OTAC form
+    document.getElementById('generateOtacForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        generateOtacCode();
+    });
+
+    // Generate OTAC via AJAX
+    function generateOtacCode() {
+        const form = document.getElementById('generateOtacForm');
+        const formData = new FormData(form);
+        const submitBtn = document.getElementById('generateSubmitBtn');
+        
+        // Show loading state
+        showGenerateLoading();
+        
+        fetch('@Url.Action("GenerateForKBankOdd")', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideGenerateLoading();
+            
+            if (data.success) {
+                // Close generate modal
+                const generateModal = bootstrap.Modal.getInstance(document.getElementById('generateModal'));
+                if (generateModal) {
+                    generateModal.hide();
+                }
+                
+                // Show results modal with generated data
+                setTimeout(() => {
+                    populateOtacModal({
+                        otacCode: data.code,
+                        otacExpiresAt: data.expiresAt,
+                        purpose: data.purpose,
+                        registrationId: data.registrationId
+                    });
+                    
+                    const resultsModal = new bootstrap.Modal(document.getElementById('generateOtacModal'));
+                    resultsModal.show();
+                }, 300);
+                
+                // Reset the form
+                form.reset();
+                
+                // Show success alert
+                if (typeof showAlert === 'function') {
+                    showAlert('success', 'OTAC code generated successfully!');
+                }
+            } else {
+                showGenerateError(data.message);
+            }
+        })
+        .catch(error => {
+            hideGenerateLoading();
+            showGenerateError('An unexpected error occurred. Please try again.');
+            console.error('Error:', error);
+        });
+    }
+
+    function showGenerateLoading() {
+        document.getElementById('generateLoadingState').classList.remove('d-none');
+        document.getElementById('generateSubmitBtn').disabled = true;
+        
+        // Hide form fields
+        const formFields = document.querySelectorAll('#generateOtacForm .modal-body .mb-4');
+        formFields.forEach(field => field.style.display = 'none');
+    }
+
+    function hideGenerateLoading() {
+        document.getElementById('generateLoadingState').classList.add('d-none');
+        document.getElementById('generateSubmitBtn').disabled = false;
+        
+        // Show form fields
+        const formFields = document.querySelectorAll('#generateOtacForm .modal-body .mb-4');
+        formFields.forEach(field => field.style.display = 'block');
+    }
+
+    function showGenerateError(message) {
+        if (typeof showAlert === 'function') {
+            showAlert('danger', message);
+        } else {
+            alert(message);
+        }
+    }
+
+    // Reset form when modal closes
+    document.getElementById('generateModal').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('generateOtacForm').reset();
+        hideGenerateLoading();
+    });
+
+    // Auto-focus on purpose field when modal opens
+    document.getElementById('generateModal').addEventListener('shown.bs.modal', function () {
+        document.getElementById('Purpose').focus();
+    });
     
     // Function to populate modal with OTAC data
     function populateOtacModal(data) {

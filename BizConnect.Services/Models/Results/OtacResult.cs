@@ -65,7 +65,7 @@ namespace BizConnect.Services.Models.Results
         /// <summary>
         /// Delivery method (legacy property)
         /// </summary>
-        public string DeliveryMethod { get; set; } = "Email";
+        public string DeliveryMethod { get; set; } = "Display";
         
         /// <summary>
         /// Delivery destination (legacy property)
@@ -158,11 +158,9 @@ namespace BizConnect.Services.Models.Results
         /// <summary>
         /// Creates a failed result for invalid OTAC code
         /// </summary>
-        public static OtacResult InvalidCode(int remainingAttempts = 0)
+        public static OtacResult InvalidCode(int remainingAttempts = 0, string language = "en")
         {
-            var message = remainingAttempts > 0 
-                ? $"Invalid OTAC code. {remainingAttempts} attempts remaining." 
-                : "Invalid OTAC code. No attempts remaining.";
+            var message = GetLocalizedInvalidCodeMessage(remainingAttempts, language);
 
             return new OtacResult
             {
@@ -175,9 +173,9 @@ namespace BizConnect.Services.Models.Results
         /// <summary>
         /// Creates a failed result for expired OTAC
         /// </summary>
-        public static OtacResult ExpiredCode()
+        public static OtacResult ExpiredCode(string language = "en")
         {
-            const string message = "OTAC code has expired. Please request a new code.";
+            var message = GetLocalizedExpiredCodeMessage(language);
             return new OtacResult
             {
                 IsSuccess = false,
@@ -189,9 +187,9 @@ namespace BizConnect.Services.Models.Results
         /// <summary>
         /// Creates a failed result for locked OTAC (too many attempts)
         /// </summary>
-        public static OtacResult LockedCode()
+        public static OtacResult LockedCode(string language = "en")
         {
-            const string message = "OTAC code is locked due to too many failed attempts. Please request a new code.";
+            var message = GetLocalizedLockedCodeMessage(language);
             return new OtacResult
             {
                 IsSuccess = false,
@@ -203,9 +201,9 @@ namespace BizConnect.Services.Models.Results
         /// <summary>
         /// Creates a failed result for OTAC not found
         /// </summary>
-        public static OtacResult NotFound()
+        public static OtacResult NotFound(string language = "en")
         {
-            const string message = "OTAC code not found or has been used.";
+            var message = GetLocalizedNotFoundMessage(language);
             return new OtacResult
             {
                 IsSuccess = false,
@@ -213,5 +211,41 @@ namespace BizConnect.Services.Models.Results
                 Errors = new List<string> { message }
             };
         }
+
+        #region Localized Error Messages
+
+        private static string GetLocalizedInvalidCodeMessage(int remainingAttempts, string language)
+        {
+            return language.ToLower() == "th" 
+                ? (remainingAttempts > 0 
+                    ? $"รหัส OTAC ไม่ถูกต้อง เหลือโอกาสในการลอง {remainingAttempts} ครั้ง" 
+                    : "รหัส OTAC ไม่ถูกต้อง ไม่มีโอกาสในการลองเหลืออยู่")
+                : (remainingAttempts > 0 
+                    ? $"Invalid OTAC code. {remainingAttempts} attempts remaining." 
+                    : "Invalid OTAC code. No attempts remaining.");
+        }
+
+        private static string GetLocalizedExpiredCodeMessage(string language)
+        {
+            return language.ToLower() == "th" 
+                ? "รหัส OTAC หมดอายุแล้ว กรุณาขอรหัสใหม่"
+                : "OTAC code has expired. Please request a new code.";
+        }
+
+        private static string GetLocalizedLockedCodeMessage(string language)
+        {
+            return language.ToLower() == "th" 
+                ? "รหัส OTAC ถูกล็อกเนื่องจากป้อนรหัสผิดหลายครั้ง กรุณาขอรหัสใหม่"
+                : "OTAC code is locked due to too many failed attempts. Please request a new code.";
+        }
+
+        private static string GetLocalizedNotFoundMessage(string language)
+        {
+            return language.ToLower() == "th" 
+                ? "ไม่พบรหัส OTAC หรือรหัสถูกใช้งานแล้ว"
+                : "OTAC code not found or has been used.";
+        }
+
+        #endregion
     }
 }

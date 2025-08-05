@@ -17,6 +17,7 @@ public class OddRegistrationService : IOddRegistrationService
     private readonly BizConnectContext _context;
     private readonly IKbankOddService _kbankOddService;
     private readonly IConfiguration _configuration;
+    private readonly IDateTimeProvider _dateTimeProvider;
     private readonly ILogger<OddRegistrationService> _logger;
 
     private const int OtacExpiryMinutes = 30;
@@ -26,11 +27,13 @@ public class OddRegistrationService : IOddRegistrationService
         BizConnectContext context,
         IKbankOddService kbankOddService,
         IConfiguration configuration,
+        IDateTimeProvider dateTimeProvider,
         ILogger<OddRegistrationService> logger)
     {
         _context = context;
         _kbankOddService = kbankOddService;
         _configuration = configuration;
+        _dateTimeProvider = dateTimeProvider;
         _logger = logger;
     }
 
@@ -71,13 +74,13 @@ public class OddRegistrationService : IOddRegistrationService
                 ExternalReference = string.Empty, // Will be set when form is submitted
                 RegId = string.Empty, // Will be set when KBank API is called
                 Status = null, // No status initially - will be set to "Pending" after form submission
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = _dateTimeProvider.UtcNow,
                 OtacCode = otacCode,
                 OtacState = "Generated",
                 GeneratedByUserId = employeeUserId,
                 AttemptCount = 0,
                 IsLocked = false,
-                OtacExpiresAt = DateTime.UtcNow.AddMinutes(OtacExpiryMinutes)
+                OtacExpiresAt = _dateTimeProvider.UtcNow.AddMinutes(OtacExpiryMinutes)
             };
 
             _context.KbankOddRegistrations.Add(registration);
@@ -123,7 +126,7 @@ public class OddRegistrationService : IOddRegistrationService
 
             // Update attempt tracking
             registration.AttemptCount++;
-            registration.LastAttemptAt = DateTime.UtcNow;
+            registration.LastAttemptAt = _dateTimeProvider.UtcNow;
             registration.LastAttemptIp = clientIp;
 
             // Check if locked
@@ -135,7 +138,7 @@ public class OddRegistrationService : IOddRegistrationService
             }
 
             // Check expiry
-            if (registration.OtacExpiresAt.HasValue && DateTime.UtcNow > registration.OtacExpiresAt.Value)
+            if (registration.OtacExpiresAt.HasValue && _dateTimeProvider.UtcNow > registration.OtacExpiresAt.Value)
             {
                 await _context.SaveChangesAsync();
                 _logger.LogWarning("Expired OTAC validation attempted: {OtacCode} from IP: {ClientIp}", normalizedCode, clientIp);
@@ -193,7 +196,7 @@ public class OddRegistrationService : IOddRegistrationService
                 return false;
 
             // Check expiry
-            if (registration.OtacExpiresAt.HasValue && DateTime.UtcNow > registration.OtacExpiresAt.Value)
+            if (registration.OtacExpiresAt.HasValue && _dateTimeProvider.UtcNow > registration.OtacExpiresAt.Value)
                 return false;
 
             return true;
@@ -262,8 +265,38 @@ public class OddRegistrationService : IOddRegistrationService
                 return (false, "ไม่พบข้อมูลการลงทะเบียน");
             }
 
+            // Generate unique external reference with retry logic
+            string externalReference;
+            var maxRetries = 3;
+            var retryCount = 0;
+            
+            do
+            {
+                externalReference = OddUtils.GenerateExternalReference();
+                retryCount++;
+                
+                // Check if this external reference already exists
+                var existingRegistration = await _context.KbankOddRegistrations
+                    .FirstOrDefaultAsync(r => r.ExternalReference == externalReference);
+                    
+                if (existingRegistration == null)
+                {
+                    break; // Unique reference found
+                }
+                
+                if (retryCount >= maxRetries)
+                {
+                    _logger.LogError("Failed to generate unique external reference after {MaxRetries} attempts", maxRetries);
+                    throw new InvalidOperationException("Unable to generate unique external reference");
+                }
+                
+                // Add small delay before retry to reduce collision probability
+                await Task.Delay(10 * retryCount);
+                
+            } while (retryCount < maxRetries);
+            
             // Update registration with form data and set ExternalReference
-            registration.ExternalReference = OddUtils.GenerateExternalReference();
+            registration.ExternalReference = externalReference;
             registration.FullName = formData.FullName;
             registration.IdType = formData.IdType;
             registration.IdValue = formData.IdValue;
@@ -271,7 +304,7 @@ public class OddRegistrationService : IOddRegistrationService
             registration.AccountNo = formData.AccountNo;
             registration.BranchId = formData.BranchId;
             registration.OtacState = "Used";
-            registration.UpdatedAt = DateTime.UtcNow;
+            registration.UpdatedAt = _dateTimeProvider.UtcNow;
 
             // Create KBank request
             var kbankRequest = new OddRegistrationRequest
@@ -339,7 +372,7 @@ public class OddRegistrationService : IOddRegistrationService
             registration.Status = status;
             registration.ReturnCode = returnCode;
             registration.EspaId = espaId;
-            registration.UpdatedAt = DateTime.UtcNow;
+            registration.UpdatedAt = _dateTimeProvider.UtcNow;
 
             await _context.SaveChangesAsync();
 
@@ -409,7 +442,7 @@ public class OddRegistrationService : IOddRegistrationService
         {
             _logger.LogInformation("Starting OTAC purge job");
 
-            var cutoffDate = DateTime.UtcNow.AddMinutes(-OtacExpiryMinutes);
+            var cutoffDate = _dateTimeProvider.UtcNow.AddMinutes(-OtacExpiryMinutes);
 
             // Find expired OTAC codes that haven't been used
             var expiredRegistrations = await _context.KbankOddRegistrations
@@ -425,7 +458,7 @@ public class OddRegistrationService : IOddRegistrationService
                 foreach (var registration in expiredRegistrations)
                 {
                     registration.Status = "Expired";
-                    registration.UpdatedAt = DateTime.UtcNow;
+                    registration.UpdatedAt = _dateTimeProvider.UtcNow;
                 }
 
                 await _context.SaveChangesAsync();

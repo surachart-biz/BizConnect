@@ -1,5 +1,5 @@
-using BCrypt.Net;
 using BizConnect.Dal;
+using BCrypt.Net;
 using BizConnect.Dal.Models;
 using BizConnect.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -9,10 +9,12 @@ namespace BizConnect.Services;
 public class UserService : IUserService
 {
     private readonly BizConnectContext _context;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
-    public UserService(BizConnectContext context)
+    public UserService(BizConnectContext context, IDateTimeProvider dateTimeProvider)
     {
         _context = context;
+        _dateTimeProvider = dateTimeProvider;
     }
 
     public async Task<User?> AuthenticateAsync(string username, string password)
@@ -79,8 +81,8 @@ public class UserService : IUserService
             Username = username,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
             Role = role,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
+            CreatedAt = _dateTimeProvider.UtcNow,
+            UpdatedAt = _dateTimeProvider.UtcNow,
             IsActive = true
         };
 
@@ -100,7 +102,7 @@ public class UserService : IUserService
             return false;
 
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
-        user.UpdatedAt = DateTime.UtcNow;
+        user.UpdatedAt = _dateTimeProvider.UtcNow;
 
         _context.Users.Update(user);
         await _context.SaveChangesAsync();
@@ -120,7 +122,7 @@ public class UserService : IUserService
         existingUser.Username = user.Username;
         existingUser.Role = user.Role;
         existingUser.IsActive = user.IsActive;
-        existingUser.UpdatedAt = DateTime.UtcNow;
+        existingUser.UpdatedAt = _dateTimeProvider.UtcNow;
 
         _context.Users.Update(existingUser);
         await _context.SaveChangesAsync();
@@ -136,7 +138,7 @@ public class UserService : IUserService
 
         // Soft delete - set IsActive to false
         user.IsActive = false;
-        user.UpdatedAt = DateTime.UtcNow;
+        user.UpdatedAt = _dateTimeProvider.UtcNow;
 
         _context.Users.Update(user);
         await _context.SaveChangesAsync();

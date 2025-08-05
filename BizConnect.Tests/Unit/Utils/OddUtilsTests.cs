@@ -93,13 +93,17 @@ public class OddUtilsTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(20, result.Length);
+        Assert.Equal(24, result.Length); // Updated to expect 24 characters (20 + 4 GUID chars)
         Assert.StartsWith("BIZ", result);
         
-        // Verify the datetime part can be parsed
-        var dateTimePart = result.Substring(3);
+        // Verify the datetime part can be parsed (first 17 chars after "BIZ")
+        var dateTimePart = result.Substring(3, 17);
         Assert.True(DateTime.TryParseExact(dateTimePart, "yyyyMMddHHmmssfff", null, 
             System.Globalization.DateTimeStyles.None, out var parsedDateTime));
+        
+        // Verify the GUID part (last 4 chars should be hex)
+        var guidPart = result.Substring(20, 4);
+        Assert.All(guidPart, c => Assert.True("0123456789abcdefABCDEF".Contains(c)));
         
         // Should be close to current time (within 1 second)
         var timeDiff = Math.Abs((DateTime.Now - parsedDateTime).TotalSeconds);

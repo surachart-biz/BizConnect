@@ -10,8 +10,9 @@ public interface IDashboardService
     /// <summary>
     /// Gets comprehensive dashboard statistics including user, ODD registration, and OTAC metrics
     /// </summary>
+    /// <param name="language">Language code for localization (optional, defaults to "en")</param>
     /// <returns>Dashboard statistics model</returns>
-    Task<DashboardStatistics> GetDashboardStatisticsAsync();
+    Task<DashboardStatistics> GetDashboardStatisticsAsync(string language = "en");
 }
 
 /// <summary>

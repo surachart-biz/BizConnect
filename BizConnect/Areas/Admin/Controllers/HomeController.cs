@@ -5,9 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BizConnect.Areas.Admin.Controllers;
 
-[Area("Admin")]
-[Authorize(Policy = "AdminOrEmployee")]
-public class HomeController : Controller
+public class HomeController : BaseAdminController
 {
     private readonly IDashboardService _dashboardService;
 
@@ -18,7 +16,8 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Dashboard()
     {
-        var statistics = await _dashboardService.GetDashboardStatisticsAsync();
+        var language = GetCurrentLanguage();
+        var statistics = await _dashboardService.GetDashboardStatisticsAsync(language);
         
         var model = new DashboardViewModel
         {

@@ -11,9 +11,7 @@ namespace BizConnect.Areas.Admin.Controllers;
 /// Controller for managing One-Time Access Codes (OTAC) integrated with ODD registrations
 /// Accessible by Admin and Employee roles only
 /// </summary>
-[Area("Admin")]
-[Authorize(Policy = "AdminOrEmployee")]
-public class OtacController : Controller
+public class OtacController : BaseAdminController
 {
     private readonly IOtacManagementService _otacService;
     private readonly IRegistrationQueryService _registrationQuery;
@@ -31,7 +29,8 @@ public class OtacController : Controller
     /// </summary>
     public async Task<IActionResult> Index()
     {
-        var result = await _registrationQuery.GetPagedAsync(page: 1, pageSize: 50);
+        var language = GetCurrentLanguage();
+        var result = await _registrationQuery.GetPagedAsync(page: 1, pageSize: 50, language: language);
         if (result.IsSuccess)
         {
             return View(result.Data?.Items ?? new List<KbankOddRegistration>());
@@ -69,7 +68,8 @@ public class OtacController : Controller
             return View(model);
         }
 
-        var result = await _otacService.GenerateAsync(userId, model.Purpose);
+        var language = GetCurrentLanguage();
+        var result = await _otacService.GenerateAsync(userId, model.Purpose, language);
         
         if (result.IsSuccess)
         {
@@ -113,7 +113,8 @@ public class OtacController : Controller
         }
 
         var clientIp = HttpContext.GetClientIpAddress();
-        var result = await _otacService.ValidateAsync(model.Code, clientIp);
+        var language = GetCurrentLanguage();
+        var result = await _otacService.ValidateAsync(model.Code, clientIp, language);
 
         if (result.IsSuccess)
         {
@@ -142,7 +143,8 @@ public class OtacController : Controller
     public async Task<IActionResult> MyOtacCodes()
     {
         var userId = User.GetUserId();
-        var result = await _registrationQuery.GetPagedAsync(page: 1, pageSize: 100);
+        var language = GetCurrentLanguage();
+        var result = await _registrationQuery.GetPagedAsync(page: 1, pageSize: 100, language: language);
         
         if (result.IsSuccess && result.Data != null)
         {
@@ -220,7 +222,8 @@ public class OtacController : Controller
             });
         }
 
-        var result = await _otacService.GenerateAsync(userId, model.Purpose);
+        var language = GetCurrentLanguage();
+        var result = await _otacService.GenerateAsync(userId, model.Purpose, language);
         
         if (result.IsSuccess)
         {
@@ -273,7 +276,8 @@ public class OtacController : Controller
         }
 
         var clientIp = HttpContext.GetClientIpAddress();
-        var result = await _otacService.ValidateAsync(model.Code, clientIp);
+        var language = GetCurrentLanguage();
+        var result = await _otacService.ValidateAsync(model.Code, clientIp, language);
 
         if (result.IsSuccess)
         {
@@ -318,7 +322,8 @@ public class OtacController : Controller
             });
         }
 
-        var result = await _otacService.GenerateAsync(userId, "KBank ODD Guest Registration");
+        var language = GetCurrentLanguage();
+        var result = await _otacService.GenerateAsync(userId, "KBank ODD Guest Registration", language);
         
         if (result.IsSuccess)
         {
@@ -350,7 +355,8 @@ public class OtacController : Controller
     [HttpGet]
     public async Task<IActionResult> GetKBankOddRegistrationDetails(string otacCode)
     {
-        var otacInfo = await _otacService.GetInfoAsync(otacCode);
+        var language = GetCurrentLanguage();
+        var otacInfo = await _otacService.GetInfoAsync(otacCode, language);
         
         if (!otacInfo.IsSuccess || otacInfo.RegistrationId == null)
         {

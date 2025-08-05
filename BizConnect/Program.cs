@@ -1,3 +1,4 @@
+using BizConnect.Dal;
 using BizConnect.Dal.Models;
 using BizConnect.Extensions;
 using BizConnect.Middleware;
@@ -12,6 +13,9 @@ using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Options;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +24,40 @@ var environment = builder.Environment.EnvironmentName;
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
+    .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
+
+// Create logger for startup validation
+using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+var startupLogger = loggerFactory.CreateLogger<Program>();
+
+// Helper method to extract database name from connection string
+static string ExtractDatabaseName(string connectionString)
+{
+    try
+    {
+        var parts = connectionString.Split(';');
+        var dbPart = parts.FirstOrDefault(p => p.Trim().StartsWith("Database=", StringComparison.OrdinalIgnoreCase));
+        return dbPart?.Split('=')[1]?.Trim() ?? "Unknown";
+    }
+    catch
+    {
+        return "Unknown";
+    }
+}
+
+// Helper method to check for non-production environments
+static bool IsNonProductionEnvironment(IWebHostEnvironment env)
+{
+    return env.IsDevelopment() || 
+           env.IsEnvironment("Local") || 
+           env.IsEnvironment("Testing") ||
+           env.IsEnvironment("UAT");
+}
+
+// Validate required configuration before proceeding
+startupLogger.LogInformation("Starting BizConnect application configuration validation...");
+startupLogger.LogInformation("Environment: {Environment}", environment);
 
 // Add services to the container.
 builder.Services.AddDbContext<BizConnectContext>(options =>
@@ -32,17 +69,75 @@ builder.Services.AddRepositoryPattern();
 // Add Registration and OTAC management services
 builder.Services.AddRegistrationServices();
 
-// Configure Hangfire with PostgreSQL storage
+// Validate required connection strings with detailed error messages
+var defaultConnection = builder.Configuration.GetConnectionString("DefaultConnection");
+var hangfireConnection = builder.Configuration.GetConnectionString("HangfireConnection");
+
+if (string.IsNullOrEmpty(defaultConnection))
+{
+    var errorMessage = $"\n" +
+        $"❌ CONFIGURATION ERROR: DefaultConnection string is not configured.\n" +
+        $"\n" +
+        $"To fix this issue:\n" +
+        $"1. Create 'appsettings.Local.json' in BizConnect/ directory\n" +
+        $"2. Add your database connection string:\n" +
+        $"   {{\n" +
+        $"     \"ConnectionStrings\": {{\n" +
+        $"       \"DefaultConnection\": \"Host=localhost;Database=bizconnect_local;Username=postgres;Password=your_password\"\n" +
+        $"     }}\n" +
+        $"   }}\n" +
+        $"\n" +
+        $"3. Ensure PostgreSQL is running and accessible\n" +
+        $"4. Run database migrations: ./scripts/update-db\n" +
+        $"\n" +
+        $"For more help, see README.md setup instructions.\n";
+    
+    startupLogger.LogCritical(errorMessage);
+    throw new InvalidOperationException("DefaultConnection string is not configured. See console output for setup instructions.");
+}
+
+if (string.IsNullOrEmpty(hangfireConnection))
+{
+    var errorMessage = $"\n" +
+        $"❌ CONFIGURATION ERROR: HangfireConnection string is not configured.\n" +
+        $"\n" +
+        $"To fix this issue:\n" +
+        $"1. Add HangfireConnection to your appsettings.Local.json:\n" +
+        $"   {{\n" +
+        $"     \"ConnectionStrings\": {{\n" +
+        $"       \"DefaultConnection\": \"Host=localhost;Database=bizconnect_local;Username=postgres;Password=your_password\",\n" +
+        $"       \"HangfireConnection\": \"Host=localhost;Database=bizconnect_hangfire;Username=postgres;Password=your_password\"\n" +
+        $"     }}\n" +
+        $"   }}\n" +
+        $"\n" +
+        $"2. Create the Hangfire database in PostgreSQL\n" +
+        $"3. Ensure both databases are accessible\n" +
+        $"\n" +
+        $"For more help, see README.md setup instructions.\n";
+    
+    startupLogger.LogCritical(errorMessage);
+    throw new InvalidOperationException("HangfireConnection string is not configured. See console output for setup instructions.");
+}
+
+// Log successful configuration validation
+var defaultDbName = ExtractDatabaseName(defaultConnection);
+var hangfireDbName = ExtractDatabaseName(hangfireConnection);
+
+startupLogger.LogInformation("✅ Configuration validation successful:");
+startupLogger.LogInformation("   • Default Database: {DefaultDatabase}", defaultDbName);
+startupLogger.LogInformation("   • Hangfire Database: {HangfireDatabase}", hangfireDbName);
+startupLogger.LogInformation("   • Environment: {Environment}", environment);
+
+// Configure Hangfire with PostgreSQL storage using dedicated connection
 builder.Services.AddHangfire(configuration => configuration
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
     .UseSimpleAssemblyNameTypeSerializer()
     .UseRecommendedSerializerSettings()
-    .UsePostgreSqlStorage(options => options.UseNpgsqlConnection(
-        builder.Configuration.GetConnectionString("DefaultConnection")), 
+    .UsePostgreSqlStorage(options => options.UseNpgsqlConnection(hangfireConnection), 
         new PostgreSqlStorageOptions
         {
             SchemaName = "hangfire",
-            PrepareSchemaIfNecessary = false, // Don't auto-create schema - we handle it via migrations
+            PrepareSchemaIfNecessary = true, // Auto-create Hangfire schema if necessary
             QueuePollInterval = TimeSpan.FromSeconds(15),
             JobExpirationCheckInterval = TimeSpan.FromHours(1),
             CountersAggregateInterval = TimeSpan.FromMinutes(5),
@@ -58,61 +153,12 @@ builder.Services.AddHangfireServer(options =>
     options.WorkerCount = Environment.ProcessorCount * 2;
 });
 
-// Add core services with caching decorators
-builder.Services.AddScoped<UserService>(); // Inner service
-builder.Services.AddScoped<IUserService>(provider => 
-    new CachedUserService(
-        provider.GetRequiredService<UserService>(),
-        provider.GetRequiredService<ICacheService>(),
-        provider.GetRequiredService<ILogger<CachedUserService>>()));
-
-builder.Services.AddScoped<BranchService>(); // Inner service  
-builder.Services.AddScoped<IBranchService>(provider =>
-    new CachedBranchService(
-        provider.GetRequiredService<BranchService>(),
-        provider.GetRequiredService<ICacheService>(),
-        provider.GetRequiredService<ILogger<CachedBranchService>>()));
-
-builder.Services.AddScoped<IDashboardService, DashboardService>();
-builder.Services.AddScoped<IOddRegistrationService, OddRegistrationService>();
-builder.Services.AddScoped<IValidationService, ValidationService>();
-builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
-
-// Add core security services
-builder.Services.AddScoped<ISecurityAuditService, SecurityAuditService>();
-builder.Services.AddScoped<IPasswordPolicyService, PasswordPolicyService>();
-
-// Add advanced security services - Phase 3B.1
-builder.Services.AddScoped<IDateTimeProvider, DateTimeProvider>();
-builder.Services.AddScoped<IRateLimitingService, AdvancedRateLimitingService>();
-// TODO: Fix SecurityMonitoringService interface implementation mismatch
-// builder.Services.AddScoped<ISecurityMonitoringService, SecurityMonitoringService>();
-builder.Services.AddScoped<IThreatResponseService, ThreatResponseService>();
-builder.Services.AddScoped<IEnhancedSecurityAuditService, EnhancedSecurityAuditService>();
-
-// Add memory cache with size limits for Phase 3A.1 specification
-builder.Services.AddMemoryCache(options =>
-{
-    options.SizeLimit = 104857600; // 100MB default size limit
-    options.CompactionPercentage = 0.25; // Remove 25% when limit reached
-});
-
-// Add caching services as Singleton for optimal performance
-builder.Services.AddSingleton<ICacheService, MemoryCacheService>();
-
-// Add KBank ODD services
-builder.Services.AddHttpClient<KBankOddClient>(client =>
-{
-    client.Timeout = TimeSpan.FromSeconds(30);
-    client.DefaultRequestHeaders.Add("User-Agent", "BizConnect/1.0");
-});
-builder.Services.AddScoped<IKBankOddClient, KBankOddClient>();
-builder.Services.AddScoped<IKbankOddService, KbankOddService>();
-builder.Services.AddScoped<IPaymentProcessingService, PaymentProcessingService>();
-
-// Add Hangfire background job services
-builder.Services.AddScoped<PurgeExpiredOtacCodesJob>();
-builder.Services.AddScoped<DailyPaymentJob>();
+// Add BizConnect services using organized extension methods
+builder.Services.AddBizConnectCaching();
+builder.Services.AddBizConnectCoreServices();
+builder.Services.AddBizConnectCachedServices();
+builder.Services.AddKBankOddServices();
+builder.Services.AddBizConnectBackgroundJobs();
 
 // Add authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -186,6 +232,31 @@ builder.Services.AddAuthorization(options =>
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
+});
+
+// Add localization services for Thai/English support
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+// Configure supported cultures
+var supportedCultures = new[]
+{
+    new CultureInfo("en-US"),
+    new CultureInfo("th-TH")
+};
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.DefaultRequestCulture = new RequestCulture("en-US");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+    
+    // Set culture providers (order matters)
+    options.RequestCultureProviders = new List<IRequestCultureProvider>
+    {
+        new CookieRequestCultureProvider(),
+        new QueryStringRequestCultureProvider(),
+        new AcceptLanguageHeaderRequestCultureProvider()
+    };
 });
 
 // Add data protection for secure cookie encryption
@@ -338,6 +409,10 @@ if (securityConfig.Exists())
 
 var app = builder.Build();
 
+// Log successful application build
+startupLogger.LogInformation("✅ Application built successfully");
+startupLogger.LogInformation("🚀 Configuring middleware pipeline...");
+
 // Configure the HTTP request pipeline based on environment
 if (!app.Environment.IsDevelopment())
 {
@@ -350,11 +425,17 @@ if (!app.Environment.IsDevelopment())
         app.UseHsts();
     }
 }
+else
+{
+    // In development, use detailed error pages
+    app.UseDeveloperExceptionPage();
+}
 
-// Add global exception handling middleware (must be before other middleware)
+// MIDDLEWARE PIPELINE ORDER (CRITICAL - DO NOT REORDER):
+// 1. Global exception handling (must be first)
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
-// Add performance middleware based on configuration
+// 2. Performance middleware (compression and caching - early in pipeline)
 var appPerformanceConfig = app.Configuration.GetSection("Performance");
 if (appPerformanceConfig.Exists())
 {
@@ -369,9 +450,10 @@ if (appPerformanceConfig.Exists())
     }
 }
 
+// 3. HTTPS redirection
 app.UseHttpsRedirection();
 
-// Add security headers middleware
+// 4. Security headers middleware
 app.Use(async (context, next) =>
 {
     // Content Security Policy
@@ -397,7 +479,7 @@ app.Use(async (context, next) =>
     await next();
 });
 
-// Configure static files with environment-specific caching
+// 5. Static files with environment-specific caching
 if (app.Environment.IsDevelopment())
 {
     app.UseStaticFiles(new StaticFileOptions
@@ -415,15 +497,27 @@ else
     app.UseStaticFiles();   // default caching; version hash in URLs will prevent staleness
 }
 
+// 6. Request localization middleware (must be early in pipeline)
+var localizationOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();
+app.UseRequestLocalization(localizationOptions.Value);
+
+// 7. Routing
 app.UseRouting();
 
 // TODO: Add rate limiting middleware when implemented
 
-// Add session middleware before authentication
+// MIDDLEWARE PIPELINE CONTINUATION:
+// 8. Session middleware (must be before authentication)
 app.UseSession();
 
+// 9. Authentication middleware
 app.UseAuthentication();
+
+// 10. Authorization middleware (must be after authentication)
 app.UseAuthorization();
+
+// Log middleware pipeline completion
+startupLogger.LogInformation("✅ Middleware pipeline configured successfully");
 
 // Add Swagger in development and UAT environments
 if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "UAT")
@@ -442,18 +536,18 @@ if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "UAT")
     });
 }
 
-// Configure Hangfire dashboard with authorization
+// Configure Hangfire dashboard with authorization for multiple environments
 app.UseHangfireDashboard("/hangfire", new DashboardOptions
 {
-    Authorization = app.Environment.IsDevelopment() 
-        ? new Hangfire.Dashboard.IDashboardAuthorizationFilter[0] // Allow all in development
+    Authorization = IsNonProductionEnvironment(app.Environment)
+        ? new Hangfire.Dashboard.IDashboardAuthorizationFilter[0] // Allow all in non-production
         : new[] { new HangfireAuthorizationFilter() } // Require auth in production
 });
 
 // Schedule recurring background jobs
-RecurringJob.AddOrUpdate<PurgeExpiredOtacCodesJob>(
+RecurringJob.AddOrUpdate<OptimizedPurgeExpiredOtacCodesJob>(
     "purge-expired-otac-codes",
-    job => job.ExecuteAsync(),
+    job => job.ExecuteAsync(100, 0),
     "*/5 * * * *"); // Every 5 minutes
 
 RecurringJob.AddOrUpdate<DailyPaymentJob>(
@@ -473,6 +567,18 @@ app.MapControllerRoute(
 // Map health check endpoint
 app.MapHealthChecks("/health");
 
+// Final startup validation
+startupLogger.LogInformation("🎉 BizConnect application startup completed successfully!");
+startupLogger.LogInformation("   • Health check available at: /health");
+if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "UAT")
+{
+    startupLogger.LogInformation("   • API documentation available at: /api/docs");
+}
+if (IsNonProductionEnvironment(app.Environment))
+{
+    startupLogger.LogInformation("   • Hangfire dashboard available at: /hangfire");
+}
+
 app.Run();
 
 // Hangfire Dashboard Authorization Filter with proper role-based security
@@ -487,15 +593,18 @@ public class HangfireAuthorizationFilter : Hangfire.Dashboard.IDashboardAuthoriz
             var isAuthenticated = !string.IsNullOrEmpty(context.Request.RemoteIpAddress);
             
             // In a production environment, you would typically implement proper authentication
-            // For now, we'll allow access in development but restrict in production
+            // For now, we'll allow access in non-production environments but restrict in production
             
-            // Check if running in development environment
+            // Check if running in non-production environment
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            var isDevelopment = string.Equals(environment, "Development", StringComparison.OrdinalIgnoreCase);
+            var isNonProduction = string.Equals(environment, "Development", StringComparison.OrdinalIgnoreCase) ||
+                                 string.Equals(environment, "Local", StringComparison.OrdinalIgnoreCase) ||
+                                 string.Equals(environment, "Testing", StringComparison.OrdinalIgnoreCase) ||
+                                 string.Equals(environment, "UAT", StringComparison.OrdinalIgnoreCase);
             
-            if (isDevelopment)
+            if (isNonProduction)
             {
-                // Allow access in development mode
+                // Allow access in non-production environments
                 return true;
             }
             

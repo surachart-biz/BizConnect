@@ -18,7 +18,7 @@ namespace BizConnect.Services.Jobs;
 /// </summary>
 public class OptimizedPurgeExpiredOtacCodesJob
 {
-    private readonly BizConnectContext _context;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<OptimizedPurgeExpiredOtacCodesJob> _logger;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly ICacheService _cacheService;
@@ -30,12 +30,12 @@ public class OptimizedPurgeExpiredOtacCodesJob
     private const int MaxRetryAttempts = 3;
 
     public OptimizedPurgeExpiredOtacCodesJob(
-        BizConnectContext context,
+        IUnitOfWork unitOfWork,
         ILogger<OptimizedPurgeExpiredOtacCodesJob> logger,
         IDateTimeProvider dateTimeProvider,
         ICacheService cacheService)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _dateTimeProvider = dateTimeProvider ?? throw new ArgumentNullException(nameof(dateTimeProvider));
         _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
@@ -195,11 +195,11 @@ public class OptimizedPurgeExpiredOtacCodesJob
     {
         try
         {
-            var expiredRecords = await _context.Set<KbankOddRegistration>()
-                .AsNoTracking()
+            var repository = _unitOfWork.GetRepository<KbankOddRegistration>();
+            var expiredRecords = await repository.Query()
                 .Where(r => r.OtacExpiresAt != null && 
                            r.OtacExpiresAt < currentTime && 
-                           r.Status == "OTAC_GENERATED")
+                           (r.OtacState == "Generated" || r.OtacState == "Validated"))
                 .Select(r => new ExpiredOtacRecord
                 {
                     Id = r.Id,
@@ -229,15 +229,28 @@ public class OptimizedPurgeExpiredOtacCodesJob
         try
         {
             var expiredIds = expiredRecords.Select(r => r.Id).ToList();
+            var repository = _unitOfWork.GetRepository<KbankOddRegistration>();
             
-            // Use bulk update to mark as expired instead of deletion for audit purposes
-            var updatedCount = await _context.Set<KbankOddRegistration>()
-                .Where(r => expiredIds.Contains(r.Id))
-                .ExecuteUpdateAsync(s => s
-                    .SetProperty(r => r.Status, "EXPIRED")
-                    .SetProperty(r => r.UpdatedAt, _dateTimeProvider.UtcNow)
-                    .SetProperty(r => r.OtacCode, (string?)null) // Clear the OTAC code
-                    .SetProperty(r => r.OtacExpiresAt, (DateTime?)null)); // Clear expiration time
+            // Update each record individually since bulk operations aren't supported in the generic repository
+            var updatedCount = 0;
+            foreach (var recordId in expiredIds)
+            {
+                var record = await repository.GetByIdAsync(recordId);
+                if (record != null)
+                {
+                    record.OtacState = "Expired";
+                    record.UpdatedAt = _dateTimeProvider.UtcNow;
+                    record.IsLocked = true; // Lock the code to prevent further attempts
+                    record.StatusMessageTh = "รหัส OTAC หมดอายุแล้ว";
+                    record.StatusMessageEn = "OTAC code expired";
+                    
+                    repository.Update(record);
+                    updatedCount++;
+                }
+            }
+            
+            // Save all changes in a single transaction
+            await _unitOfWork.SaveChangesAsync();
 
             // Invalidate cache entries for the processed OTAC codes
             await InvalidateOtacBatchCacheAsync(expiredRecords);
@@ -264,11 +277,11 @@ public class OptimizedPurgeExpiredOtacCodesJob
             var expirationTime = currentTime.AddMinutes(-10);
 
             // Get expired records first, then calculate statistics in memory to avoid complex EF queries
-            var expiredRecords = await _context.Set<KbankOddRegistration>()
-                .AsNoTracking()
+            var repository = _unitOfWork.GetRepository<KbankOddRegistration>();
+            var expiredRecords = await repository.Query()
                 .Where(r => r.OtacExpiresAt != null && 
                            r.OtacExpiresAt < currentTime && 
-                           r.Status == "OTAC_GENERATED")
+                           (r.OtacState == "Generated" || r.OtacState == "Validated"))
                 .Select(r => new { r.CreatedAt })
                 .ToListAsync();
 
@@ -277,7 +290,7 @@ public class OptimizedPurgeExpiredOtacCodesJob
             {
                 statistics = new PurgeStatistics
                 {
-                    TotalExpiredCodes = expiredRecords.Count,
+                    TotalExpiredCodes = expiredRecords.Count(),
                     OldestExpiredDate = expiredRecords.Min(r => r.CreatedAt),
                     AverageAgeHours = expiredRecords.Average(r => (currentTime - r.CreatedAt).TotalHours)
                 };

@@ -17,26 +17,29 @@ public class KbankOddService : IKbankOddService
     private readonly BizConnectContext _context;
     private readonly IKBankOddClient _kbankClient;
     private readonly IConfiguration _configuration;
+    private readonly IDateTimeProvider _dateTimeProvider;
     private readonly ILogger<KbankOddService> _logger;
 
     public KbankOddService(
         BizConnectContext context,
         IKBankOddClient kbankClient,
         IConfiguration configuration,
+        IDateTimeProvider dateTimeProvider,
         ILogger<KbankOddService> logger)
     {
         _context = context;
         _kbankClient = kbankClient;
         _configuration = configuration;
+        _dateTimeProvider = dateTimeProvider;
         _logger = logger;
     }
 
     /// <inheritdoc />
-    public async Task<string> StartRegistrationRedirectUrlAsync(CancellationToken cancellationToken = default)
+    public async Task<string> StartRegistrationRedirectUrlAsync(CancellationToken cancellationToken = default, string language = "en")
     {
         try
         {
-            _logger.LogInformation("Starting KBank ODD registration process");
+            _logger.LogInformation("Starting KBank ODD registration process in language: {Language}", language);
 
             // Generate external reference
             var externalReference = OddUtils.GenerateExternalReference();
@@ -83,7 +86,9 @@ public class KbankOddService : IKbankOddService
                 ExternalReference = externalReference,
                 RegId = initResponse.RegId,
                 Status = "Pending",
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = _dateTimeProvider.UtcNow,
+                StatusMessageTh = "กำลังดำเนินการลงทะเบียน",
+                StatusMessageEn = "Registration in progress"
             };
 
             _context.KbankOddRegistrations.Add(registration);
@@ -92,8 +97,9 @@ public class KbankOddService : IKbankOddService
             _logger.LogInformation("KBank ODD registration record created: ExternalReference={ExternalReference}, RegId={RegId}",
                 externalReference, initResponse.RegId);
 
-            // Build redirect URL
-            var redirectUrl = $"{pgBaseUrl.TrimEnd('/')}/PGSRegistration.do?reg_id={initResponse.RegId}&langLocale=th_TH";
+            // Build redirect URL with language support
+            var langLocale = language.ToLower() == "th" ? "th_TH" : "en_US";
+            var redirectUrl = $"{pgBaseUrl.TrimEnd('/')}/PGSRegistration.do?reg_id={initResponse.RegId}&langLocale={langLocale}";
             
             _logger.LogInformation("KBank ODD registration redirect URL generated: {RedirectUrl}", redirectUrl);
             
@@ -107,11 +113,11 @@ public class KbankOddService : IKbankOddService
     }
 
     /// <inheritdoc />
-    public async Task<string> StartRegistrationAsync(OddRegistrationRequest request, CancellationToken cancellationToken = default)
+    public async Task<string> StartRegistrationAsync(OddRegistrationRequest request, CancellationToken cancellationToken = default, string language = "en")
     {
         try
         {
-            _logger.LogInformation("Starting KBank ODD registration process with user contact information");
+            _logger.LogInformation("Starting KBank ODD registration process with user contact information in language: {Language}", language);
 
             // Generate external reference
             var externalReference = OddUtils.GenerateExternalReference();
@@ -169,7 +175,9 @@ public class KbankOddService : IKbankOddService
                 IdValue = request.IdValue,
                 AccountNo = request.AccountNo,
                 BranchId = request.BranchId,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = _dateTimeProvider.UtcNow,
+                StatusMessageTh = "กำลังดำเนินการลงทะเบียน",
+                StatusMessageEn = "Registration in progress"
             };
 
             _context.KbankOddRegistrations.Add(registration);
@@ -178,8 +186,9 @@ public class KbankOddService : IKbankOddService
             _logger.LogInformation("KBank ODD registration record created with contact info: ExternalReference={ExternalReference}, RegId={RegId}, FullName={FullName}",
                 externalReference, initResponse.RegId, request.FullName);
 
-            // Build redirect URL
-            var redirectUrl = $"{pgBaseUrl.TrimEnd('/')}/PGSRegistration.do?reg_id={initResponse.RegId}&langLocale=th_TH";
+            // Build redirect URL with language support
+            var langLocale = language.ToLower() == "th" ? "th_TH" : "en_US";
+            var redirectUrl = $"{pgBaseUrl.TrimEnd('/')}/PGSRegistration.do?reg_id={initResponse.RegId}&langLocale={langLocale}";
 
             _logger.LogInformation("KBank ODD registration redirect URL generated: {RedirectUrl}", redirectUrl);
 
@@ -193,11 +202,11 @@ public class KbankOddService : IKbankOddService
     }
 
     /// <inheritdoc />
-    public async Task<string> StartRegistrationWithExistingReferenceAsync(OddRegistrationRequest request, string existingExternalReference, CancellationToken cancellationToken = default)
+    public async Task<string> StartRegistrationWithExistingReferenceAsync(OddRegistrationRequest request, string existingExternalReference, CancellationToken cancellationToken = default, string language = "en")
     {
         try
         {
-            _logger.LogInformation("Starting KBank ODD registration process with existing external reference: {ExternalReference}", existingExternalReference);
+            _logger.LogInformation("Starting KBank ODD registration process with existing external reference: {ExternalReference} in language: {Language}", existingExternalReference, language);
 
             // Find the existing registration record
             var registration = await _context.KbankOddRegistrations
@@ -256,15 +265,18 @@ public class KbankOddService : IKbankOddService
             // Update existing registration record with KBank response and change status to Pending
             registration.RegId = initResponse.RegId;
             registration.Status = "Pending";
-            registration.UpdatedAt = DateTime.UtcNow;
+            registration.UpdatedAt = _dateTimeProvider.UtcNow;
+            registration.StatusMessageTh = "กำลังดำเนินการลงทะเบียน";
+            registration.StatusMessageEn = "Registration in progress";
 
             await _context.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("KBank ODD registration record updated: ExternalReference={ExternalReference}, RegId={RegId}, FullName={FullName}",
                 existingExternalReference, initResponse.RegId, registration.FullName);
 
-            // Build redirect URL
-            var redirectUrl = $"{pgBaseUrl.TrimEnd('/')}/PGSRegistration.do?reg_id={initResponse.RegId}&langLocale=th_TH";
+            // Build redirect URL with language support
+            var langLocale = language.ToLower() == "th" ? "th_TH" : "en_US";
+            var redirectUrl = $"{pgBaseUrl.TrimEnd('/')}/PGSRegistration.do?reg_id={initResponse.RegId}&langLocale={langLocale}";
 
             _logger.LogInformation("KBank ODD registration redirect URL generated for existing registration: {RedirectUrl}", redirectUrl);
 
@@ -278,12 +290,12 @@ public class KbankOddService : IKbankOddService
     }
 
     /// <inheritdoc />
-    public async Task<StatusProcessResult> ProcessStatusUpdateAsync(StatusUpdateDto dto, CancellationToken cancellationToken = default)
+    public async Task<StatusProcessResult> ProcessStatusUpdateAsync(StatusUpdateDto dto, CancellationToken cancellationToken = default, string language = "en")
     {
         try
         {
-            _logger.LogInformation("Processing KBank ODD status update for external reference: {ExternalReference}", 
-                dto.ExternalReference);
+            _logger.LogInformation("Processing KBank ODD status update for external reference: {ExternalReference} in language: {Language}", 
+                dto.ExternalReference, language);
 
             // Get pass phrase from configuration
             var passPhrase = _configuration["KBankODD:PassPhrase"];
@@ -315,11 +327,29 @@ public class KbankOddService : IKbankOddService
                 return StatusProcessResult.NotFound;
             }
 
-            // Update registration record
+            // Update registration record with multi-language status messages
             registration.EspaId = dto.EspaId;
             registration.Status = dto.ReturnStatus == "0" ? "Success" : "Fail";
             registration.ReturnCode = dto.ReturnCode;
-            registration.UpdatedAt = DateTime.UtcNow;
+            registration.UpdatedAt = _dateTimeProvider.UtcNow;
+            
+            // Set status messages based on return status
+            if (dto.ReturnStatus == "0")
+            {
+                registration.StatusMessageTh = "ลงทะเบียนสำเร็จ";
+                registration.StatusMessageEn = "Registration successful";
+            }
+            else
+            {
+                registration.StatusMessageTh = "ลงทะเบียนไม่สำเร็จ";
+                registration.StatusMessageEn = "Registration failed";
+                
+                if (!string.IsNullOrEmpty(dto.ReturnCode))
+                {
+                    registration.ErrorMessageTh = $"รหัสข้อผิดพลาด: {dto.ReturnCode}";
+                    registration.ErrorMessageEn = $"Error code: {dto.ReturnCode}";
+                }
+            }
 
             await _context.SaveChangesAsync(cancellationToken);
 

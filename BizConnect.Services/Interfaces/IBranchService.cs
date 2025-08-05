@@ -11,8 +11,9 @@ public interface IBranchService
     /// <summary>
     /// Gets all active branches for dropdowns
     /// </summary>
+    /// <param name="language">Language code ('th' for Thai, 'en' for English). Defaults to 'en'</param>
     /// <returns>List of branches with ID and Name for dropdown population</returns>
-    Task<List<(int BranchId, string Name)>> GetActiveBranchesForDropdownAsync();
+    Task<List<(int BranchId, string Name)>> GetActiveBranchesForDropdownAsync(string language = "en");
 
     /// <summary>
     /// Gets a specific branch by ID
@@ -38,8 +39,9 @@ public interface IBranchService
     /// Gets branch name by ID
     /// </summary>
     /// <param name="branchId">Branch ID</param>
+    /// <param name="language">Language code ('th' for Thai, 'en' for English). Defaults to 'en'</param>
     /// <returns>Branch name or null if not found</returns>
-    Task<string?> GetBranchNameAsync(int branchId);
+    Task<string?> GetBranchNameAsync(int branchId, string language = "en");
 
     /// <summary>
     /// Gets all branches (both active and inactive) for analytics
@@ -57,6 +59,7 @@ public interface IBranchService
     /// Gets branch performance data
     /// </summary>
     /// <param name="days">Number of days to analyze</param>
+    /// <param name="language">Language code ('th' for Thai, 'en' for English). Defaults to 'en'</param>
     /// <returns>Result with branch performance metrics</returns>
-    Task<Result<List<BranchPerformance>>> GetBranchPerformanceAsync(int days = 30);
+    Task<Result<List<BranchPerformance>>> GetBranchPerformanceAsync(int days = 30, string language = "en");
 }

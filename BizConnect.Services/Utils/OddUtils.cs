@@ -36,13 +36,15 @@ public static class OddUtils
     }
 
     /// <summary>
-    /// Generates external reference in the format BIZyyyyMMddHHmmssfff
+    /// Generates external reference in the format BIZyyyyMMddHHmmssfff with microsecond precision
+    /// Uses Guid suffix to ensure uniqueness in high-concurrency scenarios
     /// </summary>
     /// <returns>External reference string</returns>
     public static string GenerateExternalReference()
     {
         var now = DateTime.Now;
-        return $"BIZ{now:yyyyMMddHHmmssfff}";
+        var guid = Guid.NewGuid().ToString("N")[..4]; // Take first 4 chars of GUID for uniqueness
+        return $"BIZ{now:yyyyMMddHHmmssfff}{guid}";
     }
 
     /// <summary>
@@ -55,16 +57,33 @@ public static class OddUtils
         if (string.IsNullOrEmpty(externalReference))
             return false;
 
-        // Check format: BIZyyyyMMddHHmmssfff (20 characters total)
-        if (externalReference.Length != 20)
-            return false;
-
         if (!externalReference.StartsWith("BIZ"))
             return false;
 
-        // Validate the datetime part
-        var dateTimePart = externalReference.Substring(3);
-        return DateTime.TryParseExact(dateTimePart, "yyyyMMddHHmmssfff", null, 
-            System.Globalization.DateTimeStyles.None, out _);
+        // Support both old format (20 chars) and new format (24 chars with GUID suffix)
+        if (externalReference.Length == 20)
+        {
+            // Old format: BIZyyyyMMddHHmmssfff
+            var dateTimePart = externalReference.Substring(3);
+            return DateTime.TryParseExact(dateTimePart, "yyyyMMddHHmmssfff", null, 
+                System.Globalization.DateTimeStyles.None, out _);
+        }
+        else if (externalReference.Length == 24)
+        {
+            // New format: BIZyyyyMMddHHmmssfff + 4-char GUID suffix
+            var dateTimePart = externalReference.Substring(3, 17);
+            var guidPart = externalReference.Substring(20, 4);
+            
+            // Validate datetime part
+            var isValidDateTime = DateTime.TryParseExact(dateTimePart, "yyyyMMddHHmmssfff", null, 
+                System.Globalization.DateTimeStyles.None, out _);
+            
+            // Validate GUID part (should be hex characters)
+            var isValidGuid = guidPart.All(c => "0123456789abcdefABCDEF".Contains(c));
+            
+            return isValidDateTime && isValidGuid;
+        }
+
+        return false;
     }
 }
