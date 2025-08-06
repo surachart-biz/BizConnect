@@ -511,6 +511,144 @@ public class AnalyticsFilters
 
 #endregion
 
+#region Supporting Dashboard Classes
+
+/// <summary>
+/// Real-time dashboard statistics
+/// </summary>
+public class DashboardRealTimeStats
+{
+    public int TotalUsers { get; set; }
+    public int ActiveUsers { get; set; }
+    public int TotalOddRegistrations { get; set; }
+    public int PendingOddRegistrations { get; set; }
+    public int CompletedOddRegistrations { get; set; }
+    public int TotalOtacCodes { get; set; }
+    public int ActiveOtacCodes { get; set; }
+    public double SuccessRate { get; set; }
+    public double OtacUsageRate { get; set; }
+    public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
+}
+
+/// <summary>
+/// Recent activity item
+/// </summary>
+public class RecentActivityDto
+{
+    public int Id { get; set; }
+    public string Type { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string User { get; set; } = string.Empty;
+    public DateTime Timestamp { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public string IconClass { get; set; } = string.Empty;
+    public string Color { get; set; } = "primary";
+}
+
+/// <summary>
+/// System alert message
+/// </summary>
+public class AlertMessage
+{
+    public int Id { get; set; }
+    public string Type { get; set; } = "info"; // info, warning, error, success
+    public string Title { get; set; } = string.Empty;
+    public string Message { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
+    public bool IsRead { get; set; }
+    public string Severity { get; set; } = "low"; // low, medium, high, critical
+    public string ActionUrl { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Performance metrics summary
+/// </summary>
+public class PerformanceMetrics
+{
+    public double ResponseTimeMs { get; set; }
+    public double CpuUsagePercent { get; set; }
+    public double MemoryUsagePercent { get; set; }
+    public double DatabaseLatencyMs { get; set; }
+    public int RequestsPerMinute { get; set; }
+    public int ErrorRate { get; set; }
+    public DateTime LastMeasured { get; set; } = DateTime.UtcNow;
+}
+
+/// <summary>
+/// System health status
+/// </summary>
+public class SystemHealthStatus
+{
+    public bool IsHealthy { get; set; } = true;
+    public string Status { get; set; } = "Healthy";
+    public List<HealthCheckResult> HealthChecks { get; set; } = new();
+    public DateTime LastCheck { get; set; } = DateTime.UtcNow;
+}
+
+/// <summary>
+/// Individual health check result
+/// </summary>
+public class HealthCheckResult
+{
+    public string Name { get; set; } = string.Empty;
+    public bool IsHealthy { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public TimeSpan Duration { get; set; }
+}
+
+/// <summary>
+/// Chart data for analytics
+/// </summary>
+public class ChartData
+{
+    public string ChartType { get; set; } = "line";
+    public List<string> Labels { get; set; } = new();
+    public List<ChartDataset> Datasets { get; set; } = new();
+    public Dictionary<string, object> Options { get; set; } = new();
+}
+
+/// <summary>
+/// Chart dataset
+/// </summary>
+public class ChartDataset
+{
+    public string Label { get; set; } = string.Empty;
+    public List<double> Data { get; set; } = new();
+    public string BackgroundColor { get; set; } = "#007bff";
+    public string BorderColor { get; set; } = "#007bff";
+    public int BorderWidth { get; set; } = 2;
+    public bool Fill { get; set; }
+}
+
+/// <summary>
+/// KPI metrics summary
+/// </summary>
+public class KpiSummary
+{
+    public List<KpiMetric> Metrics { get; set; } = new();
+    public string Period { get; set; } = "24h";
+    public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
+}
+
+/// <summary>
+/// Individual KPI metric
+/// </summary>
+public class KpiMetric
+{
+    public string Name { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
+    public double Value { get; set; }
+    public double PreviousValue { get; set; }
+    public double ChangePercentage { get; set; }
+    public string TrendDirection { get; set; } = "stable"; // up, down, stable
+    public string Unit { get; set; } = string.Empty;
+    public string Format { get; set; } = "number";
+    public string Color { get; set; } = "primary";
+}
+
+#endregion
+
 #region API Request/Response Models
 
 /// <summary>

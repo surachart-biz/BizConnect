@@ -10,7 +10,7 @@ namespace BizConnect.Controllers;
 /// <summary>
 /// Controller for KBank Online Direct Debit (ODD) operations
 /// </summary>
-[Route("kbank")]
+[Route("kbank/odd")]
 public class KBankController : BaseController
 {
     private readonly IKbankOddService _kbankOddService;
@@ -36,12 +36,13 @@ public class KBankController : BaseController
     // DEPRECATED ENDPOINTS REMOVED - Guest registration now handled by HomeController
     // - /kbank/register/start -> /verify (HomeController)
     // - /kbank/register/form -> /register (HomeController)
+    // Current authenticated endpoints: /kbank/odd/register, /kbank/odd/callback, /kbank/odd/status-update
 
     /// <summary>
     /// Displays the KBank ODD registration form (authenticated users)
     /// </summary>
     /// <returns>Registration form view</returns>
-    [HttpGet("odd/register")]
+    [HttpGet("register")]
     [Authorize] // Require authentication to start registration
     public async Task<IActionResult> Register()
     {
@@ -70,7 +71,7 @@ public class KBankController : BaseController
     /// <param name="viewModel">Registration form data</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Redirect to KBank registration page or form with validation errors</returns>
-    [HttpPost("odd/register")]
+    [HttpPost("register")]
     [Authorize] // Require authentication to start registration
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Register(KBankOddRegisterViewModel viewModel, CancellationToken cancellationToken = default)
@@ -209,7 +210,7 @@ public class KBankController : BaseController
     /// <param name="ref">External reference to identify the registration</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Redirect to success or failure page based on registration status</returns>
-    [HttpGet("odd/callback")]
+    [HttpGet("callback")]
     public async Task<IActionResult> Callback(string? @ref, CancellationToken cancellationToken = default)
     {
         try
@@ -250,7 +251,7 @@ public class KBankController : BaseController
     /// Registration success page (optional - for user-friendly feedback)
     /// </summary>
     /// <returns>Success view</returns>
-    [HttpGet("odd/success")]
+    [HttpGet("success")]
     public IActionResult Success()
     {
         ViewData["Title"] = "Registration Successful";
@@ -261,7 +262,7 @@ public class KBankController : BaseController
     /// Registration failure page (optional - for user-friendly feedback)
     /// </summary>
     /// <returns>Failure view</returns>
-    [HttpGet("odd/failure")]
+    [HttpGet("failure")]
     public IActionResult Failure()
     {
         ViewData["Title"] = "Registration Failed";
@@ -272,7 +273,7 @@ public class KBankController : BaseController
     /// Registration pending page - shown when registration is still being processed
     /// </summary>
     /// <returns>Pending view</returns>
-    [HttpGet("odd/pending")]
+    [HttpGet("pending")]
     public IActionResult Pending()
     {
         ViewData["Title"] = "Registration Processing";

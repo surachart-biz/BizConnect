@@ -166,7 +166,7 @@
                             {
                                 <div class="d-flex align-items-center p-3 mb-3 glass rounded-3 transition-all hover:shadow-md">
                                     <div class="flex-shrink-0 me-3">
-                                        <div class="status-indicator status-@(registration.Status.ToLower())">
+                                        <div class="status-indicator status-@(registration?.Status?.ToLower())">
                                             <div class="status-dot"></div>
                                             <span>@registration.Status</span>
                                         </div>
