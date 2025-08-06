@@ -209,13 +209,66 @@ public class PaginationRequest
 public class PagedApiResponse<T> : ApiResponse<PagedResult<T>>
 {
     /// <summary>
+    /// Total count of all items
+    /// </summary>
+    public int TotalCount { get; set; }
+    
+    /// <summary>
+    /// Page size used in the request
+    /// </summary>
+    public int PageSize { get; set; }
+    
+    /// <summary>
+    /// Current page number
+    /// </summary>
+    public int CurrentPage { get; set; }
+    
+    /// <summary>
+    /// Total number of pages
+    /// </summary>
+    public int TotalPages { get; set; }
+
+    /// <summary>
+    /// Creates a successful response with paged data
+    /// </summary>
+    public static PagedApiResponse<TItem> Success<TItem>(PagedResult<TItem> data, int totalCount, int pageSize, int currentPage, string message = "Success")
+    {
+        return new PagedApiResponse<TItem>
+        {
+            IsSuccess = true,
+            Data = data,
+            Message = message,
+            TotalCount = totalCount,
+            PageSize = pageSize,
+            CurrentPage = currentPage,
+            TotalPages = (int)Math.Ceiling((double)totalCount / pageSize)
+        };
+    }
+
+    /// <summary>
+    /// Creates an error response
+    /// </summary>
+    public static PagedApiResponse<TItem> Failure<TItem>(string message, string errorCode = "ERROR")
+    {
+        return new PagedApiResponse<TItem>
+        {
+            IsSuccess = false,
+            Data = PagedResult<TItem>.Empty(),
+            Message = message,
+            TotalCount = 0,
+            PageSize = 0,
+            CurrentPage = 0,
+            TotalPages = 0
+        };
+    }
+    /// <summary>
     /// Creates a successful paged response
     /// </summary>
     public static PagedApiResponse<T> Ok(PagedResult<T> pagedResult, string? message = null)
     {
         return new PagedApiResponse<T>
         {
-            Success = true,
+            IsSuccess = true,
             Data = pagedResult,
             Message = message,
             Metadata = new Dictionary<string, object>
@@ -239,5 +292,19 @@ public class PagedApiResponse<T> : ApiResponse<PagedResult<T>>
     public static PagedApiResponse<T> Empty(int page = 1, int pageSize = 10, string? message = "No results found")
     {
         return Ok(PagedResult<T>.Empty(page, pageSize), message);
+    }
+
+    /// <summary>
+    /// Creates an error paged response
+    /// </summary>
+    public static PagedApiResponse<T> Error(string errorMessage, int page = 1, int pageSize = 10)
+    {
+        return new PagedApiResponse<T>
+        {
+            IsSuccess = false,
+            Data = PagedResult<T>.Empty(page, pageSize),
+            Message = "Operation failed",
+            Errors = new List<string> { errorMessage }
+        };
     }
 }

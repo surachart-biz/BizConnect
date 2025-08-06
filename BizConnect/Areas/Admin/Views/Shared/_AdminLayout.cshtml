@@ -8,7 +8,7 @@
 }
 
 <!DOCTYPE html>
-<html lang="@(isThaiCulture ? "th" : "en")">
+<html lang="@(isThaiCulture ? Html.Raw("th") : Html.Raw("en"))">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -30,13 +30,17 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/modern-ui.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/responsive.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/animations.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/enhanced-admin.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/BizConnect.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/enhanced-admin.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
     <style>
@@ -423,7 +427,7 @@
 </head>
 <body>
     <!-- Top Navigation -->
-    <nav class="admin-topbar navbar navbar-expand-lg">
+    <nav class="admin-topbar navbar navbar-expand-lg glass">
         <div class="container-fluid">
             <!-- Sidebar Toggle -->
             <button class="sidebar-toggle me-3" type="button" id="sidebarToggle" aria-label="Toggle sidebar navigation" aria-expanded="true" aria-controls="adminSidebar">
@@ -431,8 +435,10 @@
             </button>
 
             <!-- Brand -->
-            <a class="navbar-brand d-flex align-items-center" href="#">
-                <i class="fas fa-university me-2"></i>
+            <a class="modern-brand" href="#">
+                <div class="modern-brand-icon" style="background: var(--gradient-kbank);">
+                    <i class="fas fa-university"></i>
+                </div>
                 <span>BizConnect Admin</span>
             </a>
 
@@ -498,8 +504,8 @@
     </nav>
 
     <!-- Sidebar -->
-    <nav class="admin-sidebar" id="adminSidebar" role="navigation" aria-label="Admin navigation">
-        <div class="sidebar-header">
+    <nav class="admin-sidebar glass" id="adminSidebar" role="navigation" aria-label="Admin navigation">
+        <div class="sidebar-header glass-card">
             <h5 class="sidebar-title">KBank ODD System</h5>
             <p class="sidebar-subtitle">@Localizer["AdminPanel"]</p>
         </div>
@@ -509,14 +515,14 @@
             <div class="nav-section">
                 <div class="nav-section-title">@Localizer["Dashboard"]</div>
                 <div class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")" 
+                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? Html.Raw("active") : Html.Raw(""))" 
                        asp-controller="Home" asp-action="Dashboard" asp-area="Admin">
                         <i class="fas fa-tachometer-alt"></i>
                         <span>@Localizer["Overview"]</span>
                     </a>
                 </div>
                 <div class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Analytics" ? "active" : "")" 
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Analytics" ? Html.Raw("active") : Html.Raw(""))" 
                        asp-controller="Analytics" asp-action="Dashboard" asp-area="Admin">
                         <i class="fas fa-chart-line"></i>
                         <span>@Localizer["Analytics"]</span>
@@ -528,7 +534,7 @@
             <div class="nav-section">
                 <div class="nav-section-title">@Localizer["OddManagement"]</div>
                 <div class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "OddRegistration" ? "active" : "")" 
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "OddRegistration" ? Html.Raw("active") : Html.Raw(""))" 
                        asp-controller="OddRegistration" asp-action="Index" asp-area="Admin">
                         <i class="fas fa-file-alt"></i>
                         <span>@Localizer["OddRegistrations"]</span>
@@ -540,7 +546,7 @@
             <div class="nav-section">
                 <div class="nav-section-title">@Localizer["UserManagement"]</div>
                 <div class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" ? "active" : "")" 
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" ? Html.Raw("active") : Html.Raw(""))" 
                        asp-controller="Users" asp-action="Index" asp-area="Admin">
                         <i class="fas fa-users"></i>
                         <span>@Localizer["AllUsers"]</span>
@@ -553,39 +559,41 @@
     <!-- Main Content -->
     <main class="admin-content" id="adminContent">
         <!-- Content Header -->
-        <div class="content-header fade-in">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <h1 class="content-title">@ViewData["Title"]</h1>
-                    @if (!string.IsNullOrEmpty(ViewBag.Subtitle as string))
-                    {
-                        <p class="content-subtitle">@ViewBag.Subtitle</p>
-                    }
+        <div class="glass-card fade-in-up mb-4">
+            <div class="card-modern-header">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h1 class="card-modern-title">@ViewData["Title"]</h1>
+                        @if (!string.IsNullOrEmpty(ViewBag.Subtitle as string))
+                        {
+                            <p class="card-modern-subtitle">@ViewBag.Subtitle</p>
+                        }
                     
-                    <!-- Breadcrumb -->
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb breadcrumb-custom">
-                            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Dashboard" asp-area="Admin">Admin</a></li>
-                            @if (!string.IsNullOrEmpty(ViewBag.BreadcrumbSection as string))
-                            {
-                                <li class="breadcrumb-item">@ViewBag.BreadcrumbSection</li>
-                            }
-                            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
-                        </ol>
-                    </nav>
-                </div>
-                
-                @if (IsSectionDefined("HeaderActions"))
-                {
-                    <div class="header-actions">
-                        @await RenderSectionAsync("HeaderActions", required: false)
+                        <!-- Breadcrumb -->
+                        <nav aria-label="breadcrumb" class="mt-2">
+                            <ol class="breadcrumb breadcrumb-custom">
+                                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Dashboard" asp-area="Admin" class="text-kbank text-decoration-none">Admin</a></li>
+                                @if (!string.IsNullOrEmpty(ViewBag.BreadcrumbSection as string))
+                                {
+                                    <li class="breadcrumb-item text-muted">@ViewBag.BreadcrumbSection</li>
+                                }
+                                <li class="breadcrumb-item active text-gray-600" aria-current="page">@ViewData["Title"]</li>
+                            </ol>
+                        </nav>
                     </div>
-                }
+                
+                    @if (IsSectionDefined("HeaderActions"))
+                    {
+                        <div class="header-actions">
+                            @await RenderSectionAsync("HeaderActions", required: false)
+                        </div>
+                    }
+                </div>
             </div>
         </div>
 
         <!-- Page Content -->
-        <div class="page-content fade-in">
+        <div class="page-content fade-in-up">
             @RenderBody()
         </div>
     </main>
@@ -603,6 +611,9 @@
     <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
     <script src="~/js/language-switcher.js" asp-append-version="true"></script>
+    <script src="~/js/ui-interactions.js" asp-append-version="true"></script>
+    <script src="~/js/performance-monitor.js" asp-append-version="true"></script>
+    <script src="~/js/ui-tester.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     <script>

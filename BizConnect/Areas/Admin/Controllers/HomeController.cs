@@ -1,7 +1,9 @@
 using BizConnect.Dal.Models;
+using BizConnect.Services.DTOs;
 using BizConnect.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BizConnect.Areas.Admin.Controllers;
 
@@ -54,6 +56,19 @@ public class HomeController : BaseAdminController
         return View(model);
     }
 
+    public async Task<IActionResult> Index()
+    {
+        var quickActions = GetQuickActions();
+        var widgets = GetDashboardWidgets();
+        var permissions = GetUserPermissions();
+        
+        ViewBag.QuickActions = quickActions;
+        ViewBag.Widgets = widgets;
+        ViewBag.UserPermissions = permissions;
+        
+        return View();
+    }
+
     public IActionResult LoadingDemo()
     {
         return View();
@@ -63,6 +78,181 @@ public class HomeController : BaseAdminController
     {
         return View();
     }
+
+    #region Private Helper Methods for Modern Admin Dashboard
+
+    /// <summary>
+    /// Get quick actions for admin dashboard
+    /// </summary>
+    private List<QuickAction> GetQuickActions()
+    {
+        var actions = new List<QuickAction>
+        {
+            new QuickAction
+            {
+                Title = "Generate OTAC",
+                Description = "Generate new OTAC codes",
+                ActionUrl = Url.Action("Index", "Otac"),
+                IconClass = "fas fa-key",
+                Color = "primary",
+                Permission = "ManageOtac",
+                DisplayOrder = 1
+            },
+            new QuickAction
+            {
+                Title = "View Registrations",
+                Description = "Manage ODD registrations",
+                ActionUrl = Url.Action("Index", "OddRegistration"),
+                IconClass = "fas fa-list-alt",
+                Color = "info",
+                Permission = "ViewRegistrations",
+                DisplayOrder = 2
+            },
+            new QuickAction
+            {
+                Title = "System Health",
+                Description = "Monitor system status",
+                ActionUrl = "#",
+                IconClass = "fas fa-heartbeat",
+                Color = "success",
+                Permission = "ViewSystemHealth",
+                DisplayOrder = 3
+            },
+            new QuickAction
+            {
+                Title = "Analytics",
+                Description = "View detailed analytics",
+                ActionUrl = Url.Action("Index", "Analytics"),
+                IconClass = "fas fa-chart-bar",
+                Color = "warning",
+                Permission = "ViewAnalytics",
+                DisplayOrder = 4
+            }
+        };
+
+        return actions.Where(a => HasPermission(a.Permission)).ToList();
+    }
+
+    /// <summary>
+    /// Get dashboard widgets configuration
+    /// </summary>
+    private List<DashboardWidget> GetDashboardWidgets()
+    {
+        return new List<DashboardWidget>
+        {
+            new DashboardWidget
+            {
+                Id = "live-stats",
+                Title = "Live Statistics",
+                Type = "metric",
+                Size = "large",
+                Position = 1,
+                Configuration = new Dictionary<string, object>
+                {
+                    ["refreshInterval"] = 30,
+                    ["showTrends"] = true
+                }
+            },
+            new DashboardWidget
+            {
+                Id = "recent-activity",
+                Title = "Recent Activity",
+                Type = "table",
+                Size = "medium",
+                Position = 2,
+                Configuration = new Dictionary<string, object>
+                {
+                    ["maxRows"] = 10,
+                    ["autoRefresh"] = true
+                }
+            },
+            new DashboardWidget
+            {
+                Id = "performance-chart",
+                Title = "Performance Metrics",
+                Type = "chart",
+                Size = "medium",
+                Position = 3,
+                Configuration = new Dictionary<string, object>
+                {
+                    ["chartType"] = "line",
+                    ["timeRange"] = "24h"
+                }
+            },
+            new DashboardWidget
+            {
+                Id = "system-alerts",
+                Title = "System Alerts",
+                Type = "custom",
+                Size = "small",
+                Position = 4,
+                Configuration = new Dictionary<string, object>
+                {
+                    ["showOnlyActive"] = true,
+                    ["maxAlerts"] = 5
+                }
+            }
+        };
+    }
+
+    /// <summary>
+    /// Get user permissions for UI customization
+    /// </summary>
+    private UserPermissions GetUserPermissions()
+    {
+        // Get current user roles and permissions
+        var userRoles = User.Claims
+            .Where(c => c.Type == ClaimTypes.Role)
+            .Select(c => c.Value)
+            .ToList();
+
+        var isAdmin = userRoles.Contains("Admin");
+        var isEmployee = userRoles.Contains("Employee");
+
+        return new UserPermissions
+        {
+            CanViewAnalytics = isAdmin || isEmployee,
+            CanManageUsers = isAdmin,
+            CanManageOtac = isAdmin || isEmployee,
+            CanManageRegistrations = isAdmin || isEmployee,
+            CanExportData = isAdmin,
+            CanViewSystemHealth = isAdmin,
+            CanManageSystem = isAdmin,
+            Roles = userRoles,
+            FeatureFlags = new Dictionary<string, bool>
+            {
+                ["modernUI"] = true,
+                ["realtimeUpdates"] = isAdmin || isEmployee,
+                ["advancedAnalytics"] = isAdmin,
+                ["systemMonitoring"] = isAdmin,
+                ["exportFeatures"] = isAdmin
+            }
+        };
+    }
+
+    /// <summary>
+    /// Check if current user has specified permission
+    /// </summary>
+    private bool HasPermission(string? permission)
+    {
+        if (string.IsNullOrEmpty(permission))
+            return true;
+
+        var permissions = GetUserPermissions();
+        
+        return permission switch
+        {
+            "ManageOtac" => permissions.CanManageOtac,
+            "ViewRegistrations" => permissions.CanManageRegistrations,
+            "ViewSystemHealth" => permissions.CanViewSystemHealth,
+            "ViewAnalytics" => permissions.CanViewAnalytics,
+            "ManageUsers" => permissions.CanManageUsers,
+            "ExportData" => permissions.CanExportData,
+            _ => false
+        };
+    }
+
+    #endregion
 }
 
 public class DashboardViewModel

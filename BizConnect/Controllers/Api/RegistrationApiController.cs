@@ -1,3 +1,4 @@
+using BizConnect.Services.DTOs;
 using BizConnect.Models.Api;
 using BizConnect.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -120,8 +121,7 @@ public class RegistrationApiController : ControllerBase
         {
             _logger.LogError(ex, "Error searching registrations. TraceId: {TraceId}", traceId);
             
-            var response = PagedApiResponse<RegistrationDto>.Empty(request.Page, request.PageSize, "An error occurred while searching registrations");
-            response.Success = false;
+            var response = PagedApiResponse<RegistrationDto>.Error("An error occurred while searching registrations", request.Page, request.PageSize);
             response.TraceId = traceId;
             return StatusCode(500, response);
         }

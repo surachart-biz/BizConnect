@@ -342,6 +342,47 @@ public class UnitOfWork : IUnitOfWork
 
     #endregion
 
+    #region Health Monitoring
+
+    /// <summary>
+    /// Tests database connectivity for health monitoring purposes.
+    /// Performs a lightweight operation to verify the database connection is working.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for async operation</param>
+    /// <returns>True if database is accessible, false otherwise</returns>
+    public async Task<bool> TestConnectionAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            ThrowIfDisposed();
+            
+            _logger.LogDebug("Testing database connectivity");
+            
+            // Use CanConnectAsync which is a lightweight method to test connection
+            var canConnect = await _context.Database.CanConnectAsync(cancellationToken);
+            
+            if (canConnect)
+            {
+                // Additional verification with a simple query
+                var result = await _context.Database.ExecuteSqlRawAsync("SELECT 1", cancellationToken);
+                _logger.LogDebug("Database connectivity test successful");
+                return true;
+            }
+            else
+            {
+                _logger.LogWarning("Database connectivity test failed - cannot connect");
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Database connectivity test failed with exception");
+            return false;
+        }
+    }
+
+    #endregion
+
     #region IDisposable Implementation
 
     /// <summary>

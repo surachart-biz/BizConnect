@@ -583,18 +583,67 @@
                         <label for="status" class="form-label">@Localizer["Status"]</label>
                         <select class="form-select" id="status" name="status">
                             <option value="">@Localizer["AllStatus"]</option>
-                            <option value="Pending" selected="@(Model.StatusFilter == "Pending")">@Localizer["Pending"]</option>
-                            <option value="Success" selected="@(Model.StatusFilter == "Success")">@Localizer["Success"]</option>
-                            <option value="Fail" selected="@(Model.StatusFilter == "Fail")">@Localizer["Failed"]</option>
+                            @if (Model.StatusFilter == "Pending")
+                            {
+                                <option value="Pending" selected>@Localizer["Pending"]</option>
+                            }
+                            else
+                            {
+                                <option value="Pending">@Localizer["Pending"]</option>
+                            }
+                            @if (Model.StatusFilter == "Success")
+                            {
+                                <option value="Success" selected>@Localizer["Success"]</option>
+                            }
+                            else
+                            {
+                                <option value="Success">@Localizer["Success"]</option>
+                            }
+                            @if (Model.StatusFilter == "Fail")
+                            {
+                                <option value="Fail" selected>@Localizer["Failed"]</option>
+                            }
+                            else
+                            {
+                                <option value="Fail">@Localizer["Failed"]</option>
+                            }
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label for="pageSize" class="form-label">@Localizer["PerPage"]</label>
                         <select class="form-select" id="pageSize" name="pageSize">
-                            <option value="10" selected="@(Model.PageSize == 10)">10</option>
-                            <option value="25" selected="@(Model.PageSize == 25)">25</option>
-                            <option value="50" selected="@(Model.PageSize == 50)">50</option>
-                            <option value="100" selected="@(Model.PageSize == 100)">100</option>
+                            @if (Model.PageSize == 10)
+                            {
+                                <option value="10" selected>10</option>
+                            }
+                            else
+                            {
+                                <option value="10">10</option>
+                            }
+                            @if (Model.PageSize == 25)
+                            {
+                                <option value="25" selected>25</option>
+                            }
+                            else
+                            {
+                                <option value="25">25</option>
+                            }
+                            @if (Model.PageSize == 50)
+                            {
+                                <option value="50" selected>50</option>
+                            }
+                            else
+                            {
+                                <option value="50">50</option>
+                            }
+                            @if (Model.PageSize == 100)
+                            {
+                                <option value="100" selected>100</option>
+                            }
+                            else
+                            {
+                                <option value="100">100</option>
+                            }
                         </select>
                     </div>
                     <div class="col-md-3">

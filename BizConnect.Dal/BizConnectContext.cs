@@ -24,11 +24,15 @@ public partial class BizConnectContext : DbContext
 
     public virtual DbSet<KbankOddRegistration> KbankOddRegistrations { get; set; }
 
-    public virtual DbSet<SchemaVersion> SchemaVersions { get; set; }
+    public virtual DbSet<_SchemaVersion> SchemaVersions { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
-    public virtual DbSet<VwOtacLifecycleStat> VwOtacLifecycleStats { get; set; }
+    public virtual DbSet<vw_OtacLifecycleStat> VwOtacLifecycleStats { get; set; }
+
+    public virtual DbSet<v_dashboard_stat> DashboardStats { get; set; }
+
+    public virtual DbSet<v_recent_activity> RecentActivities { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -240,7 +244,7 @@ public partial class BizConnectContext : DbContext
                 .HasConstraintName("FK_KbankOddRegistration_GeneratedByUserId");
         });
 
-        modelBuilder.Entity<SchemaVersion>(entity =>
+        modelBuilder.Entity<_SchemaVersion>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("_SchemaVersion_pkey");
 
@@ -291,13 +295,27 @@ public partial class BizConnectContext : DbContext
                 .HasComment("Unique username for authentication");
         });
 
-        modelBuilder.Entity<VwOtacLifecycleStat>(entity =>
+        modelBuilder.Entity<vw_OtacLifecycleStat>(entity =>
         {
             entity
                 .HasNoKey()
                 .ToView("vw_OtacLifecycleStats");
 
             entity.Property(e => e.OtacState).HasMaxLength(20);
+        });
+
+        modelBuilder.Entity<v_dashboard_stat>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("v_dashboard_stats");
+        });
+
+        modelBuilder.Entity<v_recent_activity>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("v_recent_activity");
         });
 
         OnModelCreatingPartial(modelBuilder);

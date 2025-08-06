@@ -1,0 +1,535 @@
+@*
+    Secure Form Component
+    Enhanced form with built-in CSRF protection, security indicators, and validation
+    
+    Usage:
+    @await Html.PartialAsync("_SecureForm", new SecureFormModel 
+    { 
+        Action = "/Account/Login",
+        Method = "POST",
+        FormId = "loginForm",
+        SecurityLevel = "high",
+        ShowSecurityIndicators = true
+    })
+*@
+
+@model BizConnect.Models.Components.SecureFormModel
+
+@{
+    var formId = Model?.FormId ?? $"secureForm_{Guid.NewGuid():N}";
+    var securityLevel = Model?.SecurityLevel ?? "normal";
+    var showIndicators = Model?.ShowSecurityIndicators ?? true;
+    var method = Model?.Method?.ToUpper() ?? "POST";
+    var action = Model?.Action ?? "";
+    var cssClass = Model?.CssClass ?? "secure-form";
+    var isOtacForm = Model?.IsOtacForm ?? false;
+    var isSensitive = Model?.IsSensitive ?? false;
+    
+    // Security level styling
+    var securityLevelClass = securityLevel switch
+    {
+        "high" => "security-level-high",
+        "elevated" => "security-level-elevated",
+        "critical" => "security-level-critical",
+        _ => "security-level-normal"
+    };
+}
+
+@* Add security-related meta tags *@
+@section HeadContent {
+    <meta name="csrf-token" content="@Html.AntiForgeryToken().ToString()">
+    <meta name="security-level" content="@securityLevel">
+    @if (isSensitive)
+    {
+        <meta name="sensitive-form" content="true">
+    }
+}
+
+@* Security Status Header *@
+@if (showIndicators)
+{
+    <div class="glass-card mb-3 @securityLevelClass">
+        <div class="card-modern-body p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="security-status-indicator d-flex align-items-center">
+                    <div class="badge-modern badge-success me-2">
+                        <i class="fas fa-shield-alt" id="@(formId)_securityIcon"></i>
+                    </div>
+                    <span class="security-status-text fw-semibold" id="@(formId)_securityStatus">Form Security: Active</span>
+                </div>
+                @if (isOtacForm)
+                {
+                    <div class="otac-attempt-counter">
+                        <div class="badge-modern badge-primary">
+                            <i class="fas fa-key"></i>
+                            Attempts: <span id="@(formId)_attemptCount" class="fw-bold">0</span>/5
+                        </div>
+                    </div>
+                }
+            </div>
+            
+            @* Security Progress Bar *@
+            <div class="security-progress mt-3">
+                <div class="progress-modern">
+                    <div class="progress-bar-modern" id="@(formId)_securityProgress" style="width: 100%; background: var(--gradient-success);"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@* Enhanced Form with Security Features *@
+<form id="@formId" 
+      action="@action" 
+      method="@method" 
+      class="glass-card form-modern @cssClass @securityLevelClass"
+      data-security-level="@securityLevel"
+      data-form-type="@(isOtacForm ? Html.Raw("otac") : Html.Raw("standard"))"
+      data-sensitive="@(isSensitive ? Html.Raw("true") : Html.Raw("false"))"
+      autocomplete="off"
+      novalidate>
+    
+    @* CSRF Protection *@
+    @Html.AntiForgeryToken()
+    
+    @* Security Metadata *@
+    <input type="hidden" name="FormId" value="@formId">
+    <input type="hidden" name="SecurityLevel" value="@securityLevel">
+    <input type="hidden" name="Timestamp" value="@DateTimeOffset.UtcNow.ToUnixTimeSeconds()">
+    <input type="hidden" name="ClientFingerprint" id="@(formId)_fingerprint">
+    
+    @* Form Content Placeholder *@
+    <div class="card-modern-body secure-form-content">
+        @RenderBody()
+    </div>
+    
+    @* Security Validation Messages *@
+    <div class="security-validation-messages d-none" id="@(formId)_securityMessages">
+        <div class="alert-modern alert-warning" role="alert">
+            <div class="alert-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="alert-content">
+                <p class="alert-message security-message-text mb-0"></p>
+            </div>
+        </div>
+    </div>
+    
+    @* Rate Limiting Indicator *@
+    @if (showIndicators)
+    {
+        <div class="glass p-3 rounded mt-3 d-none" id="@(formId)_rateLimitIndicator">
+            <div class="d-flex align-items-center mb-2">
+                <div class="badge-modern badge-warning me-2">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <span class="rate-limit-text text-muted small">Please wait <span class="countdown fw-bold"></span> seconds before submitting again.</span>
+            </div>
+            <div class="progress-modern">
+                <div class="progress-bar-modern" id="@(formId)_rateLimitProgress" style="width: 0%; background: linear-gradient(135deg, var(--warning) 0%, var(--warning-dark) 100%);"></div>
+            </div>
+        </div>
+    }
+</form>
+
+@* Security Enhancement Styles *@
+<style>
+    .form-modern.security-level-elevated {
+        border-color: var(--warning-light);
+        background: linear-gradient(135deg, rgba(255, 248, 225, 0.95) 0%, var(--glass-medium) 100%);
+    }
+    
+    .form-modern.security-level-high {
+        border-color: var(--danger-light);
+        background: linear-gradient(135deg, rgba(255, 243, 245, 0.95) 0%, var(--glass-medium) 100%);
+    }
+    
+    .form-modern.security-level-critical {
+        border-color: var(--gray-400);
+        background: linear-gradient(135deg, var(--gray-100), var(--glass-medium));
+        box-shadow: 0 8px 25px rgba(211, 47, 47, 0.15);
+    }
+    
+    .form-modern input[data-otac="true"],
+    .form-modern .otac-input {
+        font-family: var(--font-mono);
+        font-size: 1.2rem;
+        letter-spacing: 0.2em;
+        text-align: center;
+        text-transform: uppercase;
+        background: var(--glass-white);
+        border: 2px solid var(--kbank-green);
+        border-radius: var(--border-radius);
+        padding: var(--spacing-lg);
+        transition: all var(--transition-normal);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .form-modern input[data-otac="true"]:focus,
+    .form-modern .otac-input:focus {
+        border-color: var(--kbank-green-dark);
+        box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.15);
+        background: var(--white);
+        transform: scale(1.02);
+    }
+    
+    .security-indicator {
+        font-size: 0.875rem;
+        margin-top: var(--spacing-sm);
+        transition: all var(--transition-fast);
+    }
+    
+    .security-indicator.valid {
+        color: var(--success);
+    }
+    
+    .security-indicator.invalid {
+        color: var(--danger);
+    }
+    
+    .security-indicator.incomplete {
+        color: var(--gray-600);
+    }
+    
+    .security-progress .progress-bar-modern {
+        transition: width var(--transition-normal), background-color var(--transition-normal);
+    }
+    
+    @@media (max-width: 768px) {
+        .form-modern {
+            padding: var(--spacing-lg);
+        }
+        
+        .card-modern-body.secure-form-content {
+            padding: var(--spacing-lg);
+        }
+        
+        .glass-card .card-modern-body {
+            padding: var(--spacing-md);
+        }
+        
+        .d-flex.align-items-center.justify-content-between {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: var(--spacing-sm);
+        }
+        
+        .otac-attempt-counter {
+            align-self: flex-end;
+        }
+        
+        .form-modern input[data-otac="true"],
+        .form-modern .otac-input {
+            font-size: 1rem;
+            padding: var(--spacing-md);
+        }
+    }
+</style>
+
+@* Security Enhancement JavaScript *@
+<script type="text/javascript">
+$(document).ready(function() {
+    const formId = '@Html.Raw(formId)';
+    const $form = $(`#${formId}`);
+    const securityLevel = '@Html.Raw(securityLevel)';
+    const isOtacForm = @Html.Raw(isOtacForm.ToString().ToLower());
+    const isSensitive = @Html.Raw(isSensitive.ToString().ToLower());
+    
+    // Initialize secure form
+    initializeSecureForm(formId, {
+        securityLevel: securityLevel,
+        isOtacForm: isOtacForm,
+        isSensitive: isSensitive
+    });
+    
+    function initializeSecureForm(formId, options) {
+        const $form = $(`#${formId}`);
+        
+        // Generate client fingerprint
+        generateClientFingerprint(formId);
+        
+        // Initialize OTAC validation if needed
+        if (options.isOtacForm) {
+            initializeOtacValidation(formId);
+        }
+        
+        // Initialize form security monitoring
+        initializeFormSecurityMonitoring(formId, options);
+        
+        // Bind form submission handler
+        $form.on('submit', function(e) {
+            return handleSecureFormSubmission(e, formId, options);
+        });
+        
+        // Initialize rate limiting
+        initializeRateLimiting(formId);
+        
+        console.log(`[SecureForm] Initialized secure form: ${formId}`);
+    }
+    
+    function generateClientFingerprint(formId) {
+        const fingerprint = {
+            userAgent: navigator.userAgent,
+            language: navigator.language,
+            platform: navigator.platform,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            screen: `${screen.width}x${screen.height}`,
+            timestamp: Date.now()
+        };
+        
+        const hash = btoa(JSON.stringify(fingerprint)).substring(0, 32);
+        $(`#${formId}_fingerprint`).val(hash);
+    }
+    
+    function initializeOtacValidation(formId) {
+        const $form = $(`#${formId}`);
+        const $otacInputs = $form.find('input[data-otac="true"], .otac-input');
+        
+        $otacInputs.each(function() {
+            const $input = $(this);
+            
+            // Add security indicators
+            if (!$input.siblings('.security-indicator').length) {
+                $input.after('<div class="security-indicator incomplete mt-1"><small><i class="fas fa-info-circle text-muted"></i> 0/8 characters (uppercase letters and numbers only)</small></div>');
+            }
+            
+            // Bind input validation
+            $input.on('input paste', function() {
+                setTimeout(() => validateOtacInput($input), 10);
+            });
+        });
+    }
+    
+    function validateOtacInput($input) {
+        let value = $input.val().toUpperCase();
+        
+        // Remove non-alphanumeric characters
+        value = value.replace(/[^A-Z0-9]/g, '');
+        
+        // Limit to 8 characters
+        if (value.length > 8) {
+            value = value.substring(0, 8);
+        }
+        
+        $input.val(value);
+        
+        // Update security indicator
+        const $indicator = $input.siblings('.security-indicator');
+        const isValid = value.length === 8;
+        const isPartial = value.length > 0 && value.length < 8;
+        
+        $indicator.removeClass('valid invalid incomplete');
+        
+        if (isValid) {
+            $indicator.addClass('valid')
+                     .html('<small><i class="fas fa-check-circle text-success"></i> 8/8 characters - Ready to submit</small>');
+        } else if (isPartial) {
+            $indicator.addClass('incomplete')
+                     .html(`<small><i class="fas fa-info-circle text-muted"></i> ${value.length}/8 characters (uppercase letters and numbers only)</small>`);
+        } else {
+            $indicator.addClass('incomplete')
+                     .html('<small><i class="fas fa-info-circle text-muted"></i> 0/8 characters (uppercase letters and numbers only)</small>');
+        }
+    }
+    
+    function initializeFormSecurityMonitoring(formId, options) {
+        const $form = $(`#${formId}`);
+        
+        // Monitor form interaction
+        $form.on('focusin', 'input, textarea, select', function() {
+            updateSecurityStatus(formId, 'active', 'Form interaction detected');
+        });
+        
+        // Monitor security level changes
+        if (window.securityMonitor) {
+            const originalLevel = window.securityMonitor.securityLevel;
+            
+            // Check periodically for security level changes
+            setInterval(() => {
+                if (window.securityMonitor.securityLevel !== originalLevel) {
+                    updateFormSecurityLevel(formId, window.securityMonitor.securityLevel);
+                }
+            }, 5000);
+        }
+    }
+    
+    function updateSecurityStatus(formId, status, message) {
+        const $statusIcon = $(`#${formId}_securityIcon`);
+        const $statusText = $(`#${formId}_securityStatus`);
+        const $progress = $(`#${formId}_securityProgress`);
+        
+        switch (status) {
+            case 'active':
+                $statusIcon.removeClass('text-warning text-danger').addClass('text-success');
+                $statusText.text(`Form Security: ${message || 'Active'}`);
+                $progress.removeClass('bg-warning bg-danger').addClass('bg-success');
+                break;
+            case 'warning':
+                $statusIcon.removeClass('text-success text-danger').addClass('text-warning');
+                $statusText.text(`Form Security: ${message || 'Warning'}`);
+                $progress.removeClass('bg-success bg-danger').addClass('bg-warning');
+                break;
+            case 'danger':
+                $statusIcon.removeClass('text-success text-warning').addClass('text-danger');
+                $statusText.text(`Form Security: ${message || 'Alert'}`);
+                $progress.removeClass('bg-success bg-warning').addClass('bg-danger');
+                break;
+        }
+    }
+    
+    function updateFormSecurityLevel(formId, newLevel) {
+        const $form = $(`#${formId}`);
+        const $header = $form.prev('.security-status-header');
+        
+        // Remove old security level classes
+        $form.removeClass('security-level-normal security-level-elevated security-level-high security-level-critical');
+        $header.removeClass('security-level-normal security-level-elevated security-level-high security-level-critical');
+        
+        // Add new security level classes
+        $form.addClass(`security-level-${newLevel}`);
+        $header.addClass(`security-level-${newLevel}`);
+        
+        // Update form data attribute
+        $form.attr('data-security-level', newLevel);
+        
+        // Update security status
+        const statusMessage = {
+            'normal': 'Normal',
+            'elevated': 'Elevated Security',
+            'high': 'High Security Alert',
+            'critical': 'Critical Security Alert'
+        }[newLevel] || 'Unknown';
+        
+        updateSecurityStatus(formId, newLevel === 'normal' ? 'active' : 'warning', statusMessage);
+    }
+    
+    function handleSecureFormSubmission(e, formId, options) {
+        const $form = $(`#${formId}`);
+        
+        // Check if form is rate limited
+        if (isRateLimited(formId)) {
+            e.preventDefault();
+            showSecurityMessage(formId, 'Rate limit exceeded. Please wait before submitting again.', 'warning');
+            return false;
+        }
+        
+        // Additional security validations
+        if (options.isSensitive && window.securityMonitor && window.securityMonitor.securityLevel === 'critical') {
+            e.preventDefault();
+            showSecurityMessage(formId, 'Form submission temporarily restricted due to security concerns.', 'danger');
+            return false;
+        }
+        
+        // OTAC specific validation
+        if (options.isOtacForm) {
+            const $otacInputs = $form.find('input[data-otac="true"], .otac-input');
+            let allValid = true;
+            
+            $otacInputs.each(function() {
+                const value = $(this).val();
+                if (!value || value.length !== 8 || !/^[A-Z0-9]{8}$/.test(value)) {
+                    allValid = false;
+                    return false;
+                }
+            });
+            
+            if (!allValid) {
+                e.preventDefault();
+                showSecurityMessage(formId, 'Please enter valid 8-character OTAC codes.', 'warning');
+                return false;
+            }
+        }
+        
+        // Apply rate limiting
+        applyRateLimit(formId);
+        
+        // Track security event
+        if (window.securityMonitor) {
+            window.securityMonitor.trackEvent('secure_form_submission', {
+                formId: formId,
+                securityLevel: options.securityLevel,
+                isOtacForm: options.isOtacForm,
+                isSensitive: options.isSensitive
+            });
+        }
+        
+        return true;
+    }
+    
+    let rateLimits = {};
+    
+    function initializeRateLimiting(formId) {
+        rateLimits[formId] = {
+            lastSubmission: 0,
+            submissionCount: 0,
+            windowStart: Date.now(),
+            cooldownPeriod: 3000 // 3 seconds between submissions
+        };
+    }
+    
+    function isRateLimited(formId) {
+        const now = Date.now();
+        const limit = rateLimits[formId];
+        
+        if (!limit) return false;
+        
+        return (now - limit.lastSubmission) < limit.cooldownPeriod;
+    }
+    
+    function applyRateLimit(formId) {
+        const now = Date.now();
+        rateLimits[formId].lastSubmission = now;
+        rateLimits[formId].submissionCount++;
+        
+        // Show rate limit indicator
+        showRateLimitIndicator(formId, rateLimits[formId].cooldownPeriod);
+    }
+    
+    function showRateLimitIndicator(formId, cooldownMs) {
+        const $indicator = $(`#${formId}_rateLimitIndicator`);
+        const $progress = $(`#${formId}_rateLimitProgress`);
+        const $countdown = $indicator.find('.countdown');
+        
+        $indicator.removeClass('d-none');
+        
+        let remainingTime = Math.ceil(cooldownMs / 1000);
+        $countdown.text(remainingTime);
+        
+        const timer = setInterval(() => {
+            remainingTime--;
+            $countdown.text(remainingTime);
+            
+            const progress = ((cooldownMs / 1000 - remainingTime) / (cooldownMs / 1000)) * 100;
+            $progress.css('width', `${progress}%`);
+            
+            if (remainingTime <= 0) {
+                clearInterval(timer);
+                $indicator.addClass('d-none');
+                $progress.css('width', '0%');
+            }
+        }, 1000);
+    }
+    
+    function showSecurityMessage(formId, message, type) {
+        const $messagesContainer = $(`#${formId}_securityMessages`);
+        const $messageText = $messagesContainer.find('.security-message-text');
+        const $alert = $messagesContainer.find('.alert');
+        
+        // Update message
+        $messageText.text(message);
+        
+        // Update alert type
+        $alert.removeClass('alert-warning alert-danger alert-info')
+              .addClass(`alert-${type}`);
+        
+        // Show message
+        $messagesContainer.removeClass('d-none');
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            $messagesContainer.addClass('d-none');
+        }, 5000);
+    }
+});
+</script>

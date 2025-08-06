@@ -6,7 +6,7 @@ namespace BizConnect.Dal.Models;
 /// <summary>
 /// Tracks applied database migration files
 /// </summary>
-public partial class SchemaVersion
+public partial class _SchemaVersion
 {
     public int Id { get; set; }
 

@@ -13,7 +13,7 @@ public class ApiResponse<T>
     /// Indicates whether the operation was successful
     /// </summary>
     [JsonPropertyName("success")]
-    public bool Success { get; set; }
+    public bool IsSuccess { get; set; }
 
     /// <summary>
     /// The data payload of the response (null if operation failed)
@@ -58,7 +58,7 @@ public class ApiResponse<T>
     {
         return new ApiResponse<T>
         {
-            Success = true,
+            IsSuccess = true,
             Data = data,
             Message = message
         };
@@ -71,7 +71,7 @@ public class ApiResponse<T>
     {
         return new ApiResponse<T>
         {
-            Success = true,
+            IsSuccess = true,
             Message = message
         };
     }
@@ -83,7 +83,7 @@ public class ApiResponse<T>
     {
         return new ApiResponse<T>
         {
-            Success = false,
+            IsSuccess = false,
             Message = "Operation failed",
             Errors = new List<string> { errorMessage }
         };
@@ -96,7 +96,7 @@ public class ApiResponse<T>
     {
         return new ApiResponse<T>
         {
-            Success = false,
+            IsSuccess = false,
             Message = "Operation failed",
             Errors = errors.ToList()
         };
@@ -109,11 +109,12 @@ public class ApiResponse<T>
     {
         return new ApiResponse<T>
         {
-            Success = false,
+            IsSuccess = false,
             Message = "An error occurred",
             Errors = new List<string> { exception.Message }
         };
     }
+
 }
 
 /// <summary>
@@ -128,7 +129,7 @@ public class ApiResponse : ApiResponse<object>
     {
         return new ApiResponse
         {
-            Success = true,
+            IsSuccess = true,
             Message = message
         };
     }
@@ -140,7 +141,7 @@ public class ApiResponse : ApiResponse<object>
     {
         return new ApiResponse
         {
-            Success = false,
+            IsSuccess = false,
             Message = "Operation failed",
             Errors = new List<string> { errorMessage }
         };
@@ -153,7 +154,7 @@ public class ApiResponse : ApiResponse<object>
     {
         return new ApiResponse
         {
-            Success = false,
+            IsSuccess = false,
             Message = "Operation failed",
             Errors = errors.ToList()
         };
@@ -166,11 +167,12 @@ public class ApiResponse : ApiResponse<object>
     {
         return new ApiResponse
         {
-            Success = false,
+            IsSuccess = false,
             Message = "An error occurred",
             Errors = new List<string> { exception.Message }
         };
     }
+
 }
 
 /// <summary>
@@ -191,7 +193,7 @@ public class ValidationErrorResponse : ApiResponse
     {
         return new ValidationErrorResponse
         {
-            Success = false,
+            IsSuccess = false,
             Message = "Validation failed",
             ValidationErrors = modelStateErrors,
             Errors = modelStateErrors.SelectMany(kvp => kvp.Value).ToList()

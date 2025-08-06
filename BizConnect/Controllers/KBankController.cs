@@ -143,47 +143,63 @@ public class KBankController : BaseController
 
     /// <summary>
     /// Handles status update callback from KBank (V1.9.7)
+    /// Supports both JSON and form data for flexibility
     /// </summary>
     /// <param name="dto">Status update data from KBank</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>HTTP status code based on processing result</returns>
     [HttpPost("status-update")]
     [IgnoreAntiforgeryToken] // KBank callback doesn't include antiforgery token
-    public async Task<IActionResult> StatusUpdate([FromForm] StatusUpdateDto dto, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> StatusUpdate([FromBody] StatusUpdateDto dto, CancellationToken cancellationToken = default)
     {
         try
         {
-            _logger.LogInformation("Received KBank ODD status update: ExternalReference={ExternalReference}, Status={Status}, ReturnCode={ReturnCode}", 
-                dto.ExternalReference, dto.ReturnStatus, dto.ReturnCode);
-
-            // Find registration by external reference using new service method
-            var registration = await _oddRegistrationService.GetRegistrationByExternalRefAsync(dto.ExternalReference);
-
-            if (registration == null)
-            {
-                _logger.LogWarning("Registration not found for external reference: {ExternalReference}", dto.ExternalReference);
-                return NotFound("Registration record not found");
-            }
-
-            // Map KBank status to our status
-            var mappedStatus = dto.ReturnStatus == "0" ? "Success" : "Fail";
-
-            // Use the new service to update registration status
-            await _oddRegistrationService.UpdateRegistrationStatusAsync(
-                registration.RegId, 
-                mappedStatus, 
-                dto.ReturnCode, 
-                dto.EspaId);
-
-            _logger.LogInformation("Successfully processed KBank status update for ExternalReference: {ExternalReference}", dto.ExternalReference);
+            var result = await _kbankOddService.ProcessStatusUpdateAsync(dto, cancellationToken);
             
-            return Ok("Status updated successfully");
+            return result switch
+            {
+                StatusProcessResult.Success => Ok(new { success = true, message = "Status updated successfully", timestamp = DateTime.UtcNow }),
+                StatusProcessResult.NotFound => NotFound(new { success = false, message = "Registration record not found" }),
+                StatusProcessResult.Unauthorized => Unauthorized(new { success = false, message = "Invalid authentication" }),
+                StatusProcessResult.Fail => BadRequest(new { success = false, message = "Status update failed" }),
+                _ => StatusCode(500, new { success = false, message = "Unknown processing result" })
+            };
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to process KBank ODD status update for ExternalReference: {ExternalReference}", dto.ExternalReference);
+            return StatusCode(500, new { success = false, message = "Internal server error" });
+        }
+    }
+
+    /// <summary>
+    /// Handles status update callback from KBank using form data format
+    /// Alternative endpoint for form-based callbacks
+    /// </summary>
+    /// <param name="dto">Status update data from KBank</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>HTTP status code based on processing result</returns>
+    [HttpPost("status-update-form")]
+    [IgnoreAntiforgeryToken] // KBank callback doesn't include antiforgery token
+    public async Task<IActionResult> StatusUpdateForm([FromForm] StatusUpdateDto dto, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var result = await _kbankOddService.ProcessStatusUpdateAsync(dto, cancellationToken);
             
-            return StatusCode(500, "Internal server error");
+            return result switch
+            {
+                StatusProcessResult.Success => Ok(new { success = true, message = "Status updated successfully", timestamp = DateTime.UtcNow }),
+                StatusProcessResult.NotFound => NotFound(new { success = false, message = "Registration record not found" }),
+                StatusProcessResult.Unauthorized => Unauthorized(new { success = false, message = "Invalid authentication" }),
+                StatusProcessResult.Fail => BadRequest(new { success = false, message = "Status update failed" }),
+                _ => StatusCode(500, new { success = false, message = "Unknown processing result" })
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to process KBank ODD status update (form) for ExternalReference: {ExternalReference}", dto.ExternalReference);
+            return StatusCode(500, new { success = false, message = "Internal server error" });
         }
     }
 

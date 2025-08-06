@@ -29,25 +29,37 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Security Meta Tags -->
+    <meta name="csrf-token" content="@Html.AntiForgeryToken().ToString()">
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <meta name="user-authenticated" content="true">
+        <meta name="user-roles" content="@string.Join(",", User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value))">
+    }
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/modern-ui.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/responsive.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/animations.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/BizConnect.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <header class="bc-header">
-        <nav class="navbar navbar-expand-lg navbar-light">
+    <header class="modern-header">
+        <nav class="navbar navbar-expand-lg modern-navbar">
             <div class="container">
                 <!-- Brand Logo -->
-                <a class="navbar-brand d-flex align-items-center" asp-controller="Home" asp-action="Index">
-                    <div class="bc-logo-container">
+                <a class="modern-brand" asp-controller="Home" asp-action="Index">
+                    <div class="modern-brand-icon">
                         <i class="fas fa-network-wired"></i>
                     </div>
-                    <span class="bc-brand-text">BizConnect</span>
+                    <span>BizConnect</span>
                 </a>
 
                 <!-- Mobile Toggle Button -->
@@ -61,34 +73,34 @@
                     <!-- Main Navigation -->
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">
-                                <i class="fas fa-home me-1"></i>Home
+                            <a class="modern-nav-link" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home"></i>Home
                             </a>
                         </li>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
-                                <a class="nav-link" href="#" onclick="return false;">
-                                    <i class="fas fa-users me-1"></i>Network
+                                <a class="modern-nav-link" href="#" onclick="return false;">
+                                    <i class="fas fa-users"></i>Network
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#" onclick="return false;">
-                                    <i class="fas fa-briefcase me-1"></i>Opportunities
+                                <a class="modern-nav-link" href="#" onclick="return false;">
+                                    <i class="fas fa-briefcase"></i>Opportunities
                                 </a>
                             </li>
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Home" asp-action="Dashboard" asp-area="Admin">
-                                        <i class="fas fa-tachometer-alt me-1"></i>Admin
+                                    <a class="modern-nav-link" asp-controller="Home" asp-action="Dashboard" asp-area="Admin">
+                                        <i class="fas fa-tachometer-alt"></i>Admin
                                     </a>
                                 </li>
                             }
                         }
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Privacy">
-                                <i class="fas fa-shield-alt me-1"></i>Privacy
+                            <a class="modern-nav-link" asp-controller="Home" asp-action="Privacy">
+                                <i class="fas fa-shield-alt"></i>Privacy
                             </a>
                         </li>
                         @if (User.Identity?.IsAuthenticated == true)
@@ -142,9 +154,17 @@
                     <!-- User Menu -->
                     <ul class="navbar-nav">
                         <!-- Language Toggle -->
-                        <li class="nav-item me-2">
+                        <li class="nav-item me-3">
                             @await Html.PartialAsync("_LanguageToggle")
                         </li>
+                        
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <!-- Security Status Widget (Header) -->
+                            <li class="nav-item me-2">
+                                <div id="headerSecurityWidget" class="d-none"></div>
+                            </li>
+                        }
                         
                         @if (User.Identity?.IsAuthenticated == true)
                         {
@@ -206,13 +226,13 @@
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="Login">
-                                    <i class="fas fa-sign-in-alt me-1"></i>Login
+                                <a class="modern-nav-link" asp-controller="Account" asp-action="Login">
+                                    <i class="fas fa-sign-in-alt"></i>Login
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="btn btn-primary ms-2" href="#" onclick="return false;">
-                                    <i class="fas fa-user-plus me-1"></i>Sign Up
+                            <li class="nav-item ms-2">
+                                <a class="btn-modern btn-kbank" href="#" onclick="return false;">
+                                    <i class="fas fa-user-plus"></i>Sign Up
                                 </a>
                             </li>
                         }
@@ -221,15 +241,28 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+    <div class="container-fluid px-4">
+        <main role="main" class="py-4">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - BizConnect - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="glass-card mt-5 mx-4 mb-4 p-4 text-center">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div class="text-kbank fw-semibold">
+                &copy; 2025 BizConnect - Powered by KBank Technology
+            </div>
+            <div class="d-flex gap-3">
+                <a class="text-decoration-none text-muted" asp-controller="Home" asp-action="Privacy">
+                    <i class="fas fa-shield-alt me-1"></i>Privacy Policy
+                </a>
+                <a class="text-decoration-none text-muted" href="#">
+                    <i class="fas fa-file-contract me-1"></i>Terms of Service
+                </a>
+                <a class="text-decoration-none text-muted" href="#">
+                    <i class="fas fa-phone me-1"></i>Support
+                </a>
+            </div>
         </div>
     </footer>
 
@@ -240,8 +273,48 @@
     <script src="~/js/interactions.js" asp-append-version="true"></script>
     <script src="~/js/guided-tour.js" asp-append-version="true"></script>
     <script src="~/js/home-enhancements.js" asp-append-version="true"></script>
+    <script src="~/js/ui-interactions.js" asp-append-version="true"></script>
+    <script src="~/js/performance-monitor.js" asp-append-version="true"></script>
+    <script src="~/js/ui-tester.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/sw-register.js" asp-append-version="true"></script>
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <!-- Security System Scripts -->
+        <script src="~/js/security-validation.js" asp-append-version="true"></script>
+        <script src="~/js/security-monitor.js" asp-append-version="true"></script>
+        <script src="~/js/session-manager.js" asp-append-version="true"></script>
+        <script src="~/js/security-widgets.js" asp-append-version="true"></script>
+        <script src="~/js/api-security.js" asp-append-version="true"></script>
+        <script src="~/js/security-integration.js" asp-append-version="true"></script>
+        
+        <script>
+            // Configure security system for current user
+            window.sessionConfig = {
+                sessionTimeout: @(Context.Session.GetInt32("SessionTimeout") ?? 30),
+                warningTime: @(Context.Session.GetInt32("WarningTime") ?? 25),
+                enableAutoRefresh: true,
+                enableActivityTracking: true,
+                enableSecurityIntegration: true
+            };
+
+            window.securityWidgetsConfig = {
+                enableFloatingWidget: @(Context.Request.Path.StartsWithSegments("/Admin") ? "false" : "true"),
+                enableHeaderWidget: true,
+                enableFormWidgets: true,
+                position: 'bottom-right',
+                theme: 'auto'
+            };
+
+            window.apiSecurityConfig = {
+                enableRequestSigning: false, // Enable when API keys are configured
+                enableRateLimiting: true,
+                enableResponseValidation: true,
+                enableRequestFingerprinting: true
+            };
+        </script>
+    }
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

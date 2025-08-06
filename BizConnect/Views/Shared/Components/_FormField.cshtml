@@ -1,0 +1,86 @@
+@model BizConnect.ViewModels.Components.FormFieldViewModel
+
+<div class="@Model.ContainerClass">
+    @if (!string.IsNullOrEmpty(Model.Label))
+    {
+        <label for="@Model.Id" class="form-label fw-semibold text-dark">
+            @Model.Label
+            @if (Model.Required)
+            {
+                <span class="text-danger">*</span>
+            }
+        </label>
+    }
+    
+    <div class="position-relative">
+        @if (!string.IsNullOrEmpty(Model.Icon))
+        {
+            <i class="@Model.Icon position-absolute top-50 start-0 translate-middle-y ms-3 text-kbank" style="z-index: 5;"></i>
+        }
+        
+        @switch (Model.FieldType?.ToLower())
+        {
+            case "select":
+                <select id="@Model.Id" 
+                        name="@Model.Name" 
+                        class="form-control-modern @(!string.IsNullOrEmpty(Model.Icon) ? "ps-5" : "") @Model.InputClass @(string.IsNullOrEmpty(Model.ErrorMessage) ? "" : "is-invalid")"
+                        @(Model.Required ? "required" : "")
+                        @(Model.Disabled ? "disabled" : "")>
+                    @if (!string.IsNullOrEmpty(Model.PlaceholderText))
+                    {
+                        <option value="">@Model.PlaceholderText</option>
+                    }
+                    @if (Model.Options != null)
+                    {
+                        @foreach (var option in Model.Options)
+                        {
+                            @if (Model.Value == option.Value)
+                            {
+                                <option value="@option.Value" selected>@option.Text</option>
+                            }
+                            else
+                            {
+                                <option value="@option.Value">@option.Text</option>
+                            }
+                        }
+                    }
+                </select>
+                break;
+
+            case "textarea":
+                <textarea id="@Model.Id" 
+                          name="@Model.Name" 
+                          class="form-control-modern @(!string.IsNullOrEmpty(Model.Icon) ? "ps-5" : "") @Model.InputClass @(string.IsNullOrEmpty(Model.ErrorMessage) ? "" : "is-invalid")"
+                          placeholder="@Model.PlaceholderText"
+                          rows="@Model.Rows"
+                          @(Model.Required ? "required" : "")
+                          @(Model.Disabled ? "disabled" : "")
+                          @(Model.ReadOnly ? "readonly" : "")>@Model.Value</textarea>
+                break;
+
+            default:
+                <input type="@(Model.FieldType ?? "text")" 
+                       id="@Model.Id" 
+                       name="@Model.Name" 
+                       class="form-control-modern @(!string.IsNullOrEmpty(Model.Icon) ? "ps-5" : "") @Model.InputClass @(string.IsNullOrEmpty(Model.ErrorMessage) ? "" : "is-invalid")"
+                       placeholder="@Model.PlaceholderText"
+                       value="@Model.Value"
+                       @(Model.Required ? "required" : "")
+                       @(Model.Disabled ? "disabled" : "")
+                       @(Model.ReadOnly ? "readonly" : "") />
+                break;
+        }
+    </div>
+    
+    @if (!string.IsNullOrEmpty(Model.HelpText))
+    {
+        <div class="form-text text-muted small mt-1">
+            <i class="fas fa-info-circle me-1"></i>@Model.HelpText
+        </div>
+    }
+    
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="invalid-feedback">@Model.ErrorMessage</div>
+    }
+</div>

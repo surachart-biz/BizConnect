@@ -1,0 +1,41 @@
+@{
+    var size = ViewBag.Size as string ?? "md"; // sm, md, lg
+    var color = ViewBag.Color as string ?? "kbank"; // kbank, primary, success, etc.
+    var text = ViewBag.Text as string;
+    var overlay = ViewBag.Overlay as bool? ?? false;
+    var centered = ViewBag.Centered as bool? ?? false;
+    
+    var spinnerSize = size switch
+    {
+        "sm" => "16px",
+        "lg" => "64px",
+        _ => "48px"
+    };
+    
+    var containerClass = overlay ? "loading-overlay-modern" : (centered ? "text-center" : "");
+}
+
+@if (overlay)
+{
+    <div class="@containerClass">
+        <div class="text-center">
+            <div class="spinner-modern mb-3" style="width: @spinnerSize; height: @spinnerSize; border-top-color: var(--@(color));"></div>
+            @if (!string.IsNullOrEmpty(text))
+            {
+                <p class="text-muted mb-0">@text</p>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="@containerClass">
+        <div class="d-inline-flex align-items-center">
+            <div class="spinner-modern me-2" style="width: @spinnerSize; height: @spinnerSize; border-top-color: var(--@(color));"></div>
+            @if (!string.IsNullOrEmpty(text))
+            {
+                <span class="text-muted">@text</span>
+            }
+        </div>
+    </div>
+}

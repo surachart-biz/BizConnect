@@ -7,266 +7,136 @@
 
 @section HeaderActions {
     <div class="d-flex gap-2">
-        <button class="btn btn-outline-primary" onclick="refreshDashboard()">
-            <i class="fas fa-sync-alt me-1"></i>Refresh
+        <button class="btn-modern btn-outline-modern" onclick="refreshDashboard()">
+            <i class="fas fa-sync-alt"></i>Refresh
         </button>
-        <div class="dropdown">
-            <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                <i class="fas fa-download me-1"></i>Export
+        <div class="dropdown dropdown-modern">
+            <button class="btn-modern btn-primary-modern dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-download"></i>Export
             </button>
             <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#"><i class="fas fa-file-excel me-2"></i>Excel Report</a></li>
-                <li><a class="dropdown-item" href="#"><i class="fas fa-file-pdf me-2"></i>PDF Report</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-file-excel"></i>Excel Report</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-file-pdf"></i>PDF Report</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#"><i class="fas fa-chart-bar me-2"></i>Analytics</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-chart-bar"></i>Analytics</a></li>
             </ul>
         </div>
     </div>
 }
 
-@section Styles {
-    <style>
-        .kbank-widget {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border: 1px solid #e0e0e0;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
-        }
-        
-        .kbank-widget:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        }
-        
-        .widget-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-        
-        .widget-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: white;
-        }
-        
-        .widget-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin: 0;
-            color: #2c3e50;
-        }
-        
-        .widget-label {
-            color: #6c757d;
-            font-size: 0.9rem;
-            margin: 0;
-        }
-        
-        .widget-trend {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-        }
-        
-        .trend-up { color: #28a745; }
-        .trend-down { color: #dc3545; }
-        .trend-neutral { color: #6c757d; }
-        
-        .progress-ring {
-            width: 80px;
-            height: 80px;
-        }
-        
-        .progress-ring circle {
-            fill: none;
-            stroke-width: 8;
-            stroke-linecap: round;
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
-        }
-        
-        .recent-activity-item {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem;
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-            background: #f8f9fa;
-            transition: all 0.3s ease;
-        }
-        
-        .recent-activity-item:hover {
-            background: #e9ecef;
-        }
-        
-        .activity-icon {
-            width: 35px;
-            height: 35px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 0.75rem;
-        }
-        
-        .activity-content {
-            flex: 1;
-        }
-        
-        .activity-title {
-            font-weight: 600;
-            margin: 0;
-            font-size: 0.9rem;
-        }
-        
-        .activity-meta {
-            font-size: 0.8rem;
-            color: #6c757d;
-            margin: 0;
-        }
-        
-        .quick-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        
-        .quick-stat {
-            text-align: center;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-        
-        .quick-stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin: 0;
-        }
-        
-        .quick-stat-label {
-            font-size: 0.8rem;
-            color: #6c757d;
-            margin: 0;
-        }
-    </style>
-}
 
 <div class="admin-dashboard">
     <!-- KBank ODD Overview Widgets -->
     <div class="row g-4 mb-4">
         <!-- ODD Registrations Today -->
         <div class="col-xl-3 col-md-6">
-            <div class="kbank-widget">
-                <div class="widget-header">
-                    <div class="widget-icon" style="background: linear-gradient(135deg, #0066CC, #004499);">
-                        <i class="fas fa-plus-circle"></i>
+            <div class="stats-widget fade-in-up">
+                <div class="stats-icon">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <div class="stats-number" data-target="@Model.TodayOddRegistrations" data-duration="2000">
+                    @Model.TodayOddRegistrations
+                </div>
+                <div class="stats-label">Today's Registrations</div>
+                <div class="d-flex justify-content-between mt-3">
+                    <div class="text-center">
+                        <div class="badge-modern badge-warning">@Model.PendingOddRegistrations</div>
+                        <small class="d-block text-muted mt-1">Pending</small>
                     </div>
-                    <div class="widget-trend trend-up">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>+@((Model.TodayOddRegistrations > 0 ? ((double)Model.TodayOddRegistrations / Math.Max(Model.TotalOddRegistrations - Model.TodayOddRegistrations, 1) * 100) : 0).ToString("F0"))%</span>
+                    <div class="text-center">
+                        <div class="badge-modern badge-success">@Model.CompletedOddRegistrations</div>
+                        <small class="d-block text-muted mt-1">Completed</small>
                     </div>
                 </div>
-                <div class="widget-content">
-                    <h2 class="widget-value">@Model.TodayOddRegistrations</h2>
-                    <p class="widget-label">Today's Registrations</p>
-                    <div class="quick-stats">
-                        <div class="quick-stat">
-                            <div class="quick-stat-value text-warning">@Model.PendingOddRegistrations</div>
-                            <div class="quick-stat-label">Pending</div>
-                        </div>
-                        <div class="quick-stat">
-                            <div class="quick-stat-value text-success">@Model.CompletedOddRegistrations</div>
-                            <div class="quick-stat-label">Completed</div>
-                        </div>
-                    </div>
+                <div class="position-absolute top-0 end-0 p-3">
+                    <small class="text-success d-flex align-items-center">
+                        <i class="fas fa-arrow-up me-1"></i>
+                        +@((Model.TodayOddRegistrations > 0 ? ((double)Model.TodayOddRegistrations / Math.Max(Model.TotalOddRegistrations - Model.TodayOddRegistrations, 1) * 100) : 0).ToString("F0"))%
+                    </small>
                 </div>
             </div>
         </div>
 
         <!-- OTAC Codes Generated -->
         <div class="col-xl-3 col-md-6">
-            <div class="kbank-widget">
-                <div class="widget-header">
-                    <div class="widget-icon" style="background: linear-gradient(135deg, #28a745, #20c997);">
-                        <i class="fas fa-key"></i>
-                    </div>
-                    <div class="widget-trend trend-up">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>@Model.TodayOtacGenerated</span>
-                    </div>
+            <div class="stats-widget fade-in-up" style="animation-delay: 0.1s;">
+                <div class="stats-icon" style="background: var(--gradient-success);">
+                    <i class="fas fa-key"></i>
                 </div>
-                <div class="widget-content">
-                    <h2 class="widget-value">@Model.ActiveOtacCodes</h2>
-                    <p class="widget-label">Active OTAC Codes</p>
-                    <div class="progress mt-2" style="height: 6px;">
-                        <div class="progress-bar bg-success" style="width: @(Model.OtacUsageRate)%"></div>
-                    </div>
-                    <small class="text-muted">@Model.OtacUsageRate% usage rate</small>
+                <div class="stats-number" data-target="@Model.ActiveOtacCodes" data-duration="2000">
+                    @Model.ActiveOtacCodes
+                </div>
+                <div class="stats-label">Active OTAC Codes</div>
+                <div class="progress-modern mt-3">
+                    <div class="progress-bar-modern" data-value="@(Model.OtacUsageRate)%" style="background: var(--gradient-success);"></div>
+                </div>
+                <small class="text-muted d-flex justify-content-between mt-2">
+                    <span>Usage Rate</span>
+                    <span class="fw-semibold">@Model.OtacUsageRate%</span>
+                </small>
+                <div class="position-absolute top-0 end-0 p-3">
+                    <small class="text-success d-flex align-items-center">
+                        <i class="fas fa-plus me-1"></i>
+                        @Model.TodayOtacGenerated
+                    </small>
                 </div>
             </div>
         </div>
 
         <!-- Success Rate -->
         <div class="col-xl-3 col-md-6">
-            <div class="kbank-widget">
-                <div class="widget-header">
-                    <div class="widget-icon" style="background: linear-gradient(135deg, #17a2b8, #138496);">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div class="text-end">
-                        <svg class="progress-ring" viewBox="0 0 80 80">
-                            <circle cx="40" cy="40" r="30" stroke="#e9ecef" stroke-width="8" />
-                            <circle cx="40" cy="40" r="30" stroke="#17a2b8" stroke-width="8"
-                                    stroke-dasharray="@(188.5 * Model.SuccessRate / 100) 188.5" />
+            <div class="stats-widget fade-in-up" style="animation-delay: 0.2s;">
+                <div class="stats-icon" style="background: var(--gradient-primary);">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stats-number" data-target="@Model.SuccessRate" data-duration="2000">
+                    @Model.SuccessRate%
+                </div>
+                <div class="stats-label">Success Rate</div>
+                <div class="d-flex justify-content-center mt-3">
+                    <div class="position-relative" style="width: 80px; height: 80px;">
+                        <svg class="w-100 h-100" viewBox="0 0 80 80" style="transform: rotate(-90deg);">
+                            <circle cx="40" cy="40" r="30" stroke="var(--gray-200)" stroke-width="6" fill="none" />
+                            <circle cx="40" cy="40" r="30" stroke="var(--primary-blue)" stroke-width="6" fill="none"
+                                    stroke-dasharray="@(188.5 * Model.SuccessRate / 100) 188.5" 
+                                    stroke-linecap="round" class="transition-all duration-1000" />
                         </svg>
+                        <div class="position-absolute top-50 start-50 translate-middle text-center">
+                            <div class="fw-bold text-primary-modern" style="font-size: 0.9rem;">@Model.SuccessRate%</div>
+                        </div>
                     </div>
                 </div>
-                <div class="widget-content">
-                    <h2 class="widget-value">@Model.SuccessRate%</h2>
-                    <p class="widget-label">Success Rate</p>
-                    <small class="text-muted">@Model.CompletedOddRegistrations of @Model.TotalOddRegistrations completed</small>
-                </div>
+                <small class="text-muted text-center d-block mt-2">
+                    @Model.CompletedOddRegistrations of @Model.TotalOddRegistrations completed
+                </small>
             </div>
         </div>
 
         <!-- Monthly Summary -->
         <div class="col-xl-3 col-md-6">
-            <div class="kbank-widget">
-                <div class="widget-header">
-                    <div class="widget-icon" style="background: linear-gradient(135deg, #ffc107, #e0a800);">
-                        <i class="fas fa-calendar-month"></i>
+            <div class="stats-widget fade-in-up" style="animation-delay: 0.3s;">
+                <div class="stats-icon" style="background: var(--gradient-gold);">
+                    <i class="fas fa-calendar-month"></i>
+                </div>
+                <div class="stats-number" data-target="@Model.ThisMonthOddRegistrations" data-duration="2000">
+                    @Model.ThisMonthOddRegistrations
+                </div>
+                <div class="stats-label">Monthly Registrations</div>
+                <div class="d-flex justify-content-between mt-3">
+                    <div class="text-center">
+                        <div class="badge-modern badge-danger">@Model.FailedOddRegistrations</div>
+                        <small class="d-block text-muted mt-1">Failed</small>
                     </div>
-                    <div class="widget-trend trend-up">
-                        <i class="fas fa-calendar"></i>
-                        <span>This Month</span>
+                    <div class="text-center">
+                        <div class="badge-modern badge-primary">@Model.ExpiredOtacCodes</div>
+                        <small class="d-block text-muted mt-1">Expired</small>
                     </div>
                 </div>
-                <div class="widget-content">
-                    <h2 class="widget-value">@Model.ThisMonthOddRegistrations</h2>
-                    <p class="widget-label">Monthly Registrations</p>
-                    <div class="quick-stats">
-                        <div class="quick-stat">
-                            <div class="quick-stat-value text-danger">@Model.FailedOddRegistrations</div>
-                            <div class="quick-stat-label">Failed</div>
-                        </div>
-                        <div class="quick-stat">
-                            <div class="quick-stat-value text-info">@Model.ExpiredOtacCodes</div>
-                            <div class="quick-stat-label">Expired</div>
-                        </div>
-                    </div>
+                <div class="position-absolute top-0 end-0 p-3">
+                    <small class="text-gold d-flex align-items-center">
+                        <i class="fas fa-calendar me-1"></i>
+                        This Month
+                    </small>
                 </div>
             </div>
         </div>
@@ -276,42 +146,47 @@
     <div class="row g-4">
         <!-- Recent ODD Registrations -->
         <div class="col-lg-8">
-            <div class="admin-card">
-                <div class="admin-card-header">
+            <div class="glass-card fade-in-up" style="animation-delay: 0.4s;">
+                <div class="card-modern-header">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="admin-card-title">
-                            <i class="fas fa-clock me-2 text-primary"></i>
+                        <h3 class="card-modern-title">
+                            <i class="fas fa-clock me-2 text-kbank"></i>
                             Recent ODD Registrations
                         </h3>
-                        <a href="#" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-list me-1"></i>View All
+                        <a href="#" class="btn-modern btn-outline-modern">
+                            <i class="fas fa-list"></i>View All
                         </a>
                     </div>
                 </div>
-                <div class="admin-card-body">
+                <div class="card-modern-body">
                     @if (Model.RecentRegistrations.Any())
                     {
                         <div class="recent-activity">
                             @foreach (var registration in Model.RecentRegistrations)
                             {
-                                <div class="recent-activity-item">
-                                    <div class="activity-icon" style="background: @(registration.Status == "Completed" ? "#d4edda" : registration.Status == "Pending" ? "#fff3cd" : "#f8d7da");">
-                                        <i class="fas @(registration.Status == "Completed" ? "fa-check-circle text-success" : registration.Status == "Pending" ? "fa-clock text-warning" : "fa-times-circle text-danger")"></i>
+                                <div class="d-flex align-items-center p-3 mb-3 glass rounded-3 transition-all hover:shadow-md">
+                                    <div class="flex-shrink-0 me-3">
+                                        <div class="status-indicator status-@(registration.Status.ToLower())">
+                                            <div class="status-dot"></div>
+                                            <span>@registration.Status</span>
+                                        </div>
                                     </div>
-                                    <div class="activity-content">
-                                        <div class="activity-title">Registration @registration.ExternalReference</div>
-                                        <div class="activity-meta">
-                                            @registration.Status • @registration.CreatedAt.ToString("MMM dd, yyyy HH:mm")
+                                    <div class="flex-grow-1">
+                                        <div class="fw-semibold text-dark mb-1">Registration @registration.ExternalReference</div>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-clock me-1"></i>@registration.CreatedAt.ToString("MMM dd, yyyy HH:mm")
                                             @if (!string.IsNullOrEmpty(registration.FullName))
                                             {
-                                                <span class="ms-2">• @registration.FullName</span>
+                                                <span class="ms-3"><i class="fas fa-user me-1"></i>@registration.FullName</span>
                                             }
                                         </div>
                                     </div>
-                                    <div class="activity-actions">
-                                        <button class="btn btn-sm btn-outline-secondary">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
+                                    <div class="flex-shrink-0">
+                                        <div class="action-group">
+                                            <a href="#" class="action-btn action-btn-view" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             }
@@ -319,9 +194,12 @@
                     }
                     else
                     {
-                        <div class="text-center text-muted py-4">
-                            <i class="fas fa-inbox fa-3x mb-3 opacity-25"></i>
-                            <p>No recent registrations found</p>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-inbox"></i>
+                            </div>
+                            <h4 class="empty-state-title">No Recent Registrations</h4>
+                            <p class="empty-state-message">No ODD registrations have been created recently. Check back later for updates.</p>
                         </div>
                     }
                 </div>
@@ -331,70 +209,82 @@
         <!-- Quick Actions & System Status -->
         <div class="col-lg-4">
             <!-- Quick Actions -->
-            <div class="admin-card mb-4">
-                <div class="admin-card-header">
-                    <h3 class="admin-card-title">
-                        <i class="fas fa-bolt me-2 text-warning"></i>
+            <div class="glass-card mb-4 fade-in-up" style="animation-delay: 0.5s;">
+                <div class="card-modern-header">
+                    <h3 class="card-modern-title">
+                        <i class="fas fa-bolt me-2 text-gold"></i>
                         Quick Actions
                     </h3>
                 </div>
-                <div class="admin-card-body">
-                    <div class="d-grid gap-2">
-                        <a asp-controller="Otac" asp-action="Index" asp-area="Admin" class="btn btn-primary">
-                            <i class="fas fa-key me-2"></i>Generate OTAC
+                <div class="card-modern-body">
+                    <div class="d-grid gap-3">
+                        <a asp-controller="Otac" asp-action="Index" asp-area="Admin" class="btn-modern btn-kbank">
+                            <i class="fas fa-key"></i>Generate OTAC
                         </a>
-                        <a href="#" class="btn btn-outline-success">
-                            <i class="fas fa-upload me-2"></i>Import Excel
+                        <a href="#" class="btn-modern btn-primary-modern">
+                            <i class="fas fa-upload"></i>Import Excel
                         </a>
-                        <a href="#" class="btn btn-outline-info">
-                            <i class="fas fa-download me-2"></i>Export Data
+                        <a href="#" class="btn-modern btn-gold">
+                            <i class="fas fa-download"></i>Export Data
                         </a>
-                        <a asp-controller="Users" asp-action="Create" asp-area="Admin" class="btn btn-outline-secondary">
-                            <i class="fas fa-user-plus me-2"></i>Add User
+                        <a asp-controller="Users" asp-action="Create" asp-area="Admin" class="btn-modern btn-outline-modern">
+                            <i class="fas fa-user-plus"></i>Add User
                         </a>
                     </div>
                 </div>
             </div>
 
             <!-- System Status -->
-            <div class="admin-card">
-                <div class="admin-card-header">
+            <div class="glass-card fade-in-up" style="animation-delay: 0.6s;">
+                <div class="card-modern-header">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="admin-card-title">
-                            <i class="fas fa-server me-2 text-info"></i>
+                        <h3 class="card-modern-title">
+                            <i class="fas fa-server me-2 text-primary-modern"></i>
                             System Status
                         </h3>
-                        <span class="badge bg-success">Online</span>
+                        <span class="badge-modern badge-success">Online</span>
                     </div>
                 </div>
-                <div class="admin-card-body">
-                    <div class="status-metrics">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="text-muted">Database</span>
-                            <span class="badge bg-success">Healthy</span>
+                <div class="card-modern-body">
+                    <div class="space-y-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-database me-2 text-kbank"></i>
+                                <span class="text-muted">Database</span>
+                            </div>
+                            <span class="badge-modern badge-success">Healthy</span>
                         </div>
-                        <div class="progress mb-3" style="height: 6px;">
-                            <div class="progress-bar bg-success" style="width: 95%"></div>
-                        </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="text-muted">OTAC Service</span>
-                            <span class="badge bg-success">Active</span>
-                        </div>
-                        <div class="progress mb-3" style="height: 6px;">
-                            <div class="progress-bar bg-success" style="width: 100%"></div>
+                        <div class="progress-modern mb-4">
+                            <div class="progress-bar-modern" data-value="95%" style="background: var(--gradient-success);"></div>
                         </div>
                         
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="text-muted">API Status</span>
-                            <span class="badge bg-warning">Monitoring</span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-key me-2 text-kbank"></i>
+                                <span class="text-muted">OTAC Service</span>
+                            </div>
+                            <span class="badge-modern badge-success">Active</span>
                         </div>
-                        <div class="progress mb-3" style="height: 6px;">
-                            <div class="progress-bar bg-warning" style="width: 85%"></div>
+                        <div class="progress-modern mb-4">
+                            <div class="progress-bar-modern" data-value="100%" style="background: var(--gradient-success);"></div>
                         </div>
                         
-                        <div class="text-center mt-3">
-                            <small class="text-muted">Last updated: @DateTime.Now.ToString("HH:mm:ss")</small>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-cloud me-2 text-kbank"></i>
+                                <span class="text-muted">API Status</span>
+                            </div>
+                            <span class="badge-modern badge-warning">Monitoring</span>
+                        </div>
+                        <div class="progress-modern mb-4">
+                            <div class="progress-bar-modern" data-value="85%" style="background: linear-gradient(135deg, var(--warning) 0%, var(--warning-dark) 100%);"></div>
+                        </div>
+                        
+                        <div class="text-center pt-3 border-top border-glass">
+                            <small class="text-muted d-flex align-items-center justify-content-center">
+                                <i class="fas fa-sync-alt me-2"></i>
+                                Last updated: @DateTime.Now.ToString("HH:mm:ss")
+                            </small>
                         </div>
                     </div>
                 </div>
@@ -407,34 +297,59 @@
 @section Scripts {
     <script>
         function refreshDashboard() {
-            // Add loading state
+            // Add loading state using modern UI interactions
             const refreshBtn = document.querySelector('[onclick="refreshDashboard()"]');
-            const originalText = refreshBtn.innerHTML;
-            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
-            refreshBtn.disabled = true;
-
-            // Simulate refresh (in real app, this would make an AJAX call)
-            setTimeout(() => {
-                refreshBtn.innerHTML = originalText;
-                refreshBtn.disabled = false;
-
-                // Show success message
-                const alert = document.createElement('div');
-                alert.className = 'alert alert-success alert-dismissible fade show position-fixed';
-                alert.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
-                alert.innerHTML = `
-                    <i class="fas fa-check-circle me-2"></i>Dashboard refreshed successfully!
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                `;
-                document.body.appendChild(alert);
-
-                // Auto-remove after 3 seconds
+            if (refreshBtn && window.uiInteractions) {
+                window.uiInteractions.showButtonLoading(refreshBtn);
+                
+                // Simulate refresh (in real app, this would make an AJAX call)
                 setTimeout(() => {
-                    if (alert.parentNode) {
-                        alert.remove();
+                    window.uiInteractions.hideButtonLoading(refreshBtn);
+                    
+                    // Re-animate counters after refresh
+                    const counters = document.querySelectorAll('.stats-number[data-target]');
+                    counters.forEach(counter => {
+                        const target = parseInt(counter.dataset.target);
+                        const duration = parseInt(counter.dataset.duration) || 2000;
+                        if (window.uiInteractions.animateCounter) {
+                            window.uiInteractions.animateCounter(counter, 0, target, duration);
+                        }
+                    });
+                    
+                    // Show success toast
+                    if (window.uiInteractions.showToast) {
+                        window.uiInteractions.showToast('success', 'Dashboard Refreshed', 'All data has been updated successfully');
                     }
-                }, 3000);
-            }, 1500);
+                }, 1500);
+            }
         }
+
+        // Initialize dashboard when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add staggered animation to widgets
+            const widgets = document.querySelectorAll('.stats-widget, .glass-card');
+            widgets.forEach((widget, index) => {
+                widget.style.animationDelay = `${index * 0.1}s`;
+                widget.classList.add('fade-in-up');
+            });
+
+            // Initialize progress bars after page load
+            setTimeout(() => {
+                const progressBars = document.querySelectorAll('.progress-bar-modern[data-value]');
+                progressBars.forEach(bar => {
+                    bar.style.width = bar.dataset.value;
+                });
+            }, 500);
+
+            // Real-time clock update
+            function updateClock() {
+                const clockElements = document.querySelectorAll('[data-clock]');
+                clockElements.forEach(element => {
+                    element.textContent = new Date().toLocaleTimeString();
+                });
+            }
+            
+            setInterval(updateClock, 1000);
+        });
     </script>
 }

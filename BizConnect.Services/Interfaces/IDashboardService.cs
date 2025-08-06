@@ -3,7 +3,7 @@ using BizConnect.Dal.Models;
 namespace BizConnect.Services.Interfaces;
 
 /// <summary>
-/// Service interface for dashboard data operations
+/// Service interface for dashboard data operations with modern UI optimizations
 /// </summary>
 public interface IDashboardService
 {
@@ -13,6 +13,25 @@ public interface IDashboardService
     /// <param name="language">Language code for localization (optional, defaults to "en")</param>
     /// <returns>Dashboard statistics model</returns>
     Task<DashboardStatistics> GetDashboardStatisticsAsync(string language = "en");
+
+    /// <summary>
+    /// Gets real-time dashboard statistics using optimized database views
+    /// </summary>
+    /// <returns>Real-time dashboard metrics</returns>
+    Task<RealTimeDashboardStats> GetRealTimeStatsAsync();
+
+    /// <summary>
+    /// Gets recent activity feed using optimized view
+    /// </summary>
+    /// <param name="limit">Maximum number of recent activities to return (default 20)</param>
+    /// <returns>List of recent activities</returns>
+    Task<List<RecentActivityItem>> GetRecentActivityAsync(int limit = 20);
+
+    /// <summary>
+    /// Gets simple performance metrics using database function
+    /// </summary>
+    /// <returns>Simple performance metrics</returns>
+    Task<SimplePerformanceMetrics> GetSimpleMetricsAsync();
 }
 
 /// <summary>
@@ -53,4 +72,56 @@ public class DashboardStatistics
     public double OtacUsageRate => TotalOtacCodes > 0 
         ? Math.Round((double)UsedOtacCodes / TotalOtacCodes * 100, 1) 
         : 0;
+}
+
+/// <summary>
+/// Real-time dashboard statistics from optimized database views
+/// </summary>
+public class RealTimeDashboardStats
+{
+    public int TodayTotal { get; set; }
+    public int TodaySuccess { get; set; }
+    public int TodayFailed { get; set; }
+    public int MonthTotal { get; set; }
+    public int MonthSuccess { get; set; }
+    public int OtacGenerated { get; set; }
+    public int OtacValidated { get; set; }
+    public int OtacUsed { get; set; }
+    public int ActiveOtac { get; set; }
+    
+    // Calculated properties
+    public decimal SuccessRateToday => TodayTotal > 0 
+        ? Math.Round((decimal)TodaySuccess / TodayTotal * 100, 2) 
+        : 0;
+    
+    public decimal SuccessRateMonth => MonthTotal > 0 
+        ? Math.Round((decimal)MonthSuccess / MonthTotal * 100, 2) 
+        : 0;
+}
+
+/// <summary>
+/// Recent activity item from optimized view
+/// </summary>
+public class RecentActivityItem
+{
+    public int Id { get; set; }
+    public string? ExternalReference { get; set; }
+    public string OtacCode { get; set; } = null!;
+    public string OtacState { get; set; } = null!;
+    public string? Status { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public string? BranchName { get; set; }
+    public string? CreatedBy { get; set; }
+}
+
+/// <summary>
+/// Simple performance metrics from database function
+/// </summary>
+public class SimplePerformanceMetrics
+{
+    public int TotalToday { get; set; }
+    public int SuccessToday { get; set; }
+    public decimal SuccessRate { get; set; }
+    public int ActiveOtac { get; set; }
 }

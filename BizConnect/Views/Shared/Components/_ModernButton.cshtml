@@ -1,0 +1,62 @@
+@{
+    var text = ViewBag.Text as string ?? "Button";
+    var icon = ViewBag.Icon as string;
+    var href = ViewBag.Href as string ?? "#";
+    var type = ViewBag.Type as string ?? "button";
+    var variant = ViewBag.Variant as string ?? "kbank"; // kbank, primary, gold, outline
+    var size = ViewBag.Size as string ?? ""; // sm, lg
+    var onclick = ViewBag.OnClick as string;
+    var dataAttributes = ViewBag.DataAttributes as Dictionary<string, string> ?? new Dictionary<string, string>();
+    var additionalClasses = ViewBag.AdditionalClasses as string ?? "";
+    var disabled = ViewBag.Disabled as bool? ?? false;
+    var loading = ViewBag.Loading as bool? ?? false;
+    
+    var cssClasses = $"btn-modern btn-{variant}";
+    if (!string.IsNullOrEmpty(size))
+    {
+        cssClasses += $" btn-{size}";
+    }
+    cssClasses += " " + additionalClasses;
+    
+    var dataAttrs = "";
+    foreach (var attr in dataAttributes)
+    {
+        dataAttrs += $" data-{attr.Key}=\"{attr.Value}\"";
+    }
+}
+
+@if (type == "link")
+{
+    <a href="@href" 
+       class="@cssClasses @(disabled ? Html.Raw("disabled") : Html.Raw(""))" 
+       @if (!string.IsNullOrEmpty(onclick)) { <text>onclick="@onclick"</text> }
+       @Html.Raw(dataAttrs)>
+        @if (loading)
+        {
+            <div class="spinner-modern me-2" style="width: 16px; height: 16px;"></div>
+        }
+        else if (!string.IsNullOrEmpty(icon))
+        {
+            <i class="@icon"></i>
+        }
+        @text
+    </a>
+}
+else
+{
+    <button type="@type" 
+            class="@cssClasses" 
+            @(disabled ? Html.Raw("disabled") : Html.Raw(""))
+            @if (!string.IsNullOrEmpty(onclick)) { <text>onclick="@onclick"</text> }
+            @Html.Raw(dataAttrs)>
+        @if (loading)
+        {
+            <div class="spinner-modern me-2" style="width: 16px; height: 16px;"></div>
+        }
+        else if (!string.IsNullOrEmpty(icon))
+        {
+            <i class="@icon"></i>
+        }
+        @text
+    </button>
+}

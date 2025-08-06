@@ -56,7 +56,9 @@
       "Bash(PGPASSWORD=bizitadmin \"/c/Program Files/PostgreSQL/17/bin/psql.exe\" -h localhost -U postgres -d bizconnect_test -c \"SELECT ''CRISIS RESOLUTION VERIFICATION'' as status; SELECT ''Database Schema:'' as component, ''FIXED - ExternalReference nullable'' as result UNION ALL SELECT ''EF Models:'' as component, ''FIXED - string? ExternalReference'' as result UNION ALL SELECT ''Business Logic:'' as component, ''FIXED - 3-phase KBank flow'' as result UNION ALL SELECT ''Controllers:'' as component, ''FIXED - Updated service calls'' as result UNION ALL SELECT ''Build Status:'' as component, ''SUCCESS - Application compiles'' as result UNION ALL SELECT ''Production Ready:'' as component, ''YES - OTAC generation unblocked'' as result;\")",
       "Bash(Get-Date -Format \"yyyyMMdd-HH\")",
       "Bash(PGPASSWORD=bizitadmin \"/c/Program Files/PostgreSQL/17/bin/psql.exe\":*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(\"C:/Program Files/PostgreSQL/17/bin/psql\" -h localhost -U postgres -d bizconnect_test -v ON_ERROR_STOP=1 -f \"db/migrations/20250806-01_ModernUIPerformanceOptimization.sql\")",
+      "Bash(sed:*)"
     ],
     "deny": []
   }

@@ -1,0 +1,47 @@
+@model dynamic
+
+@{
+    var value = ViewBag.Value ?? Model?.Value ?? 0;
+    var label = ViewBag.Label ?? Model?.Label ?? "Statistic";
+    var icon = ViewBag.Icon ?? Model?.Icon ?? "fas fa-chart-bar";
+    var color = ViewBag.Color ?? Model?.Color ?? "kbank";
+    var trend = ViewBag.Trend ?? Model?.Trend;
+    var trendDirection = ViewBag.TrendDirection ?? Model?.TrendDirection ?? "up";
+    var animationDelay = ViewBag.AnimationDelay ?? Model?.AnimationDelay ?? "0s";
+    var duration = ViewBag.Duration ?? Model?.Duration ?? "2000";
+    var subtitle = ViewBag.Subtitle ?? Model?.Subtitle;
+}
+
+<div class="stats-widget fade-in-up" style="animation-delay: @animationDelay;">
+    <div class="stats-icon" style="background: var(--gradient-@(color));">
+        <i class="@icon"></i>
+    </div>
+    
+    <div class="stats-number" data-target="@value" data-duration="@duration">
+        @value
+    </div>
+    
+    <div class="stats-label">@label</div>
+    
+    @if (!string.IsNullOrEmpty(subtitle))
+    {
+        <div class="text-muted small mt-1">@subtitle</div>
+    }
+    
+    @if (!string.IsNullOrEmpty(trend))
+    {
+        <div class="position-absolute top-0 end-0 p-3">
+            <small class="text-@(trendDirection == "up" ? "success" : trendDirection == "down" ? "danger" : "muted") d-flex align-items-center">
+                <i class="fas fa-@(trendDirection == "up" ? "arrow-up" : trendDirection == "down" ? "arrow-down" : "minus") me-1"></i>
+                @trend
+            </small>
+        </div>
+    }
+    
+    @if (IsSectionDefined("WidgetContent"))
+    {
+        <div class="mt-3">
+            @await RenderSectionAsync("WidgetContent", required: false)
+        </div>
+    }
+</div>

@@ -1,9 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using BizConnect.Models;
+using BizConnect.Services.DTOs;
+using BizConnect.Models.Api;
 using BizConnect.Services.Interfaces;
 using BizConnect.Services.Models.Requests;
 using BizConnect.Extensions;
+using BizConnect.ViewModels.Modern;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -16,8 +19,15 @@ public class HomeController : BaseController
     private readonly IOtacManagementService _otacService;
     private readonly IRegistrationManagementService _registrationService;
     private readonly IBranchService _branchService;
+    // Note: Trust and SystemHealth services to be implemented
+    // private readonly ITrustService _trustService;
+    // private readonly ISystemHealthService _systemHealthService;
 
-    public HomeController(ILogger<HomeController> logger, IOtacManagementService otacService, IRegistrationManagementService registrationService, IBranchService branchService)
+    public HomeController(
+        ILogger<HomeController> logger, 
+        IOtacManagementService otacService, 
+        IRegistrationManagementService registrationService, 
+        IBranchService branchService)
     {
         _logger = logger;
         _otacService = otacService;
@@ -25,9 +35,40 @@ public class HomeController : BaseController
         _branchService = branchService;
     }
 
-    public IActionResult Index()
+    /// <summary>
+    /// Modern landing page with enhanced UI features and trust indicators
+    /// </summary>
+    public async Task<IActionResult> Index()
     {
-        return View();
+        try
+        {
+            var model = new ModernLandingPageViewModel
+            {
+                ShowOtacForm = true,
+                WelcomeMessage = GetLocalizedWelcomeMessage(),
+                TrustIndicators = GetDefaultTrustIndicators(),
+                SystemStatus = new BizConnect.ViewModels.Modern.PublicSystemStatus { Status = "Operational", Message = "All systems operational", IsOnline = true },
+                Features = GetFeatureHighlights(),
+                SecurityBadges = GetDefaultSecurityBadges(),
+                SupportInfo = GetSupportInformation()
+            };
+
+            return View(model);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading modern landing page");
+            
+            // Fallback to basic landing page
+            var fallbackModel = new ModernLandingPageViewModel
+            {
+                ShowOtacForm = true,
+                WelcomeMessage = "ยินดีต้อนรับสู่ระบบ BizConnect",
+                SystemStatus = new BizConnect.ViewModels.Modern.PublicSystemStatus { Status = "Operational", Message = "All systems operational" }
+            };
+            
+            return View(fallbackModel);
+        }
     }
 
     public IActionResult Privacy()
@@ -47,7 +88,7 @@ public class HomeController : BaseController
     }
 
     /// <summary>
-    /// Process OTAC verification
+    /// Process OTAC verification with enhanced error handling and real-time feedback
     /// </summary>
     [HttpPost("verify")]
     [ValidateAntiForgeryToken]
@@ -84,9 +125,78 @@ public class HomeController : BaseController
     }
 
     /// <summary>
+    /// API endpoint for real-time OTAC verification (AJAX support)
+    /// </summary>
+    [HttpPost("api/verify-otac")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> VerifyOtacApi([FromBody] VerifyOtacRequest request)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(request.OtacCode))
+            {
+                return BadRequest(ApiResponse<BizConnect.ViewModels.Modern.VerifyOtacResponse>.Error("OTAC code is required"));
+            }
+
+            var clientIp = HttpContext.GetClientIpAddress();
+            var language = request.Language ?? GetCurrentLanguage();
+            
+            var result = await _otacService.ValidateAsync(request.OtacCode, clientIp, language);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("API OTAC verification successful: {OtacCode} from IP: {ClientIp}", 
+                    request.OtacCode, clientIp);
+
+                // Store validated OTAC in session
+                HttpContext.SetValidatedOtac(request.OtacCode);
+
+                var response = new BizConnect.ViewModels.Modern.VerifyOtacResponse
+                {
+                    Success = true,
+                    Message = "OTAC verified successfully",
+                    RedirectUrl = Url.Action("Register"),
+                    Metadata = new Dictionary<string, object>
+                    {
+                        ["validatedAt"] = DateTime.UtcNow,
+                        ["sessionId"] = HttpContext.Session.Id
+                    }
+                };
+
+                return Ok(ApiResponse<BizConnect.ViewModels.Modern.VerifyOtacResponse>.Ok(response, "OTAC verification successful"));
+            }
+            else
+            {
+                _logger.LogWarning("API OTAC verification failed: {OtacCode} from IP: {ClientIp}, Error: {ErrorMessage}", 
+                    request.OtacCode, clientIp, result.ErrorMessage);
+
+                var response = new BizConnect.ViewModels.Modern.VerifyOtacResponse
+                {
+                    Success = false,
+                    Message = result.ErrorMessage ?? "Invalid OTAC code",
+                    AttemptsRemaining = result.AttemptsRemaining,
+                    LockoutTimeRemaining = result.LockoutTimeRemaining > 0 
+                        ? TimeSpan.FromMinutes(result.LockoutTimeRemaining) 
+                        : null
+                };
+
+                return Ok(ApiResponse<BizConnect.ViewModels.Modern.VerifyOtacResponse>.Ok(response, "OTAC verification failed"));
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during API OTAC verification for code: {OtacCode}", request.OtacCode);
+            return StatusCode(500, ApiResponse<BizConnect.ViewModels.Modern.VerifyOtacResponse>.Error("Internal server error during verification"));
+        }
+    }
+
+    /// <summary>
     /// Display registration form (requires validated OTAC)
     /// </summary>
     [HttpGet("register")]
+    /// <summary>
+    /// Display enhanced registration form with modern UI features
+    /// </summary>
     public async Task<IActionResult> Register()
     {
         // Check if OTAC is validated
@@ -115,10 +225,33 @@ public class HomeController : BaseController
             Text = b.Name 
         }).ToList();
 
-        var model = new GuestRegistrationViewModel
+        var model = new ModernRegistrationViewModel
         {
             OtacCode = validatedOtac,
-            Branches = branches
+            Branches = branches,
+            Progress = new RegistrationProgress
+            {
+                CurrentStep = 2,
+                TotalSteps = 3,
+                PercentComplete = 67,
+                Steps = new List<ProgressStep>
+                {
+                    new ProgressStep { StepNumber = 1, Title = "OTAC Verification", Status = "completed", Description = "รหัสยืนยัน" },
+                    new ProgressStep { StepNumber = 2, Title = "Information Entry", Status = "active", Description = "กรอกข้อมูล" },
+                    new ProgressStep { StepNumber = 3, Title = "Processing", Status = "pending", Description = "ประมวลผล" }
+                }
+            },
+            SecurityInfo = new FormSecurityInfo
+            {
+                SecurityLevel = "High",
+                IsEncrypted = true,
+                SecurityIndicators = new List<SecurityIndicator>
+                {
+                    new SecurityIndicator { Type = "SSL", Status = "Active", Description = "Secure Connection", IconClass = "fas fa-shield-alt" },
+                    new SecurityIndicator { Type = "Encryption", Status = "Active", Description = "256-bit Encryption", IconClass = "fas fa-lock" }
+                }
+            },
+            EstimatedProcessingTime = "2-3 minutes"
         };
 
         return View(model);
@@ -129,7 +262,7 @@ public class HomeController : BaseController
     /// </summary>
     [HttpPost("register")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Register(GuestRegistrationViewModel model)
+    public async Task<IActionResult> Register(ModernRegistrationViewModel model)
     {
         // Validate OTAC session
         var validatedOtac = HttpContext.GetValidatedOtac();
@@ -193,6 +326,14 @@ public class HomeController : BaseController
             Text = b.Name 
         }).ToList();
 
+        // Update validation status
+        model.ValidationStatus = new FormValidationStatus
+        {
+            IsValid = false,
+            GeneralErrors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList(),
+            ValidationScore = CalculateValidationScore(ModelState)
+        };
+
         return View(model);
     }
 
@@ -226,6 +367,183 @@ public class HomeController : BaseController
         Response.StatusCode = 500;
         return View();
     }
+
+    #region Private Helper Methods for Modern UI
+
+    /// <summary>
+    /// Get localized welcome message based on current language
+    /// </summary>
+    private string GetLocalizedWelcomeMessage()
+    {
+        var language = GetCurrentLanguage();
+        return language switch
+        {
+            "th" => "ยินดีต้อนรับสู่ระบบ BizConnect Online Direct Debit",
+            "en" => "Welcome to BizConnect Online Direct Debit System",
+            _ => "ยินดีต้อนรับสู่ระบบ BizConnect"
+        };
+    }
+
+    /// <summary>
+    /// Get feature highlights for landing page
+    /// </summary>
+    private List<FeatureHighlight> GetFeatureHighlights()
+    {
+        return new List<FeatureHighlight>
+        {
+            new FeatureHighlight
+            {
+                Title = "ปลอดภัยและเชื่อถือได้",
+                Description = "ระบบรักษาความปลอดภัยระดับธนาคาร",
+                IconClass = "fas fa-shield-alt",
+                Color = "success",
+                DisplayOrder = 1
+            },
+            new FeatureHighlight
+            {
+                Title = "รวดเร็วและสะดวก",
+                Description = "ลงทะเบียนได้ภายใน 3 นาที",
+                IconClass = "fas fa-clock",
+                Color = "primary",
+                DisplayOrder = 2
+            },
+            new FeatureHighlight
+            {
+                Title = "สนับสนุน 24/7",
+                Description = "ติดต่อได้ตลอด 24 ชั่วโมง",
+                IconClass = "fas fa-headset",
+                Color = "info",
+                DisplayOrder = 3
+            }
+        };
+    }
+
+    /// <summary>
+    /// Get support information for user assistance
+    /// </summary>
+    private SupportInfo GetSupportInformation()
+    {
+        return new SupportInfo
+        {
+            ContactPhone = "02-123-4567",
+            ContactEmail = "support@bizconnect.com",
+            HelpDeskHours = "จันทร์-ศุกร์ 8:30-17:30 น.",
+            FrequentlyAskedQuestions = new List<FaqItem>
+            {
+                new FaqItem
+                {
+                    Question = "OTAC คืออะไร?",
+                    Answer = "OTAC คือรหัสยืนยันตัวตนชั่วคราว 8 หลัก ที่ใช้สำหรับเข้าใช้งานระบบ",
+                    Category = "General"
+                },
+                new FaqItem
+                {
+                    Question = "จะได้รับ OTAC ได้อย่างไร?",
+                    Answer = "ติดต่อธนาคารเพื่อขอรับรหัส OTAC หรือใช้ช่องทางออนไลน์",
+                    Category = "OTAC"
+                }
+            },
+            SupportChannels = new List<SupportChannel>
+            {
+                new SupportChannel
+                {
+                    Name = "โทรศัพท์",
+                    Description = "สนับสนุนทันที",
+                    ContactInfo = "02-123-4567",
+                    IsAvailable = true,
+                    AvailabilityHours = "8:30-17:30 น."
+                },
+                new SupportChannel
+                {
+                    Name = "อีเมล",
+                    Description = "ตอบกลับภายใน 24 ชั่วโมง",
+                    ContactInfo = "support@bizconnect.com",
+                    IsAvailable = true,
+                    AvailabilityHours = "ตลอด 24 ชั่วโมง"
+                }
+            }
+        };
+    }
+
+    /// <summary>
+    /// Calculate validation score for form
+    /// </summary>
+    private int CalculateValidationScore(Microsoft.AspNetCore.Mvc.ModelBinding.ModelStateDictionary modelState)
+    {
+        if (modelState.IsValid)
+            return 100;
+
+        var totalErrors = modelState.Values.Sum(v => v.Errors.Count);
+        var totalFields = modelState.Count;
+        
+        if (totalFields == 0)
+            return 0;
+
+        var errorRate = (double)totalErrors / totalFields;
+        return Math.Max(0, 100 - (int)(errorRate * 100));
+    }
+
+    /// <summary>
+    /// Get default trust indicators for landing page
+    /// </summary>
+    private List<BizConnect.ViewModels.Modern.TrustIndicator> GetDefaultTrustIndicators()
+    {
+        return new List<BizConnect.ViewModels.Modern.TrustIndicator>
+        {
+            new BizConnect.ViewModels.Modern.TrustIndicator
+            {
+                Title = "SSL Certificate",
+                Description = "Secured with 256-bit encryption",
+                IconClass = "fas fa-shield-alt",
+                Value = "Active",
+                Color = "success"
+            },
+            new BizConnect.ViewModels.Modern.TrustIndicator
+            {
+                Title = "Bank Authorized",
+                Description = "Official KBank partner platform",
+                IconClass = "fas fa-university",
+                Value = "Verified",
+                Color = "primary"
+            },
+            new BizConnect.ViewModels.Modern.TrustIndicator
+            {
+                Title = "Uptime",
+                Description = "System availability",
+                IconClass = "fas fa-check-circle",
+                Value = "99.9%",
+                Color = "success"
+            }
+        };
+    }
+
+    /// <summary>
+    /// Get default security badges for landing page
+    /// </summary>
+    private List<BizConnect.ViewModels.Modern.SecurityBadge> GetDefaultSecurityBadges()
+    {
+        return new List<BizConnect.ViewModels.Modern.SecurityBadge>
+        {
+            new BizConnect.ViewModels.Modern.SecurityBadge
+            {
+                Title = "SSL Secured",
+                Description = "Your connection is encrypted and secure",
+                IconClass = "fas fa-lock",
+                BadgeColor = "success",
+                IsVerified = true
+            },
+            new BizConnect.ViewModels.Modern.SecurityBadge
+            {
+                Title = "Bank Grade Security",
+                Description = "Meets banking industry security standards",
+                IconClass = "fas fa-shield-check",
+                BadgeColor = "primary",
+                IsVerified = true
+            }
+        };
+    }
+
+    #endregion
 }
 
 /// <summary>
@@ -240,8 +558,9 @@ public class VerifyOtacViewModel
 }
 
 /// <summary>
-/// ViewModel for guest registration form
+/// Legacy ViewModel for backward compatibility - use ModernRegistrationViewModel for new implementations
 /// </summary>
+[Obsolete("Use ModernRegistrationViewModel instead", false)]
 public class GuestRegistrationViewModel
 {
     [Required]

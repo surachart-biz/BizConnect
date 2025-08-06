@@ -1,0 +1,57 @@
+@{
+    var type = ViewBag.Type as string ?? "info"; // success, warning, danger, info
+    var title = ViewBag.Title as string;
+    var message = ViewBag.Message as string ?? "Alert message";
+    var dismissible = ViewBag.Dismissible as bool? ?? true;
+    var icon = ViewBag.Icon as string ?? type switch
+    {
+        "success" => "fas fa-check-circle",
+        "warning" => "fas fa-exclamation-triangle",
+        "danger" => "fas fa-exclamation-circle",
+        "info" => "fas fa-info-circle",
+        _ => "fas fa-info-circle"
+    };
+    var containerClass = ViewBag.ContainerClass as string ?? "";
+    var autoHide = ViewBag.AutoHide as bool? ?? false;
+    var delay = ViewBag.Delay as int? ?? 5000;
+}
+
+<div class="alert-modern alert-@type @containerClass @(autoHide ? Html.Raw("auto-hide") : Html.Raw(""))" 
+     @(autoHide ? Html.Raw($"data-delay=\"{delay}\"") : Html.Raw(""))>
+    <div class="alert-icon">
+        <i class="@icon"></i>
+    </div>
+    
+    <div class="alert-content">
+        @if (!string.IsNullOrEmpty(title))
+        {
+            <div class="alert-title">@title</div>
+        }
+        <p class="alert-message">@message</p>
+    </div>
+    
+    @if (dismissible)
+    {
+        <button type="button" class="alert-close" onclick="this.parentElement.remove();" aria-label="Close">
+            <i class="fas fa-times"></i>
+        </button>
+    }
+</div>
+
+@if (autoHide)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const alert = document.querySelector('.alert-modern.auto-hide[data-delay="@delay"]');
+            if (alert) {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-10px)';
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 300);
+                }, @delay);
+            }
+        });
+    </script>
+}

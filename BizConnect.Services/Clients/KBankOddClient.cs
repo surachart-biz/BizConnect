@@ -99,6 +99,61 @@ public class KBankOddClient : IKBankOddClient
             throw new KBankApiException("JSON processing error when communicating with KBank API", ex);
         }
     }
+
+    /// <summary>
+    /// Tests connectivity to KBank API for health monitoring
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>True if KBank API is accessible</returns>
+    public async Task<bool> TestConnectivityAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            _logger.LogDebug("Testing connectivity to KBank API");
+
+            var baseUrl = _configuration["KBankODD:BaseUrl"];
+            if (string.IsNullOrEmpty(baseUrl))
+            {
+                _logger.LogWarning("KBank API base URL not configured");
+                return false;
+            }
+
+            // Test with a simple HEAD request to check if the API is reachable
+            var testUrl = $"{baseUrl.TrimEnd('/')}/health"; // Assuming there's a health endpoint
+            
+            using var request = new HttpRequestMessage(HttpMethod.Head, testUrl);
+            request.Headers.Add("User-Agent", "BizConnect-HealthCheck/1.0");
+            
+            // Use short timeout for connectivity test
+            using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            using var combinedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+            
+            var response = await _httpClient.SendAsync(request, combinedCts.Token);
+            
+            var isConnected = response.StatusCode != System.Net.HttpStatusCode.RequestTimeout &&
+                             response.StatusCode != System.Net.HttpStatusCode.ServiceUnavailable;
+            
+            _logger.LogDebug("KBank API connectivity test result: {IsConnected} (Status: {StatusCode})", 
+                isConnected, response.StatusCode);
+            
+            return isConnected;
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogWarning(ex, "KBank API connectivity test failed due to HTTP error");
+            return false;
+        }
+        catch (TaskCanceledException ex) when (ex.CancellationToken.IsCancellationRequested)
+        {
+            _logger.LogWarning(ex, "KBank API connectivity test timed out");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error during KBank API connectivity test");
+            return false;
+        }
+    }
 }
 
 /// <summary>

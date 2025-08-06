@@ -143,6 +143,18 @@ public interface IUnitOfWork : IDisposable
     DbContext Context { get; }
 
     #endregion
+
+    #region Health Monitoring
+
+    /// <summary>
+    /// Tests database connectivity for health monitoring purposes.
+    /// Performs a lightweight operation to verify the database connection is working.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for async operation</param>
+    /// <returns>True if database is accessible, false otherwise</returns>
+    Task<bool> TestConnectionAsync(CancellationToken cancellationToken = default);
+
+    #endregion
 }
 
 /// <summary>

@@ -1,0 +1,48 @@
+@{
+    var title = ViewBag.Title as string ?? "Card Title";
+    var subtitle = ViewBag.Subtitle as string;
+    var iconClass = ViewBag.IconClass as string ?? "fas fa-square";
+    var cardClass = ViewBag.CardClass as string ?? "";
+    var headerClass = ViewBag.HeaderClass as string ?? "";
+    var bodyClass = ViewBag.BodyClass as string ?? "";
+}
+
+<div class="glass-card @cardClass">
+    @if (!string.IsNullOrEmpty(title))
+    {
+        <div class="card-modern-header @headerClass">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    @if (!string.IsNullOrEmpty(iconClass))
+                    {
+                        <i class="@iconClass me-2 text-kbank"></i>
+                    }
+                    <div>
+                        <h3 class="card-modern-title mb-0">@title</h3>
+                        @if (!string.IsNullOrEmpty(subtitle))
+                        {
+                            <p class="card-modern-subtitle mb-0">@subtitle</p>
+                        }
+                    </div>
+                </div>
+                @if (IsSectionDefined("HeaderActions"))
+                {
+                    <div class="card-actions">
+                        @await RenderSectionAsync("HeaderActions", required: false)
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    
+    <div class="card-modern-body @bodyClass">
+        @RenderBody()
+    </div>
+    
+    @if (IsSectionDefined("CardFooter"))
+    {
+        <div class="card-modern-footer">
+            @await RenderSectionAsync("CardFooter", required: false)
+        </div>
+    }
+</div>

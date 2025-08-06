@@ -2,116 +2,7 @@
     ViewData["Title"] = "BizConnect - KBank ODD Registration";
 }
 
-@section Styles {
-    <style>
-        .kbank-hero {
-            background: linear-gradient(135deg, #0066CC 0%, #004499 100%);
-            color: white;
-            padding: 100px 0;
-            position: relative;
-            overflow: hidden;
-        }
-        .kbank-hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
-            opacity: 0.5;
-        }
-        .process-step {
-            text-align: center;
-            padding: 2rem;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-        .process-step:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        }
-        .step-number {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #0066CC, #004499);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        .step-icon {
-            font-size: 3rem;
-            color: #0066CC;
-            margin-bottom: 1rem;
-        }
-        .lang-toggle {
-            position: fixed;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            z-index: 1050;
-            background: white;
-            border-radius: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            padding: 5px;
-        }
-        .lang-btn {
-            border: none;
-            background: transparent;
-            padding: 8px 15px;
-            border-radius: 20px;
-            transition: all 0.3s ease;
-        }
-        .lang-btn.active {
-            background: #0066CC;
-            color: white;
-        }
-        .faq-item {
-            margin-bottom: 1rem;
-        }
-        .faq-button {
-            background: white;
-            border: 1px solid #e0e0e0;
-            padding: 1.25rem;
-            text-align: left;
-            width: 100%;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-        .faq-button:hover, .faq-button:not(.collapsed) {
-            background: #f8f9fa;
-            border-color: #0066CC;
-        }
-        .trust-badge {
-            display: inline-flex;
-            align-items: center;
-            background: rgba(255,255,255,0.2);
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
-            margin: 0.25rem;
-            backdrop-filter: blur(10px);
-        }
-    </style>
-}
 
-<!-- Language Toggle -->
-<div class="lang-toggle">
-    <button class="lang-btn active" data-lang="en">
-        <i class="fas fa-globe me-1"></i> EN
-    </button>
-    <button class="lang-btn" data-lang="th">
-        <i class="fas fa-globe me-1"></i> TH
-    </button>
-</div>
 
 @if (User.Identity?.IsAuthenticated == true)
 {
@@ -187,25 +78,26 @@ else
     <!-- Non-Authenticated User Landing Page -->
     <div class="kbank-landing">
         <!-- Hero Section -->
-        <section class="kbank-hero">
+        <section class="position-relative overflow-hidden" style="background: var(--gradient-hero); color: white; padding: 120px 0;">
+            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: var(--glass-overlay); backdrop-filter: blur(5px);"></div>
             <div class="container position-relative">
                 <div class="row align-items-center min-vh-75">
                     <div class="col-lg-6">
-                        <div class="hero-content">
+                        <div class="hero-content fade-in-up">
                             <!-- Trust indicators -->
-                            <div class="trust-badges mb-4">
-                                <span class="trust-badge">
-                                    <i class="fas fa-shield-check text-success me-2"></i>
+                            <div class="mb-4">
+                                <div class="badge-modern badge-kbank mb-2 me-2">
+                                    <i class="fas fa-shield-check"></i>
                                     <span data-en="Bank-Grade Security" data-th="ความปลอดภัยระดับธนาคาร">Bank-Grade Security</span>
-                                </span>
-                                <span class="trust-badge">
-                                    <i class="fas fa-university text-warning me-2"></i>
+                                </div>
+                                <div class="badge-modern badge-warning mb-2 me-2">
+                                    <i class="fas fa-university"></i>
                                     <span data-en="KBank Official Partner" data-th="พันธมิตรทางการของ KBank">KBank Official Partner</span>
-                                </span>
-                                <span class="trust-badge">
-                                    <i class="fas fa-clock text-info me-2"></i>
+                                </div>
+                                <div class="badge-modern badge-primary mb-2">
+                                    <i class="fas fa-clock"></i>
                                     <span data-en="24/7 Available" data-th="ใช้ได้ 24/7">24/7 Available</span>
-                                </span>
+                                </div>
                             </div>
 
                             <h1 class="display-3 fw-bold mb-4">
@@ -234,27 +126,42 @@ else
                             </div>
 
                             <div class="hero-actions">
-                                <a asp-action="Verify" class="btn btn-warning btn-lg me-3 shadow">
-                                    <i class="fas fa-user-plus me-2"></i>
+                                <a asp-action="Verify" class="btn-modern btn-gold me-3">
+                                    <i class="fas fa-user-plus"></i>
                                     <span data-en="สมัครบริการหักบัญชีอัตโนมัติ" data-th="สมัครบริการหักบัญชีอัตโนมัติ">สมัครบริการหักบัญชีอัตโนมัติ</span>
                                 </a>
-                                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light btn-lg">
-                                    <i class="fas fa-sign-in-alt me-2"></i>
+                                <a asp-controller="Account" asp-action="Login" class="btn-modern btn-outline-modern" style="border-color: white; color: white;">
+                                    <i class="fas fa-sign-in-alt"></i>
                                     <span data-en="เข้าสู่ระบบ (เจ้าหน้าที่)" data-th="เข้าสู่ระบบ (เจ้าหน้าที่)">เข้าสู่ระบบ (เจ้าหน้าที่)</span>
                                 </a>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-6">
-                        <div class="hero-visual text-center">
-                            <div class="banking-graphic position-relative">
-                                <div class="shield-container">
-                                    <i class="fas fa-university" style="font-size: 8rem; color: rgba(255,255,255,0.9);"></i>
-                                    <div class="security-indicators position-absolute">
-                                        <div class="indicator indicator-1"><i class="fas fa-lock"></i></div>
-                                        <div class="indicator indicator-2"><i class="fas fa-shield-alt"></i></div>
-                                        <div class="indicator indicator-3"><i class="fas fa-key"></i></div>
-                                        <div class="indicator indicator-4"><i class="fas fa-check-circle"></i></div>
+                        <div class="hero-visual text-center fade-in-right" style="animation-delay: 0.3s;">
+                            <div class="position-relative d-inline-block">
+                                <div class="glass-card p-5 rounded-circle d-inline-block" style="width: 300px; height: 300px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-university" style="font-size: 8rem; color: var(--kbank-green);"></i>
+                                </div>
+                                <!-- Floating security indicators -->
+                                <div class="position-absolute" style="top: 10%; right: -10%; animation: bounce-in 2s infinite;">
+                                    <div class="glass-card p-2 rounded-circle">
+                                        <i class="fas fa-lock text-success"></i>
+                                    </div>
+                                </div>
+                                <div class="position-absolute" style="top: 60%; left: -10%; animation: bounce-in 2s infinite 0.5s;">
+                                    <div class="glass-card p-2 rounded-circle">
+                                        <i class="fas fa-shield-alt text-kbank"></i>
+                                    </div>
+                                </div>
+                                <div class="position-absolute" style="bottom: 10%; right: 20%; animation: bounce-in 2s infinite 1s;">
+                                    <div class="glass-card p-2 rounded-circle">
+                                        <i class="fas fa-key text-gold"></i>
+                                    </div>
+                                </div>
+                                <div class="position-absolute" style="bottom: 40%; left: 10%; animation: bounce-in 2s infinite 1.5s;">
+                                    <div class="glass-card p-2 rounded-circle">
+                                        <i class="fas fa-check-circle text-success"></i>
                                     </div>
                                 </div>
                             </div>
@@ -265,14 +172,14 @@ else
         </section>
 
         <!-- 4-Step Process Section -->
-        <section id="how-it-works" class="py-5 bg-light">
+        <section id="how-it-works" class="py-5" style="background: var(--gradient-backdrop);">
             <div class="container">
                 <div class="row">
                     <div class="col-12 text-center mb-5">
-                        <h2 class="display-5 fw-bold text-primary mb-3">
+                        <h2 class="display-5 fw-bold text-kbank mb-3 fade-in-up">
                             <span data-en="How KBank ODD Registration Works" data-th="วิธีการทำงานของการลงทะเบียน KBank ODD">How KBank ODD Registration Works</span>
                         </h2>
-                        <p class="lead text-muted">
+                        <p class="lead text-muted fade-in-up" style="animation-delay: 0.2s;">
                             <span data-en="Simple 4-step process to complete your registration" data-th="กระบวนการ 4 ขั้นตอนง่ายๆ เพื่อลงทะเบียนให้เสร็จสมบูรณ์">Simple 4-step process to complete your registration</span>
                         </p>
                     </div>
@@ -281,57 +188,73 @@ else
                 <div class="row g-4">
                     <!-- Step 1: Get OTAC from Staff -->
                     <div class="col-md-6 col-lg-3">
-                        <div class="process-step">
-                            <div class="step-number">1</div>
-                            <div class="step-icon">
-                                <i class="fas fa-user-tie"></i>
+                        <div class="glass-card text-center h-100 fade-in-up" style="animation-delay: 0.1s;">
+                            <div class="card-modern-body p-4">
+                                <div class="position-relative d-inline-block mb-3">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; background: var(--gradient-kbank); color: white; font-size: 2rem; font-weight: bold;">1</div>
+                                </div>
+                                <div class="mb-3" style="font-size: 3rem; color: var(--kbank-green);">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                                <h4 class="fw-bold mb-3 text-kbank" data-en="Get OTAC Code" data-th="รับรหัส OTAC">Get OTAC Code</h4>
+                                <p class="text-muted" data-en="Receive your unique 8-character OTAC code from our staff member" data-th="รับรหัส OTAC 8 หลักที่ไม่ซ้ำกันจากเจ้าหน้าที่ของเรา">Receive your unique 8-character OTAC code from our staff member</p>
                             </div>
-                            <h4 class="fw-bold mb-3" data-en="Get OTAC Code" data-th="รับรหัส OTAC">Get OTAC Code</h4>
-                            <p class="text-muted" data-en="Receive your unique 8-character OTAC code from our staff member" data-th="รับรหัส OTAC 8 หลักที่ไม่ซ้ำกันจากเจ้าหน้าที่ของเรา">Receive your unique 8-character OTAC code from our staff member</p>
                         </div>
                     </div>
 
                     <!-- Step 2: Validate OTAC -->
                     <div class="col-md-6 col-lg-3">
-                        <div class="process-step">
-                            <div class="step-number">2</div>
-                            <div class="step-icon">
-                                <i class="fas fa-key"></i>
+                        <div class="glass-card text-center h-100 fade-in-up" style="animation-delay: 0.2s;">
+                            <div class="card-modern-body p-4">
+                                <div class="position-relative d-inline-block mb-3">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; background: var(--gradient-success); color: white; font-size: 2rem; font-weight: bold;">2</div>
+                                </div>
+                                <div class="mb-3" style="font-size: 3rem; color: var(--success);">
+                                    <i class="fas fa-key"></i>
+                                </div>
+                                <h4 class="fw-bold mb-3 text-kbank" data-en="Validate OTAC" data-th="ยืนยันรหัส OTAC">Validate OTAC</h4>
+                                <p class="text-muted" data-en="Enter your OTAC code to verify authorization and proceed to registration" data-th="ป้อนรหัส OTAC ของคุณเพื่อตรวจสอบการอนุญาตและดำเนินการลงทะเบียน">Enter your OTAC code to verify authorization and proceed to registration</p>
                             </div>
-                            <h4 class="fw-bold mb-3" data-en="Validate OTAC" data-th="ยืนยันรหัส OTAC">Validate OTAC</h4>
-                            <p class="text-muted" data-en="Enter your OTAC code to verify authorization and proceed to registration" data-th="ป้อนรหัส OTAC ของคุณเพื่อตรวจสอบการอนุญาตและดำเนินการลงทะเบียน">Enter your OTAC code to verify authorization and proceed to registration</p>
                         </div>
                     </div>
 
                     <!-- Step 3: Fill Registration Form -->
                     <div class="col-md-6 col-lg-3">
-                        <div class="process-step">
-                            <div class="step-number">3</div>
-                            <div class="step-icon">
-                                <i class="fas fa-id-card"></i>
+                        <div class="glass-card text-center h-100 fade-in-up" style="animation-delay: 0.3s;">
+                            <div class="card-modern-body p-4">
+                                <div class="position-relative d-inline-block mb-3">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; background: var(--gradient-primary); color: white; font-size: 2rem; font-weight: bold;">3</div>
+                                </div>
+                                <div class="mb-3" style="font-size: 3rem; color: var(--primary-blue);">
+                                    <i class="fas fa-id-card"></i>
+                                </div>
+                                <h4 class="fw-bold mb-3 text-kbank" data-en="Fill Details" data-th="กรอกข้อมูล">Fill Details</h4>
+                                <p class="text-muted" data-en="Complete the registration form with your National ID, contact, and bank account information" data-th="กรอกแบบฟอร์มลงทะเบียนด้วยบัตรประชาชน ข้อมูลติดต่อ และข้อมูลบัญชีธนาคาร">Complete the registration form with your National ID, contact, and bank account information</p>
                             </div>
-                            <h4 class="fw-bold mb-3" data-en="Fill Details" data-th="กรอกข้อมูล">Fill Details</h4>
-                            <p class="text-muted" data-en="Complete the registration form with your National ID, contact, and bank account information" data-th="กรอกแบบฟอร์มลงทะเบียนด้วยบัตรประชาชน ข้อมูลติดต่อ และข้อมูลบัญชีธนาคาร">Complete the registration form with your National ID, contact, and bank account information</p>
                         </div>
                     </div>
 
                     <!-- Step 4: Submit to KBank -->
                     <div class="col-md-6 col-lg-3">
-                        <div class="process-step">
-                            <div class="step-number">4</div>
-                            <div class="step-icon">
-                                <i class="fas fa-university"></i>
+                        <div class="glass-card text-center h-100 fade-in-up" style="animation-delay: 0.4s;">
+                            <div class="card-modern-body p-4">
+                                <div class="position-relative d-inline-block mb-3">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; background: var(--gradient-gold); color: white; font-size: 2rem; font-weight: bold;">4</div>
+                                </div>
+                                <div class="mb-3" style="font-size: 3rem; color: var(--accent-gold);">
+                                    <i class="fas fa-university"></i>
+                                </div>
+                                <h4 class="fw-bold mb-3 text-kbank" data-en="Submit to KBank" data-th="ส่งข้อมูลให้ KBank">Submit to KBank</h4>
+                                <p class="text-muted" data-en="Your registration is securely submitted to KBank for automatic debit service setup" data-th="การลงทะเบียนของคุณจะถูกส่งอย่างปลอดภัยไปยัง KBank เพื่อตั้งค่าบริการหักบัญชีอัตโนมัติ">Your registration is securely submitted to KBank for automatic debit service setup</p>
                             </div>
-                            <h4 class="fw-bold mb-3" data-en="Submit to KBank" data-th="ส่งข้อมูลให้ KBank">Submit to KBank</h4>
-                            <p class="text-muted" data-en="Your registration is securely submitted to KBank for automatic debit service setup" data-th="การลงทะเบียนของคุณจะถูกส่งอย่างปลอดภัยไปยัง KBank เพื่อตั้งค่าบริการหักบัญชีอัตโนมัติ">Your registration is securely submitted to KBank for automatic debit service setup</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="row mt-5">
                     <div class="col-12 text-center">
-                        <a asp-action="Verify" class="btn btn-primary btn-lg">
-                            <i class="fas fa-arrow-right me-2"></i>
+                        <a asp-action="Verify" class="btn-modern btn-kbank btn-lg scale-in" style="animation-delay: 0.5s;">
+                            <i class="fas fa-arrow-right"></i>
                             <span data-en="Begin Registration Process" data-th="เริ่มกระบวนการลงทะเบียน">Begin Registration Process</span>
                         </a>
                     </div>
@@ -357,86 +280,86 @@ else
                     <div class="col-lg-8">
                         <div class="accordion" id="faqAccordion">
                             <!-- FAQ 1 -->
-                            <div class="faq-item">
-                                <button class="faq-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h5 class="mb-0">
-                                            <span data-en="What is KBank ODD Registration?" data-th="การลงทะเบียน KBank ODD คืออะไร?">What is KBank ODD Registration?</span>
-                                        </h5>
-                                        <i class="fas fa-chevron-down"></i>
-                                    </div>
+                            <div class="glass-card mb-3 fade-in-up" style="animation-delay: 0.1s;">
+                                <button class="w-100 border-0 bg-transparent p-4 text-start d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                    <h5 class="mb-0 fw-semibold text-dark">
+                                        <span data-en="What is KBank ODD Registration?" data-th="การลงทะเบียน KBank ODD คืออะไร?">What is KBank ODD Registration?</span>
+                                    </h5>
+                                    <i class="fas fa-chevron-down text-kbank"></i>
                                 </button>
                                 <div id="faq1" class="collapse" data-bs-parent="#faqAccordion">
-                                    <div class="p-4 bg-light">
-                                        <p data-en="KBank ODD (Omnibus Deposit Data) Registration is a secure process that allows financial institutions to register and manage deposit data with KBank's systems. This ensures compliance with banking regulations and secure data handling." data-th="การลงทะเบียน KBank ODD (Omnibus Deposit Data) เป็นกระบวนการที่ปลอดภัยที่ช่วยให้สถาบันการเงินสามารถลงทะเบียนและจัดการข้อมูลเงินฝากกับระบบของ KBank ได้ สิ่งนี้ช่วยให้มั่นใจในการปฏิบัติตามกฎระเบียบของธนาคารและการจัดการข้อมูลที่ปลอดภัย">KBank ODD (Omnibus Deposit Data) Registration is a secure process that allows financial institutions to register and manage deposit data with KBank's systems. This ensures compliance with banking regulations and secure data handling.</p>
+                                    <div class="px-4 pb-4">
+                                        <div class="glass p-3 rounded">
+                                            <p class="mb-0" data-en="KBank ODD (Omnibus Deposit Data) Registration is a secure process that allows financial institutions to register and manage deposit data with KBank's systems. This ensures compliance with banking regulations and secure data handling." data-th="การลงทะเบียน KBank ODD (Omnibus Deposit Data) เป็นกระบวนการที่ปลอดภัยที่ช่วยให้สถาบันการเงินสามารถลงทะเบียนและจัดการข้อมูลเงินฝากกับระบบของ KBank ได้ สิ่งนี้ช่วยให้มั่นใจในการปฏิบัติตามกฎระเบียบของธนาคารและการจัดการข้อมูลที่ปลอดภัย">KBank ODD (Omnibus Deposit Data) Registration is a secure process that allows financial institutions to register and manage deposit data with KBank's systems. This ensures compliance with banking regulations and secure data handling.</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- FAQ 2 -->
-                            <div class="faq-item">
-                                <button class="faq-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h5 class="mb-0">
-                                            <span data-en="How secure is my data?" data-th="ข้อมูลของฉันปลอดภัยแค่ไหน?">How secure is my data?</span>
-                                        </h5>
-                                        <i class="fas fa-chevron-down"></i>
-                                    </div>
+                            <div class="glass-card mb-3 fade-in-up" style="animation-delay: 0.2s;">
+                                <button class="w-100 border-0 bg-transparent p-4 text-start d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    <h5 class="mb-0 fw-semibold text-dark">
+                                        <span data-en="How secure is my data?" data-th="ข้อมูลของฉันปลอดภัยแค่ไหน?">How secure is my data?</span>
+                                    </h5>
+                                    <i class="fas fa-chevron-down text-kbank"></i>
                                 </button>
                                 <div id="faq2" class="collapse" data-bs-parent="#faqAccordion">
-                                    <div class="p-4 bg-light">
-                                        <p data-en="We use bank-grade security with end-to-end encryption, secure HTTPS connections, and comply with all financial industry standards. Your data is protected with the same level of security used by major banking institutions." data-th="เราใช้ความปลอดภัยระดับธนาคารพร้อมการเข้ารหัสแบบ end-to-end การเชื่อมต่อ HTTPS ที่ปลอดภัย และปฏิบัติตามมาตรฐานอุตสาหกรรมการเงินทั้งหมด ข้อมูลของคุณได้รับการปกป้องด้วยระดับความปลอดภัยเดียวกับที่ใช้โดยสถาบันการธนาคารขนาดใหญ่">We use bank-grade security with end-to-end encryption, secure HTTPS connections, and comply with all financial industry standards. Your data is protected with the same level of security used by major banking institutions.</p>
+                                    <div class="px-4 pb-4">
+                                        <div class="glass p-3 rounded">
+                                            <p class="mb-0" data-en="We use bank-grade security with end-to-end encryption, secure HTTPS connections, and comply with all financial industry standards. Your data is protected with the same level of security used by major banking institutions." data-th="เราใช้ความปลอดภัยระดับธนาคารพร้อมการเข้ารหัสแบบ end-to-end การเชื่อมต่อ HTTPS ที่ปลอดภัย และปฏิบัติตามมาตรฐานอุตสาหกรรมการเงินทั้งหมด ข้อมูลของคุณได้รับการปกป้องด้วยระดับความปลอดภัยเดียวกับที่ใช้โดยสถาบันการธนาคารขนาดใหญ่">We use bank-grade security with end-to-end encryption, secure HTTPS connections, and comply with all financial industry standards. Your data is protected with the same level of security used by major banking institutions.</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- FAQ 3 -->
-                            <div class="faq-item">
-                                <button class="faq-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h5 class="mb-0">
-                                            <span data-en="What is an OTAC code?" data-th="รหัส OTAC คืออะไร?">What is an OTAC code?</span>
-                                        </h5>
-                                        <i class="fas fa-chevron-down"></i>
-                                    </div>
+                            <div class="glass-card mb-3 fade-in-up" style="animation-delay: 0.3s;">
+                                <button class="w-100 border-0 bg-transparent p-4 text-start d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                    <h5 class="mb-0 fw-semibold text-dark">
+                                        <span data-en="What is an OTAC code?" data-th="รหัส OTAC คืออะไร?">What is an OTAC code?</span>
+                                    </h5>
+                                    <i class="fas fa-chevron-down text-kbank"></i>
                                 </button>
                                 <div id="faq3" class="collapse" data-bs-parent="#faqAccordion">
-                                    <div class="p-4 bg-light">
-                                        <p data-en="OTAC (One-Time Authorization Code) is a unique, time-limited code generated for each registration. It provides an additional layer of security and ensures that only authorized users can complete the registration process." data-th="OTAC (One-Time Authorization Code) เป็นรหัสเฉพาะที่มีเวลาจำกัดที่สร้างขึ้นสำหรับการลงทะเบียนแต่ละครั้ง ให้ความปลอดภัยเพิ่มเติมและรับประกันว่ามีเพียงผู้ใช้ที่ได้รับอนุญาตเท่านั้นที่สามารถดำเนินการลงทะเบียนให้เสร็จสิ้นได้">OTAC (One-Time Authorization Code) is a unique, time-limited code generated for each registration. It provides an additional layer of security and ensures that only authorized users can complete the registration process.</p>
+                                    <div class="px-4 pb-4">
+                                        <div class="glass p-3 rounded">
+                                            <p class="mb-0" data-en="OTAC (One-Time Authorization Code) is a unique, time-limited code generated for each registration. It provides an additional layer of security and ensures that only authorized users can complete the registration process." data-th="OTAC (One-Time Authorization Code) เป็นรหัสเฉพาะที่มีเวลาจำกัดที่สร้างขึ้นสำหรับการลงทะเบียนแต่ละครั้ง ให้ความปลอดภัยเพิ่มเติมและรับประกันว่ามีเพียงผู้ใช้ที่ได้รับอนุญาตเท่านั้นที่สามารถดำเนินการลงทะเบียนให้เสร็จสิ้นได้">OTAC (One-Time Authorization Code) is a unique, time-limited code generated for each registration. It provides an additional layer of security and ensures that only authorized users can complete the registration process.</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- FAQ 4 -->
-                            <div class="faq-item">
-                                <button class="faq-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h5 class="mb-0">
-                                            <span data-en="How long does the registration process take?" data-th="กระบวนการลงทะเบียนใช้เวลานานแค่ไหน?">How long does the registration process take?</span>
-                                        </h5>
-                                        <i class="fas fa-chevron-down"></i>
-                                    </div>
+                            <div class="glass-card mb-3 fade-in-up" style="animation-delay: 0.4s;">
+                                <button class="w-100 border-0 bg-transparent p-4 text-start d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                    <h5 class="mb-0 fw-semibold text-dark">
+                                        <span data-en="How long does the registration process take?" data-th="กระบวนการลงทะเบียนใช้เวลานานแค่ไหน?">How long does the registration process take?</span>
+                                    </h5>
+                                    <i class="fas fa-chevron-down text-kbank"></i>
                                 </button>
                                 <div id="faq4" class="collapse" data-bs-parent="#faqAccordion">
-                                    <div class="p-4 bg-light">
-                                        <p data-en="The registration process typically takes 5-10 minutes to complete. OTAC codes are generated instantly, and validation is processed in real-time. You'll receive immediate confirmation upon successful completion." data-th="กระบวนการลงทะเบียนโดยทั่วไปใช้เวลา 5-10 นาทีในการดำเนินการให้เสร็จสิ้น รหัส OTAC จะถูกสร้างขึ้นทันที และการตรวจสอบจะดำเนินการแบบเรียลไทม์ คุณจะได้รับการยืนยันทันทีเมื่อดำเนินการเสร็จสิ้นเรียบร้อยแล้ว">The registration process typically takes 5-10 minutes to complete. OTAC codes are generated instantly, and validation is processed in real-time. You'll receive immediate confirmation upon successful completion.</p>
+                                    <div class="px-4 pb-4">
+                                        <div class="glass p-3 rounded">
+                                            <p class="mb-0" data-en="The registration process typically takes 5-10 minutes to complete. OTAC codes are generated instantly, and validation is processed in real-time. You'll receive immediate confirmation upon successful completion." data-th="กระบวนการลงทะเบียนโดยทั่วไปใช้เวลา 5-10 นาทีในการดำเนินการให้เสร็จสิ้น รหัส OTAC จะถูกสร้างขึ้นทันที และการตรวจสอบจะดำเนินการแบบเรียลไทม์ คุณจะได้รับการยืนยันทันทีเมื่อดำเนินการเสร็จสิ้นเรียบร้อยแล้ว">The registration process typically takes 5-10 minutes to complete. OTAC codes are generated instantly, and validation is processed in real-time. You'll receive immediate confirmation upon successful completion.</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- FAQ 5 -->
-                            <div class="faq-item">
-                                <button class="faq-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h5 class="mb-0">
-                                            <span data-en="Who can I contact for support?" data-th="ฉันสามารถติดต่อใครเพื่อขอความช่วยเหลือได้?">Who can I contact for support?</span>
-                                        </h5>
-                                        <i class="fas fa-chevron-down"></i>
-                                    </div>
+                            <div class="glass-card mb-3 fade-in-up" style="animation-delay: 0.5s;">
+                                <button class="w-100 border-0 bg-transparent p-4 text-start d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                    <h5 class="mb-0 fw-semibold text-dark">
+                                        <span data-en="Who can I contact for support?" data-th="ฉันสามารถติดต่อใครเพื่อขอความช่วยเหลือได้?">Who can I contact for support?</span>
+                                    </h5>
+                                    <i class="fas fa-chevron-down text-kbank"></i>
                                 </button>
                                 <div id="faq5" class="collapse" data-bs-parent="#faqAccordion">
-                                    <div class="p-4 bg-light">
-                                        <p data-en="Our support team is available 24/7 to assist with any questions or issues. You can reach us through the contact form, email support@bizconnect.com, or call our dedicated helpline at +66-2-XXX-XXXX." data-th="ทีมสนับสนุนของเราพร้อมให้บริการตลอด 24 ชั่วโมงเพื่อช่วยเหลือเกี่ยวกับคำถามหรือปัญหาใดๆ คุณสามารถติดต่อเราผ่านแบบฟอร์มติดต่อ อีเมล support@bizconnect.com หรือโทรหาสายด่วนเฉพาะของเราที่ +66-2-XXX-XXXX">Our support team is available 24/7 to assist with any questions or issues. You can reach us through the contact form, email support@bizconnect.com, or call our dedicated helpline at +66-2-XXX-XXXX.</p>
+                                    <div class="px-4 pb-4">
+                                        <div class="glass p-3 rounded">
+                                            <p class="mb-0" data-en="Our support team is available 24/7 to assist with any questions or issues. You can reach us through the contact form, email support@bizconnect.com, or call our dedicated helpline at +66-2-XXX-XXXX." data-th="ทีมสนับสนุนของเราพร้อมให้บริการตลอด 24 ชั่วโมงเพื่อช่วยเหลือเกี่ยวกับคำถามหรือปัญหาใดๆ คุณสามารถติดต่อเราผ่านแบบฟอร์มติดต่อ อีเมล support@bizconnect.com หรือโทรหาสายด่วนเฉพาะของเราที่ +66-2-XXX-XXXX">Our support team is available 24/7 to assist with any questions or issues. You can reach us through the contact form, email support@bizconnect.com, or call our dedicated helpline at +66-2-XXX-XXXX.</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -447,24 +370,27 @@ else
         </section>
 
         <!-- CTA Section -->
-        <section class="py-5 bg-primary text-white">
-            <div class="container">
+        <section class="py-5 position-relative" style="background: var(--gradient-kbank); color: white;">
+            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: var(--glass-overlay); backdrop-filter: blur(5px);"></div>
+            <div class="container position-relative">
                 <div class="row">
                     <div class="col-12 text-center">
-                        <h2 class="display-5 fw-bold mb-3">
+                        <h2 class="display-5 fw-bold mb-3 fade-in-up">
                             <span data-en="Ready to Get Started?" data-th="พร้อมที่จะเริ่มต้นหรือยัง?">Ready to Get Started?</span>
                         </h2>
-                        <p class="lead mb-4">
+                        <p class="lead mb-4 fade-in-up" style="animation-delay: 0.2s;">
                             <span data-en="Join thousands of financial institutions using our secure KBank ODD registration platform" data-th="เข้าร่วมกับสถาบันการเงินหลายพันแห่งที่ใช้แพลตฟอร์มการลงทะเบียน KBank ODD ที่ปลอดภัยของเรา">Join thousands of financial institutions using our secure KBank ODD registration platform</span>
                         </p>
-                        <a asp-action="Verify" class="btn btn-warning btn-lg me-3">
-                            <i class="fas fa-user-plus me-2"></i>
-                            <span data-en="สมัครบริการหักบัญชีอัตโนมัติ" data-th="สมัครบริการหักบัญชีอัตโนมัติ">สมัครบริการหักบัญชีอัตโนมัติ</span>
-                        </a>
-                        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light btn-lg">
-                            <i class="fas fa-sign-in-alt me-2"></i>
-                            <span data-en="เข้าสู่ระบบ (เจ้าหน้าที่)" data-th="เข้าสู่ระบบ (เจ้าหน้าที่)">เข้าสู่ระบบ (เจ้าหน้าที่)</span>
-                        </a>
+                        <div class="fade-in-up" style="animation-delay: 0.4s;">
+                            <a asp-action="Verify" class="btn-modern btn-gold me-3">
+                                <i class="fas fa-user-plus"></i>
+                                <span data-en="สมัครบริการหักบัญชีอัตโนมัติ" data-th="สมัครบริการหักบัญชีอัตโนมัติ">สมัครบริการหักบัญชีอัตโนมัติ</span>
+                            </a>
+                            <a asp-controller="Account" asp-action="Login" class="btn-modern btn-outline-modern" style="border-color: white; color: white;">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span data-en="เข้าสู่ระบบ (เจ้าหน้าที่)" data-th="เข้าสู่ระบบ (เจ้าหน้าที่)">เข้าสู่ระบบ (เจ้าหน้าที่)</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

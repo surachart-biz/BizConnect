@@ -14,4 +14,11 @@ public interface IKBankOddClient
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Initialization response</returns>
     Task<KBankInitResponse> InitAsync(KBankInitRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Tests connectivity to KBank API for health monitoring
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>True if KBank API is accessible</returns>
+    Task<bool> TestConnectivityAsync(CancellationToken cancellationToken = default);
 }

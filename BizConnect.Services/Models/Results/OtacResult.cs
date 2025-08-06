@@ -99,6 +99,16 @@ namespace BizConnect.Services.Models.Results
         public int? RemainingAttempts => Data?.RemainingAttempts;
 
         /// <summary>
+        /// Convenience property for accessing attempts remaining (alias for RemainingAttempts)
+        /// </summary>
+        public int AttemptsRemaining => RemainingAttempts ?? 0;
+
+        /// <summary>
+        /// Lockout time remaining in minutes (0 if not locked)
+        /// </summary>
+        public int LockoutTimeRemaining { get; set; } = 0;
+
+        /// <summary>
         /// Creates a successful OTAC result
         /// </summary>
         public static OtacResult Success(string code, DateTime expiresAt, int registrationId, string purpose = "Registration", int remainingAttempts = 5)
