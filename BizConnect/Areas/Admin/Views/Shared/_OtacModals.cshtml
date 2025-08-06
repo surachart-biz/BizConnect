@@ -3,17 +3,7 @@
 <!-- Modal Container for Dynamic Loading -->
 <div id="otacModalContainer"></div>
 
-<!-- OTAC Action Buttons (can be included in toolbars) -->
-<div class="otac-actions d-none" id="otacActions">
-    <div class="btn-group" role="group" aria-label="OTAC Actions">
-        <button type="button" class="btn btn-primary" onclick="openGenerateOtacModal()">
-            <i class="fas fa-key me-1"></i>Generate OTAC
-        </button>
-        <button type="button" class="btn btn-info" onclick="openValidateOtacModal()">
-            <i class="fas fa-shield-check me-1"></i>Validate OTAC
-        </button>
-    </div>
-</div>
+<!-- OTAC Action Buttons removed - functionality now available through page-specific controls -->
 
 <script>
     // Global OTAC Modal Functions
@@ -66,17 +56,7 @@
         OtacModals.openGenerate(registrationId);
     }
     
-    // Show OTAC actions if user has appropriate permissions
-    document.addEventListener('DOMContentLoaded', function() {
-        // This would typically check user permissions
-        // For now, show for all admin users
-        @if (User.IsInRole("Admin") || User.IsInRole("Employee"))
-        {
-            <text>
-            document.getElementById('otacActions')?.classList.remove('d-none');
-            </text>
-        }
-    });
+    // OTAC actions now managed through page-specific controls
     
     // Alert helper function (if not already defined)
     if (typeof showAlert === 'undefined') {
@@ -102,18 +82,6 @@
 </script>
 
 <style>
-    .otac-actions {
-        margin: 0.5rem 0;
-    }
-    
-    .otac-actions .btn {
-        border-radius: 6px;
-    }
-    
-    .otac-actions .btn:not(:last-child) {
-        margin-right: 0.5rem;
-    }
-    
     /* Enhanced modal animations */
     .modal.fade .modal-dialog {
         transform: translateY(-25px);

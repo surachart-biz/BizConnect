@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" msdata:Ordinal="5" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Navigation & General -->
+  <data name="Dashboard" xml:space="preserve">
+    <value>แดชบอร์ด</value>
+  </data>
+  <data name="Overview" xml:space="preserve">
+    <value>ภาพรวม</value>
+  </data>
+  <data name="Analytics" xml:space="preserve">
+    <value>วิเคราะห์</value>
+  </data>
+  <data name="OddManagement" xml:space="preserve">
+    <value>จัดการ ODD</value>
+  </data>
+  <data name="UserManagement" xml:space="preserve">
+    <value>จัดการผู้ใช้</value>
+  </data>
+  <data name="AllUsers" xml:space="preserve">
+    <value>ผู้ใช้ทั้งหมด</value>
+  </data>
+  
+  <!-- ODD Registrations -->
+  <data name="OddRegistrations" xml:space="preserve">
+    <value>การลงทะเบียน ODD</value>
+  </data>
+  <data name="ManageOddRegistrations" xml:space="preserve">
+    <value>จัดการการลงทะเบียนข้อมูลเงินฝาก Omnibus ของ KBank</value>
+  </data>
+  
+  <!-- Table Headers -->
+  <data name="ExternalReference" xml:space="preserve">
+    <value>หมายเลขอ้างอิงภายนอก</value>
+  </data>
+  <data name="CustomerInfo" xml:space="preserve">
+    <value>ข้อมูลลูกค้า</value>
+  </data>
+  <data name="BranchInformation" xml:space="preserve">
+    <value>ข้อมูลสาขา</value>
+  </data>
+  <data name="OtacDetails" xml:space="preserve">
+    <value>รายละเอียด OTAC</value>
+  </data>
+  <data name="RegistrationStatus" xml:space="preserve">
+    <value>สถานะการลงทะเบียน</value>
+  </data>
+  <data name="TrackingInfo" xml:space="preserve">
+    <value>ข้อมูลการติดตาม</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>การดำเนินการ</value>
+  </data>
+  
+  <!-- Status Labels -->
+  <data name="Pending" xml:space="preserve">
+    <value>รอดำเนินการ</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>เสร็จสิ้น</value>
+  </data>
+  <data name="Failed" xml:space="preserve">
+    <value>ล้มเหลว</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>สำเร็จ</value>
+  </data>
+  <data name="Generated" xml:space="preserve">
+    <value>สร้างแล้ว</value>
+  </data>
+  <data name="Validated" xml:space="preserve">
+    <value>ตรวจสอบแล้ว</value>
+  </data>
+  <data name="Used" xml:space="preserve">
+    <value>ใช้แล้ว</value>
+  </data>
+  <data name="Expired" xml:space="preserve">
+    <value>หมดอายุ</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>ไม่ทราบ</value>
+  </data>
+  
+  <!-- UI Elements -->
+  <data name="Search" xml:space="preserve">
+    <value>ค้นหา</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>สถานะ</value>
+  </data>
+  <data name="PerPage" xml:space="preserve">
+    <value>ต่อหน้า</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>กรอง</value>
+  </data>
+  <data name="Clear" xml:space="preserve">
+    <value>ล้าง</value>
+  </data>
+  <data name="AllStatus" xml:space="preserve">
+    <value>สถานะทั้งหมด</value>
+  </data>
+  <data name="ExportExcel" xml:space="preserve">
+    <value>ส่งออก Excel</value>
+  </data>
+  <data name="ExportCsv" xml:space="preserve">
+    <value>ส่งออก CSV</value>
+  </data>
+  <data name="AddData" xml:space="preserve">
+    <value>เพิ่มข้อมูล</value>
+  </data>
+  
+  <!-- Language Switcher -->
+  <data name="SelectLanguage" xml:space="preserve">
+    <value>เลือกภาษา</value>
+  </data>
+  
+  <!-- Placeholders -->
+  <data name="SearchPlaceholder" xml:space="preserve">
+    <value>ชื่อ-นามสกุล, หมายเลขบัตรประจำตัว, โทรศัพท์, หรือหมายเลขอ้างอิง</value>
+  </data>
+  
+  <!-- Messages -->
+  <data name="ShowingEntries" xml:space="preserve">
+    <value>แสดงข้อมูล {0} ถึง {1} จากทั้งหมด {2} รายการ</value>
+  </data>
+  <data name="NoCustomerData" xml:space="preserve">
+    <value>ไม่มีข้อมูลลูกค้า</value>
+  </data>
+  <data name="NoBranchAssigned" xml:space="preserve">
+    <value>ไม่ได้กำหนดสาขา</value>
+  </data>
+  
+  <!-- Date/Time Labels -->
+  <data name="Created" xml:space="preserve">
+    <value>สร้างเมื่อ</value>
+  </data>
+  <data name="Updated" xml:space="preserve">
+    <value>อัพเดตเมื่อ</value>
+  </data>
+  <data name="Expires" xml:space="preserve">
+    <value>หมดอายุ</value>
+  </data>
+  <data name="Attempts" xml:space="preserve">
+    <value>ครั้งที่พยายาม</value>
+  </data>
+  
+  <!-- Field Labels -->
+  <data name="Code" xml:space="preserve">
+    <value>รหัส</value>
+  </data>
+  <data name="Account" xml:space="preserve">
+    <value>บัญชี</value>
+  </data>
+  <data name="Mobile" xml:space="preserve">
+    <value>โทรศัพท์</value>
+  </data>
+  
+  <!-- Action Labels -->
+  <data name="ViewDetails" xml:space="preserve">
+    <value>ดูรายละเอียด</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>แก้ไข</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>ลบ</value>
+  </data>
+  
+  <!-- Admin Panel -->
+  <data name="AdminPanel" xml:space="preserve">
+    <value>แผงควบคุมผู้ดูแลระบบ</value>
+  </data>
+  <data name="New" xml:space="preserve">
+    <value>ใหม่</value>
+  </data>
+  
+  <!-- Additional Action Labels -->
+  <data name="BulkApprove" xml:space="preserve">
+    <value>อนุมัติหลายรายการ</value>
+  </data>
+  <data name="BulkReject" xml:space="preserve">
+    <value>ปฏิเสธหลายรายการ</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>รีเฟรช</value>
+  </data>
+  <data name="GenerateOtac" xml:space="preserve">
+    <value>สร้าง OTAC</value>
+  </data>
+  <data name="ViewHistory" xml:space="preserve">
+    <value>ดูประวัติ</value>
+  </data>
+  
+  <!-- Messages and placeholders -->
+  <data name="NoDataMessage" xml:space="preserve">
+    <value>ไม่มีข้อมูลการลงทะเบียน</value>
+  </data>
+  <data name="NoDataWithFilters" xml:space="preserve">
+    <value>ไม่พบข้อมูลที่ตรงกับการค้นหา</value>
+  </data>
+  <data name="NoDataWithoutFilters" xml:space="preserve">
+    <value>ยังไม่มีการลงทะเบียน ODD ในระบบ</value>
+  </data>
+  <data name="ClearFilters" xml:space="preserve">
+    <value>ล้างตัวกรอง</value>
+  </data>
+  <data name="AddNewData" xml:space="preserve">
+    <value>เพิ่มข้อมูลใหม่</value>
+  </data>
+  <data name="Previous" xml:space="preserve">
+    <value>ก่อนหน้า</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>ถัดไป</value>
+  </data>
+  
+  <!-- Status-specific labels -->
+  <data name="PendingCount" xml:space="preserve">
+    <value>รอดำเนินการ {0} รายการ</value>
+  </data>
+  <data name="CompletedCount" xml:space="preserve">
+    <value>เสร็จสิ้น {0} รายการ</value>
+  </data>
+  <data name="FailedCount" xml:space="preserve">
+    <value>ล้มเหลว {0} รายการ</value>
+  </data>
+  
+  <!-- OTAC specific -->
+  <data name="Locked" xml:space="preserve">
+    <value>ถูกล็อค</value>
+  </data>
+  <data name="Approved" xml:space="preserve">
+    <value>อนุมัติแล้ว</value>
+  </data>
+  <data name="Rejected" xml:space="preserve">
+    <value>ปฏิเสธแล้ว</value>
+  </data>
+  
+  <!-- User Menu -->
+  <data name="Administrator" xml:space="preserve">
+    <value>ผู้ดูแลระบบ</value>
+  </data>
+  <data name="Profile" xml:space="preserve">
+    <value>โปรไฟล์</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>การตั้งค่า</value>
+  </data>
+  <data name="BackToSite" xml:space="preserve">
+    <value>กลับไปหน้าเว็บไซต์</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>ออกจากระบบ</value>
+  </data>
+  
+  <!-- Notifications -->
+  <data name="Notifications" xml:space="preserve">
+    <value>การแจ้งเตือน</value>
+  </data>
+  <data name="RecentNotifications" xml:space="preserve">
+    <value>การแจ้งเตือนล่าสุด</value>
+  </data>
+  <data name="NoNewNotifications" xml:space="preserve">
+    <value>ไม่มีการแจ้งเตือนใหม่</value>
+  </data>
+  <data name="NotificationSystemReady" xml:space="preserve">
+    <value>ระบบการแจ้งเตือนพร้อมใช้งาน</value>
+  </data>
+</root>

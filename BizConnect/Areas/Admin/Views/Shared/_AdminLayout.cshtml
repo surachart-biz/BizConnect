@@ -1,5 +1,14 @@
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Localization
+@using BizConnect.Extensions
+@inject IStringLocalizer<SharedResources> Localizer
+
+@{
+    var isThaiCulture = Context.IsThaiCulture();
+}
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@(isThaiCulture ? "th" : "en")">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -27,6 +36,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/BizConnect.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/enhanced-admin.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
     <style>
@@ -98,11 +108,12 @@
             left: 0;
             width: var(--sidebar-width);
             height: calc(100vh - var(--topbar-height));
-            background: white;
-            border-right: 1px solid #e0e0e0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-right: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
             overflow-y: auto;
             z-index: 1020;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .admin-sidebar.collapsed {
@@ -111,20 +122,21 @@
 
         .sidebar-header {
             padding: 1.5rem;
-            border-bottom: 1px solid #e0e0e0;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
         }
 
         .sidebar-title {
             font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--admin-primary);
+            font-weight: 700;
+            color: white;
             margin: 0;
         }
 
         .sidebar-subtitle {
             font-size: 0.85rem;
-            color: #6c757d;
+            color: rgba(255, 255, 255, 0.7);
             margin: 0;
         }
 
@@ -134,16 +146,31 @@
 
         .nav-section {
             margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .nav-section::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 1.5rem;
+            right: 1.5rem;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        }
+
+        .nav-section:last-child::after {
+            display: none;
         }
 
         .nav-section-title {
             font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
-            color: #6c757d;
+            color: rgba(255, 255, 255, 0.6);
             padding: 0 1.5rem;
             margin-bottom: 0.5rem;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.05em;
         }
 
         .nav-item {
@@ -153,29 +180,64 @@
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 0.75rem 1.5rem;
-            color: #495057;
+            padding: 0.875rem 1.5rem;
+            color: rgba(255, 255, 255, 0.85);
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border-left: 3px solid transparent;
+            border-radius: 0 10px 10px 0;
+            margin: 0 0 6px 0;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .nav-link:hover {
-            background: var(--admin-light);
-            color: var(--admin-primary);
-            border-left-color: var(--admin-primary);
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
+            border-left-color: #fbbf24;
+            transform: translateX(6px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-link:hover::before {
+            opacity: 1;
         }
 
         .nav-link.active {
-            background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
             color: white;
-            border-left-color: var(--admin-warning);
+            border-left-color: #fbbf24;
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+            transform: translateX(3px);
+        }
+
+        .nav-link.active::before {
+            opacity: 1;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);
         }
 
         .nav-link i {
             width: 20px;
             margin-right: 0.75rem;
             text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover i {
+            transform: scale(1.1);
         }
 
         .nav-link .badge {
@@ -277,6 +339,7 @@
         @@media (max-width: 768px) {
             .admin-sidebar {
                 transform: translateX(-100%);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             }
 
             .admin-sidebar.show {
@@ -285,16 +348,58 @@
 
             .admin-content {
                 margin-left: 0;
+                padding: 1rem;
             }
 
             .sidebar-toggle-mobile {
                 display: block !important;
+            }
+
+            .content-header {
+                padding: 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .content-title {
+                font-size: 1.5rem;
+            }
+
+            .nav-link {
+                padding: 1rem 1.5rem;
+                font-size: 0.95rem;
+            }
+
+            .nav-section-title {
+                padding: 0 1.5rem;
+                font-size: 0.7rem;
             }
         }
 
         @@media (min-width: 769px) {
             .sidebar-toggle-mobile {
                 display: none !important;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .admin-content {
+                padding: 0.75rem;
+            }
+
+            .content-header {
+                padding: 0.75rem;
+            }
+
+            .content-title {
+                font-size: 1.25rem;
+            }
+
+            .nav-link {
+                padding: 0.875rem 1rem;
+            }
+
+            .nav-section-title {
+                padding: 0 1rem;
             }
         }
 
@@ -346,44 +451,27 @@
                     
                     <!-- Notifications -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" title="@Localizer["Notifications"]">
                             <i class="fas fa-bell"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning">
-                                3
-                                <span class="visually-hidden">unread notifications</span>
+                            <!-- Badge will be shown dynamically when there are actual notifications -->
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning d-none" id="notificationBadge">
+                                0
+                                <span class="visually-hidden">@Localizer["Notifications"]</span>
                             </span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" style="width: 300px;">
-                            <li><h6 class="dropdown-header">Recent Notifications</h6></li>
+                            <li><h6 class="dropdown-header">@Localizer["RecentNotifications"]</h6></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a class="dropdown-item" href="#">
-                                    <div class="d-flex">
-                                        <div class="flex-shrink-0">
-                                            <i class="fas fa-user-plus text-success"></i>
-                                        </div>
-                                        <div class="flex-grow-1 ms-2">
-                                            <div class="fw-bold">New ODD Registration</div>
-                                            <small class="text-muted">Company ABC submitted registration</small>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="#">
-                                    <div class="d-flex">
-                                        <div class="flex-shrink-0">
-                                            <i class="fas fa-key text-warning"></i>
-                                        </div>
-                                        <div class="flex-grow-1 ms-2">
-                                            <div class="fw-bold">OTAC Generated</div>
-                                            <small class="text-muted">15 new codes generated today</small>
-                                        </div>
-                                    </div>
-                                </a>
+                                <div class="dropdown-item-text text-center text-muted py-4">
+                                    <i class="fas fa-bell-slash mb-2" style="font-size: 1.5rem; opacity: 0.5;"></i>
+                                    <div>@Localizer["NoNewNotifications"]</div>
+                                </div>
                             </li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-center" href="#">View all notifications</a></li>
+                            <li><a class="dropdown-item text-center" href="#" onclick="return false;">
+                                <small class="text-muted">@Localizer["NotificationSystemReady"]</small>
+                            </a></li>
                         </ul>
                     </li>
 
@@ -394,14 +482,14 @@
                             @User.Identity?.Name
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><h6 class="dropdown-header">Administrator</h6></li>
+                            <li><h6 class="dropdown-header">@Localizer["Administrator"]</h6></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>@Localizer["Profile"]</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>@Localizer["Settings"]</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" asp-controller="Home" asp-action="Index" asp-area=""><i class="fas fa-home me-2"></i>Back to Site</a></li>
+                            <li><a class="dropdown-item" asp-controller="Home" asp-action="Index" asp-area=""><i class="fas fa-home me-2"></i>@Localizer["BackToSite"]</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" asp-controller="Account" asp-action="Logout" asp-area=""><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            <li><a class="dropdown-item text-danger" asp-controller="Account" asp-action="Logout" asp-area=""><i class="fas fa-sign-out-alt me-2"></i>@Localizer["Logout"]</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -413,153 +501,49 @@
     <nav class="admin-sidebar" id="adminSidebar" role="navigation" aria-label="Admin navigation">
         <div class="sidebar-header">
             <h5 class="sidebar-title">KBank ODD System</h5>
-            <p class="sidebar-subtitle">Administration Panel</p>
+            <p class="sidebar-subtitle">@Localizer["AdminPanel"]</p>
         </div>
 
         <div class="sidebar-nav">
             <!-- Dashboard Section -->
             <div class="nav-section">
-                <div class="nav-section-title">Dashboard</div>
+                <div class="nav-section-title">@Localizer["Dashboard"]</div>
                 <div class="nav-item">
                     <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")" 
                        asp-controller="Home" asp-action="Dashboard" asp-area="Admin">
                         <i class="fas fa-tachometer-alt"></i>
-                        <span>Overview</span>
+                        <span>@Localizer["Overview"]</span>
                     </a>
                 </div>
                 <div class="nav-item">
                     <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Analytics" ? "active" : "")" 
                        asp-controller="Analytics" asp-action="Dashboard" asp-area="Admin">
                         <i class="fas fa-chart-line"></i>
-                        <span>Analytics</span>
-                        <span class="badge bg-success">Live</span>
+                        <span>@Localizer["Analytics"]</span>
                     </a>
                 </div>
             </div>
 
             <!-- ODD Management Section -->
             <div class="nav-section">
-                <div class="nav-section-title">ODD Management</div>
+                <div class="nav-section-title">@Localizer["OddManagement"]</div>
                 <div class="nav-item">
                     <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "OddRegistration" ? "active" : "")" 
                        asp-controller="OddRegistration" asp-action="Index" asp-area="Admin">
-                        <i class="fas fa-list"></i>
-                        <span>Registrations</span>
-                        <span class="badge bg-primary">24</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-clock"></i>
-                        <span>Pending</span>
-                        <span class="badge bg-warning">8</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Completed</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-times-circle"></i>
-                        <span>Failed</span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- OTAC Management Section -->
-            <div class="nav-section">
-                <div class="nav-section-title">OTAC Management</div>
-                <div class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Otac" ? "active" : "")" 
-                       asp-controller="Otac" asp-action="Index" asp-area="Admin">
-                        <i class="fas fa-key"></i>
-                        <span>Generate OTAC</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-history"></i>
-                        <span>OTAC History</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-calendar-times"></i>
-                        <span>Expired Codes</span>
-                        <span class="badge bg-danger">5</span>
+                        <i class="fas fa-file-alt"></i>
+                        <span>@Localizer["OddRegistrations"]</span>
                     </a>
                 </div>
             </div>
 
             <!-- User Management Section -->
             <div class="nav-section">
-                <div class="nav-section-title">User Management</div>
+                <div class="nav-section-title">@Localizer["UserManagement"]</div>
                 <div class="nav-item">
                     <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" ? "active" : "")" 
                        asp-controller="Users" asp-action="Index" asp-area="Admin">
                         <i class="fas fa-users"></i>
-                        <span>All Users</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a class="nav-link" asp-controller="Users" asp-action="Create" asp-area="Admin">
-                        <i class="fas fa-user-plus"></i>
-                        <span>Add User</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-user-shield"></i>
-                        <span>Roles & Permissions</span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Data Management Section -->
-            <div class="nav-section">
-                <div class="nav-section-title">Data Management</div>
-                <div class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-upload"></i>
-                        <span>Import Data</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-download"></i>
-                        <span>Export Data</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-database"></i>
-                        <span>Backup</span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- System Section -->
-            <div class="nav-section">
-                <div class="nav-section-title">System</div>
-                <div class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-cogs"></i>
-                        <span>Settings</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-file-alt"></i>
-                        <span>Logs</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-info-circle"></i>
-                        <span>System Info</span>
+                        <span>@Localizer["AllUsers"]</span>
                     </a>
                 </div>
             </div>

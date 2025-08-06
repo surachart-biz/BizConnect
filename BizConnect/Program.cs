@@ -364,7 +364,10 @@ builder.Services.AddControllersWithViews(options =>
     
     // Global anti-forgery token validation for state-changing operations
     options.Filters.Add(new Microsoft.AspNetCore.Mvc.AutoValidateAntiforgeryTokenAttribute());
-}).AddJsonOptions(options =>
+})
+.AddViewLocalization(Microsoft.AspNetCore.Mvc.Razor.LanguageViewLocationExpanderFormat.Suffix)
+.AddDataAnnotationsLocalization()
+.AddJsonOptions(options =>
 {
     // Configure JSON serialization for API responses
     options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
@@ -453,28 +456,55 @@ if (appPerformanceConfig.Exists())
 // 3. HTTPS redirection
 app.UseHttpsRedirection();
 
-// 4. Security headers middleware
+// 4. Enterprise-grade security headers middleware
 app.Use(async (context, next) =>
 {
-    // Content Security Policy
-    context.Response.Headers.Add("Content-Security-Policy", 
-        "default-src 'self'; " +
-        "script-src 'self' 'unsafe-inline'; " +
-        "style-src 'self' 'unsafe-inline'; " +
-        "img-src 'self' data:; " +
-        "font-src 'self'; " +
-        "connect-src 'self'; " +
-        "frame-ancestors 'none';");
+    // Enhanced Content Security Policy for financial services
+    var cspPolicy = new System.Text.StringBuilder()
+        .Append("default-src 'self'; ")
+        .Append("script-src 'self' 'unsafe-inline' 'unsafe-eval'; ") // Note: unsafe-inline/eval needed for some Bootstrap/jQuery features
+        .Append("style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; ")
+        .Append("font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; ")
+        .Append("img-src 'self' data: https: blob:; ")
+        .Append("connect-src 'self'; ")
+        .Append("frame-src 'none'; ")
+        .Append("frame-ancestors 'none'; ")
+        .Append("object-src 'none'; ")
+        .Append("base-uri 'self'; ")
+        .Append("form-action 'self'; ")
+        .Append("upgrade-insecure-requests; ")
+        .ToString();
     
-    // Security headers
+    context.Response.Headers.Add("Content-Security-Policy", cspPolicy);
+    
+    // Financial services security headers
     context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
     context.Response.Headers.Add("X-Frame-Options", "DENY");
     context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
     context.Response.Headers.Add("Referrer-Policy", "strict-origin-when-cross-origin");
-    context.Response.Headers.Add("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
+    context.Response.Headers.Add("Permissions-Policy", 
+        "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()");
     
-    // Remove server header
+    // Additional enterprise security headers
+    context.Response.Headers.Add("X-Permitted-Cross-Domain-Policies", "none");
+    context.Response.Headers.Add("Cross-Origin-Embedder-Policy", "require-corp");
+    context.Response.Headers.Add("Cross-Origin-Opener-Policy", "same-origin");
+    context.Response.Headers.Add("Cross-Origin-Resource-Policy", "same-origin");
+    
+    // Cache control for sensitive pages
+    if (context.Request.Path.StartsWithSegments("/Admin") || 
+        context.Request.Path.StartsWithSegments("/Account"))
+    {
+        context.Response.Headers.Add("Cache-Control", "no-store, no-cache, must-revalidate, private");
+        context.Response.Headers.Add("Pragma", "no-cache");
+        context.Response.Headers.Add("Expires", "0");
+    }
+    
+    // Remove identifying server headers for security
     context.Response.Headers.Remove("Server");
+    context.Response.Headers.Remove("X-Powered-By");
+    context.Response.Headers.Remove("X-AspNet-Version");
+    context.Response.Headers.Remove("X-AspNetMvc-Version");
     
     await next();
 });

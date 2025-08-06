@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" msdata:Ordinal="5" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Navigation & General -->
+  <data name="Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="Overview" xml:space="preserve">
+    <value>Overview</value>
+  </data>
+  <data name="Analytics" xml:space="preserve">
+    <value>Analytics</value>
+  </data>
+  <data name="OddManagement" xml:space="preserve">
+    <value>ODD Management</value>
+  </data>
+  <data name="UserManagement" xml:space="preserve">
+    <value>User Management</value>
+  </data>
+  <data name="AllUsers" xml:space="preserve">
+    <value>All Users</value>
+  </data>
+  
+  <!-- ODD Registrations -->
+  <data name="OddRegistrations" xml:space="preserve">
+    <value>ODD Registrations</value>
+  </data>
+  <data name="ManageOddRegistrations" xml:space="preserve">
+    <value>Manage KBank Omnibus Deposit Data registrations</value>
+  </data>
+  
+  <!-- Table Headers -->
+  <data name="ExternalReference" xml:space="preserve">
+    <value>External Reference</value>
+  </data>
+  <data name="CustomerInfo" xml:space="preserve">
+    <value>Customer Info</value>
+  </data>
+  <data name="BranchInformation" xml:space="preserve">
+    <value>Branch Information</value>
+  </data>
+  <data name="OtacDetails" xml:space="preserve">
+    <value>OTAC Details</value>
+  </data>
+  <data name="RegistrationStatus" xml:space="preserve">
+    <value>Registration Status</value>
+  </data>
+  <data name="TrackingInfo" xml:space="preserve">
+    <value>Tracking Info</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  
+  <!-- Status Labels -->
+  <data name="Pending" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>Success</value>
+  </data>
+  <data name="Generated" xml:space="preserve">
+    <value>Generated</value>
+  </data>
+  <data name="Validated" xml:space="preserve">
+    <value>Validated</value>
+  </data>
+  <data name="Used" xml:space="preserve">
+    <value>Used</value>
+  </data>
+  <data name="Expired" xml:space="preserve">
+    <value>Expired</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  
+  <!-- UI Elements -->
+  <data name="Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="PerPage" xml:space="preserve">
+    <value>Per Page</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="AllStatus" xml:space="preserve">
+    <value>All Status</value>
+  </data>
+  <data name="ExportExcel" xml:space="preserve">
+    <value>Export Excel</value>
+  </data>
+  <data name="ExportCsv" xml:space="preserve">
+    <value>Export CSV</value>
+  </data>
+  <data name="AddData" xml:space="preserve">
+    <value>Add Data</value>
+  </data>
+  
+  <!-- Language Switcher -->
+  <data name="SelectLanguage" xml:space="preserve">
+    <value>Select Language</value>
+  </data>
+  
+  <!-- Placeholders -->
+  <data name="SearchPlaceholder" xml:space="preserve">
+    <value>Full name, ID number, mobile, or reference</value>
+  </data>
+  
+  <!-- Messages -->
+  <data name="ShowingEntries" xml:space="preserve">
+    <value>Showing {0} to {1} of {2} registrations</value>
+  </data>
+  <data name="NoCustomerData" xml:space="preserve">
+    <value>No customer data</value>
+  </data>
+  <data name="NoBranchAssigned" xml:space="preserve">
+    <value>No branch assigned</value>
+  </data>
+  
+  <!-- Date/Time Labels -->
+  <data name="Created" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="Updated" xml:space="preserve">
+    <value>Updated</value>
+  </data>
+  <data name="Expires" xml:space="preserve">
+    <value>Expires</value>
+  </data>
+  <data name="Attempts" xml:space="preserve">
+    <value>Attempts</value>
+  </data>
+  
+  <!-- Field Labels -->
+  <data name="Code" xml:space="preserve">
+    <value>Code</value>
+  </data>
+  <data name="Account" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="Mobile" xml:space="preserve">
+    <value>Mobile</value>
+  </data>
+  
+  <!-- Action Labels -->
+  <data name="ViewDetails" xml:space="preserve">
+    <value>View Details</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  
+  <!-- Admin Panel -->
+  <data name="AdminPanel" xml:space="preserve">
+    <value>Administration Panel</value>
+  </data>
+  <data name="New" xml:space="preserve">
+    <value>New</value>
+  </data>
+  
+  <!-- Additional Action Labels -->
+  <data name="BulkApprove" xml:space="preserve">
+    <value>Bulk Approve</value>
+  </data>
+  <data name="BulkReject" xml:space="preserve">
+    <value>Bulk Reject</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="GenerateOtac" xml:space="preserve">
+    <value>Generate OTAC</value>
+  </data>
+  <data name="ViewHistory" xml:space="preserve">
+    <value>View History</value>
+  </data>
+  
+  <!-- Messages and placeholders -->
+  <data name="NoDataMessage" xml:space="preserve">
+    <value>No registration data</value>
+  </data>
+  <data name="NoDataWithFilters" xml:space="preserve">
+    <value>No registrations match your current filters</value>
+  </data>
+  <data name="NoDataWithoutFilters" xml:space="preserve">
+    <value>No ODD registrations have been submitted yet</value>
+  </data>
+  <data name="ClearFilters" xml:space="preserve">
+    <value>Clear filters</value>
+  </data>
+  <data name="AddNewData" xml:space="preserve">
+    <value>Add new data</value>
+  </data>
+  <data name="Previous" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  
+  <!-- Status-specific labels -->
+  <data name="PendingCount" xml:space="preserve">
+    <value>{0} Pending</value>
+  </data>
+  <data name="CompletedCount" xml:space="preserve">
+    <value>{0} Completed</value>
+  </data>
+  <data name="FailedCount" xml:space="preserve">
+    <value>{0} Failed</value>
+  </data>
+  
+  <!-- OTAC specific -->
+  <data name="Locked" xml:space="preserve">
+    <value>Locked</value>
+  </data>
+  <data name="Approved" xml:space="preserve">
+    <value>Approved</value>
+  </data>
+  <data name="Rejected" xml:space="preserve">
+    <value>Rejected</value>
+  </data>
+  
+  <!-- User Menu -->
+  <data name="Administrator" xml:space="preserve">
+    <value>Administrator</value>
+  </data>
+  <data name="Profile" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="BackToSite" xml:space="preserve">
+    <value>Back to Site</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Logout</value>
+  </data>
+  
+  <!-- Notifications -->
+  <data name="Notifications" xml:space="preserve">
+    <value>Notifications</value>
+  </data>
+  <data name="RecentNotifications" xml:space="preserve">
+    <value>Recent Notifications</value>
+  </data>
+  <data name="NoNewNotifications" xml:space="preserve">
+    <value>No new notifications</value>
+  </data>
+  <data name="NotificationSystemReady" xml:space="preserve">
+    <value>Notification system ready</value>
+  </data>
+</root>

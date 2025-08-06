@@ -1,673 +1,1026 @@
 @model OddRegistrationListViewModel
+@using Microsoft.Extensions.Localization
+@using BizConnect.Extensions
+@inject IStringLocalizer<SharedResources> Localizer
+
 @{
-    ViewData["Title"] = "ODD Registrations";
-    ViewBag.Subtitle = "Manage KBank Omnibus Deposit Data registrations";
-    ViewBag.BreadcrumbSection = "ODD Management";
+    ViewData["Title"] = Localizer["OddRegistrations"];
+    ViewBag.Subtitle = Localizer["ManageOddRegistrations"];
+    ViewBag.BreadcrumbSection = Localizer["OddManagement"];
+    var currentCulture = Context.GetCurrentCulture();
+    var isThaiCulture = Context.IsThaiCulture();
 }
 
 @section HeaderActions {
     <div class="d-flex gap-2">
         <button type="button" class="btn btn-success" onclick="generateOtacImmediately(); return false;">
-            <i class="fas fa-key me-1"></i>เพิ่มข้อมูล
+            <i class="fas fa-key me-1"></i>@Localizer["AddData"]
         </button>
-        <button class="btn btn-outline-success" onclick="exportData('excel')">
-            <i class="fas fa-file-excel me-1"></i>Export Excel
-        </button>
-        <button class="btn btn-outline-info" onclick="exportData('csv')">
-            <i class="fas fa-file-csv me-1"></i>Export CSV
-        </button>
-        <div class="dropdown">
-            <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                <i class="fas fa-cog me-1"></i>Actions
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-success" onclick="exportData('excel')">
+                <i class="fas fa-file-excel me-1"></i>@Localizer["ExportExcel"]
             </button>
-            <ul class="dropdown-menu">
-                <li>
-                    <a class="dropdown-item" href="#" onclick="bulkAction('approve')">
-                        <i class="fas fa-check me-2"></i>Bulk Approve
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="#" onclick="bulkAction('reject')">
-                        <i class="fas fa-times me-2"></i>Bulk Reject
-                    </a>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                    <a class="dropdown-item" href="#" onclick="refreshTable()">
-                        <i class="fas fa-sync-alt me-2"></i>Refresh
-                    </a>
-                </li>
-            </ul>
+            <button class="btn btn-outline-info" onclick="exportData('csv')">
+                <i class="fas fa-file-csv me-1"></i>@Localizer["ExportCsv"]
+            </button>
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-cog me-1"></i>@Localizer["Actions"]
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item" href="#" onclick="bulkAction('approve')">
+                            <i class="fas fa-check me-2"></i>@Localizer["BulkApprove"]
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#" onclick="bulkAction('reject')">
+                            <i class="fas fa-times me-2"></i>@Localizer["BulkReject"]
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="#" onclick="refreshTable()">
+                            <i class="fas fa-sync-alt me-2"></i>@Localizer["Refresh"]
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
-}
+    }
 
 @section Styles {
-    <style>
-        .filters-card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border: 1px solid #e0e0e0;
-            margin-bottom: 1.5rem;
-        }
-
-        .data-table {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border: 1px solid #e0e0e0;
-            overflow: hidden;
-        }
-
-        .table-header {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 1.5rem;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .table-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #2c3e50;
-            margin: 0;
-        }
-
-        .table-subtitle {
-            color: #6c757d;
-            margin: 0.5rem 0 0 0;
-            font-size: 0.9rem;
-        }
-
-        .table-responsive-custom {
-            max-height: 70vh;
-            overflow-x: auto;
-            overflow-y: auto;
-        }
-
-        .table th {
-            background: #f8f9fa;
-            border-top: none;
-            border-bottom: 2px solid #e0e0e0;
-            font-weight: 600;
-            color: #495057;
-            white-space: nowrap;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .table td {
-            vertical-align: middle;
-            border-color: #f0f0f0;
-        }
-
-        .status-badge {
-            padding: 0.4rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-
-        .status-completed {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #b8dabd;
-        }
-
-        .status-failed {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f1aeb5;
-        }
-
-        .action-buttons .btn {
-            padding: 0.375rem 0.5rem;
-            margin: 0 0.125rem;
-        }
-
-        .pagination-info {
-            background: #f8f9fa;
-            padding: 1rem 1.5rem;
-            border-top: 1px solid #e0e0e0;
-            display: flex;
-            justify-content: between;
-            align-items: center;
-        }
-
-        .search-filters {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-        }
-
-        .no-data-state {
-            text-align: center;
-            padding: 3rem 1.5rem;
-            color: #6c757d;
-        }
-
-        .no-data-icon {
-            font-size: 3rem;
-            opacity: 0.3;
-            margin-bottom: 1rem;
-        }
-
-        .checkbox-column {
-            width: 40px;
-        }
-
-        .company-cell {
-            max-width: 200px;
-        }
-
-        .company-name {
-            font-weight: 600;
-            color: #2c3e50;
-        }
-
-        .company-details {
-            font-size: 0.85rem;
-            color: #6c757d;
-        }
-
-        .contact-info {
-            font-size: 0.85rem;
-        }
-
-        .date-cell {
-            white-space: nowrap;
-            font-size: 0.85rem;
-        }
-
-        .otac-cell {
-            min-width: 150px;
-            max-width: 180px;
-        }
-
-        .otac-display {
-            text-align: center;
-        }
-
-        .otac-code {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.9rem;
-            font-weight: bold;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            color: #495057;
-            padding: 0.35rem 0.6rem;
-            border-radius: 6px;
-            border: 1px solid #dee2e6;
-            letter-spacing: 0.1em;
-            text-shadow: 0 1px 1px rgba(0,0,0,0.05);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .badge {
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .badge i {
-            font-size: 0.7rem;
-        }
-
-        /* Enhanced responsive design */
-        @@media (max-width: 768px) {
-            .filters-card .row.g-3 {
-                gap: 1rem !important;
+        <style>
+            /* Professional Thai localization styles */
+            .thai-font {
+                font-family: 'Sarabun', 'Noto Sans Thai', Arial, sans-serif !important;
+                font-weight: 400;
             }
 
-            .table-header .d-flex {
-                flex-direction: column;
-                align-items: flex-start !important;
-                gap: 1rem;
+            .user-avatar {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.75rem;
+                font-weight: 600;
+                color: white;
+                margin-right: 0.5rem;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border: 2px solid #fff;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             }
 
-            .table-stats {
-                order: -1;
-                width: 100%;
+            .user-avatar.online::after {
+                content: '';
+                position: absolute;
+                width: 10px;
+                height: 10px;
+                background: #10b981;
+                border: 2px solid #fff;
+                border-radius: 50%;
+                bottom: -2px;
+                right: -2px;
             }
 
-            .company-cell,
-            .contact-info {
-                max-width: 150px;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-                gap: 0.25rem;
-            }
-
-                .action-buttons .btn {
-                    font-size: 0.8rem;
-                    padding: 0.25rem 0.4rem;
-                }
-        }
-
-        @@media (max-width: 576px) {
-            .content-header {
-                padding: 1rem;
-                margin-bottom: 1rem;
-            }
-
-            .search-filters {
-                padding: 1rem;
-            }
-
-            .filters-card .row.g-3 .col-md-4,
-            .filters-card .row.g-3 .col-md-3,
-            .filters-card .row.g-3 .col-md-2 {
-                flex: 0 0 100%;
-                max-width: 100%;
-            }
-
-            .table th,
-            .table td {
-                padding: 0.5rem 0.25rem;
-                font-size: 0.8rem;
-            }
-
-            .company-name {
+            .timeline-item {
+                display: flex;
+                align-items: center;
+                margin-bottom: 0.5rem;
                 font-size: 0.85rem;
             }
 
+            .timeline-item:last-child {
+                margin-bottom: 0;
+            }
+
+            .timeline-icon {
+                width: 16px;
+                text-align: center;
+                margin-right: 0.5rem;
+                color: #6b7280;
+            }
+
+            .relative-time {
+                color: #9ca3af;
+                font-size: 0.8rem;
+            }
+
+            .status-badge-enhanced {
+                position: relative;
+                padding: 0.35rem 0.75rem;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                border: 1px solid transparent;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.25rem;
+                cursor: help;
+            }
+
+            .status-badge-enhanced.status-generated {
+                background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                color: white;
+                box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+            }
+
+            .status-badge-enhanced.status-validated {
+                background: linear-gradient(135deg, #10b981, #059669);
+                color: white;
+                box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+            }
+
+            .status-badge-enhanced.status-used {
+                background: linear-gradient(135deg, #06b6d4, #0891b2);
+                color: white;
+                box-shadow: 0 2px 4px rgba(6, 182, 212, 0.3);
+            }
+
+            .status-badge-enhanced.status-expired {
+                background: linear-gradient(135deg, #f59e0b, #d97706);
+                color: white;
+                box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+            }
+
+            .status-badge-enhanced.status-locked {
+                background: linear-gradient(135deg, #ef4444, #dc2626);
+                color: white;
+                box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+            }
+
+            .registration-status-enhanced {
+                padding: 0.4rem 0.8rem;
+                border-radius: 20px;
+                font-size: 0.8rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.3rem;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .registration-status-enhanced::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                transition: left 0.5s;
+            }
+
+            .registration-status-enhanced:hover::before {
+                left: 100%;
+            }
+
+            .registration-status-enhanced.reg-pending {
+                background: linear-gradient(135deg, #fbbf24, #f59e0b);
+                color: #78350f;
+                border: 1px solid #fcd34d;
+            }
+
+            .registration-status-enhanced.reg-success {
+                background: linear-gradient(135deg, #34d399, #10b981);
+                color: white;
+                border: 1px solid #6ee7b7;
+            }
+
+            .registration-status-enhanced.reg-fail {
+                background: linear-gradient(135deg, #f87171, #ef4444);
+                color: white;
+                border: 1px solid #fca5a5;
+            }
+
+            .otac-code-enhanced {
+                font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+                font-size: 1.1rem;
+                font-weight: bold;
+                background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+                color: #1e293b;
+                padding: 0.5rem 0.75rem;
+                border-radius: 8px;
+                border: 2px solid #cbd5e1;
+                letter-spacing: 0.2em;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.5);
+                position: relative;
+                overflow: hidden;
+                display: inline-block;
+                min-width: 120px;
+                text-align: center;
+            }
+
+            .otac-code-enhanced::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+                transition: left 0.8s;
+            }
+
+            .otac-code-enhanced:hover::before {
+                left: 100%;
+            }
+            /* Enhanced table cell styles for comprehensive data display */
+            .external-ref-cell {
+                min-width: 140px;
+                max-width: 180px;
+            }
+
+            .customer-info-cell {
+                min-width: 200px;
+                max-width: 250px;
+            }
+
+            .branch-info-cell {
+                min-width: 160px;
+                max-width: 200px;
+            }
+
+            .otac-details-cell {
+                min-width: 180px;
+                max-width: 220px;
+            }
+
+            .registration-status-cell {
+                min-width: 160px;
+                max-width: 200px;
+            }
+
+            .tracking-info-cell {
+                min-width: 180px;
+                max-width: 220px;
+            }
+
+            /* Enhanced info blocks */
+            .customer-info-block,
+            .branch-info-block,
+            .otac-details-block,
+            .registration-status-block,
+            .tracking-info-block {
+                padding: 0.5rem;
+                border-radius: 8px;
+                background: rgba(248, 250, 252, 0.5);
+                border: 1px solid rgba(0, 0, 0, 0.05);
+                transition: all 0.2s ease;
+            }
+
+                .customer-info-block:hover,
+                .branch-info-block:hover,
+                .otac-details-block:hover,
+                .registration-status-block:hover,
+                .tracking-info-block:hover {
+                    background: rgba(248, 250, 252, 0.8);
+                    border-color: #2563eb;
+                    transform: translateY(-1px);
+                    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+                }
+
+            /* Legacy styles - maintained for compatibility */
+            .filters-card {
+                background: white;
+                border-radius: 16px;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                border: none;
+                margin-bottom: 2rem;
+            }
+
+            .data-table {
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+                border: 1px solid #e0e0e0;
+                overflow: hidden;
+            }
+
+            .table-header {
+                background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                padding: 1.5rem;
+                border-bottom: 1px solid #e0e0e0;
+            }
+
+            .table-title {
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: #2c3e50;
+                margin: 0;
+            }
+
+            .table-subtitle {
+                color: #6c757d;
+                margin: 0.5rem 0 0 0;
+                font-size: 0.9rem;
+            }
+
+            .table-responsive-custom {
+                max-height: 70vh;
+                overflow-x: auto;
+                overflow-y: auto;
+            }
+
+            .table th {
+                background: #f8f9fa;
+                border-top: none;
+                border-bottom: 2px solid #e0e0e0;
+                font-weight: 600;
+                color: #495057;
+                white-space: nowrap;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+
+            .table td {
+                vertical-align: middle;
+                border-color: #f0f0f0;
+            }
+
             .status-badge {
-                font-size: 0.7rem;
-                padding: 0.3rem 0.6rem;
+                padding: 0.4rem 0.8rem;
+                border-radius: 20px;
+                font-size: 0.8rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
             }
-        }
 
-        /* Accessibility enhancements */
-        .table-row-focused {
-            background-color: rgba(0, 102, 204, 0.1) !important;
-            outline: 2px solid var(--admin-primary);
-            outline-offset: -2px;
-        }
-
-        .btn:focus,
-        .form-control:focus,
-        .form-select:focus {
-            outline: 2px solid var(--admin-primary);
-            outline-offset: 2px;
-            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.2);
-        }
-
-        /* Skip to content link for screen readers */
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 6px;
-            background: var(--admin-primary);
-            color: white;
-            padding: 8px;
-            text-decoration: none;
-            z-index: 1100;
-            border-radius: 4px;
-        }
-
-            .skip-link:focus {
-                top: 6px;
+            .status-pending {
+                background: #fff3cd;
+                color: #856404;
+                border: 1px solid #ffeaa7;
             }
-    </style>
-}
 
-<!-- Skip link for accessibility -->
-<a href="#main-content" class="skip-link">Skip to main content</a>
+            .status-completed {
+                background: #d4edda;
+                color: #155724;
+                border: 1px solid #b8dabd;
+            }
 
-<!-- Search and Filters -->
-<div class="filters-card">
-    <div class="search-filters">
-        <form method="get" id="filterForm">
-            <div class="row g-3 align-items-end">
-                <div class="col-md-4">
-                    <label for="search" class="form-label">Search</label>
-                    <input type="text" class="form-control" id="search" name="search"
-                           value="@Model.SearchQuery" placeholder="Full name, ID number, mobile, or reference">
-                </div>
-                <div class="col-md-3">
-                    <label for="status" class="form-label">Status</label>
-                    <select class="form-select" id="status" name="status">
-                        <option value="">All Status</option>
-                        <option value="Pending" selected="@(Model.StatusFilter == "Pending")">Pending</option>
-                        <option value="Success" selected="@(Model.StatusFilter == "Success")">Success</option>
-                        <option value="Fail" selected="@(Model.StatusFilter == "Fail")">Fail</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label for="pageSize" class="form-label">Per Page</label>
-                    <select class="form-select" id="pageSize" name="pageSize">
-                        <option value="10" selected="@(Model.PageSize == 10)">10</option>
-                        <option value="25" selected="@(Model.PageSize == 25)">25</option>
-                        <option value="50" selected="@(Model.PageSize == 50)">50</option>
-                        <option value="100" selected="@(Model.PageSize == 100)">100</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-search me-1"></i>Filter
-                        </button>
-                        <a asp-action="Index" class="btn btn-outline-secondary">
-                            <i class="fas fa-times me-1"></i>Clear
-                        </a>
+            .status-failed {
+                background: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f1aeb5;
+            }
+
+            .action-buttons .btn {
+                padding: 0.375rem 0.5rem;
+                margin: 0 0.125rem;
+            }
+
+            .pagination-info {
+                background: #f8f9fa;
+                padding: 1rem 1.5rem;
+                border-top: 1px solid #e0e0e0;
+                display: flex;
+                justify-content: between;
+                align-items: center;
+            }
+
+            .search-filters {
+                background: #f8f9fa;
+                padding: 1.5rem;
+                border-radius: 8px;
+                margin-bottom: 1rem;
+            }
+
+            .no-data-state {
+                text-align: center;
+                padding: 3rem 1.5rem;
+                color: #6c757d;
+            }
+
+            .no-data-icon {
+                font-size: 3rem;
+                opacity: 0.3;
+                margin-bottom: 1rem;
+            }
+
+            .checkbox-column {
+                width: 40px;
+            }
+
+            .company-cell {
+                max-width: 200px;
+            }
+
+            .company-name {
+                font-weight: 600;
+                color: #2c3e50;
+            }
+
+            .company-details {
+                font-size: 0.85rem;
+                color: #6c757d;
+            }
+
+            .contact-info {
+                font-size: 0.85rem;
+            }
+
+            .date-cell {
+                white-space: nowrap;
+                font-size: 0.85rem;
+            }
+
+            .otac-cell {
+                min-width: 150px;
+                max-width: 180px;
+            }
+
+            .otac-display {
+                text-align: center;
+            }
+
+            .otac-code {
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 0.9rem;
+                font-weight: bold;
+                background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+                color: #495057;
+                padding: 0.35rem 0.6rem;
+                border-radius: 6px;
+                border: 1px solid #dee2e6;
+                letter-spacing: 0.1em;
+                text-shadow: 0 1px 1px rgba(0,0,0,0.05);
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+
+            .badge {
+                font-size: 0.75rem;
+                font-weight: 500;
+            }
+
+                .badge i {
+                    font-size: 0.7rem;
+                }
+
+            /* Enhanced responsive design */
+            @@media (max-width: 768px) {
+                .filters-card .row.g-3 {
+                    gap: 1rem !important;
+                }
+
+                .table-header .d-flex {
+                    flex-direction: column;
+                    align-items: flex-start !important;
+                    gap: 1rem;
+                }
+
+                .table-stats {
+                    order: -1;
+                    width: 100%;
+                }
+
+                .company-cell,
+                .contact-info {
+                    max-width: 150px;
+                }
+
+                .action-buttons {
+                    flex-direction: column;
+                    gap: 0.25rem;
+                }
+
+                    .action-buttons .btn {
+                        font-size: 0.8rem;
+                        padding: 0.25rem 0.4rem;
+                    }
+            }
+
+            @@media (max-width: 576px) {
+                .content-header {
+                    padding: 1rem;
+                    margin-bottom: 1rem;
+                }
+
+                .search-filters {
+                    padding: 1rem;
+                }
+
+                .filters-card .row.g-3 .col-md-4,
+                .filters-card .row.g-3 .col-md-3,
+                .filters-card .row.g-3 .col-md-2 {
+                    flex: 0 0 100%;
+                    max-width: 100%;
+                }
+
+                .table th,
+                .table td {
+                    padding: 0.5rem 0.25rem;
+                    font-size: 0.8rem;
+                }
+
+                .company-name {
+                    font-size: 0.85rem;
+                }
+
+                .status-badge {
+                    font-size: 0.7rem;
+                    padding: 0.3rem 0.6rem;
+                }
+            }
+
+            /* Accessibility enhancements */
+            .table-row-focused {
+                background-color: rgba(0, 102, 204, 0.1) !important;
+                outline: 2px solid var(--admin-primary);
+                outline-offset: -2px;
+            }
+
+            .btn:focus,
+            .form-control:focus,
+            .form-select:focus {
+                outline: 2px solid var(--admin-primary);
+                outline-offset: 2px;
+                box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.2);
+            }
+
+            /* Skip to content link for screen readers */
+            .skip-link {
+                position: absolute;
+                top: -40px;
+                left: 6px;
+                background: var(--admin-primary);
+                color: white;
+                padding: 8px;
+                text-decoration: none;
+                z-index: 1100;
+                border-radius: 4px;
+            }
+
+                .skip-link:focus {
+                    top: 6px;
+                }
+        </style>
+    }
+
+    <!-- Skip link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Search and Filters -->
+    <div class="filters-card">
+        <div class="search-filters">
+            <form method="get" id="filterForm">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label for="search" class="form-label">@Localizer["Search"]</label>
+                        <input type="text" class="form-control" id="search" name="search"
+                               value="@Model.SearchQuery" placeholder="@Localizer["SearchPlaceholder"]">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="status" class="form-label">@Localizer["Status"]</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">@Localizer["AllStatus"]</option>
+                            <option value="Pending" selected="@(Model.StatusFilter == "Pending")">@Localizer["Pending"]</option>
+                            <option value="Success" selected="@(Model.StatusFilter == "Success")">@Localizer["Success"]</option>
+                            <option value="Fail" selected="@(Model.StatusFilter == "Fail")">@Localizer["Failed"]</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="pageSize" class="form-label">@Localizer["PerPage"]</label>
+                        <select class="form-select" id="pageSize" name="pageSize">
+                            <option value="10" selected="@(Model.PageSize == 10)">10</option>
+                            <option value="25" selected="@(Model.PageSize == 25)">25</option>
+                            <option value="50" selected="@(Model.PageSize == 50)">50</option>
+                            <option value="100" selected="@(Model.PageSize == 100)">100</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-1"></i>@Localizer["Filter"]
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>@Localizer["Clear"]
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Data Table -->
-<div class="data-table" id="main-content">
-    <div class="table-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h3 class="table-title">ODD Registrations</h3>
-                <p class="table-subtitle">
-                    Showing @Model.StartRecord-@Model.EndRecord of @Model.TotalRecords registrations
-                </p>
-            </div>
-            <div class="table-stats">
-                <span class="badge bg-warning me-2">
-                    @Model.Registrations.Count(r => r.Status == "Pending") Pending
-                </span>
-                <span class="badge bg-success me-2">
-                    @Model.Registrations.Count(r => r.Status == "Completed") Completed
-                </span>
-                <span class="badge bg-danger">
-                    @Model.Registrations.Count(r => r.Status == "Failed") Failed
-                </span>
-            </div>
+            </form>
         </div>
     </div>
 
-    <div class="table-responsive-custom">
+    <!-- Data Table -->
+    <div class="data-table" id="main-content">
+        <div class="table-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="table-title">@Localizer["OddRegistrations"]</h3>
+                    <p class="table-subtitle">
+                    @string.Format(Localizer["ShowingEntries"], Model.StartRecord, Model.EndRecord, Model.TotalRecords)
+                    </p>
+                </div>
+                <div class="table-stats">
+                    <span class="badge bg-warning me-2">
+                    @Model.Registrations.Count(r => r.Status == "Pending") @Localizer["Pending"]
+                    </span>
+                    <span class="badge bg-success me-2">
+                    @Model.Registrations.Count(r => r.Status == "Completed") @Localizer["Completed"]
+                    </span>
+                    <span class="badge bg-danger">
+                    @Model.Registrations.Count(r => r.Status == "Failed") @Localizer["Failed"]
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive-custom">
         @if (Model.Registrations.Any())
         {
-            <table class="table table-hover mb-0">
-                <thead>
-                    <tr>
-                        <th class="checkbox-column">
-                            <input type="checkbox" class="form-check-input" id="selectAll" aria-label="Select all registrations">
-                        </th>
-                        <th>Registration</th>
-                        <th>Contact</th>
-                        <th>OTAC Code</th>
-                        <th>OTAC Status</th>
-                        <th>Registration Status</th>
-                        <th>Created</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th class="checkbox-column">
+                                <input type="checkbox" class="form-check-input" id="selectAll" aria-label="Select all registrations">
+                            </th>
+                            <th>@Localizer["ExternalReference"]</th>
+                            <th>@Localizer["CustomerInfo"]</th>
+                            <th>@Localizer["BranchInformation"]</th>
+                            <th>@Localizer["OtacDetails"]</th>
+                            <th>@Localizer["RegistrationStatus"]</th>
+                            <th>@Localizer["TrackingInfo"]</th>
+                        @*  <th>@Localizer["Actions"]</th> *@
+                        </tr>
+                    </thead>
+                    <tbody>
                     @foreach (var registration in Model.Registrations)
                     {
-                        <tr>
-                            <td class="checkbox-column">
-                                <input type="checkbox" class="form-check-input row-checkbox" value="@registration.Id" aria-label="Select registration @registration.Id">
-                            </td>
-                            <td class="company-cell">
-                                <div class="company-name">Registration @registration.ExternalReference</div>
-                                <div class="company-details">
-                                    @if (registration.Branch != null)
-                                    {
-                                        <span class="badge bg-light text-dark">@registration.Branch.Name</span>
-                                    }
-                                    @if (!string.IsNullOrEmpty(registration.IdValue))
-                                    {
-                                        <div class="small text-muted mt-1">
-                                            <i class="fas fa-id-card me-1"></i>@registration.IdType: @registration.IdValue
-                                        </div>
-                                    }
-                                </div>
-                            </td>
-                            <td>
-                                <div class="contact-info">
+                            <tr>
+                                <td class="checkbox-column">
+                                    <input type="checkbox" class="form-check-input row-checkbox" value="@registration.Id" aria-label="Select registration @registration.Id">
+                                </td>
+
+                                <!-- External Reference -->
+                                <td class="external-ref-cell">
+                                @if (!string.IsNullOrEmpty(registration.ExternalReference))
+                                {
+                                        <div class="fw-bold text-primary mb-1">@registration.ExternalReference</div>
+                                    @*  
+                                        <div class="small text-muted">
+                                            <i class="fas fa-hashtag me-1"></i>ID: @registration.Id
+                                        </div> *@
+                                }
+                                else
+                                {
+                                        <div class="text-muted">-</div>
+                                    @* <div class="small text-muted">
+                                            <i class="fas fa-hashtag me-1"></i>ID: @registration.Id
+                                        </div> *@
+                                }
+                                </td>
+
+                                <!-- Customer Info Block -->
+                                <td class="customer-info-cell">
+                                    <div class="customer-info-block">
                                     @if (!string.IsNullOrEmpty(registration.FullName))
                                     {
-                                        <div><i class="fas fa-user me-1"></i>@registration.FullName</div>
+                                            <div class="fw-bold text-dark mb-1">
+                                                <i class="fas fa-user me-1 text-secondary"></i>@registration.FullName
+                                            </div>
                                     }
+
+                                        <!-- ID Type/Value -->
+                                    @if (!string.IsNullOrEmpty(registration.IdType) && !string.IsNullOrEmpty(registration.IdValue))
+                                    {
+                                            <div class="small mb-1">
+                                                <span class="badge bg-light text-dark me-1">@registration.IdType</span>
+                                                <span class="text-muted">@registration.IdValue</span>
+                                            </div>
+                                    }
+
+                                        <!-- Mobile -->
                                     @if (!string.IsNullOrEmpty(registration.MobileNo))
                                     {
-                                        <div><i class="fas fa-phone me-1"></i>@registration.MobileNo</div>
+                                            <div class="small mb-1">
+                                                <i class="fas fa-phone me-1 text-success"></i>
+                                                <span class="text-dark">@registration.MobileNo</span>
+                                            </div>
                                     }
+
+                                        <!-- Account -->
                                     @if (!string.IsNullOrEmpty(registration.AccountNo))
                                     {
-                                        <div class="small text-muted"><i class="fas fa-university me-1"></i>@registration.AccountNo</div>
-                                    }
-                                </div>
-                            </td>
-                            <td class="otac-cell">
-                                @if (!string.IsNullOrEmpty(registration.OtacCode))
-                                {
-                                    <div class="otac-display">
-                                        <code class="otac-code">@registration.OtacCode</code>
-                                        @if (registration.OtacExpiresAt.HasValue)
-                                        {
-                                            <div class="small text-muted mt-1">
-                                                <i class="fas fa-clock me-1"></i>
-                                                Expires: @registration.OtacExpiresAt.Value.ToString("MM/dd HH:mm")
+                                            <div class="small">
+                                                <i class="fas fa-university me-1 text-info"></i>
+                                                <span class="text-muted">@registration.AccountNo</span>
                                             </div>
-                                        }
-                                    </div>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">-</span>
-                                }
-                            </td>
-                            <td>
-                                @if (!string.IsNullOrEmpty(registration.OtacState))
-                                {
-                                    @switch (registration.OtacState)
-                                    {
-                                        case "Generated":
-                                            <span class="badge bg-primary">
-                                                <i class="fas fa-key me-1"></i>Generated
-                                            </span>
-                                            break;
-                                        case "Validated":
-                                            <span class="badge bg-success">
-                                                <i class="fas fa-check-circle me-1"></i>Validated
-                                            </span>
-                                            break;
-                                        case "Used":
-                                            <span class="badge bg-info">
-                                                <i class="fas fa-check-double me-1"></i>Used
-                                            </span>
-                                            break;
-                                        case "Expired":
-                                            <span class="badge bg-warning">
-                                                <i class="fas fa-clock me-1"></i>Expired
-                                            </span>
-                                            break;
-                                        case "Locked":
-                                            <span class="badge bg-danger">
-                                                <i class="fas fa-lock me-1"></i>Locked
-                                            </span>
-                                            break;
-                                        default:
-                                            <span class="badge bg-secondary">@registration.OtacState</span>
-                                            break;
                                     }
+                                    </div>
+                                </td>
+
+                                <!-- Branch Information -->
+                                <td class="branch-info-cell">
+                                @if (registration.Branch != null)
+                                {
+                                        <div class="branch-info-block">
+                                            <div class="fw-bold text-dark mb-1">
+                                            @registration.Branch.GetLocalizedName(Context)
+                                            </div>
+
+                                        @if (!string.IsNullOrEmpty(registration.Branch.GetLocalizedAddress(Context)))
+                                        {
+                                                <div class="small text-muted mb-1">
+                                                @registration.Branch.GetLocalizedAddress(Context)
+                                                </div>
+                                        }
+
+                                        @if (!string.IsNullOrEmpty(registration.Branch.Code))
+                                        {
+                                                <div class="small">
+                                                    <span class="badge bg-secondary">@registration.Branch.Code</span>
+                                                </div>
+                                        }
+                                        </div>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-light text-dark">No OTAC</span>
+                                        <span class="text-muted">@Localizer["NoBranchAssigned"]</span>
                                 }
-                            </td>
-                            <td>
-                                @switch (registration.Status)
-                                {
-                                    case "Pending":
-                                        <span class="badge bg-warning text-dark">
-                                            <i class="fas fa-hourglass-half me-1"></i>Pending
-                                        </span>
-                                        break;
-                                    case "Success":
-                                        <span class="badge bg-success">
-                                            <i class="fas fa-check-circle me-1"></i>Success
-                                        </span>
-                                        break;
-                                    case "Fail":
-                                        <span class="badge bg-danger">
-                                            <i class="fas fa-times-circle me-1"></i>Failed
-                                        </span>
-                                        break;
-                                    default:
-                                        <span class="badge bg-secondary">@registration.Status</span>
-                                        break;
-                                }
-                            </td>
-                            <td class="date-cell">
-                                <div>@registration.CreatedAt.ToString("MMM dd, yyyy")</div>
-                                <div class="text-muted">@registration.CreatedAt.ToString("HH:mm")</div>
-                                @if (registration.GeneratedByUserId > 0)
-                                {
-                                    <div class="small badge bg-info mt-1">
-                                        User ID: @registration.GeneratedByUserId
+                                </td>
+
+                                <!-- OTAC Details - Enhanced with Localization Extensions -->
+                                <td class="otac-details-cell">
+                                    <div class="otac-details-block @(isThaiCulture ? "thai-font" : "")">
+                                        <!-- OTAC Code -->
+                                    @if (!string.IsNullOrEmpty(registration.OtacCode))
+                                    {
+                                            <div class="otac-code-display mb-2">
+                                                <code class="otac-code-enhanced" title="@Localizer["ClickToCopy"]">@registration.OtacCode</code>
+                                            </div>
+                                    }
+
+                                        <!-- OTAC Status with Enhanced Styling -->
+                                    @if (!string.IsNullOrEmpty(registration.OtacState))
+                                    {
+                                            <div class="mb-2">
+                                                @registration.OtacState.GetLocalizedOtacStatus(Context)
+                                            </div>
+                                    }
+
+                                        <!-- Enhanced Expires At with Buddhist Calendar and Relative Time -->
+                                    @if (registration.OtacExpiresAt.HasValue)
+                                    {
+                                            <div class="small mb-1">
+                                                <span class="timeline-item">
+                                                    <i class="fas fa-clock timeline-icon text-warning"></i>
+                                                    <span class="@(isThaiCulture ? "thai-font" : "")">@Context.GetExpiryLabel()</span>
+                                                </span>
+                                            </div>
+                                            <div class="small text-muted">
+                                                <span class="fw-semibold">@registration.OtacExpiresAt.Value.ToLocalizedString(Context)</span>
+                                            </div>
+                                            <div class="small relative-time">
+                                                @registration.OtacExpiresAt.Value.ToRelativeTimeString(Context)
+                                            </div>
+                                    }
                                     </div>
-                                }
-                            </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <a asp-action="Details" asp-route-id="@registration.Id"
-                                       class="btn btn-sm btn-outline-primary" title="View Details">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
+                                </td>
+
+                                <!-- Registration Status - Enhanced with Localization -->
+                                <td class="registration-status-cell">
+                                    <div class="registration-status-block @(isThaiCulture ? "thai-font" : "")">
+                                        <!-- Enhanced Status Badge with Tooltip -->
+                                        <div class="mb-2">
+                                            @registration.Status.GetLocalizedRegistrationStatus(Context)
+                                        </div>
+
+                                        <!-- Return Code with Enhanced Display -->
+                                    @if (!string.IsNullOrEmpty(registration.ReturnCode))
+                                    {
+                                            <div class="small mb-1">
+                                                <span class="timeline-item">
+                                                    <i class="fas fa-code timeline-icon text-info"></i>
+                                                    <span class="@(isThaiCulture ? "thai-font" : "")">@Localizer["Code"]: <span class="font-monospace fw-bold">@registration.ReturnCode</span></span>
+                                                </span>
+                                            </div>
+                                    }
+
+                                        <!-- Reg ID with Enhanced Styling -->
+                                    @if (!string.IsNullOrEmpty(registration.RegId))
+                                    {
+                                            <div class="small mb-1">
+                                                <span class="timeline-item">
+                                                    <i class="fas fa-id-badge timeline-icon text-primary"></i>
+                                                    <span class="@(isThaiCulture ? "thai-font" : "")">@Localizer["RegistrationId"]: <span class="font-monospace text-primary">@registration.RegId</span></span>
+                                                </span>
+                                            </div>
+                                    }
+
+                                        <!-- ESPA ID with Enhanced Display -->
+                                    @if (!string.IsNullOrEmpty(registration.EspaId))
+                                    {
+                                            <div class="small">
+                                                <span class="timeline-item">
+                                                    <i class="fas fa-fingerprint timeline-icon text-success"></i>
+                                                    <span class="@(isThaiCulture ? "thai-font" : "")">@Localizer["EspaId"]: <span class="font-monospace text-success">@registration.EspaId</span></span>
+                                                </span>
+                                            </div>
+                                    }
+                                    </div>
+                                </td>
+
+                                <!-- Tracking Info - Professional Implementation -->
+                                <td class="tracking-info-cell">
+                                    <div class="tracking-info-block @(isThaiCulture ? "thai-font" : "")">
+                                        <!-- Enhanced User Information -->
+                                    @if (registration.GeneratedByUserId > 0)
+                                    {
+                                            <div class="d-flex align-items-center mb-2">
+                                                <div class="user-avatar position-relative @(registration.GeneratedByUser.IsOnline(TimeSpan.FromMinutes(15)) ? "online" : "")">@registration.GeneratedByUser.GetAvatarInitials()</div>
+                                                <div class="flex-grow-1">
+                                                    <div class="fw-semibold text-dark" style="font-size: 0.85rem;">@registration.GeneratedByUser.GetDisplayName()</div>
+                                                    <div class="small text-muted">@registration.GeneratedByUser.GetRoleDisplayName(Context)</div>
+                                                </div>
+                                            </div>
+                                    }
+
+                                        <!-- Enhanced Attempt Count -->
+                                    @if (registration.AttemptCount > 0)
+                                    {
+                                            <div class="small mb-1">
+                                                <span class="timeline-item">
+                                                    <i class="fas fa-redo timeline-icon text-warning"></i>
+                                                    <span class="@(isThaiCulture ? "thai-font" : "")">@Context.GetAttemptsLabel(): <span class="badge bg-warning text-dark">@registration.AttemptCount</span></span>
+                                                </span>
+                                            </div>
+                                    }
+
+                                        <!-- Enhanced Lock Status -->
+                                    @if (registration.IsLocked)
+                                    {
+                                            @* <div class="small mb-2">
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-lock me-1"></i><span class="@(isThaiCulture ? "thai-font" : "")">@Localizer["Locked"]</span>
+                                                </span>
+                                            </div> *@
+                                    }
+
+                                        <!-- Enhanced Created At with Buddhist Calendar -->
+                                        <div class="small mb-1">
+                                            <span class="timeline-item">
+                                                <i class="fas fa-plus-circle timeline-icon text-success"></i>
+                                                <div class="d-flex flex-column">
+                                                    <span class="@(isThaiCulture ? "thai-font" : "")">@Context.GetCreatedLabel()</span>
+                                                    <span class="text-muted" style="font-size: 0.75rem;">@registration.CreatedAt.ToLocalizedString(Context)</span>
+                                                    <span class="relative-time" style="font-size: 0.7rem;">@registration.CreatedAt.ToRelativeTimeString(Context)</span>
+                                                </div>
+                                            </span>
+                                        </div>
+
+                                        <!-- Enhanced Updated At -->
+                                    @if (registration.UpdatedAt.HasValue)
+                                    {
+                                            <div class="small">
+                                                <span class="timeline-item">
+                                                    <i class="fas fa-edit timeline-icon text-info"></i>
+                                                    <div class="d-flex flex-column">
+                                                        <span class="@(isThaiCulture ? "thai-font" : "")">@Context.GetUpdatedLabel()</span>
+                                                        <span class="text-muted" style="font-size: 0.75rem;">@registration.UpdatedAt.Value.ToLocalizedString(Context)</span>
+                                                        <span class="relative-time" style="font-size: 0.7rem;">@registration.UpdatedAt.Value.ToRelativeTimeString(Context)</span>
+                                                    </div>
+                                                </span>
+                                            </div>
+                                    }
+                                    </div>
+                                </td>
+                            @* <td>
+                                    <div class="action-buttons">
+                                        <a asp-action="Details" asp-route-id="@registration.Id"
+                                           class="btn btn-sm btn-outline-primary" title="@Localizer["ViewDetails"]">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
 
                                     @if (registration.Status == "Pending")
                                     {
-                                        <button class="btn btn-sm btn-outline-success"
-                                                onclick="updateStatus(@registration.Id, 'Completed')" title="Approve">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger"
-                                                onclick="updateStatus(@registration.Id, 'Failed')" title="Reject">
-                                            <i class="fas fa-times"></i>
-                                        </button>
+                                            <button class="btn btn-sm btn-outline-success"
+                                                    onclick="updateStatus(@registration.Id, 'Completed')" title="@Localizer["Approved"]">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                    onclick="updateStatus(@registration.Id, 'Failed')" title="@Localizer["Rejected"]">
+                                                <i class="fas fa-times"></i>
+                                            </button>
                                     }
 
-                                    <div class="dropdown d-inline-block">
-                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                                                type="button" data-bs-toggle="dropdown">
-                                            <i class="fas fa-ellipsis-h"></i>
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li>
-                                                <a class="dropdown-item" href="#" onclick="generateOTAC(@registration.Id)">
-                                                    <i class="fas fa-key me-2"></i>Generate OTAC
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item" href="#" onclick="viewHistory(@registration.Id)">
-                                                    <i class="fas fa-history me-2"></i>View History
-                                                </a>
-                                            </li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li>
-                                                <a class="dropdown-item text-danger" href="#" onclick="deleteRegistration(@registration.Id)">
-                                                    <i class="fas fa-trash me-2"></i>Delete
-                                                </a>
-                                            </li>
-                                        </ul>
+                                        <div class="dropdown d-inline-block">
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                    type="button" data-bs-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" href="#" onclick="generateOTAC(@registration.Id)">
+                                                        <i class="fas fa-key me-2"></i>@Localizer["GenerateOtac"]
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="#" onclick="viewHistory(@registration.Id)">
+                                                        <i class="fas fa-history me-2"></i>@Localizer["ViewHistory"]
+                                                    </a>
+                                                </li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <a class="dropdown-item text-danger" href="#" onclick="deleteRegistration(@registration.Id)">
+                                                        <i class="fas fa-trash me-2"></i>@Localizer["Delete"]
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td> *@
+                            </tr>
+                    }
+                    </tbody>
+                </table>
+        }
+        else
+        {
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th class="checkbox-column">
+                                <input type="checkbox" class="form-check-input" id="selectAll" aria-label="Select all registrations">
+                            </th>
+                            <th>Registration</th>
+                            <th>Contact</th>
+                            <th>OTAC Code</th>
+                            <th>OTAC Status</th>
+                            <th>Registration Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="8" class="text-center py-5">
+                                <div class="no-data-state">
+                                    <div class="no-data-icon">
+                                        <i class="fas fa-database"></i>
+                                    </div>
+                                    <h5>@Localizer["NoDataMessage"]</h5>
+                                    <p class="text-muted">
+                                    @if (!string.IsNullOrEmpty(Model.SearchQuery) || !string.IsNullOrEmpty(Model.StatusFilter))
+                                    {
+                                            <span>@Localizer["NoDataWithFilters"]</span>
+                                    }
+                                    else
+                                    {
+                                            <span>@Localizer["NoDataWithoutFilters"]</span>
+                                    }
+                                    </p>
+                                    <div class="mt-3">
+                                    @if (!string.IsNullOrEmpty(Model.SearchQuery) || !string.IsNullOrEmpty(Model.StatusFilter))
+                                    {
+                                            <a asp-action="Index" class="btn btn-outline-primary me-2">
+                                                <i class="fas fa-times me-1"></i>@Localizer["ClearFilters"]
+                                            </a>
+                                    }
                                     </div>
                                 </div>
                             </td>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
         }
-        else
-        {
-            <table class="table table-hover mb-0">
-                <thead>
-                    <tr>
-                        <th class="checkbox-column">
-                            <input type="checkbox" class="form-check-input" id="selectAll" aria-label="Select all registrations">
-                        </th>
-                        <th>Registration</th>
-                        <th>Contact</th>
-                        <th>OTAC Code</th>
-                        <th>OTAC Status</th>
-                        <th>Registration Status</th>
-                        <th>Created</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td colspan="8" class="text-center py-5">
-                            <div class="no-data-state">
-                                <div class="no-data-icon">
-                                    <i class="fas fa-database"></i>
-                                </div>
-                                <h5>ไม่มีข้อมูลการลงทะเบียน</h5>
-                                <p class="text-muted">
-                                    @if (!string.IsNullOrEmpty(Model.SearchQuery) || !string.IsNullOrEmpty(Model.StatusFilter))
-                                    {
-                                        <span>ไม่พบข้อมูลที่ตรงกับการค้นหา / No registrations match your current filters</span>
-                                    }
-                                    else
-                                    {
-                                        <span>ยังไม่มีการลงทะเบียน ODD ในระบบ / No ODD registrations have been submitted yet</span>
-                                    }
-                                </p>
-                                <div class="mt-3">
-                                    @if (!string.IsNullOrEmpty(Model.SearchQuery) || !string.IsNullOrEmpty(Model.StatusFilter))
-                                    {
-                                        <a asp-action="Index" class="btn btn-outline-primary me-2">
-                                            <i class="fas fa-times me-1"></i>ล้างตัวกรอง
-                                        </a>
-                                    }
-                                    <button type="button" class="btn btn-success" onclick="generateOtacImmediately(); return false;">
-                                        <i class="fas fa-plus me-1"></i>เพิ่มข้อมูลใหม่
-                                    </button>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        }
-    </div>
+        </div>
 
     @if (Model.Registrations.Any())
     {
-        <!-- Pagination -->
-        <div class="pagination-info">
-            <div class="d-flex justify-content-between align-items-center w-100">
-                <div class="pagination-text">
-                    <span class="text-muted">
-                        Showing @Model.StartRecord to @Model.EndRecord of @Model.TotalRecords entries
-                    </span>
-                </div>
+            <!-- Pagination -->
+            <div class="pagination-info">
+                <div class="d-flex justify-content-between align-items-center w-100">
+                    <div class="pagination-text">
+                        <span class="text-muted">
+                        @string.Format(Localizer["ShowingEntries"], Model.StartRecord, Model.EndRecord, Model.TotalRecords)
+                        </span>
+                    </div>
 
                 @if (Model.TotalPages > 1)
                 {
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination pagination-sm mb-0">
-                            <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
-                                <a class="page-link" href="@Url.Action("Index", new {
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination pagination-sm mb-0">
+                                <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new {
                                     page = Model.CurrentPage - 1,
                                     pageSize = Model.PageSize,
                                     status = Model.StatusFilter,
                                     search = Model.SearchQuery
                                 })">
-                                    <i class="fas fa-chevron-left"></i> Previous
-                                </a>
-                            </li>
+                                        <i class="fas fa-chevron-left"></i> @Localizer["Previous"]
+                                    </a>
+                                </li>
 
                             @{
                                 var startPage = Math.Max(1, Model.CurrentPage - 2);
@@ -676,444 +1029,445 @@
 
                             @if (startPage > 1)
                             {
-                                <li class="page-item">
-                                    <a class="page-link" href="@Url.Action("Index", new {
+                                    <li class="page-item">
+                                        <a class="page-link" href="@Url.Action("Index", new {
                                         page = 1,
                                         pageSize = Model.PageSize,
                                         status = Model.StatusFilter,
                                         search = Model.SearchQuery
                                     })">1</a>
-                                </li>
+                                    </li>
                                 @if (startPage > 2)
                                 {
-                                    <li class="page-item disabled">
-                                        <span class="page-link">...</span>
-                                    </li>
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
                                 }
                             }
 
                             @for (var i = startPage; i <= endPage; i++)
                             {
-                                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                                    <a class="page-link" href="@Url.Action("Index", new {
+                                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                        <a class="page-link" href="@Url.Action("Index", new {
                                         page = i,
                                         pageSize = Model.PageSize,
                                         status = Model.StatusFilter,
                                         search = Model.SearchQuery
                                     })">@i</a>
-                                </li>
+                                    </li>
                             }
 
                             @if (endPage < Model.TotalPages)
                             {
                                 @if (endPage < Model.TotalPages - 1)
                                 {
-                                    <li class="page-item disabled">
-                                        <span class="page-link">...</span>
-                                    </li>
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
                                 }
-                                <li class="page-item">
-                                    <a class="page-link" href="@Url.Action("Index", new {
+                                    <li class="page-item">
+                                        <a class="page-link" href="@Url.Action("Index", new {
                                         page = Model.TotalPages,
                                         pageSize = Model.PageSize,
                                         status = Model.StatusFilter,
                                         search = Model.SearchQuery
                                     })">@Model.TotalPages</a>
-                                </li>
+                                    </li>
                             }
 
-                            <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
-                                <a class="page-link" href="@Url.Action("Index", new {
+                                <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new {
                                     page = Model.CurrentPage + 1,
                                     pageSize = Model.PageSize,
                                     status = Model.StatusFilter,
                                     search = Model.SearchQuery
                                 })">
-                                    Next <i class="fas fa-chevron-right"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
+                                    @Localizer["Next"] <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
                 }
+                </div>
             </div>
-        </div>
     }
-</div>
+    </div>
 
 @section Scripts {
     @Html.AntiForgeryToken()
-    <script>
-        // Select All Functionality
-        document.getElementById('selectAll').addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('.row-checkbox');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;
-            });
-        });
+        <script src="~/js/odd-registrations.js" asp-append-version="true"></script>
+        <script>
+                    // Select All Functionality
+                    document.getElementById('selectAll').addEventListener('change', function() {
+                        const checkboxes = document.querySelectorAll('.row-checkbox');
+                        checkboxes.forEach(checkbox => {
+                            checkbox.checked = this.checked;
+                        });
+                    });
 
-        // Update individual checkbox state
-        document.querySelectorAll('.row-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const selectAll = document.getElementById('selectAll');
-                const allCheckboxes = document.querySelectorAll('.row-checkbox');
-                const checkedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
+                    // Update individual checkbox state
+                    document.querySelectorAll('.row-checkbox').forEach(checkbox => {
+                        checkbox.addEventListener('change', function() {
+                            const selectAll = document.getElementById('selectAll');
+                            const allCheckboxes = document.querySelectorAll('.row-checkbox');
+                            const checkedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
 
-                selectAll.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < allCheckboxes.length;
-                selectAll.checked = checkedCheckboxes.length === allCheckboxes.length;
-            });
-        });
+                            selectAll.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < allCheckboxes.length;
+                            selectAll.checked = checkedCheckboxes.length === allCheckboxes.length;
+                        });
+                    });
 
-        // Auto-submit filter form on change
-        document.getElementById('status').addEventListener('change', function() {
-            document.getElementById('filterForm').submit();
-        });
+                    // Auto-submit filter form on change
+                    document.getElementById('status').addEventListener('change', function() {
+                        document.getElementById('filterForm').submit();
+                    });
 
-        document.getElementById('pageSize').addEventListener('change', function() {
-            document.getElementById('filterForm').submit();
-        });
+                    document.getElementById('pageSize').addEventListener('change', function() {
+                        document.getElementById('filterForm').submit();
+                    });
 
-        // Status update function
-        function updateStatus(id, status) {
-            if (!confirm(`Are you sure you want to ${status.toLowerCase()} this registration?`)) {
-                return;
+                    // Status update function
+                    function updateStatus(id, status) {
+                        if (!confirm(`Are you sure you want to ${status.toLowerCase()} this registration?`)) {
+                            return;
+                        }
+
+                        fetch('@Url.Action("UpdateStatus")', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                            },
+                            body: `id=${id}&status=${status}`
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                showAlert('success', data.message);
+                                setTimeout(() => location.reload(), 1000);
+                            } else {
+                                showAlert('danger', data.message);
+                            }
+                        })
+                        .catch(error => {
+                            showAlert('danger', 'An error occurred while updating the status.');
+                            console.error('Error:', error);
+                        });
+                    }
+
+                    // Delete registration function
+                    function deleteRegistration(id) {
+                        if (!confirm('Are you sure you want to delete this registration? This action cannot be undone.')) {
+                            return;
+                        }
+
+                        fetch(`@Url.Action("Delete")/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                showAlert('success', data.message);
+                                setTimeout(() => location.reload(), 1000);
+                            } else {
+                                showAlert('danger', data.message);
+                            }
+                        })
+                        .catch(error => {
+                            showAlert('danger', 'An error occurred while deleting the registration.');
+                            console.error('Error:', error);
+                        });
+                    }
+
+                    // Export data function
+                    function exportData(format) {
+                        fetch(`@Url.Action("Export")?format=${format}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            showAlert('info', data.message);
+                        })
+                        .catch(error => {
+                            showAlert('danger', 'Export functionality is being implemented.');
+                            console.error('Error:', error);
+                        });
+                    }
+
+                    // Generate OTAC function
+                    function generateOTAC(id) {
+                        window.location.href = `@Url.Action("Index", "Otac")?registrationId=${id}`;
+                    }
+
+            // Generate OTAC immediately without form input
+            function generateOtacImmediately() {
+                // Show loading alert immediately
+                showAlert('info', 'กำลังสร้าง OTAC Code...');
+
+                // Get anti-forgery token
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+                // Call the controller method directly
+                fetch('@Url.Action("GenerateForKBankOdd", "Otac")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': token || ''
+                    },
+                    body: `__RequestVerificationToken=${encodeURIComponent(token || '')}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showOtacResultsModal(data);
+                        // ✅ FIXED: No auto-refresh - let employee copy code peacefully
+                        // setTimeout(() => location.reload(), 3000); // REMOVED
+                    } else {
+                        showAlert('danger', data.message || 'เกิดข้อผิดพลาดในการสร้าง OTAC Code');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('danger', 'เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง');
+                });
             }
 
-            fetch('@Url.Action("UpdateStatus")', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
-                },
-                body: `id=${id}&status=${status}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showAlert('success', data.message);
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    showAlert('danger', data.message);
-                }
-            })
-            .catch(error => {
-                showAlert('danger', 'An error occurred while updating the status.');
-                console.error('Error:', error);
-            });
-        }
+                    // Show OTAC results using existing modal template
+                    function showOtacResultsModal(data) {
+                        // Skip the complex modal loading and go straight to the working fallback
+                        showFallbackOtacModal(data);
+                    }
 
-        // Delete registration function
-        function deleteRegistration(id) {
-            if (!confirm('Are you sure you want to delete this registration? This action cannot be undone.')) {
-                return;
-            }
+                    // Fallback modal creation (simplified version)
+                    function showFallbackOtacModal(data) {
+                        const expiryDate = new Date(data.expiresAt);
+                        const expiryTimeLocal = expiryDate.toLocaleString('th-TH', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
 
-            fetch(`@Url.Action("Delete")/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showAlert('success', data.message);
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    showAlert('danger', data.message);
-                }
-            })
-            .catch(error => {
-                showAlert('danger', 'An error occurred while deleting the registration.');
-                console.error('Error:', error);
-            });
-        }
+                        const modalHtml = `
+                            <div class="modal fade" id="otacResultsModal" tabindex="-1" aria-labelledby="otacResultsModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-success text-white">
+                                            <h5 class="modal-title" id="otacResultsModalLabel">
+                                                <i class="fas fa-check-circle me-2"></i>🎯 OTAC สร้างสำเร็จ!
+                                            </h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body text-center">
+                                            <div class="alert alert-success border-0 shadow-sm">
+                                                <div class="mb-4">
+                                                    <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                                                    <h4 class="text-success mb-2">OTAC Code พร้อมใช้งาน</h4>
+                                                </div>
 
-        // Export data function
-        function exportData(format) {
-            fetch(`@Url.Action("Export")?format=${format}`)
-            .then(response => response.json())
-            .then(data => {
-                showAlert('info', data.message);
-            })
-            .catch(error => {
-                showAlert('danger', 'Export functionality is being implemented.');
-                console.error('Error:', error);
-            });
-        }
+                                                <div class="code-display p-4 bg-white rounded border mb-4">
+                                                    <label class="form-label small text-muted mb-2">รหัสยืนยัน</label>
+                                                    <div class="input-group justify-content-center">
+                                                        <input type="text" id="resultGeneratedCode" class="form-control form-control-lg font-monospace fw-bold text-center"
+                                                               value="${data.code}" readonly style="font-size: 2rem; letter-spacing: 0.5em; background: #f8f9fa; max-width: 300px;">
+                                                        <button class="btn btn-outline-success" type="button" onclick="copyToClipboard('resultGeneratedCode')" title="คัดลอก">
+                                                            <i class="fas fa-copy"></i>
+                                                        </button>
+                                                    </div>
 
-        // Generate OTAC function
-        function generateOTAC(id) {
-            window.location.href = `@Url.Action("Index", "Otac")?registrationId=${id}`;
-        }
+                                                    <div class="mt-3">
+                                                        <small class="text-muted">หมดอายุ: ${expiryTimeLocal}</small>
+                                                        <div id="resultCountdown" class="small text-warning mt-1"></div>
+                                                    </div>
+                                                </div>
 
-        // Generate OTAC immediately without form input
-        function generateOtacImmediately() {
-            // Show loading alert immediately
-            showAlert('info', 'กำลังสร้าง OTAC Code...');
-
-            // Get anti-forgery token
-            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
-
-            // Call the controller method directly
-            fetch('@Url.Action("GenerateForKBankOdd", "Otac")', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'RequestVerificationToken': token || ''
-                },
-                body: `__RequestVerificationToken=${encodeURIComponent(token || '')}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showOtacResultsModal(data);
-                    // ✅ FIXED: No auto-refresh - let employee copy code peacefully
-                    // setTimeout(() => location.reload(), 3000); // REMOVED
-                } else {
-                    showAlert('danger', data.message || 'เกิดข้อผิดพลาดในการสร้าง OTAC Code');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('danger', 'เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง');
-            });
-        }
-
-        // Show OTAC results using existing modal template
-        function showOtacResultsModal(data) {
-            // Skip the complex modal loading and go straight to the working fallback
-            showFallbackOtacModal(data);
-        }
-
-        // Fallback modal creation (simplified version)
-        function showFallbackOtacModal(data) {
-            const expiryDate = new Date(data.expiresAt);
-            const expiryTimeLocal = expiryDate.toLocaleString('th-TH', {
-                year: 'numeric',
-                month: 'short',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-
-            const modalHtml = `
-                <div class="modal fade" id="otacResultsModal" tabindex="-1" aria-labelledby="otacResultsModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header bg-success text-white">
-                                <h5 class="modal-title" id="otacResultsModalLabel">
-                                    <i class="fas fa-check-circle me-2"></i>🎯 OTAC สร้างสำเร็จ!
-                                </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body text-center">
-                                <div class="alert alert-success border-0 shadow-sm">
-                                    <div class="mb-4">
-                                        <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
-                                        <h4 class="text-success mb-2">OTAC Code พร้อมใช้งาน</h4>
-                                    </div>
-
-                                    <div class="code-display p-4 bg-white rounded border mb-4">
-                                        <label class="form-label small text-muted mb-2">รหัสยืนยัน</label>
-                                        <div class="input-group justify-content-center">
-                                            <input type="text" id="resultGeneratedCode" class="form-control form-control-lg font-monospace fw-bold text-center"
-                                                   value="${data.code}" readonly style="font-size: 2rem; letter-spacing: 0.5em; background: #f8f9fa; max-width: 300px;">
-                                            <button class="btn btn-outline-success" type="button" onclick="copyToClipboard('resultGeneratedCode')" title="คัดลอก">
-                                                <i class="fas fa-copy"></i>
+                                                <div class="text-muted">
+                                                    <small><i class="fas fa-shield-alt me-1"></i>รหัสนี้ใช้ได้เพียงครั้งเดียว กรุณาเก็บรักษาให้ปลอดภัย</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer justify-content-center">
+                                            <button type="button" class="btn btn-success" onclick="copyToClipboard('resultGeneratedCode')">
+                                                <i class="fas fa-copy me-1"></i>คัดลอก
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary" onclick="refreshTable()">
+                                                <i class="fas fa-sync-alt me-1"></i>รีเฟรช
+                                            </button>
+                                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                                                <i class="fas fa-times me-1"></i>ปิด
                                             </button>
                                         </div>
-
-                                        <div class="mt-3">
-                                            <small class="text-muted">หมดอายุ: ${expiryTimeLocal}</small>
-                                            <div id="resultCountdown" class="small text-warning mt-1"></div>
-                                        </div>
-                                    </div>
-
-                                    <div class="text-muted">
-                                        <small><i class="fas fa-shield-alt me-1"></i>รหัสนี้ใช้ได้เพียงครั้งเดียว กรุณาเก็บรักษาให้ปลอดภัย</small>
                                     </div>
                                 </div>
                             </div>
-                            <div class="modal-footer justify-content-center">
-                                <button type="button" class="btn btn-success" onclick="copyToClipboard('resultGeneratedCode')">
-                                    <i class="fas fa-copy me-1"></i>คัดลอก
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary" onclick="refreshTable()">
-                                    <i class="fas fa-sync-alt me-1"></i>รีเฟรช
-                                </button>
-                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
-                                    <i class="fas fa-times me-1"></i>ปิด
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
+                        `;
 
-            // Remove existing modal if present
-            const existingModal = document.getElementById('otacResultsModal');
-            if (existingModal) {
-                existingModal.remove();
-            }
+                        // Remove existing modal if present
+                        const existingModal = document.getElementById('otacResultsModal');
+                        if (existingModal) {
+                            existingModal.remove();
+                        }
 
-            // Add modal to body
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
+                        // Add modal to body
+                        document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-            // Initialize and show modal
-            const modal = new bootstrap.Modal(document.getElementById('otacResultsModal'));
-            modal.show();
+                        // Initialize and show modal
+                        const modal = new bootstrap.Modal(document.getElementById('otacResultsModal'));
+                        modal.show();
 
-            // Start countdown
-            startResultCountdown(data.expiresAt);
+                        // Start countdown
+                        startResultCountdown(data.expiresAt);
 
-            // Clean up on modal close
-            document.getElementById('otacResultsModal').addEventListener('hidden.bs.modal', function () {
-                this.remove();
-            });
-        }
+                        // Clean up on modal close
+                        document.getElementById('otacResultsModal').addEventListener('hidden.bs.modal', function () {
+                            this.remove();
+                        });
+                    }
 
-        // Countdown for results modal
-        let resultCountdownInterval;
-        function startResultCountdown(expiresAt) {
-            const expiryDate = new Date(expiresAt);
-            const countdownElement = document.getElementById('resultCountdown');
+                    // Countdown for results modal
+                    let resultCountdownInterval;
+                    function startResultCountdown(expiresAt) {
+                        const expiryDate = new Date(expiresAt);
+                        const countdownElement = document.getElementById('resultCountdown');
 
-            if (!countdownElement) return;
+                        if (!countdownElement) return;
 
-            if (resultCountdownInterval) {
-                clearInterval(resultCountdownInterval);
-            }
+                        if (resultCountdownInterval) {
+                            clearInterval(resultCountdownInterval);
+                        }
 
-            resultCountdownInterval = setInterval(() => {
-                const now = new Date();
-                const timeLeft = expiryDate - now;
+                        resultCountdownInterval = setInterval(() => {
+                            const now = new Date();
+                            const timeLeft = expiryDate - now;
 
-                if (timeLeft <= 0) {
-                    countdownElement.innerHTML = '<span class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>หมดอายุแล้ว</span>';
-                    clearInterval(resultCountdownInterval);
-                    return;
-                }
+                            if (timeLeft <= 0) {
+                                countdownElement.innerHTML = '<span class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>หมดอายุแล้ว</span>';
+                                clearInterval(resultCountdownInterval);
+                                return;
+                            }
 
-                const minutes = Math.floor(timeLeft / 60000);
-                const seconds = Math.floor((timeLeft % 60000) / 1000);
+                            const minutes = Math.floor(timeLeft / 60000);
+                            const seconds = Math.floor((timeLeft % 60000) / 1000);
 
-                let cssClass = 'text-success';
-                let icon = 'fas fa-clock';
-                if (minutes < 2) {
-                    cssClass = 'text-danger';
-                    icon = 'fas fa-exclamation-triangle';
-                } else if (minutes < 5) {
-                    cssClass = 'text-warning';
-                    icon = 'fas fa-hourglass-half';
-                }
+                            let cssClass = 'text-success';
+                            let icon = 'fas fa-clock';
+                            if (minutes < 2) {
+                                cssClass = 'text-danger';
+                                icon = 'fas fa-exclamation-triangle';
+                            } else if (minutes < 5) {
+                                cssClass = 'text-warning';
+                                icon = 'fas fa-hourglass-half';
+                            }
 
-                countdownElement.innerHTML = `<span class="${cssClass}"><i class="${icon} me-1"></i>เหลือ ${minutes} นาที ${seconds} วินาที</span>`;
-            }, 1000);
-        }
+                            countdownElement.innerHTML = `<span class="${cssClass}"><i class="${icon} me-1"></i>เหลือ ${minutes} นาที ${seconds} วินาที</span>`;
+                        }, 1000);
+                    }
 
-        // Copy to clipboard helper function
-        function copyToClipboard(elementId) {
-            const element = document.getElementById(elementId);
-            element.select();
-            element.setSelectionRange(0, 99999); // For mobile devices
+                    // Copy to clipboard helper function
+                    function copyToClipboard(elementId) {
+                        const element = document.getElementById(elementId);
+                        element.select();
+                        element.setSelectionRange(0, 99999); // For mobile devices
 
-            try {
-                document.execCommand('copy');
-                showAlert('success', 'คัดลอกรหัสเรียบร้อยแล้ว!');
+                        try {
+                            document.execCommand('copy');
+                            showAlert('success', 'คัดลอกรหัสเรียบร้อยแล้ว!');
 
-                // Visual feedback
-                const button = element.nextElementSibling;
-                if (button) {
-                    const originalContent = button.innerHTML;
-                    button.innerHTML = '<i class="fas fa-check"></i>';
-                    button.classList.add('btn-success');
-                    button.classList.remove('btn-outline-success', 'btn-outline-secondary');
+                            // Visual feedback
+                            const button = element.nextElementSibling;
+                            if (button) {
+                                const originalContent = button.innerHTML;
+                                button.innerHTML = '<i class="fas fa-check"></i>';
+                                button.classList.add('btn-success');
+                                button.classList.remove('btn-outline-success', 'btn-outline-secondary');
 
-                    setTimeout(() => {
-                        button.innerHTML = originalContent;
-                        button.classList.remove('btn-success');
-                        button.classList.add('btn-outline-success');
-                    }, 2000);
-                }
-            } catch (err) {
-                // Fallback for browsers that don't support execCommand
-                showAlert('warning', 'ไม่สามารถคัดลอกอัตโนมัติได้ กรุณาคัดลอกด้วยตนเอง');
-            }
-        }
+                                setTimeout(() => {
+                                    button.innerHTML = originalContent;
+                                    button.classList.remove('btn-success');
+                                    button.classList.add('btn-outline-success');
+                                }, 2000);
+                            }
+                        } catch (err) {
+                            // Fallback for browsers that don't support execCommand
+                            showAlert('warning', 'ไม่สามารถคัดลอกอัตโนมัติได้ กรุณาคัดลอกด้วยตนเอง');
+                        }
+                    }
 
-        // View history function
-        function viewHistory(id) {
-            showAlert('info', 'History view functionality will be implemented.');
-        }
+                    // View history function
+                    function viewHistory(id) {
+                        showAlert('info', 'History view functionality will be implemented.');
+                    }
 
-        // Bulk actions
-        function bulkAction(action) {
-            const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
-            if (checkedBoxes.length === 0) {
-                showAlert('warning', 'Please select at least one registration.');
-                return;
-            }
+                    // Bulk actions
+                    function bulkAction(action) {
+                        const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+                        if (checkedBoxes.length === 0) {
+                            showAlert('warning', 'Please select at least one registration.');
+                            return;
+                        }
 
-            const ids = Array.from(checkedBoxes).map(cb => cb.value);
-            showAlert('info', `Bulk ${action} functionality will be implemented for ${ids.length} registrations.`);
-        }
+                        const ids = Array.from(checkedBoxes).map(cb => cb.value);
+                        showAlert('info', `Bulk ${action} functionality will be implemented for ${ids.length} registrations.`);
+                    }
 
-        // Refresh table function
-        function refreshTable() {
-            location.reload();
-        }
+                    // Refresh table function
+                    function refreshTable() {
+                        location.reload();
+                    }
 
-        // Alert helper function
-        function showAlert(type, message) {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
-            alertDiv.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.body.appendChild(alertDiv);
+                    // Alert helper function
+                    function showAlert(type, message) {
+                        const alertDiv = document.createElement('div');
+                        alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+                        alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+                        alertDiv.innerHTML = `
+                            ${message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+                        document.body.appendChild(alertDiv);
 
-            // Auto-remove after 5 seconds
-            setTimeout(() => {
-                if (alertDiv.parentNode) {
-                    alertDiv.remove();
-                }
-            }, 5000);
-        }
+                        // Auto-remove after 5 seconds
+                        setTimeout(() => {
+                            if (alertDiv.parentNode) {
+                                alertDiv.remove();
+                            }
+                        }, 5000);
+                    }
 
-        // Search on Enter key
-        document.getElementById('search').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                document.getElementById('filterForm').submit();
-            }
-        });
+                    // Search on Enter key
+                    document.getElementById('search').addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            document.getElementById('filterForm').submit();
+                        }
+                    });
 
-        // Enhanced keyboard navigation
-        document.addEventListener('keydown', function(e) {
-            // Escape key to clear search when focused on search input
-            if (e.key === 'Escape' && e.target.id === 'search') {
-                e.target.value = '';
-                document.getElementById('filterForm').submit();
-            }
+                    // Enhanced keyboard navigation
+                    document.addEventListener('keydown', function(e) {
+                        // Escape key to clear search when focused on search input
+                        if (e.key === 'Escape' && e.target.id === 'search') {
+                            e.target.value = '';
+                            document.getElementById('filterForm').submit();
+                        }
 
-            // Ctrl+F to focus search
-            if (e.ctrlKey && e.key === 'f') {
-                e.preventDefault();
-                document.getElementById('search').focus();
-            }
-        });
+                        // Ctrl+F to focus search
+                        if (e.ctrlKey && e.key === 'f') {
+                            e.preventDefault();
+                            document.getElementById('search').focus();
+                        }
+                    });
 
-        // Improve table row focus for screen readers
-        document.querySelectorAll('.action-buttons .btn').forEach(button => {
-            button.addEventListener('focus', function() {
-                this.closest('tr').classList.add('table-row-focused');
-            });
+                    // Improve table row focus for screen readers
+                    document.querySelectorAll('.action-buttons .btn').forEach(button => {
+                        button.addEventListener('focus', function() {
+                            this.closest('tr').classList.add('table-row-focused');
+                        });
 
-            button.addEventListener('blur', function() {
-                this.closest('tr').classList.remove('table-row-focused');
-            });
-        });
-    </script>
-}
+                        button.addEventListener('blur', function() {
+                            this.closest('tr').classList.remove('table-row-focused');
+                        });
+                    });
+        </script>
+    }
