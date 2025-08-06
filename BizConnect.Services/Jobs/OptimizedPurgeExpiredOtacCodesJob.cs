@@ -22,6 +22,7 @@ public class OptimizedPurgeExpiredOtacCodesJob
     private readonly ILogger<OptimizedPurgeExpiredOtacCodesJob> _logger;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly ICacheService _cacheService;
+    private readonly IRealtimeNotificationService? _realtimeNotificationService;
 
     // Configuration constants - enhanced for better performance
     private const int DefaultBatchSize = 100; // Reduced for better performance
@@ -33,12 +34,14 @@ public class OptimizedPurgeExpiredOtacCodesJob
         IUnitOfWork unitOfWork,
         ILogger<OptimizedPurgeExpiredOtacCodesJob> logger,
         IDateTimeProvider dateTimeProvider,
-        ICacheService cacheService)
+        ICacheService cacheService,
+        IRealtimeNotificationService? realtimeNotificationService = null)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _dateTimeProvider = dateTimeProvider ?? throw new ArgumentNullException(nameof(dateTimeProvider));
         _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
+        _realtimeNotificationService = realtimeNotificationService;
     }
 
     /// <summary>
@@ -167,10 +170,32 @@ public class OptimizedPurgeExpiredOtacCodesJob
                     "Purged {TotalPurged} expired OTAC codes in {BatchCount} batches over {Duration}ms. " +
                     "Cache invalidations: {CacheInvalidations}",
                     totalPurged, batchCount, result.Duration.TotalMilliseconds, cacheInvalidationCount);
+                
+                // Track system health event for successful purge
+                if (_realtimeNotificationService != null)
+                {
+                    await _realtimeNotificationService.TrackSystemHealthEventAsync(
+                        "Background Jobs", 
+                        "Healthy", 
+                        $"OTAC purge job completed successfully - processed {totalPurged} expired codes",
+                        "Info"
+                    );
+                }
             }
             else
             {
                 _logger.LogDebug("Optimized purge job completed. No expired OTAC codes found.");
+                
+                // Track system health event for no-op completion
+                if (_realtimeNotificationService != null)
+                {
+                    await _realtimeNotificationService.TrackSystemHealthEventAsync(
+                        "Background Jobs", 
+                        "Healthy", 
+                        "OTAC purge job completed - no expired codes found",
+                        "Info"
+                    );
+                }
             }
         }
         catch (Exception ex)
@@ -202,6 +227,8 @@ public class OptimizedPurgeExpiredOtacCodesJob
                            r.OtacExpiresAt < currentTime && 
                            (r.OtacState == "Generated" || r.OtacState == "Validated") &&
                            r.OtacState != "Used") // CRITICAL: Never process Used records
+                .OrderBy(r => r.OtacExpiresAt) // Oldest expired first
+                .ThenBy(r => r.Id)             // Consistent ordering
                 .Select(r => new ExpiredOtacRecord
                 {
                     Id = r.Id,

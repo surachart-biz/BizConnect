@@ -105,34 +105,12 @@
                         </li>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-question-circle me-1"></i>Help
+                            <li class="nav-item dropdown dropdown-modern">
+                                <a class="modern-nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-question-circle"></i>Help
                                 </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#" onclick="BizConnectGuidedTour.startDashboardTour()">
-                                        <i class="fas fa-play me-2"></i>Dashboard Tour
-                                    </a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="BizConnectGuidedTour.startNetworkingTour()">
-                                        <i class="fas fa-users me-2"></i>Networking Tour
-                                    </a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" asp-controller="Onboarding" asp-action="Index">
-                                        <i class="fas fa-redo me-2"></i>Restart Onboarding
-                                    </a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="showHelpModal()">
-                                        <i class="fas fa-info-circle me-2"></i>Getting Started
-                                    </a></li>
-                                </ul>
-                            </li>
-                        }
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-question-circle me-1"></i>Help
-                                </a>
-                                <ul class="dropdown-menu">
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li class="dropdown-header">Getting Started</li>
                                     <li><a class="dropdown-item" href="#" onclick="BizConnectGuidedTour.startDashboardTour()">
                                         <i class="fas fa-play me-2"></i>Dashboard Tour
                                     </a></li>
@@ -188,7 +166,7 @@
                                     </div>
                                     <span class="d-none d-md-inline">@User.Identity.Name</span>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <ul class="dropdown-menu dropdown-menu-end dropdown-modern" aria-labelledby="userDropdown">
                                     <li>
                                         <h6 class="dropdown-header">
                                             <i class="fas fa-user-circle me-2"></i>@User.Identity.Name
@@ -268,6 +246,11 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
+    <!-- Modern UI System -->
+    <script src="~/js/modern-ui.js" asp-append-version="true"></script>
+    <script src="~/js/real-time-updates.js" asp-append-version="true"></script>
+    
+    <!-- Legacy Scripts -->
     <script src="~/js/language-switcher.js" asp-append-version="true"></script>
     <script src="~/js/loading.js" asp-append-version="true"></script>
     <script src="~/js/interactions.js" asp-append-version="true"></script>

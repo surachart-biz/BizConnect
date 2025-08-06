@@ -62,4 +62,46 @@ namespace BizConnect.Services.DTOs
         public decimal ComparisonToPreviousPeriod { get; set; }
         public List<TrendDataPoint> Trends { get; set; } = new();
     }
+
+    /// <summary>
+    /// Trend analysis model for API response
+    /// </summary>
+    public class TrendAnalysis
+    {
+        public string MetricType { get; set; } = string.Empty;
+        public TimeSpan TimeWindow { get; set; }
+        public List<TrendDataPoint> DataPoints { get; set; } = new();
+        public string TrendDirection { get; set; } = "Stable"; // Up, Down, Stable
+        public decimal TrendPercentage { get; set; }
+        public decimal CurrentValue { get; set; }
+        public decimal PreviousValue { get; set; }
+        public decimal ChangePercent { get; set; }
+        public bool IsSignificant { get; set; }
+        public string Recommendation { get; set; } = string.Empty;
+        public DateTime GeneratedAt { get; set; } = DateTime.UtcNow;
+        public DateTime AnalyzedAt { get; set; } = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Public system status model for guest users
+    /// </summary>
+    public class PublicSystemStatus
+    {
+        public string Status { get; set; } = "Operational";
+        public string Message { get; set; } = "All systems operational";
+        public List<ServiceStatus> Services { get; set; } = new();
+        public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
+        public bool IsOtacGenerationAvailable { get; set; } = true;
+        public bool IsRegistrationAvailable { get; set; } = true;
+    }
+
+    /// <summary>
+    /// Individual service status
+    /// </summary>
+    public class ServiceStatus
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Status { get; set; } = "Operational";
+        public string Description { get; set; } = string.Empty;
+    }
 }

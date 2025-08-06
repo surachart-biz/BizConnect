@@ -124,18 +124,20 @@ public class EnhancedSecurityAuditService : IEnhancedSecurityAuditService
                 entries = entries.Where(e => e.Severity >= filter.MinSeverity.Value).ToList();
             }
             
-            // Sort and paginate
-            entries = entries.OrderByDescending(e => e.Timestamp).ToList();
+            // Sort and paginate in one operation for better performance
+            var query = entries.OrderByDescending(e => e.Timestamp).AsQueryable();
             
             if (filter.Skip > 0)
             {
-                entries = entries.Skip(filter.Skip).ToList();
+                query = query.Skip(filter.Skip);
             }
             
             if (filter.Take > 0)
             {
-                entries = entries.Take(filter.Take).ToList();
+                query = query.Take(filter.Take);
             }
+            
+            entries = query.ToList();
             
             return entries;
         }

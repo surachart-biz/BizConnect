@@ -10,11 +10,13 @@ public class UserService : IUserService
 {
     private readonly BizConnectContext _context;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IRealtimeNotificationService? _realtimeNotificationService;
 
-    public UserService(BizConnectContext context, IDateTimeProvider dateTimeProvider)
+    public UserService(BizConnectContext context, IDateTimeProvider dateTimeProvider, IRealtimeNotificationService? realtimeNotificationService = null)
     {
         _context = context;
         _dateTimeProvider = dateTimeProvider;
+        _realtimeNotificationService = realtimeNotificationService;
     }
 
     public async Task<User?> AuthenticateAsync(string username, string password)
@@ -29,8 +31,24 @@ public class UserService : IUserService
             return null;
 
         // Verify password using BCrypt
-        if (!BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+        var isValidPassword = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
+        
+        // Track login activity if notification service is available
+        if (_realtimeNotificationService != null)
+        {
+            await _realtimeNotificationService.TrackUserLoginAsync(
+                user.Id.ToString(), 
+                username, 
+                isValidPassword
+            );
+        }
+        
+        if (!isValidPassword)
             return null;
+
+        // Update last login timestamp
+        user.LastLoginAt = _dateTimeProvider.UtcNow;
+        await _context.SaveChangesAsync();
 
         return user;
     }

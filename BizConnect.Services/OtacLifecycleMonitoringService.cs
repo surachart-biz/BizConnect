@@ -53,7 +53,7 @@ public class OtacLifecycleMonitoringService : IOtacLifecycleMonitoringService
             
             var analytics = new OtacLifecycleAnalytics
             {
-                TotalRecords = records.Count,
+                TotalRecords = records.Count(),
                 StateDistribution = records.GroupBy(r => r.OtacState)
                     .ToDictionary(g => g.Key, g => g.Count()),
                 PermanentRecords = records.Count(r => r.OtacState == "Used"),
@@ -170,7 +170,7 @@ public class OtacLifecycleMonitoringService : IOtacLifecycleMonitoringService
 
             var report = new PaymentReadinessReport
             {
-                TotalPaymentRecords = paymentRecords.Count,
+                TotalPaymentRecords = paymentRecords.Count(),
                 OldestPaymentRecord = paymentRecords.OrderBy(r => r.CreatedAt).FirstOrDefault()?.CreatedAt,
                 NewestPaymentRecord = paymentRecords.OrderByDescending(r => r.CreatedAt).FirstOrDefault()?.CreatedAt
             };
@@ -195,8 +195,8 @@ public class OtacLifecycleMonitoringService : IOtacLifecycleMonitoringService
                 string.IsNullOrEmpty(r.ExternalReference) ||
                 r.BranchId == null);
 
-            report.PaymentDataIntegrity = paymentRecords.Count > 0 
-                ? (double)(paymentRecords.Count - integrityIssues) / paymentRecords.Count * 100 
+            report.PaymentDataIntegrity = paymentRecords.Count() > 0 
+                ? (double)(paymentRecords.Count() - integrityIssues) / paymentRecords.Count() * 100 
                 : 100;
 
             if (integrityIssues > 0)
@@ -244,14 +244,14 @@ public class OtacLifecycleMonitoringService : IOtacLifecycleMonitoringService
 
             var report = new PurgeEligibilityReport
             {
-                ExpiredRecordsCount = expiredRecords.Count,
-                InvalidatedRecordsCount = invalidatedRecords.Count,
-                TotalPurgeableRecords = expiredRecords.Count + invalidatedRecords.Count,
+                ExpiredRecordsCount = expiredRecords.Count(),
+                InvalidatedRecordsCount = invalidatedRecords.Count(),
+                TotalPurgeableRecords = expiredRecords.Count() + invalidatedRecords.Count(),
                 ProtectedUsedRecords = protectedRecords,
                 OldestPurgeableRecord = expiredRecords.Concat(invalidatedRecords)
                     .OrderBy(r => r.CreatedAt)
                     .FirstOrDefault()?.CreatedAt,
-                EstimatedStorageSavingsKB = (expiredRecords.Count + invalidatedRecords.Count) * 2 // Rough estimate
+                EstimatedStorageSavingsKB = (expiredRecords.Count() + invalidatedRecords.Count()) * 2 // Rough estimate
             };
 
             // Safety checks
@@ -384,10 +384,10 @@ public class OtacLifecycleMonitoringService : IOtacLifecycleMonitoringService
                 .Where(r => r.CreatedAt >= currentTime.AddHours(-24))
                 .ToListAsync();
 
-            if (recentRecords.Count > 10) // Only alert if we have meaningful data
+            if (recentRecords.Count() > 10) // Only alert if we have meaningful data
             {
                 var failureRate = recentRecords.Count(r => r.OtacState == "Expired" || r.OtacState == "Invalidated") 
-                    / (double)recentRecords.Count * 100;
+                    / (double)recentRecords.Count() * 100;
 
                 if (failureRate > 50) // More than 50% failure rate
                 {

@@ -106,7 +106,7 @@ public class DashboardService : IDashboardService
         {
             _logger.LogInformation("Fetching real-time dashboard statistics from optimized views");
 
-            var stats = await _context.DashboardStats.FirstOrDefaultAsync();
+            var stats = await _context.VRealtimeDashboardStats.FirstOrDefaultAsync();
             
             if (stats == null)
             {
@@ -116,15 +116,15 @@ public class DashboardService : IDashboardService
 
             return new RealTimeDashboardStats
             {
-                TodayTotal = (int)(stats.today_total ?? 0),
-                TodaySuccess = (int)(stats.today_success ?? 0),
-                TodayFailed = (int)(stats.today_failed ?? 0),
-                MonthTotal = (int)(stats.month_total ?? 0),
-                MonthSuccess = (int)(stats.month_success ?? 0),
-                OtacGenerated = (int)(stats.otac_generated ?? 0),
-                OtacValidated = (int)(stats.otac_validated ?? 0),
-                OtacUsed = (int)(stats.otac_used ?? 0),
-                ActiveOtac = (int)(stats.active_otac ?? 0)
+                TodayTotal = (int)(stats.RegistrationsToday ?? 0),
+                TodaySuccess = (int)(stats.ApprovedRegistrations ?? 0),
+                TodayFailed = (int)(stats.RejectedRegistrations ?? 0),
+                MonthTotal = (int)(stats.RegistrationsWeek ?? 0),
+                MonthSuccess = (int)(stats.ApprovedRegistrations ?? 0),
+                OtacGenerated = (int)(stats.ActiveOtacCodes ?? 0),
+                OtacValidated = (int)(stats.ValidatedOtacCodes ?? 0),
+                OtacUsed = (int)(stats.ValidatedOtacCodes ?? 0),
+                ActiveOtac = (int)(stats.ActiveOtacCodes ?? 0)
             };
         }
         catch (Exception ex)
@@ -145,7 +145,9 @@ public class DashboardService : IDashboardService
         {
             _logger.LogInformation("Fetching recent activity with limit {Limit}", limit);
 
-            var activities = await _context.RecentActivities
+            var activities = await _context.VRecentActivities
+                .OrderByDescending(a => a.CreatedAt ?? DateTime.MinValue)
+                .ThenByDescending(a => a.UpdatedAt ?? DateTime.MinValue)
                 .Take(limit)
                 .ToListAsync();
 
@@ -153,13 +155,13 @@ public class DashboardService : IDashboardService
             {
                 Id = a.Id ?? 0,
                 ExternalReference = a.ExternalReference,
-                OtacCode = a.OtacCode ?? string.Empty,
+                OtacCode = string.Empty,
                 OtacState = a.OtacState ?? string.Empty,
                 Status = a.Status,
                 CreatedAt = a.CreatedAt ?? DateTime.MinValue,
                 UpdatedAt = a.UpdatedAt,
-                BranchName = a.BranchName,
-                CreatedBy = a.CreatedBy
+                BranchName = a.BranchName ?? string.Empty,
+                CreatedBy = a.GeneratedByUsername ?? string.Empty
             }).ToList();
         }
         catch (Exception ex)

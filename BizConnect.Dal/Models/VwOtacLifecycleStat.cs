@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BizConnect.Dal.Models;
 
-public partial class vw_OtacLifecycleStat
+public partial class VwOtacLifecycleStat
 {
     public string? OtacState { get; set; }
 

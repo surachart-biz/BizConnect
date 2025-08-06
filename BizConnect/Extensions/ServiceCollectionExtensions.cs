@@ -34,8 +34,7 @@ public static partial class ServiceCollectionExtensions
         // Register base repository (caching is handled at Services layer via CachedUserService, etc.)
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
-        // Register specialized optimized repository for KbankOddRegistration
-        services.AddScoped<OptimizedRegistrationRepository>();
+        // Note: Using generic IRepository<KbankOddRegistration> for registration operations
 
         // Register Unit of Work interface and implementation
         // Using Scoped lifetime to ensure consistent transaction boundaries
@@ -194,6 +193,12 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IValidationService, ValidationService>();
         services.AddScoped<IAnalyticsService, AnalyticsService>();
         
+        // Register dashboard and analytics services for modern UI
+        services.AddScoped<IRealtimeDataService, RealtimeDataService>();
+        services.AddScoped<ISystemHealthService, SystemHealthService>();
+        services.AddScoped<IPerformanceMonitorService, PerformanceMonitorService>();
+        services.AddScoped<IRealtimeNotificationService, RealtimeNotificationService>();
+        
         // Add core security services
         services.AddScoped<ISecurityAuditService, SecurityAuditService>();
         services.AddScoped<IPasswordPolicyService, PasswordPolicyService>();
@@ -264,6 +269,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<PurgeExpiredOtacCodesJob>();
         services.AddScoped<OptimizedPurgeExpiredOtacCodesJob>();
         services.AddScoped<DailyPaymentJob>();
+        services.AddScoped<DailyAnalyticsJob>();
 
         return services;
     }

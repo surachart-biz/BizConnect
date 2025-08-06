@@ -43,5 +43,7 @@ public partial class User
     /// </summary>
     public bool IsActive { get; set; }
 
+    public DateTime? LastLoginAt { get; set; }
+
     public virtual ICollection<KbankOddRegistration> KbankOddRegistrations { get; set; } = new List<KbankOddRegistration>();
 }

@@ -1,473 +1,192 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using BizConnect.Dal.Models;
 using BizConnect.Dal.Repositories;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace BizConnect.Dal.UnitOfWork;
-
-/// <summary>
-/// Unit of Work implementation providing centralized repository access and transaction management.
-/// Implements the Unit of Work pattern to ensure consistency across multiple repository operations.
-/// All repositories share the same DbContext instance to maintain transaction boundaries.
-/// </summary>
-public class UnitOfWork : IUnitOfWork
+namespace BizConnect.Dal.UnitOfWork
 {
-    private readonly BizConnectContext _context;
-    private readonly ILogger<UnitOfWork> _logger;
-    private readonly ILoggerFactory _loggerFactory;
-    private readonly Dictionary<Type, object> _repositories = new();
-    private IDbContextTransaction? _currentTransaction;
-    private bool _disposed = false;
-
-    // Lazy-loaded repositories for the main entity types
-    private IRepository<KbankOddRegistration>? _kbankOddRegistrations;
-    private IRepository<User>? _users;
-    private IRepository<Branch>? _branches;
-
     /// <summary>
-    /// Initializes a new instance of the UnitOfWork class.
+    /// Unit of Work pattern implementation providing coordinated access to repositories
+    /// with transactional consistency across multiple data operations
     /// </summary>
-    /// <param name="context">The Entity Framework database context</param>
-    /// <param name="loggerFactory">Logger factory for creating repository loggers</param>
-    public UnitOfWork(BizConnectContext context, ILoggerFactory loggerFactory)
+    public class UnitOfWork : IUnitOfWork
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
-        _logger = loggerFactory.CreateLogger<UnitOfWork>();
+        private readonly BizConnectContext _context;
+        private bool _disposed = false;
 
-        _logger.LogDebug("UnitOfWork instance created");
-    }
+        // Lazy-loaded repositories
+        private IRepository<KbankOddRegistration> _kbankOddRegistrations;
+        private IRepository<User> _users;
+        private IRepository<Branch> _branches;
 
-    #region Repository Properties
+        // Generic repository cache
+        private readonly Dictionary<Type, object> _repositories = new Dictionary<Type, object>();
 
-    /// <inheritdoc />
-    public IRepository<KbankOddRegistration> KbankOddRegistrations
-    {
-        get
+        public UnitOfWork(BizConnectContext context)
         {
-            ThrowIfDisposed();
-            return _kbankOddRegistrations ??= new Repository<KbankOddRegistration>(_context, 
-                _loggerFactory.CreateLogger<Repository<KbankOddRegistration>>());
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-    }
 
-    /// <inheritdoc />
-    public IRepository<User> Users
-    {
-        get
+        /// <summary>
+        /// Access to the underlying database context
+        /// </summary>
+        public BizConnectContext Context => _context;
+
+        /// <summary>
+        /// Repository for KBank ODD Registration operations
+        /// </summary>
+        public IRepository<KbankOddRegistration> KbankOddRegistrations
         {
-            ThrowIfDisposed();
-            return _users ??= new Repository<User>(_context, 
-                _loggerFactory.CreateLogger<Repository<User>>());
-        }
-    }
-
-    /// <inheritdoc />
-    public IRepository<Branch> Branches
-    {
-        get
-        {
-            ThrowIfDisposed();
-            return _branches ??= new Repository<Branch>(_context, 
-                _loggerFactory.CreateLogger<Repository<Branch>>());
-        }
-    }
-
-    #endregion
-
-    #region Transaction Management
-
-    /// <inheritdoc />
-    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        ThrowIfDisposed();
-
-        try
-        {
-            _logger.LogDebug("Saving changes to database");
-
-            var changeCount = await _context.SaveChangesAsync(cancellationToken);
-
-            _logger.LogDebug("Successfully saved {ChangeCount} changes to database", changeCount);
-
-            return changeCount;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error saving changes to database");
-            throw;
-        }
-    }
-
-    /// <inheritdoc />
-    public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
-    {
-        ThrowIfDisposed();
-
-        try
-        {
-            if (_currentTransaction != null)
+            get
             {
-                _logger.LogWarning("Transaction already exists. Returning current transaction.");
-                return _currentTransaction;
-            }
-
-            _logger.LogDebug("Beginning new database transaction");
-
-            _currentTransaction = await _context.Database.BeginTransactionAsync(cancellationToken);
-
-            _logger.LogDebug("Database transaction started with ID: {TransactionId}", _currentTransaction.TransactionId);
-
-            return _currentTransaction;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error beginning database transaction");
-            throw;
-        }
-    }
-
-    /// <inheritdoc />
-    public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
-    {
-        ThrowIfDisposed();
-
-        if (_currentTransaction == null)
-        {
-            _logger.LogWarning("No active transaction to commit");
-            return;
-        }
-
-        try
-        {
-            _logger.LogDebug("Committing transaction with ID: {TransactionId}", _currentTransaction.TransactionId);
-
-            await _currentTransaction.CommitAsync(cancellationToken);
-
-            _logger.LogDebug("Transaction committed successfully");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error committing transaction");
-            await RollbackTransactionAsync(cancellationToken);
-            throw;
-        }
-        finally
-        {
-            await DisposeTransactionAsync();
-        }
-    }
-
-    /// <inheritdoc />
-    public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
-    {
-        ThrowIfDisposed();
-
-        if (_currentTransaction == null)
-        {
-            _logger.LogWarning("No active transaction to rollback");
-            return;
-        }
-
-        try
-        {
-            _logger.LogDebug("Rolling back transaction with ID: {TransactionId}", _currentTransaction.TransactionId);
-
-            await _currentTransaction.RollbackAsync(cancellationToken);
-
-            _logger.LogDebug("Transaction rolled back successfully");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error rolling back transaction");
-            throw;
-        }
-        finally
-        {
-            await DisposeTransactionAsync();
-        }
-    }
-
-    #endregion
-
-    #region Advanced Operations
-
-    /// <inheritdoc />
-    public async Task<TResult> ExecuteInTransactionAsync<TResult>(
-        Func<IUnitOfWork, CancellationToken, Task<TResult>> operation,
-        CancellationToken cancellationToken = default)
-    {
-        ThrowIfDisposed();
-
-        if (operation == null)
-            throw new ArgumentNullException(nameof(operation));
-
-        var wasTransactionStartedHere = _currentTransaction == null;
-
-        try
-        {
-            if (wasTransactionStartedHere)
-            {
-                await BeginTransactionAsync(cancellationToken);
-                _logger.LogDebug("Started new transaction for operation execution");
-            }
-            else
-            {
-                _logger.LogDebug("Using existing transaction for operation execution");
-            }
-
-            var result = await operation(this, cancellationToken);
-
-            if (wasTransactionStartedHere)
-            {
-                await CommitTransactionAsync(cancellationToken);
-                _logger.LogDebug("Committed transaction after successful operation execution");
-            }
-
-            return result;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error executing operation in transaction");
-
-            if (wasTransactionStartedHere)
-            {
-                await RollbackTransactionAsync(cancellationToken);
-                _logger.LogDebug("Rolled back transaction after operation failure");
-            }
-
-            throw;
-        }
-    }
-
-    /// <inheritdoc />
-    public async Task ExecuteInTransactionAsync(
-        Func<IUnitOfWork, CancellationToken, Task> operation,
-        CancellationToken cancellationToken = default)
-    {
-        await ExecuteInTransactionAsync(async (uow, ct) =>
-        {
-            await operation(uow, ct);
-            return 0; // Return dummy value for void operations
-        }, cancellationToken);
-    }
-
-    /// <inheritdoc />
-    public IRepository<TEntity> GetRepository<TEntity>() where TEntity : class
-    {
-        ThrowIfDisposed();
-
-        var entityType = typeof(TEntity);
-
-        if (_repositories.TryGetValue(entityType, out var existingRepository))
-        {
-            return (IRepository<TEntity>)existingRepository;
-        }
-
-        _logger.LogDebug("Creating new repository for entity type {EntityType}", entityType.Name);
-
-        var repository = new Repository<TEntity>(_context, _loggerFactory.CreateLogger<Repository<TEntity>>());
-        _repositories[entityType] = repository;
-
-        return repository;
-    }
-
-    #endregion
-
-    #region State Management
-
-    /// <inheritdoc />
-    public void DetachAllEntities()
-    {
-        ThrowIfDisposed();
-
-        try
-        {
-            _logger.LogDebug("Detaching all tracked entities");
-
-            var trackedEntities = _context.ChangeTracker.Entries().ToList();
-            var entityCount = trackedEntities.Count;
-
-            foreach (var entity in trackedEntities)
-            {
-                entity.State = EntityState.Detached;
-            }
-
-            _logger.LogDebug("Detached {EntityCount} entities from change tracker", entityCount);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error detaching entities");
-            throw;
-        }
-    }
-
-    /// <inheritdoc />
-    public IDbContextTransaction? CurrentTransaction => _currentTransaction;
-
-    /// <inheritdoc />
-    public bool HasPendingChanges
-    {
-        get
-        {
-            ThrowIfDisposed();
-            return _context.ChangeTracker.HasChanges();
-        }
-    }
-
-    /// <inheritdoc />
-    public int TrackedEntitiesCount
-    {
-        get
-        {
-            ThrowIfDisposed();
-            return _context.ChangeTracker.Entries().Count();
-        }
-    }
-
-    #endregion
-
-    #region Context Access
-
-    /// <inheritdoc />
-    public DbContext Context
-    {
-        get
-        {
-            ThrowIfDisposed();
-            return _context;
-        }
-    }
-
-    #endregion
-
-    #region Health Monitoring
-
-    /// <summary>
-    /// Tests database connectivity for health monitoring purposes.
-    /// Performs a lightweight operation to verify the database connection is working.
-    /// </summary>
-    /// <param name="cancellationToken">Cancellation token for async operation</param>
-    /// <returns>True if database is accessible, false otherwise</returns>
-    public async Task<bool> TestConnectionAsync(CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            ThrowIfDisposed();
-            
-            _logger.LogDebug("Testing database connectivity");
-            
-            // Use CanConnectAsync which is a lightweight method to test connection
-            var canConnect = await _context.Database.CanConnectAsync(cancellationToken);
-            
-            if (canConnect)
-            {
-                // Additional verification with a simple query
-                var result = await _context.Database.ExecuteSqlRawAsync("SELECT 1", cancellationToken);
-                _logger.LogDebug("Database connectivity test successful");
-                return true;
-            }
-            else
-            {
-                _logger.LogWarning("Database connectivity test failed - cannot connect");
-                return false;
+                if (_kbankOddRegistrations == null)
+                {
+                    _kbankOddRegistrations = new Repository<KbankOddRegistration>(_context);
+                }
+                return _kbankOddRegistrations;
             }
         }
-        catch (Exception ex)
+
+        /// <summary>
+        /// Repository for User operations
+        /// </summary>
+        public IRepository<User> Users
         {
-            _logger.LogError(ex, "Database connectivity test failed with exception");
-            return false;
+            get
+            {
+                if (_users == null)
+                {
+                    _users = new Repository<User>(_context);
+                }
+                return _users;
+            }
         }
-    }
 
-    #endregion
+        /// <summary>
+        /// Repository for Branch operations
+        /// </summary>
+        public IRepository<Branch> Branches
+        {
+            get
+            {
+                if (_branches == null)
+                {
+                    _branches = new Repository<Branch>(_context);
+                }
+                return _branches;
+            }
+        }
 
-    #region IDisposable Implementation
+        /// <summary>
+        /// Save all pending changes across all repositories in a single transaction
+        /// </summary>
+        /// <returns>Number of affected entities</returns>
+        public async Task<int> SaveChangesAsync()
+        {
+            return await _context.SaveChangesAsync();
+        }
 
-    /// <summary>
-    /// Disposes the Unit of Work and its resources.
-    /// This will automatically rollback any uncommitted transactions.
-    /// </summary>
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
+        /// <summary>
+        /// Save all pending changes across all repositories in a single transaction
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>Number of affected entities</returns>
+        public async Task<int> SaveChangesAsync(System.Threading.CancellationToken cancellationToken)
+        {
+            return await _context.SaveChangesAsync(cancellationToken);
+        }
 
-    /// <summary>
-    /// Protected implementation of Dispose pattern.
-    /// </summary>
-    /// <param name="disposing">True if disposing managed resources</param>
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!_disposed && disposing)
+        /// <summary>
+        /// Begin a new database transaction for explicit transaction control
+        /// </summary>
+        /// <returns>Database transaction</returns>
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await _context.Database.BeginTransactionAsync();
+        }
+
+        /// <summary>
+        /// Get repository for any entity type T
+        /// Uses caching to ensure single instance per entity type per unit of work
+        /// </summary>
+        /// <typeparam name="T">Entity type</typeparam>
+        /// <returns>Repository instance for the specified entity type</returns>
+        public IRepository<T> GetRepository<T>() where T : class
+        {
+            var entityType = typeof(T);
+
+            if (_repositories.ContainsKey(entityType))
+            {
+                return (IRepository<T>)_repositories[entityType];
+            }
+
+            var repository = new Repository<T>(_context);
+            _repositories.Add(entityType, repository);
+            return repository;
+        }
+
+        /// <summary>
+        /// Test database connection asynchronously
+        /// </summary>
+        /// <returns>True if connection is successful, false otherwise</returns>
+        public async Task<bool> TestConnectionAsync()
         {
             try
             {
-                // Rollback any uncommitted transaction
-                if (_currentTransaction != null)
-                {
-                    _logger.LogWarning("Disposing UnitOfWork with active transaction. Rolling back transaction.");
-                    _currentTransaction.Rollback();
-                    _currentTransaction.Dispose();
-                    _currentTransaction = null;
-                }
+                return await _context.Database.CanConnectAsync();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
 
-                // Clear repository cache
-                _repositories.Clear();
+        /// <summary>
+        /// Execute operation within a transaction scope with unit of work and cancellation token
+        /// </summary>
+        /// <typeparam name="TResult">Return type</typeparam>
+        /// <param name="operation">Operation to execute with unit of work and cancellation token</param>
+        /// <returns>Operation result</returns>
+        public async Task<TResult> ExecuteInTransactionAsync<TResult>(Func<IUnitOfWork, System.Threading.CancellationToken, Task<TResult>> operation)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var cancellationToken = new System.Threading.CancellationToken();
+                var result = await operation(this, cancellationToken);
+                await transaction.CommitAsync();
+                return result;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
 
-                // Dispose context if we own it
+        /// <summary>
+        /// Dispose of the Unit of Work and its context
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Protected dispose method for proper cleanup
+        /// </summary>
+        /// <param name="disposing">Whether disposing from Dispose() call</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed && disposing)
+            {
                 _context?.Dispose();
-
-                _logger.LogDebug("UnitOfWork disposed successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error disposing UnitOfWork");
-            }
-            finally
-            {
                 _disposed = true;
             }
         }
     }
-
-    /// <summary>
-    /// Finalizer to ensure resources are cleaned up if Dispose is not called.
-    /// </summary>
-    ~UnitOfWork()
-    {
-        Dispose(false);
-    }
-
-    #endregion
-
-    #region Private Helper Methods
-
-    /// <summary>
-    /// Throws ObjectDisposedException if the UnitOfWork has been disposed.
-    /// </summary>
-    private void ThrowIfDisposed()
-    {
-        if (_disposed)
-        {
-            throw new ObjectDisposedException(nameof(UnitOfWork));
-        }
-    }
-
-    /// <summary>
-    /// Disposes the current transaction and sets it to null.
-    /// </summary>
-    private async Task DisposeTransactionAsync()
-    {
-        if (_currentTransaction != null)
-        {
-            await _currentTransaction.DisposeAsync();
-            _currentTransaction = null;
-            _logger.LogDebug("Transaction disposed");
-        }
-    }
-
-    #endregion
 }

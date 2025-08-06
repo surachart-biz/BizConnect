@@ -1,4 +1,5 @@
 using BizConnect.Dal;
+using BizConnect.Dal.Models;
 using BizConnect.Services;
 using BizConnect.Services.Interfaces;
 using BizConnect.Services.Security.Models;

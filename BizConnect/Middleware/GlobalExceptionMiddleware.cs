@@ -61,19 +61,41 @@ namespace BizConnect.Middleware
             // Log the exception with security context
             await LogExceptionAsync(exception, traceId, clientIp, userAgent, username, requestPath);
 
-            // Generate appropriate error response
-            var errorResponse = CreateErrorResponse(exception, traceId, requestPath);
+            // CRITICAL FIX: Check if response has started
+            if (context.Response.HasStarted)
+            {
+                _logger.LogWarning("Cannot modify response - headers already sent for {Path}. Exception: {ExceptionType}", 
+                    requestPath, exception.GetType().Name);
+                return; // Cannot modify response
+            }
 
-            // Set response properties
-            context.Response.ContentType = "application/json";
-            context.Response.StatusCode = errorResponse.StatusCode;
+            try
+            {
+                // Clear any partial content
+                context.Response.Clear();
+                
+                // Generate appropriate error response
+                var errorResponse = CreateErrorResponse(exception, traceId, requestPath);
 
-            // Add security headers
-            AddSecurityHeaders(context.Response);
+                // Set response properties
+                context.Response.ContentType = "application/json";
+                context.Response.StatusCode = errorResponse.StatusCode;
 
-            // Serialize and write response
-            var jsonResponse = JsonSerializer.Serialize(errorResponse, _jsonOptions);
-            await context.Response.WriteAsync(jsonResponse);
+                // Add security headers (safe now since we checked HasStarted)
+                AddSecurityHeaders(context.Response);
+
+                // Serialize and write response
+                var jsonResponse = JsonSerializer.Serialize(errorResponse, _jsonOptions);
+                await context.Response.WriteAsync(jsonResponse);
+            }
+            catch (InvalidOperationException ioEx)
+            {
+                _logger.LogWarning(ioEx, "Failed to write error response for {Path} - response may have started", requestPath);
+            }
+            catch (Exception writeEx)
+            {
+                _logger.LogError(writeEx, "Failed to write error response for {Path}", requestPath);
+            }
 
             // Trigger additional security measures if needed
             await HandleSecurityViolationAsync(context, exception, clientIp, username);
@@ -320,18 +342,26 @@ namespace BizConnect.Middleware
 
         private static void AddSecurityHeaders(HttpResponse response)
         {
-            // Prevent MIME type sniffing
-            if (!response.Headers.ContainsKey("X-Content-Type-Options"))
+            try
             {
-                response.Headers.Add("X-Content-Type-Options", "nosniff");
-            }
+                // Prevent MIME type sniffing
+                if (!response.Headers.ContainsKey("X-Content-Type-Options"))
+                {
+                    response.Headers.TryAdd("X-Content-Type-Options", "nosniff");
+                }
 
-            // Prevent caching of error responses
-            if (!response.Headers.ContainsKey("Cache-Control"))
+                // Prevent caching of error responses
+                if (!response.Headers.ContainsKey("Cache-Control"))
+                {
+                    response.Headers.TryAdd("Cache-Control", "no-cache, no-store, must-revalidate");
+                    response.Headers.TryAdd("Pragma", "no-cache");
+                    response.Headers.TryAdd("Expires", "0");
+                }
+            }
+            catch (InvalidOperationException)
             {
-                response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate");
-                response.Headers.Add("Pragma", "no-cache");
-                response.Headers.Add("Expires", "0");
+                // Headers already sent - ignore silently
+                // This is a defensive measure in case response.HasStarted changes between checks
             }
         }
 

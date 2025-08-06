@@ -18,6 +18,7 @@ public class KbankOddService : IKbankOddService
     private readonly IKBankOddClient _kbankClient;
     private readonly IConfiguration _configuration;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IRealtimeNotificationService _realtimeNotificationService;
     private readonly ILogger<KbankOddService> _logger;
 
     public KbankOddService(
@@ -25,12 +26,14 @@ public class KbankOddService : IKbankOddService
         IKBankOddClient kbankClient,
         IConfiguration configuration,
         IDateTimeProvider dateTimeProvider,
+        IRealtimeNotificationService realtimeNotificationService,
         ILogger<KbankOddService> logger)
     {
         _context = context;
         _kbankClient = kbankClient;
         _configuration = configuration;
         _dateTimeProvider = dateTimeProvider;
+        _realtimeNotificationService = realtimeNotificationService;
         _logger = logger;
     }
 
@@ -356,6 +359,14 @@ public class KbankOddService : IKbankOddService
             }
 
             await _context.SaveChangesAsync(cancellationToken);
+
+            // Track registration completion activity
+            await _realtimeNotificationService.TrackRegistrationCompletionAsync(
+                dto.ExternalReference, 
+                registration.Status, 
+                null, // Branch name not available in status update
+                null  // OTAC code not available in status update
+            );
 
             _logger.LogInformation("KBank ODD registration status updated: ExternalReference={ExternalReference}, Status={Status}, EspaId={EspaId}",
                 dto.ExternalReference, registration.Status, dto.EspaId);

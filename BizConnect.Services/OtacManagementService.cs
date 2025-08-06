@@ -534,7 +534,7 @@ namespace BizConnect.Services
                     .Where(r => r.CreatedAt >= periodStart && r.CreatedAt <= now)
                     .ToListAsync();
 
-                var totalGenerated = registrations.Count;
+                var totalGenerated = registrations.Count();
                 var totalValidated = registrations.Count(r => r.OtacState == "Validated" || r.OtacState == "Used");
                 var totalExpired = registrations.Count(r => r.OtacState == "Expired");
                 var totalLocked = registrations.Count(r => r.IsLocked);

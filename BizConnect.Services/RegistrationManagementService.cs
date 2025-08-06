@@ -580,7 +580,7 @@ namespace BizConnect.Services
                 }
 
                 // Calculate metrics
-                var totalRegistrations = registrations.Count;
+                var totalRegistrations = registrations.Count();
                 var successfulRegistrations = registrations.Count(r => r.Status == "Success");
                 var failedRegistrations = registrations.Count(r => r.Status == "Fail");
                 

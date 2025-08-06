@@ -3,29 +3,114 @@
 
 @{
     var requestCulture = Context.Features.Get<IRequestCultureFeature>();
-    var currentCulture = requestCulture?.RequestCulture.Culture.Name ?? "en-US";
+    var currentCulture = requestCulture?.RequestCulture.Culture.Name ?? "th-TH";
     var returnUrl = Context.Request.Path + Context.Request.QueryString;
+    var isThaiCulture = currentCulture.StartsWith("th");
 }
 
-<div class="language-toggle-modern">
-    <form asp-controller="Culture" asp-action="SetCulture" method="post" class="d-inline">
-        @Html.AntiForgeryToken()
-        <input type="hidden" name="culture" value="en-US" />
-        <input type="hidden" name="returnUrl" value="@Html.Encode(returnUrl)" />
-        <button type="submit" class="language-option @(currentCulture.StartsWith("en") ? "active" : "")" 
-                data-culture="en-US" title="Switch to English">
-            🇺🇸
-        </button>
-    </form>
-    <form asp-controller="Culture" asp-action="SetCulture" method="post" class="d-inline">
-        @Html.AntiForgeryToken()
-        <input type="hidden" name="culture" value="th-TH" />
-        <input type="hidden" name="returnUrl" value="@Html.Encode(returnUrl)" />
-        <button type="submit" class="language-option @(currentCulture.StartsWith("th") ? "active" : "")" 
-                data-culture="th-TH" title="เปลี่ยนเป็นภาษาไทย">
-            🇹🇭
-        </button>
-    </form>
+<div class="language-toggle-modern" data-current-lang="@(isThaiCulture ? "th" : "en")" role="tablist" aria-label="Language selection">
+    <button type="button" 
+            class="language-option @(isThaiCulture ? "active" : "")" 
+            data-lang="th"
+            data-culture="th-TH"
+            role="tab"
+            tabindex="@(isThaiCulture ? "0" : "-1")"
+            aria-selected="@(isThaiCulture ? "true" : "false")"
+            title="Switch to Thai / เปลี่ยนเป็นภาษาไทย"
+            aria-label="Switch to Thai language">
+        <i class="fas fa-flag me-1" style="color: #ed1c24;"></i>
+        <span class="d-none d-sm-inline">ไทย</span>
+        <span class="d-inline d-sm-none">TH</span>
+    </button>
+    
+    <button type="button" 
+            class="language-option @(!isThaiCulture ? "active" : "")" 
+            data-lang="en"
+            data-culture="en-US"
+            role="tab"
+            tabindex="@(!isThaiCulture ? "0" : "-1")"
+            aria-selected="@(!isThaiCulture ? "true" : "false")"
+            title="Switch to English / เปลี่ยนเป็นภาษาอังกฤษ"
+            aria-label="Switch to English language">
+        <i class="fas fa-flag me-1" style="color: #012169;"></i>
+        <span class="d-none d-sm-inline">English</span>
+        <span class="d-inline d-sm-none">EN</span>
+    </button>
 </div>
+
+<!-- Hidden form for culture submission -->
+<form id="cultureForm" asp-controller="Culture" asp-action="SetCulture" method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="culture" id="cultureInput" />
+    <input type="hidden" name="returnUrl" value="@Html.Encode(returnUrl)" />
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const languageToggle = document.querySelector('.language-toggle-modern');
+    if (!languageToggle) return;
+
+    const cultureForm = document.getElementById('cultureForm');
+    const cultureInput = document.getElementById('cultureInput');
+    
+    // Handle language toggle clicks
+    languageToggle.addEventListener('click', function(e) {
+        const langOption = e.target.closest('.language-option');
+        if (!langOption || langOption.classList.contains('active')) return;
+        
+        e.preventDefault();
+        
+        const targetCulture = langOption.dataset.culture;
+        const targetLang = langOption.dataset.lang;
+        
+        // Show loading state
+        showLanguageSwitchLoading(langOption);
+        
+        // Update form and submit
+        cultureInput.value = targetCulture;
+        
+        // Save preference to localStorage
+        localStorage.setItem('bizconnect-language', targetLang);
+        
+        // Submit form
+        cultureForm.submit();
+    });
+    
+    function showLanguageSwitchLoading(button) {
+        const originalContent = button.innerHTML;
+        button.dataset.originalContent = originalContent;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        button.disabled = true;
+        
+        // Add loading class to toggle container
+        languageToggle.classList.add('loading');
+    }
+    
+    // Keyboard accessibility
+    languageToggle.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            const activeOption = e.target.closest('.language-option');
+            if (activeOption && !activeOption.classList.contains('active')) {
+                e.preventDefault();
+                activeOption.click();
+            }
+        }
+        
+        // Arrow key navigation
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            const options = Array.from(languageToggle.querySelectorAll('.language-option'));
+            const currentIndex = options.indexOf(document.activeElement);
+            
+            if (currentIndex !== -1) {
+                const nextIndex = e.key === 'ArrowLeft' 
+                    ? (currentIndex - 1 + options.length) % options.length
+                    : (currentIndex + 1) % options.length;
+                options[nextIndex].focus();
+            }
+        }
+    });
+});
+</script>
 
 

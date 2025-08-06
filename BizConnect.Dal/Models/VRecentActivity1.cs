@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BizConnect.Dal.Models;
 
-public partial class v_recent_activity
+public partial class VRecentActivity1
 {
     public int? Id { get; set; }
 

@@ -8,6 +8,7 @@ using BizConnect.Services.Clients;
 using BizConnect.Services.Interfaces;
 using BizConnect.Services.Jobs;
 using BizConnect.Services.Security;
+using BizConnect.Services.DTOs;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -438,6 +439,9 @@ else
 // 1. Global exception handling (must be first)
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
+// 1.5. Performance monitoring middleware (must be early to capture full request time)
+app.UseMiddleware<PerformanceMonitoringMiddleware>();
+
 // 2. Performance middleware (compression and caching - early in pipeline)
 var appPerformanceConfig = app.Configuration.GetSection("Performance");
 if (appPerformanceConfig.Exists())
@@ -459,52 +463,61 @@ app.UseHttpsRedirection();
 // 4. Enterprise-grade security headers middleware
 app.Use(async (context, next) =>
 {
-    // Enhanced Content Security Policy for financial services
-    var cspPolicy = new System.Text.StringBuilder()
-        .Append("default-src 'self'; ")
-        .Append("script-src 'self' 'unsafe-inline' 'unsafe-eval'; ") // Note: unsafe-inline/eval needed for some Bootstrap/jQuery features
-        .Append("style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; ")
-        .Append("font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; ")
-        .Append("img-src 'self' data: https: blob:; ")
-        .Append("connect-src 'self'; ")
-        .Append("frame-src 'none'; ")
-        .Append("frame-ancestors 'none'; ")
-        .Append("object-src 'none'; ")
-        .Append("base-uri 'self'; ")
-        .Append("form-action 'self'; ")
-        .Append("upgrade-insecure-requests; ")
-        .ToString();
-    
-    context.Response.Headers.Add("Content-Security-Policy", cspPolicy);
-    
-    // Financial services security headers
-    context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
-    context.Response.Headers.Add("X-Frame-Options", "DENY");
-    context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
-    context.Response.Headers.Add("Referrer-Policy", "strict-origin-when-cross-origin");
-    context.Response.Headers.Add("Permissions-Policy", 
-        "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()");
-    
-    // Additional enterprise security headers
-    context.Response.Headers.Add("X-Permitted-Cross-Domain-Policies", "none");
-    context.Response.Headers.Add("Cross-Origin-Embedder-Policy", "require-corp");
-    context.Response.Headers.Add("Cross-Origin-Opener-Policy", "same-origin");
-    context.Response.Headers.Add("Cross-Origin-Resource-Policy", "same-origin");
-    
-    // Cache control for sensitive pages
-    if (context.Request.Path.StartsWithSegments("/Admin") || 
-        context.Request.Path.StartsWithSegments("/Account"))
+    // CRITICAL FIX: Add headers BEFORE calling next() to ensure response hasn't started
+    try
     {
-        context.Response.Headers.Add("Cache-Control", "no-store, no-cache, must-revalidate, private");
-        context.Response.Headers.Add("Pragma", "no-cache");
-        context.Response.Headers.Add("Expires", "0");
+        // Enhanced Content Security Policy for financial services
+        var cspPolicy = new System.Text.StringBuilder()
+            .Append("default-src 'self'; ")
+            .Append("script-src 'self' 'unsafe-inline' 'unsafe-eval'; ") // Note: unsafe-inline/eval needed for some Bootstrap/jQuery features
+            .Append("style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; ")
+            .Append("font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; ")
+            .Append("img-src 'self' data: https: blob:; ")
+            .Append("connect-src 'self'; ")
+            .Append("frame-src 'none'; ")
+            .Append("frame-ancestors 'none'; ")
+            .Append("object-src 'none'; ")
+            .Append("base-uri 'self'; ")
+            .Append("form-action 'self'; ")
+            .Append("upgrade-insecure-requests; ")
+            .ToString();
+        
+        context.Response.Headers.TryAdd("Content-Security-Policy", cspPolicy);
+        
+        // Financial services security headers
+        context.Response.Headers.TryAdd("X-Content-Type-Options", "nosniff");
+        context.Response.Headers.TryAdd("X-Frame-Options", "DENY");
+        context.Response.Headers.TryAdd("X-XSS-Protection", "1; mode=block");
+        context.Response.Headers.TryAdd("Referrer-Policy", "strict-origin-when-cross-origin");
+        context.Response.Headers.TryAdd("Permissions-Policy", 
+            "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()");
+        
+        // Additional enterprise security headers
+        context.Response.Headers.TryAdd("X-Permitted-Cross-Domain-Policies", "none");
+        context.Response.Headers.TryAdd("Cross-Origin-Embedder-Policy", "require-corp");
+        context.Response.Headers.TryAdd("Cross-Origin-Opener-Policy", "same-origin");
+        context.Response.Headers.TryAdd("Cross-Origin-Resource-Policy", "same-origin");
+        
+        // Cache control for sensitive pages
+        if (context.Request.Path.StartsWithSegments("/Admin") || 
+            context.Request.Path.StartsWithSegments("/Account"))
+        {
+            context.Response.Headers.TryAdd("Cache-Control", "no-store, no-cache, must-revalidate, private");
+            context.Response.Headers.TryAdd("Pragma", "no-cache");
+            context.Response.Headers.TryAdd("Expires", "0");
+        }
+        
+        // Remove identifying server headers for security
+        context.Response.Headers.Remove("Server");
+        context.Response.Headers.Remove("X-Powered-By");
+        context.Response.Headers.Remove("X-AspNet-Version");
+        context.Response.Headers.Remove("X-AspNetMvc-Version");
     }
-    
-    // Remove identifying server headers for security
-    context.Response.Headers.Remove("Server");
-    context.Response.Headers.Remove("X-Powered-By");
-    context.Response.Headers.Remove("X-AspNet-Version");
-    context.Response.Headers.Remove("X-AspNetMvc-Version");
+    catch (InvalidOperationException)
+    {
+        // Headers already sent - this shouldn't happen since we're adding headers before next()
+        // But this is a defensive measure
+    }
     
     await next();
 });
@@ -584,6 +597,11 @@ RecurringJob.AddOrUpdate<DailyPaymentJob>(
     "daily-payment-processing",
     job => job.ExecuteAsync(),
     "0 2 * * *"); // Daily at 2:00 AM
+
+RecurringJob.AddOrUpdate<DailyAnalyticsJob>(
+    "daily-analytics-processing",
+    job => job.ExecuteAsync(),
+    "0 3 * * *"); // Daily at 3:00 AM (after payment processing)
 
 // Configure MVC routing
 app.MapControllerRoute(

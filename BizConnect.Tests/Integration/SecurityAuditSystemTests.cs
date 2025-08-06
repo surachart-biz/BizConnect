@@ -1,4 +1,5 @@
 using BizConnect.Dal;
+using BizConnect.Dal.Models;
 using BizConnect.Services;
 using BizConnect.Services.Common;
 using BizConnect.Services.Interfaces;

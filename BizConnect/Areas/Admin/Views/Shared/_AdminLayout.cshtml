@@ -610,6 +610,12 @@
     <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
+    <!-- Modern UI System -->
+    <script src="~/js/modern-ui.js" asp-append-version="true"></script>
+    <script src="~/js/admin.js" asp-append-version="true"></script>
+    <script src="~/js/real-time-updates.js" asp-append-version="true"></script>
+    
+    <!-- Legacy Scripts -->
     <script src="~/js/language-switcher.js" asp-append-version="true"></script>
     <script src="~/js/ui-interactions.js" asp-append-version="true"></script>
     <script src="~/js/performance-monitor.js" asp-append-version="true"></script>
@@ -668,6 +674,14 @@
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
+        
+        // Initialize Modern UI System
+        console.log('🚀 BizConnect Admin Modern UI System Loaded Successfully');
+        
+        // Initialize real-time updates for admin
+        if (window.RealTimeUpdates) {
+            window.RealTimeUpdates.forceUpdate('all');
+        }
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)

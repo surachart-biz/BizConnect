@@ -1,0 +1,450 @@
+@{
+    var currentLanguage = Context.Features.Get<Microsoft.AspNetCore.Localization.IRequestCultureFeature>()?.RequestCulture?.Culture?.Name ?? "th-TH";
+    var isThaiCulture = currentLanguage.StartsWith("th");
+}
+
+<div class="modern-otac-form-container">
+    <div class="glass-card fade-in-up">
+        <div class="card-modern-header">
+            <div class="text-center">
+                <div class="otac-form-icon mb-3">
+                    <i class="fas fa-key"></i>
+                </div>
+                <h3 class="card-modern-title">
+                    <span data-th="ยืนยันรหัส OTAC" data-en="OTAC Code Verification">
+                        @(isThaiCulture ? "ยืนยันรหัส OTAC" : "OTAC Code Verification")
+                    </span>
+                </h3>
+                <p class="card-modern-subtitle">
+                    <span data-th="กรุณาป้อนรหัส OTAC 8 หลักที่ได้รับจากเจ้าหน้าที่" data-en="Please enter the 8-digit OTAC code received from our staff">
+                        @(isThaiCulture ? "กรุณาป้อนรหัส OTAC 8 หลักที่ได้รับจากเจ้าหน้าที่" : "Please enter the 8-digit OTAC code received from our staff")
+                    </span>
+                </p>
+            </div>
+        </div>
+        
+        <div class="card-modern-body">
+            <form id="otacVerificationForm" asp-action="Verify" asp-controller="KBank" method="post" data-form-type="otac-verification">
+                @Html.AntiForgeryToken()
+                
+                <div class="form-group mb-4">
+                    <label for="otacCode" class="form-label fw-semibold">
+                        <i class="fas fa-key text-kbank me-2"></i>
+                        <span data-th="รหัส OTAC" data-en="OTAC Code">
+                            @(isThaiCulture ? "รหัส OTAC" : "OTAC Code")
+                        </span>
+                        <span class="text-danger">*</span>
+                    </label>
+                    
+                    <div class="otac-input-container position-relative">
+                        <input type="text" 
+                               id="otacCode" 
+                               name="OtacCode" 
+                               class="form-control form-control-modern otac-input" 
+                               placeholder="@(isThaiCulture ? "ป้อนรหัส OTAC 8 หลัก" : "Enter 8-digit OTAC code")"
+                               maxlength="8" 
+                               pattern="[A-Z0-9]{8}"
+                               title="@(isThaiCulture ? "รหัส OTAC ต้องเป็นตัวอักษรภาษาอังกฤษใหญ่และตัวเลข 8 หลัก" : "OTAC code must be 8 characters (uppercase letters and numbers)")"
+                               required 
+                               autocomplete="off"
+                               spellcheck="false"
+                               data-otac-validation="true"
+                               data-error-required="@(isThaiCulture ? "กรุณาป้อนรหัส OTAC" : "Please enter OTAC code")"
+                               data-error-otac="@(isThaiCulture ? "รหัส OTAC ต้องเป็นตัวอักษรใหญ่และตัวเลข 8 หลัก" : "OTAC code must be 8 characters (letters and numbers)")" />
+                        
+                        <div class="otac-input-helper">
+                            <div class="character-counter">
+                                <span class="current-count">0</span>/<span class="max-count">8</span>
+                            </div>
+                            <div class="format-hint">
+                                <i class="fas fa-info-circle text-muted"></i>
+                                <span data-th="ตัวอย่าง: A1B2C3D4" data-en="Example: A1B2C3D4">
+                                    @(isThaiCulture ? "ตัวอย่าง: A1B2C3D4" : "Example: A1B2C3D4")
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Validation feedback will be inserted here by JavaScript -->
+                </div>
+
+                <div class="form-group mb-4">
+                    <div class="alert-modern alert-info">
+                        <div class="alert-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-title">
+                                <span data-th="ข้อมูลสำคัญ" data-en="Important Information">
+                                    @(isThaiCulture ? "ข้อมูลสำคัญ" : "Important Information")
+                                </span>
+                            </div>
+                            <div class="alert-message">
+                                <ul class="mb-0 ps-3">
+                                    <li data-th="รหัส OTAC มีอายุการใช้งาน 24 ชั่วโมง" data-en="OTAC code expires within 24 hours">
+                                        @(isThaiCulture ? "รหัส OTAC มีอายุการใช้งาน 24 ชั่วโมง" : "OTAC code expires within 24 hours")
+                                    </li>
+                                    <li data-th="สามารถใช้งานได้เพียงครั้งเดียว" data-en="Can be used only once">
+                                        @(isThaiCulture ? "สามารถใช้งานได้เพียงครั้งเดียว" : "Can be used only once")
+                                    </li>
+                                    <li data-th="ใช้ตัวอักษรภาษาอังกฤษใหญ่และตัวเลขเท่านั้น" data-en="Use uppercase letters and numbers only">
+                                        @(isThaiCulture ? "ใช้ตัวอักษรภาษาอังกฤษใหญ่และตัวเลขเท่านั้น" : "Use uppercase letters and numbers only")
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions d-grid gap-3">
+                    <button type="submit" class="btn-modern btn-kbank" id="verifyOtacBtn">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <span data-th="ตรวจสอบรหัส OTAC" data-en="Verify OTAC Code">
+                            @(isThaiCulture ? "ตรวจสอบรหัส OTAC" : "Verify OTAC Code")
+                        </span>
+                    </button>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn-modern btn-outline-modern flex-fill" id="clearOtacBtn">
+                            <i class="fas fa-eraser me-2"></i>
+                            <span data-th="ล้างข้อมูล" data-en="Clear">
+                                @(isThaiCulture ? "ล้างข้อมูl" : "Clear")
+                            </span>
+                        </button>
+                        
+                        <button type="button" class="btn-modern btn-outline-modern flex-fill" id="helpOtacBtn">
+                            <i class="fas fa-question-circle me-2"></i>
+                            <span data-th="ช่วยเหลือ" data-en="Help">
+                                @(isThaiCulture ? "ช่วยเหลือ" : "Help")
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- OTAC Help Modal -->
+<div class="modal modal-modern fade" id="otacHelpModal" tabindex="-1" aria-labelledby="otacHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="otacHelpModalLabel">
+                    <i class="fas fa-question-circle text-kbank me-2"></i>
+                    <span data-th="ช่วยเหลือเรื่องรหัส OTAC" data-en="OTAC Code Help">
+                        @(isThaiCulture ? "ช่วยเหลือเรื่องรหัส OTAC" : "OTAC Code Help")
+                    </span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="help-section mb-4">
+                    <h6 class="fw-bold text-kbank">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span data-th="รหัส OTAC คืออะไร?" data-en="What is an OTAC Code?">
+                            @(isThaiCulture ? "รหัส OTAC คืออะไร?" : "What is an OTAC Code?")
+                        </span>
+                    </h6>
+                    <p data-th="OTAC (One-Time Authorization Code) เป็นรหัสยืนยันตัวตนครั้งเดียว ที่ใช้สำหรับความปลอดภัยในการลงทะเบียนบริการ ODD ของ KBank" 
+                       data-en="OTAC (One-Time Authorization Code) is a single-use verification code for secure KBank ODD service registration">
+                        @(isThaiCulture ? "OTAC (One-Time Authorization Code) เป็นรหัสยืนยันตัวตนครั้งเดียว ที่ใช้สำหรับความปลอดภัยในการลงทะเบียนบริการ ODD ของ KBank" : "OTAC (One-Time Authorization Code) is a single-use verification code for secure KBank ODD service registration")
+                    </p>
+                </div>
+
+                <div class="help-section mb-4">
+                    <h6 class="fw-bold text-kbank">
+                        <i class="fas fa-receipt me-2"></i>
+                        <span data-th="จะได้รับรหัส OTAC ได้อย่างไร?" data-en="How to Get OTAC Code?">
+                            @(isThaiCulture ? "จะได้รับรหัส OTAC ได้อย่างไร?" : "How to Get OTAC Code?")
+                        </span>
+                    </h6>
+                    <ol data-th-class="ps-3" data-en-class="ps-3">
+                        <li data-th="ติดต่อเจ้าหน้าที่ Changthai Loan" data-en="Contact Changthai Loan staff">
+                            @(isThaiCulture ? "ติดต่อเจ้าหน้าที่ Changthai Loan" : "Contact Changthai Loan staff")
+                        </li>
+                        <li data-th="แจ้งความต้องการลงทะเบียน ODD" data-en="Request ODD registration">
+                            @(isThaiCulture ? "แจ้งความต้องการลงทะเบียน ODD" : "Request ODD registration")
+                        </li>
+                        <li data-th="รับรหัส OTAC 8 หลักจากเจ้าหน้าที่" data-en="Receive 8-digit OTAC code from staff">
+                            @(isThaiCulture ? "รับรหัส OTAC 8 หลักจากเจ้าหน้าที่" : "Receive 8-digit OTAC code from staff")
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="help-section">
+                    <h6 class="fw-bold text-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <span data-th="ข้อควรระวัง" data-en="Important Notes">
+                            @(isThaiCulture ? "ข้อควรระวัง" : "Important Notes")
+                        </span>
+                    </h6>
+                    <ul data-th-class="ps-3" data-en-class="ps-3">
+                        <li data-th="อย่าเปิดเผยรหัส OTAC ให้ผู้อื่น" data-en="Never share your OTAC code with others">
+                            @(isThaiCulture ? "อย่าเปิดเผยรหัส OTAC ให้ผู้อื่น" : "Never share your OTAC code with others")
+                        </li>
+                        <li data-th="ใช้รหัสทันทีหลังจากได้รับ" data-en="Use the code immediately after receiving">
+                            @(isThaiCulture ? "ใช้รหัสทันทีหลังจากได้รับ" : "Use the code immediately after receiving")
+                        </li>
+                        <li data-th="หากรหัสหมดอายุ ให้ขอรหัสใหม่จากเจ้าหน้าที่" data-en="Request a new code if expired">
+                            @(isThaiCulture ? "หากรหัสหมดอายุ ให้ขอรหัสใหม่จากเจ้าหน้าที่" : "Request a new code if expired")
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-modern btn-outline-modern" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>
+                    <span data-th="ปิด" data-en="Close">
+                        @(isThaiCulture ? "ปิด" : "Close")
+                    </span>
+                </button>
+                <a href="tel:+66-2-XXX-XXXX" class="btn-modern btn-kbank">
+                    <i class="fas fa-phone me-2"></i>
+                    <span data-th="ติดต่อเจ้าหน้าที่" data-en="Contact Staff">
+                        @(isThaiCulture ? "ติดต่อเจ้าหน้าที่" : "Contact Staff")
+                    </span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* OTAC Form Specific Styles */
+.modern-otac-form-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.otac-form-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--gradient-kbank);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    color: white;
+    font-size: 2rem;
+    box-shadow: var(--shadow-kbank);
+}
+
+.otac-input-container {
+    margin-bottom: 1rem;
+}
+
+.otac-input {
+    font-family: var(--font-mono);
+    font-size: 1.25rem;
+    font-weight: var(--font-weight-bold);
+    text-align: center;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 1rem;
+    border-width: 2px;
+}
+
+.otac-input:focus {
+    border-color: var(--kbank-green);
+    box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.15);
+}
+
+.otac-input-helper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--gray-600);
+}
+
+.character-counter {
+    font-weight: var(--font-weight-semibold);
+}
+
+.character-counter .current-count {
+    color: var(--kbank-green);
+}
+
+.format-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.form-actions .btn-modern {
+    font-weight: var(--font-weight-semibold);
+    min-height: 48px;
+}
+
+/* Help Modal Styles */
+.help-section {
+    padding: 1rem;
+    background: var(--glass-light);
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--kbank-green);
+}
+
+.help-section h6 {
+    margin-bottom: 0.75rem;
+}
+
+.help-section ol,
+.help-section ul {
+    margin-bottom: 0;
+}
+
+.help-section li {
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive adjustments */
+@@media (max-width: 576px) {
+    .modern-otac-form-container {
+        margin: 0 1rem;
+    }
+    
+    .otac-form-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+    
+    .otac-input {
+        font-size: 1.1rem;
+        padding: 0.875rem;
+    }
+    
+    .otac-input-helper {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+    
+    .format-hint {
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('otacVerificationForm');
+    const otacInput = document.getElementById('otacCode');
+    const characterCounter = document.querySelector('.current-count');
+    const clearBtn = document.getElementById('clearOtacBtn');
+    const helpBtn = document.getElementById('helpOtacBtn');
+    const helpModal = new bootstrap.Modal(document.getElementById('otacHelpModal'));
+
+    if (!form || !otacInput) return;
+
+    // OTAC input formatting and validation
+    otacInput.addEventListener('input', function(e) {
+        // Auto-uppercase and filter invalid characters
+        let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        e.target.value = value;
+        
+        // Update character counter
+        if (characterCounter) {
+            characterCounter.textContent = value.length;
+        }
+        
+        // Real-time validation
+        if (window.ModernUI) {
+            ModernUI.validateOtacCode(value);
+        }
+    });
+
+    // Auto-focus and select all on focus
+    otacInput.addEventListener('focus', function() {
+        this.select();
+    });
+
+    // Paste handling
+    otacInput.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const paste = (e.clipboardData || window.clipboardData).getData('text');
+        const cleaned = paste.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 8);
+        this.value = cleaned;
+        
+        // Update counter and validate
+        if (characterCounter) {
+            characterCounter.textContent = cleaned.length;
+        }
+        
+        // Trigger validation
+        this.dispatchEvent(new Event('input'));
+    });
+
+    // Clear button
+    clearBtn?.addEventListener('click', function() {
+        otacInput.value = '';
+        otacInput.focus();
+        if (characterCounter) {
+            characterCounter.textContent = '0';
+        }
+        
+        // Clear validation states
+        otacInput.classList.remove('is-valid', 'is-invalid');
+        const feedback = otacInput.parentNode.querySelector('.invalid-feedback');
+        if (feedback) feedback.remove();
+    });
+
+    // Help button
+    helpBtn?.addEventListener('click', function() {
+        helpModal.show();
+    });
+
+    // Form submission handling
+    form.addEventListener('submit', function(e) {
+        const otacValue = otacInput.value.trim();
+        
+        if (otacValue.length !== 8) {
+            e.preventDefault();
+            
+            if (window.ModernUI) {
+                ModernUI.setFieldError(otacInput, 'OTAC code must be exactly 8 characters');
+            }
+            
+            otacInput.focus();
+            return false;
+        }
+
+        // Show loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn && window.ModernUI) {
+            ModernUI.setButtonLoading(submitBtn, true);
+        }
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+L or Cmd+L: Clear input
+        if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+            e.preventDefault();
+            clearBtn?.click();
+        }
+        
+        // F1: Show help
+        if (e.key === 'F1') {
+            e.preventDefault();
+            helpBtn?.click();
+        }
+        
+        // Enter: Submit if input is valid
+        if (e.key === 'Enter' && e.target === otacInput) {
+            if (otacInput.value.length === 8) {
+                form.submit();
+            }
+        }
+    });
+
+    // Auto-complete prevention (security)
+    otacInput.setAttribute('autocomplete', 'off');
+    otacInput.setAttribute('autocorrect', 'off');
+    otacInput.setAttribute('autocapitalize', 'off');
+    otacInput.setAttribute('spellcheck', 'false');
+});
+</script>
