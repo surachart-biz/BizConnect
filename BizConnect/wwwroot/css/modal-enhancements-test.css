@@ -1,0 +1,42 @@
+/* 
+ * BizConnect Authentication Modal - Enhancement Test File
+ * This file contains test styles to verify the modal enhancements work correctly.
+ * Remove this file in production.
+ */
+
+/* Test animation keyframes verification */
+@keyframes testModalShow {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Test class to verify modal enhancement functionality */
+.test-modal-enhancements {
+    animation: testModalShow 0.3s ease-out;
+}
+
+/* Verification styles for development testing */
+.modal-enhancement-check::before {
+    content: "✅ Enhanced Modal Styles Active";
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: #4CAF50;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 10000;
+    display: none;
+}
+
+/* Show verification in development mode */
+body[data-env="development"] .modal-enhancement-check::before {
+    display: block;
+}

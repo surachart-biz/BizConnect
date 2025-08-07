@@ -225,17 +225,31 @@
 
         // Form management methods
         clearLoginForm() {
+            // Try new modal reset function first
+            if (typeof window.resetModalState === 'function') {
+                window.resetModalState();
+                return;
+            }
+            
+            // Fallback to original implementation
             const usernameField = document.getElementById('username');
             const passwordField = document.getElementById('password');
             
             if (usernameField) {
                 usernameField.value = '';
-                usernameField.classList.remove('is-valid', 'is-invalid');
+                usernameField.classList.remove('is-valid', 'is-invalid', 'error');
             }
             
             if (passwordField) {
                 passwordField.value = '';
-                passwordField.classList.remove('is-valid', 'is-invalid');
+                passwordField.classList.remove('is-valid', 'is-invalid', 'error');
+                passwordField.type = 'password'; // Reset password visibility
+            }
+            
+            // Reset password toggle icon for new modal
+            const toggleIcon = document.getElementById('passwordToggleIcon');
+            if (toggleIcon) {
+                toggleIcon.className = 'fas fa-eye';
             }
         }
 
@@ -247,6 +261,13 @@
         }
 
         showLoginError(message) {
+            // Try new modal structure first
+            if (typeof window.showFormError === 'function') {
+                window.showFormError(message);
+                return;
+            }
+            
+            // Fallback to original implementation
             const errorAlert = document.getElementById('loginErrorAlert');
             const errorMessage = document.getElementById('loginErrorMessage');
             
@@ -254,9 +275,19 @@
                 errorMessage.textContent = message;
                 errorAlert.classList.remove('d-none');
                 
+                // Hide info alert when showing error (new modal structure)
+                const infoAlert = document.getElementById('authInfoAlert');
+                if (infoAlert) {
+                    infoAlert.style.display = 'none';
+                }
+                
                 // Hide after 5 seconds
                 setTimeout(() => {
                     errorAlert.classList.add('d-none');
+                    // Restore info alert
+                    if (infoAlert) {
+                        infoAlert.style.display = 'flex';
+                    }
                 }, 5000);
             }
         }
@@ -558,20 +589,34 @@
 
         // Show/hide loading state on login button
         showLoading(show) {
+            // Try new modal loading function first
+            if (typeof window.showModalLoading === 'function') {
+                window.showModalLoading(show);
+                return;
+            }
+            
+            // Fallback to original implementation
             const btn = document.getElementById('loginSubmitBtn');
             if (!btn) return;
             
-            const text = btn.querySelector('.login-text');
-            const spinner = btn.querySelector('.login-spinner');
+            // Try new modal structure first
+            let text = btn.querySelector('.btn-content');
+            let spinner = btn.querySelector('.btn-loading');
+            
+            // Fallback to old structure
+            if (!text) text = btn.querySelector('.login-text');
+            if (!spinner) spinner = btn.querySelector('.login-spinner');
             
             if (show) {
                 if (text) text.classList.add('d-none');
                 if (spinner) spinner.classList.remove('d-none');
                 btn.disabled = true;
+                btn.style.cursor = 'not-allowed';
             } else {
                 if (text) text.classList.remove('d-none');
                 if (spinner) spinner.classList.add('d-none');
                 btn.disabled = false;
+                btn.style.cursor = 'pointer';
             }
         }
 

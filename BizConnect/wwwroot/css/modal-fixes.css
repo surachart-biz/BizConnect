@@ -1,0 +1,254 @@
+/* 
+ * BizConnect Login Modal - Correctness Fixes
+ * This file addresses specific rendering and UX issues identified in the login modal
+ */
+
+/* Fix 1: Enhanced Thai Font Rendering */
+.floating-label,
+.validation-message,
+.auth-alert span,
+.btn-text,
+.loading-text {
+    font-family: 'Sarabun', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "liga" 1, "calt" 1;
+}
+
+/* Fix 2: Ensure proper Thai character rendering */
+input[type="text"], 
+input[type="password"] {
+    font-family: 'Sarabun', 'Inter', monospace;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+/* Fix 3: Button Loading State - Prevent Text Overlap */
+.auth-submit-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-submit-btn .btn-content,
+.auth-submit-btn .btn-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.auth-submit-btn .btn-content {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.auth-submit-btn .btn-loading {
+    opacity: 0;
+    transform: translateX(10px);
+    pointer-events: none;
+}
+
+/* Loading state active */
+.auth-submit-btn .btn-content.d-none {
+    opacity: 0 !important;
+    transform: translateX(-10px) !important;
+    pointer-events: none;
+}
+
+.auth-submit-btn .btn-loading:not(.d-none) {
+    opacity: 1 !important;
+    transform: translateX(0) !important;
+    pointer-events: auto;
+}
+
+/* Fix 4: Demo Credentials Section Visibility */
+.demo-credentials {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #E5E5E5;
+    animation: fadeInUp 0.5s ease-out 0.3s both;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ensure demo accounts are visible and clickable */
+.demo-account {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+    display: flex !important;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.demo-account:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Fix 5: Loading Spinner Animation */
+.loading-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Fix 6: Error State Animation Enhancement */
+@keyframes inputError {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.floating-label-input.error {
+    animation: inputError 0.3s ease-out;
+}
+
+/* Fix 7: Alert System Improvements */
+.auth-alert {
+    animation: slideInFromTop 0.4s ease-out;
+}
+
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Fix 8: Modal Show/Hide Animations */
+.modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    transform: translate(0, -25px) scale(0.95);
+    opacity: 0;
+}
+
+.modal.show .modal-dialog {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+}
+
+/* Fix 9: Prevent Text Selection Issues */
+.floating-label,
+.validation-message,
+.demo-account,
+.auth-alert {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* But allow text selection in input fields */
+.floating-label-input {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+/* Fix 10: Accessibility Improvements */
+.auth-submit-btn:focus,
+.demo-account:focus {
+    outline: 2px solid var(--kbank-green);
+    outline-offset: 2px;
+}
+
+/* Fix 11: High DPI Display Support */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .floating-label,
+    .validation-message,
+    .btn-text,
+    .loading-text {
+        -webkit-font-smoothing: subpixel-antialiased;
+    }
+}
+
+/* Fix 12: Mobile Responsiveness Enhancements */
+@media (max-width: 768px) {
+    .demo-credentials {
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+    }
+    
+    .demo-account {
+        padding: 12px;
+        border-radius: 12px;
+    }
+    
+    .auth-submit-btn {
+        height: 52px;
+        font-size: 1rem;
+    }
+}
+
+/* Fix 13: Focus Management */
+.modal.show .floating-label-input:first-of-type {
+    animation: focusGlow 0.5s ease-out 0.3s;
+}
+
+@keyframes focusGlow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(76, 175, 80, 0.1);
+    }
+    100% {
+        box-shadow: 0 0 0 4px rgba(76, 175, 80, 0);
+    }
+}
+
+/* Fix 14: Backdrop Blur Enhancement */
+.modal-backdrop.show {
+    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.6);
+}
+
+/* Fix 15: Debug Helper (Development Only) */
+.debug-modal-state {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    z-index: 10000;
+    display: none;
+}
+
+body[data-debug="true"] .debug-modal-state {
+    display: block;
+}

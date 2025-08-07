@@ -297,107 +297,159 @@
     </div>
 </section>
 
-<!-- Enhanced Login Modal -->
+<!-- Professional BizConnect Authentication Modal -->
 <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold" id="loginModalLabel">
-                    <i class="fas fa-shield-alt text-success me-2"></i>
-                    <span data-text-th="เข้าสู่ระบบเจ้าหน้าที่" data-text-en="Staff Login">เข้าสู่ระบบเจ้าหน้าที่</span>
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bizconnect-auth-modal">
+            <!-- Gradient Header with BizConnect Branding -->
+            <div class="auth-modal-header">
+                <div class="auth-header-content">
+                    <div class="auth-logo">
+                        <div class="auth-logo-icon">BC</div>
+                        <div class="auth-logo-text">
+                            <span class="brand-name">BizConnect</span>
+                            <span class="brand-subtitle" data-text-th="ระบบเจ้าหน้าที่" data-text-en="Staff System">ระบบเจ้าหน้าที่</span>
+                        </div>
+                    </div>
+                    <button type="button" class="auth-close-btn" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="auth-header-decoration"></div>
             </div>
-            <div class="modal-body pt-0">
-                <div class="alert alert-info border-0 bg-light mb-3">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <small data-text-th="สำหรับเจ้าหน้าที่และผู้ดูแลระบบเท่านั้น" data-text-en="For staff and system administrators only">
-                        สำหรับเจ้าหน้าที่และผู้ดูแลระบบเท่านั้น
-                    </small>
+            
+            <div class="auth-modal-body">
+                <!-- Security Badge -->
+                <div class="auth-security-badge">
+                    <i class="fas fa-shield-check"></i>
+                    <span data-text-th="เข้าสู่ระบบที่ปลอดภัย" data-text-en="Secure Staff Access">เข้าสู่ระบบที่ปลอดภัย</span>
                 </div>
                 
-                <!-- Login Error Alert (hidden by default) -->
-                <div class="alert alert-danger d-none" id="loginErrorAlert">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    <span id="loginErrorMessage"></span>
+                <!-- Alert Container -->
+                <div class="auth-alert-container">
+                    <!-- Info Alert -->
+                    <div class="auth-alert auth-alert-info" id="authInfoAlert">
+                        <i class="fas fa-info-circle"></i>
+                        <span data-text-th="สำหรับเจ้าหน้าที่และผู้ดูแลระบบเท่านั้น" data-text-en="For authorized staff and administrators only">
+                            สำหรับเจ้าหน้าที่และผู้ดูแลระบบเท่านั้น
+                        </span>
+                    </div>
+                    
+                    <!-- Error Alert (hidden by default) -->
+                    <div class="auth-alert auth-alert-error d-none" id="loginErrorAlert">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span id="loginErrorMessage"></span>
+                    </div>
                 </div>
                 
-                <form id="loginForm" novalidate>
-                    <div class="mb-3">
-                        <label for="username" class="form-label fw-semibold" data-text-th="ชื่อผู้ใช้งาน" data-text-en="Username">
-                            ชื่อผู้ใช้งาน
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light">
-                                <i class="fas fa-user text-muted"></i>
-                            </span>
-                            <input type="text" class="form-control" id="username" 
-                                   placeholder="admin, employee, or test" 
-                                   autocomplete="username" required>
-                            <div class="invalid-feedback">
-                                <span data-text-th="กรุณากรอกชื่อผู้ใช้งาน" data-text-en="Please enter username">
+                <!-- Login Form -->
+                <form id="loginForm" class="auth-form" novalidate>
+                    <!-- Username Field -->
+                    <div class="auth-form-group">
+                        <div class="floating-label-container">
+                            <input type="text" class="floating-label-input" id="username" 
+                                   placeholder=" " autocomplete="username" required>
+                            <label for="username" class="floating-label" 
+                                   data-text-th="ชื่อผู้ใช้งาน" data-text-en="Username">ชื่อผู้ใช้งาน</label>
+                            <div class="input-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="field-validation-container">
+                                <div class="validation-message" data-text-th="กรุณากรอกชื่อผู้ใช้งาน" data-text-en="Please enter username">
                                     กรุณากรอกชื่อผู้ใช้งาน
-                                </span>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="password" class="form-label fw-semibold" data-text-th="รหัสผ่าน" data-text-en="Password">
-                            รหัสผ่าน
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light">
-                                <i class="fas fa-lock text-muted"></i>
-                            </span>
-                            <input type="password" class="form-control" id="password" 
-                                   placeholder="••••••••" 
-                                   autocomplete="current-password" required>
-                            <button class="btn btn-outline-secondary" type="button" id="togglePassword" aria-label="Toggle password visibility">
+                    <!-- Password Field -->
+                    <div class="auth-form-group">
+                        <div class="floating-label-container">
+                            <input type="password" class="floating-label-input" id="password" 
+                                   placeholder=" " autocomplete="current-password" required>
+                            <label for="password" class="floating-label" 
+                                   data-text-th="รหัสผ่าน" data-text-en="Password">รหัสผ่าน</label>
+                            <div class="input-icon">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <button type="button" class="password-toggle" id="togglePassword" 
+                                    aria-label="Toggle password visibility">
                                 <i class="fas fa-eye" id="passwordToggleIcon"></i>
                             </button>
-                            <div class="invalid-feedback">
-                                <span data-text-th="กรุณากรอกรหัสผ่าน" data-text-en="Please enter password">
+                            <div class="field-validation-container">
+                                <div class="validation-message" data-text-th="กรุณากรอกรหัสผ่าน" data-text-en="Please enter password">
                                     กรุณากรอกรหัสผ่าน
-                                </span>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <button type="submit" class="btn btn-success w-100 py-2 fw-semibold" id="loginSubmitBtn">
-                        <span class="login-text">
-                            <i class="fas fa-sign-in-alt me-2"></i>
-                            <span data-text-th="เข้าสู่ระบบ" data-text-en="Sign In">เข้าสู่ระบบ</span>
+                    <!-- Submit Button -->
+                    <button type="submit" class="auth-submit-btn" id="loginSubmitBtn">
+                        <span class="btn-content">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span class="btn-text" data-text-th="เข้าสู่ระบบ" data-text-en="Sign In">เข้าสู่ระบบ</span>
                         </span>
-                        <span class="login-spinner d-none">
-                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                            <span data-text-th="กำลังตรวจสอบ..." data-text-en="Signing in...">กำลังตรวจสอบ...</span>
+                        <span class="btn-loading d-none">
+                            <span class="loading-spinner"></span>
+                            <span class="loading-text" data-text-th="กำลังเข้าสู่ระบบ..." data-text-en="Signing In...">กำลังเข้าสู่ระบบ...</span>
                         </span>
                     </button>
                 </form>
                 
-                <!-- Demo Credentials -->
-                <div class="mt-4">
-                    <div class="border-top pt-3">
-                        <h6 class="text-muted small mb-2" data-text-th="บัญชีทดสอบ:" data-text-en="Demo Accounts:">บัญชีทดสอบ:</h6>
-                        <div class="row g-2 small">
-                            <div class="col-4">
-                                <div class="bg-light p-2 rounded text-center">
-                                    <div class="fw-semibold text-primary">Admin</div>
-                                    <div class="text-muted">admin123</div>
+                <!-- Demo Credentials Section -->
+                <div class="demo-credentials">
+                    <div class="demo-header">
+                        <i class="fas fa-flask"></i>
+                        <span class="demo-title" data-text-th="บัญชีทดสอบ" data-text-en="Demo Accounts">บัญชีทดสอบ</span>
+                    </div>
+                    
+                    <div class="demo-accounts">
+                        <div class="demo-account" data-username="admin" data-password="admin123">
+                            <div class="demo-account-header">
+                                <div class="demo-account-icon admin">
+                                    <i class="fas fa-user-shield"></i>
+                                </div>
+                                <div class="demo-account-info">
+                                    <span class="demo-account-role">Admin</span>
+                                    <span class="demo-account-desc" data-text-th="ผู้ดูแลระบบ" data-text-en="System Administrator">ผู้ดูแลระบบ</span>
                                 </div>
                             </div>
-                            <div class="col-4">
-                                <div class="bg-light p-2 rounded text-center">
-                                    <div class="fw-semibold text-success">Employee</div>
-                                    <div class="text-muted">emp123</div>
+                            <div class="demo-account-credentials">
+                                <span class="username">admin</span>
+                                <span class="password">admin123</span>
+                            </div>
+                        </div>
+                        
+                        <div class="demo-account" data-username="employee" data-password="emp123">
+                            <div class="demo-account-header">
+                                <div class="demo-account-icon employee">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                                <div class="demo-account-info">
+                                    <span class="demo-account-role">Employee</span>
+                                    <span class="demo-account-desc" data-text-th="เจ้าหน้าที่" data-text-en="Staff Member">เจ้าหน้าที่</span>
                                 </div>
                             </div>
-                            <div class="col-4">
-                                <div class="bg-light p-2 rounded text-center">
-                                    <div class="fw-semibold text-info">Test</div>
-                                    <div class="text-muted">test123</div>
+                            <div class="demo-account-credentials">
+                                <span class="username">employee</span>
+                                <span class="password">emp123</span>
+                            </div>
+                        </div>
+                        
+                        <div class="demo-account" data-username="test" data-password="test123">
+                            <div class="demo-account-header">
+                                <div class="demo-account-icon test">
+                                    <i class="fas fa-vial"></i>
                                 </div>
+                                <div class="demo-account-info">
+                                    <span class="demo-account-role">Test</span>
+                                    <span class="demo-account-desc" data-text-th="บัญชีทดลอง" data-text-en="Test Account">บัญชีทดลอง</span>
+                                </div>
+                            </div>
+                            <div class="demo-account-credentials">
+                                <span class="username">test</span>
+                                <span class="password">test123</span>
                             </div>
                         </div>
                     </div>
@@ -410,6 +462,11 @@
 <!-- Notification Container -->
 <div id="notificationContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
 </div>
+
+@section Styles {
+    <!-- Modal correctness fixes -->
+    <link rel="stylesheet" href="~/css/modal-fixes.css" asp-append-version="true" />
+}
 
 @section Scripts {
     <!-- CRITICAL: Ensure Bootstrap is loaded before initializing modal -->
@@ -676,6 +733,7 @@
             try {
                 loginModal.addEventListener('show.bs.modal', function() {
                     console.log('🎭 Modal SHOW event triggered');
+                    initializeModalFeatures();
                 });
                 
                 loginModal.addEventListener('shown.bs.modal', function() {
@@ -688,6 +746,7 @@
                 
                 loginModal.addEventListener('hide.bs.modal', function() {
                     console.log('🎭 Modal HIDE event triggered');
+                    resetModalState();
                 });
                 
                 loginModal.addEventListener('hidden.bs.modal', function() {
@@ -698,7 +757,7 @@
             }
             
             // Close button handlers (works for both Bootstrap and fallback)
-            const closeButtons = loginModal.querySelectorAll('[data-bs-dismiss="modal"], .btn-close');
+            const closeButtons = loginModal.querySelectorAll('[data-bs-dismiss="modal"], .auth-close-btn');
             closeButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -726,6 +785,9 @@
                 }
             });
             
+            // Initialize modal features immediately
+            initializeModalFeatures();
+            
             // Global debug functions
             window.debugShowModal = function() {
                 console.log('🧪 DEBUG: Manually showing modal...');
@@ -742,6 +804,427 @@
             console.log('✅ Sign-in modal initialization COMPLETED');
             console.log('💡 You can test the modal by running: debugShowModal()');
         }
+
+        // Initialize all modal features
+        function initializeModalFeatures() {
+            console.log('🎨 Initializing modal features...');
+            
+            setupFloatingLabels();
+            setupPasswordToggle();
+            setupFormValidation();
+            setupDemoCredentials();
+            setupLoadingStates();
+            cleanupEmptyAlerts();
+            
+            console.log('✅ Modal features initialized');
+        }
+
+        // Clean up any empty or problematic alerts
+        function cleanupEmptyAlerts() {
+            const alerts = document.querySelectorAll('#loginModal .auth-alert, #loginModal .alert');
+            alerts.forEach(alert => {
+                // Check if alert is empty or only contains whitespace
+                const content = alert.textContent?.trim() || '';
+                const hasChildren = alert.children.length > 0 && 
+                    Array.from(alert.children).some(child => child.textContent?.trim());
+                
+                if (!content && !hasChildren) {
+                    console.log('🧹 Removing empty alert:', alert);
+                    alert.style.display = 'none';
+                    alert.remove();
+                }
+            });
+        }
+
+        // Setup floating label animations
+        function setupFloatingLabels() {
+            const floatingInputs = document.querySelectorAll('.floating-label-input');
+            
+            floatingInputs.forEach(input => {
+                // Handle input events
+                input.addEventListener('input', function() {
+                    validateField(this);
+                });
+                
+                // Handle focus events
+                input.addEventListener('focus', function() {
+                    this.classList.remove('error');
+                });
+                
+                // Handle blur events for validation
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+            });
+        }
+
+        // Setup password toggle functionality
+        function setupPasswordToggle() {
+            const toggleBtn = document.getElementById('togglePassword');
+            const passwordField = document.getElementById('password');
+            const toggleIcon = document.getElementById('passwordToggleIcon');
+            
+            if (toggleBtn && passwordField && toggleIcon) {
+                toggleBtn.addEventListener('click', function() {
+                    const isPassword = passwordField.type === 'password';
+                    
+                    passwordField.type = isPassword ? 'text' : 'password';
+                    toggleIcon.className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+                    
+                    // Update ARIA label for accessibility
+                    toggleBtn.setAttribute('aria-label', 
+                        isPassword ? 'Hide password' : 'Show password'
+                    );
+                });
+            }
+        }
+
+        // Setup enhanced form validation
+        function setupFormValidation() {
+            const loginForm = document.getElementById('loginForm');
+            
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const usernameField = document.getElementById('username');
+                    const passwordField = document.getElementById('password');
+                    
+                    // Validate all fields
+                    let isValid = true;
+                    if (!validateField(usernameField)) isValid = false;
+                    if (!validateField(passwordField)) isValid = false;
+                    
+                    if (isValid) {
+                        // Let the existing auth.js handle the actual login
+                        console.log('✅ Form validation passed, proceeding with login...');
+                        // The form submission will be handled by auth.js
+                        return true;
+                    } else {
+                        console.log('❌ Form validation failed');
+                        
+                        // Show specific error messages based on field validation
+                        const usernameValue = usernameField?.value?.trim() || '';
+                        const passwordValue = passwordField?.value?.trim() || '';
+                        
+                        if (usernameValue.length === 0 && passwordValue.length === 0) {
+                            showFormError('required_fields');
+                        } else if (usernameValue.length > 0 && usernameValue.length < 3) {
+                            showFormError('username_too_short');
+                        } else if (passwordValue.length > 0 && passwordValue.length < 4) {
+                            showFormError('password_too_short');
+                        } else {
+                            showFormError('required_fields');
+                        }
+                        
+                        // Focus on first invalid field
+                        if (!validateField(usernameField)) {
+                            usernameField.focus();
+                        } else if (!validateField(passwordField)) {
+                            passwordField.focus();
+                        }
+                    }
+                });
+            }
+        }
+
+        // Validate individual field with enhanced validation rules
+        function validateField(field) {
+            if (!field) return false;
+            
+            const value = field.value.trim();
+            let isValid = false;
+            
+            // Field-specific validation rules
+            if (field.id === 'username') {
+                isValid = value.length >= 3; // Username must be at least 3 characters
+            } else if (field.id === 'password') {
+                isValid = value.length >= 4; // Password must be at least 4 characters
+            } else {
+                isValid = value.length > 0; // Other fields just need to not be empty
+            }
+            
+            // Apply visual feedback
+            if (isValid) {
+                field.classList.remove('error');
+                field.classList.add('valid');
+            } else {
+                field.classList.remove('valid');
+                field.classList.add('error');
+                // Trigger error animation
+                field.style.animation = 'none';
+                field.offsetHeight; // Trigger reflow
+                field.style.animation = 'inputError 0.3s ease-out';
+            }
+            
+            return isValid;
+        }
+
+        // Show form error with multilingual support
+        function showFormError(messageKey, customMessage) {
+            const errorAlert = document.getElementById('loginErrorAlert');
+            const errorMessage = document.getElementById('loginErrorMessage');
+            
+            if (errorAlert && errorMessage) {
+                // Determine current language
+                const currentLang = window.BizConnectLanguage?.getCurrentLanguage() || 'th';
+                
+                // Enhanced error messages with proper Thai text
+                const messages = {
+                    'required_fields': {
+                        'th': 'กรุณากรอกข้อมูลในช่องที่จำเป็นให้ครบถ้วน',
+                        'en': 'Please fill in all required fields'
+                    },
+                    'invalid_credentials': {
+                        'th': 'ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง',
+                        'en': 'Invalid username or password'
+                    },
+                    'username_too_short': {
+                        'th': 'ชื่อผู้ใช้งานต้องมีความยาวอย่างน้อย 3 ตัวอักษร',
+                        'en': 'Username must be at least 3 characters long'
+                    },
+                    'password_too_short': {
+                        'th': 'รหัสผ่านต้องมีความยาวอย่างน้อย 4 ตัวอักษร',
+                        'en': 'Password must be at least 4 characters long'
+                    }
+                };
+                
+                const displayMessage = customMessage || messages[messageKey]?.[currentLang] || messageKey;
+                
+                // Ensure proper Thai text rendering
+                errorMessage.innerHTML = '';
+                errorMessage.textContent = displayMessage;
+                errorMessage.style.fontFamily = '"Sarabun", "Inter", sans-serif';
+                errorMessage.style.webkitFontSmoothing = 'antialiased';
+                
+                errorAlert.classList.remove('d-none');
+                
+                // Hide info alert when showing error
+                const infoAlert = document.getElementById('authInfoAlert');
+                if (infoAlert) {
+                    infoAlert.style.display = 'none';
+                }
+                
+                // Add shake animation to alert
+                errorAlert.style.animation = 'inputError 0.3s ease-out';
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    errorAlert.classList.add('d-none');
+                    if (infoAlert) {
+                        infoAlert.style.display = 'flex';
+                    }
+                }, 5000);
+            }
+        }
+
+        // Setup demo credentials click-to-fill functionality
+        function setupDemoCredentials() {
+            const demoAccounts = document.querySelectorAll('.demo-account');
+            
+            demoAccounts.forEach(account => {
+                account.addEventListener('click', function() {
+                    const username = this.dataset.username;
+                    const password = this.dataset.password;
+                    
+                    const usernameField = document.getElementById('username');
+                    const passwordField = document.getElementById('password');
+                    
+                    if (usernameField && passwordField) {
+                        // Animate the fill
+                        usernameField.value = '';
+                        passwordField.value = '';
+                        
+                        // Add visual feedback
+                        this.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            this.style.transform = '';
+                        }, 150);
+                        
+                        // Type effect for username
+                        let i = 0;
+                        const typeUsername = () => {
+                            if (i < username.length) {
+                                usernameField.value += username[i];
+                                i++;
+                                setTimeout(typeUsername, 50);
+                            } else {
+                                // Type effect for password
+                                let j = 0;
+                                const typePassword = () => {
+                                    if (j < password.length) {
+                                        passwordField.value += password[j];
+                                        j++;
+                                        setTimeout(typePassword, 50);
+                                    }
+                                };
+                                setTimeout(typePassword, 200);
+                            }
+                        };
+                        
+                        setTimeout(typeUsername, 100);
+                        
+                        // Clear any existing errors
+                        usernameField.classList.remove('error');
+                        passwordField.classList.remove('error');
+                        
+                        const errorAlert = document.getElementById('loginErrorAlert');
+                        if (errorAlert) {
+                            errorAlert.classList.add('d-none');
+                        }
+                    }
+                });
+                
+                // Add hover effect
+                account.addEventListener('mouseenter', function() {
+                    if (!this.style.transform) {
+                        this.style.transform = 'translateY(-2px)';
+                    }
+                });
+                
+                account.addEventListener('mouseleave', function() {
+                    if (this.style.transform === 'translateY(-2px)') {
+                        this.style.transform = '';
+                    }
+                });
+            });
+        }
+
+        // Enhanced loading states with proper animation timing
+        function setupLoadingStates() {
+            const submitBtn = document.getElementById('loginSubmitBtn');
+            
+            if (submitBtn) {
+                const btnContent = submitBtn.querySelector('.btn-content');
+                const btnLoading = submitBtn.querySelector('.btn-loading');
+                
+                // Override the loading function in auth.js for new modal structure
+                window.showModalLoading = function(show) {
+                    console.log('🔄 Setting loading state:', show);
+                    
+                    if (show) {
+                        // First disable the button to prevent multiple clicks
+                        submitBtn.disabled = true;
+                        submitBtn.style.cursor = 'not-allowed';
+                        
+                        // Hide content with slight delay for smooth transition
+                        if (btnContent) {
+                            btnContent.style.opacity = '0';
+                            btnContent.style.transform = 'translateX(-10px)';
+                            setTimeout(() => btnContent.classList.add('d-none'), 100);
+                        }
+                        
+                        // Show loading with delay for smooth transition
+                        setTimeout(() => {
+                            if (btnLoading) {
+                                btnLoading.classList.remove('d-none');
+                                btnLoading.style.opacity = '1';
+                                btnLoading.style.transform = 'translateX(0)';
+                            }
+                        }, 100);
+                        
+                    } else {
+                        // Hide loading first
+                        if (btnLoading) {
+                            btnLoading.style.opacity = '0';
+                            btnLoading.style.transform = 'translateX(10px)';
+                            setTimeout(() => btnLoading.classList.add('d-none'), 100);
+                        }
+                        
+                        // Show content with delay
+                        setTimeout(() => {
+                            if (btnContent) {
+                                btnContent.classList.remove('d-none');
+                                btnContent.style.opacity = '1';
+                                btnContent.style.transform = 'translateX(0)';
+                            }
+                            
+                            // Re-enable button
+                            submitBtn.disabled = false;
+                            submitBtn.style.cursor = 'pointer';
+                        }, 100);
+                    }
+                };
+                
+                // Initialize button styles for proper transitions
+                if (btnContent) {
+                    btnContent.style.transition = 'opacity 0.2s ease-in-out, transform 0.2s ease-in-out';
+                }
+                if (btnLoading) {
+                    btnLoading.style.transition = 'opacity 0.2s ease-in-out, transform 0.2s ease-in-out';
+                }
+            }
+        }
+
+        // Reset modal state when closed
+        function resetModalState() {
+            console.log('🔄 Resetting modal state...');
+            
+            // Clear form fields
+            const usernameField = document.getElementById('username');
+            const passwordField = document.getElementById('password');
+            
+            if (usernameField) {
+                usernameField.value = '';
+                usernameField.classList.remove('error');
+            }
+            
+            if (passwordField) {
+                passwordField.value = '';
+                passwordField.classList.remove('error');
+                passwordField.type = 'password'; // Reset password visibility
+            }
+            
+            // Reset password toggle icon
+            const toggleIcon = document.getElementById('passwordToggleIcon');
+            if (toggleIcon) {
+                toggleIcon.className = 'fas fa-eye';
+            }
+            
+            // Hide error alerts
+            const errorAlert = document.getElementById('loginErrorAlert');
+            if (errorAlert) {
+                errorAlert.classList.add('d-none');
+            }
+            
+            // Show info alert
+            const infoAlert = document.getElementById('authInfoAlert');
+            if (infoAlert) {
+                infoAlert.style.display = 'flex';
+            }
+            
+            // Reset loading state
+            if (window.showModalLoading) {
+                window.showModalLoading(false);
+            }
+            
+            console.log('✅ Modal state reset completed');
+        }
+
+        // Language switching support for modal
+        function updateModalLanguage() {
+            if (typeof window.BizConnectLanguage !== 'undefined') {
+                const elements = document.querySelectorAll('#loginModal [data-text-th][data-text-en]');
+                elements.forEach(element => {
+                    const currentLang = window.BizConnectLanguage.getCurrentLanguage();
+                    const textKey = currentLang === 'th' ? 'data-text-th' : 'data-text-en';
+                    const newText = element.getAttribute(textKey);
+                    if (newText) {
+                        element.textContent = newText;
+                    }
+                });
+            }
+        }
+
+        // Listen for language changes
+        document.addEventListener('languageChanged', function() {
+            updateModalLanguage();
+        });
+
+        // Make functions globally accessible for auth.js integration
+        window.showFormError = showFormError;
+        window.resetModalState = resetModalState;
+        window.updateModalLanguage = updateModalLanguage;
         
         // Multiple initialization attempts for robustness
         function startInitialization() {
@@ -798,13 +1281,25 @@
     <script src="~/js/landing.js" asp-append-version="true" defer></script>
     <script src="~/js/auth.js" asp-append-version="true" defer></script>
     
-    <!-- Development-only modal test script -->
+    <!-- Development-only modal test scripts -->
     <script>
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            // Load original modal test
             const testScript = document.createElement('script');
             testScript.src = '~/js/modal-test.js';
             testScript.defer = true;
             document.head.appendChild(testScript);
+            
+            // Load correctness test suite
+            const correctnessTestScript = document.createElement('script');
+            correctnessTestScript.src = '~/js/modal-correctness-test.js';
+            correctnessTestScript.defer = true;
+            document.head.appendChild(correctnessTestScript);
+            
+            // Add debug flag to body for CSS debugging
+            document.body.setAttribute('data-debug', 'true');
+            
+            console.log('🧪 Development mode: Modal test suites loaded');
         }
     </script>
 }
