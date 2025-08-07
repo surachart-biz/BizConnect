@@ -300,7 +300,7 @@
     <value>ผู้ดูแลระบบ</value>
   </data>
   <data name="Profile" xml:space="preserve">
-    <value>โปรไฟล์</value>
+    <value>ข้อมูลส่วนตัว</value>
   </data>
   <data name="Settings" xml:space="preserve">
     <value>การตั้งค่า</value>

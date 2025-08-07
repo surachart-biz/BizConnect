@@ -29,21 +29,21 @@
             </div>
             
             <!-- User Dropdown Container (hidden by default) -->
-            <div id="userDropdownContainer" class="d-none" style="display: none !important;">
+            <div id="userDropdownContainer" class="d-none">
                 <div class="dropdown" id="userMenu">
                     <button class="btn-signin dropdown-toggle" type="button" data-bs-toggle="dropdown">
                         <i class="fas fa-user-circle me-2"></i>
                         <span id="userName">ผู้ใช้งาน</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow">
-                        <li>
+                        <li id="adminMenuSection">
                             <a class="dropdown-item" href="#" id="adminDashboardLink" data-text-th="แผงควบคุมผู้ดูแล" data-text-en="Admin Dashboard">
                                 <i class="fas fa-tachometer-alt me-2"></i>
                                 <span class="menu-text">แผงควบคุมผู้ดูแล</span>
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" href="#" data-text-th="จัดการโปรไฟล์" data-text-en="Manage Profile">
+                            <a class="dropdown-item" href="/Account/Profile" data-text-th="จัดการโปรไฟล์" data-text-en="Manage Profile">
                                 <i class="fas fa-user-cog me-2"></i>
                                 <span class="menu-text">จัดการโปรไฟล์</span>
                             </a>
@@ -1258,6 +1258,63 @@
         
         // Start the initialization process immediately
         startInitialization();
+    </script>
+    
+    <!-- Dropdown positioning fix to prevent jumping -->
+    <script>
+        // Fix dropdown positioning issues
+        document.addEventListener('DOMContentLoaded', function() {
+            const userDropdownContainer = document.getElementById('userDropdownContainer');
+            if (!userDropdownContainer) return;
+            
+            const dropdownToggle = userDropdownContainer.querySelector('.dropdown-toggle');
+            const dropdownMenu = userDropdownContainer.querySelector('.dropdown-menu');
+            
+            if (dropdownToggle && dropdownMenu) {
+                // Override Bootstrap dropdown positioning behavior
+                dropdownToggle.addEventListener('click', function(e) {
+                    // Prevent default Bootstrap auto-positioning
+                    setTimeout(() => {
+                        // Force stable positioning after Bootstrap processes
+                        dropdownMenu.style.position = 'absolute';
+                        dropdownMenu.style.top = '100%';
+                        dropdownMenu.style.right = '0';
+                        dropdownMenu.style.left = 'auto';
+                        dropdownMenu.style.transform = 'none';
+                        dropdownMenu.style.willChange = 'auto';
+                    }, 0);
+                });
+                
+                // Handle Bootstrap dropdown events
+                dropdownToggle.addEventListener('shown.bs.dropdown', function() {
+                    // Ensure positioning remains stable after dropdown is shown
+                    dropdownMenu.style.position = 'absolute';
+                    dropdownMenu.style.top = '100%';
+                    dropdownMenu.style.right = '0';
+                    dropdownMenu.style.left = 'auto';
+                    dropdownMenu.style.transform = 'none';
+                });
+                
+                // Prevent any transform animations that could cause jumping
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                            // Reset any problematic transforms
+                            if (dropdownMenu.style.transform && dropdownMenu.style.transform !== 'none') {
+                                dropdownMenu.style.transform = 'none';
+                            }
+                        }
+                    });
+                });
+                
+                observer.observe(dropdownMenu, { 
+                    attributes: true, 
+                    attributeFilter: ['style', 'class']
+                });
+                
+                console.log('✅ Dropdown positioning fix applied');
+            }
+        });
     </script>
     
     <!-- Load custom scripts with proper timing -->

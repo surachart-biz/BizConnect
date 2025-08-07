@@ -148,7 +148,13 @@
                     
                     // Check if user has admin privileges
                     if (this.currentUser && (this.currentUser.role === 'Admin' || this.currentUser.role === 'Employee')) {
-                        window.location.href = '/Admin/Dashboard';
+                        this.showNotification(
+                            this.t('navigatingToAdmin', 'Navigating to Admin Dashboard...'), 
+                            'info'
+                        );
+                        setTimeout(() => {
+                            window.location.href = '/Admin/Dashboard';
+                        }, 500);
                     } else {
                         this.showNotification(
                             this.t('insufficientPrivileges', 'You do not have sufficient privileges to access the admin dashboard'), 
@@ -157,6 +163,32 @@
                     }
                 });
             }
+            
+            // Profile management link
+            const profileLinks = document.querySelectorAll('[data-text-th="จัดการโปรไฟล์"], [data-text-en="Manage Profile"]');
+            profileLinks.forEach(profileLink => {
+                if (profileLink && profileLink.getAttribute('href') === '#') {
+                    profileLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        
+                        if (this.currentUser) {
+                            this.showNotification(
+                                this.t('navigatingToProfile', 'Opening Profile Management...'), 
+                                'info'
+                            );
+                            setTimeout(() => {
+                                // Navigate to profile page (you may need to create this route)
+                                window.location.href = '/Account/Profile';
+                            }, 500);
+                        } else {
+                            this.showNotification(
+                                this.t('loginRequired', 'Please login to access your profile'), 
+                                'warning'
+                            );
+                        }
+                    });
+                }
+            });
 
             // Setup modal event listeners (but NOT sign-in button)
             this.setupModalListeners();
@@ -550,8 +582,34 @@
                     console.log('✅ Username set to:', userData.username);
                 }
                 
-                // Update admin dashboard link visibility based on role
-                if (adminLink) {
+                // Update admin dashboard link visibility based on role with smooth transitions
+                const adminMenuSection = document.getElementById('adminMenuSection');
+                if (adminLink && adminMenuSection) {
+                    if (userData.role === 'Admin' || userData.role === 'Employee') {
+                        // Show admin section with smooth transition
+                        adminMenuSection.classList.remove('hide-admin');
+                        adminMenuSection.style.display = 'block';
+                        adminLink.style.display = 'block';
+                        
+                        // Force reflow for smooth transition
+                        adminMenuSection.offsetHeight;
+                        
+                        console.log('✅ Admin menu section shown for role:', userData.role);
+                    } else {
+                        // Hide admin section with smooth transition
+                        adminMenuSection.classList.add('hide-admin');
+                        
+                        // Hide completely after transition
+                        setTimeout(() => {
+                            if (adminMenuSection.classList.contains('hide-admin')) {
+                                adminMenuSection.style.display = 'none';
+                            }
+                        }, 300);
+                        
+                        console.log('ℹ️ Admin menu section hidden for role:', userData.role);
+                    }
+                } else if (adminLink) {
+                    // Fallback to old method if adminMenuSection not found
                     const adminListItem = adminLink.parentElement;
                     if (userData.role === 'Admin' || userData.role === 'Employee') {
                         adminListItem.style.display = 'block';
@@ -780,10 +838,103 @@
         window.debugForceReset = debugTools.forceResetToUnauthenticated;
         window.debugSimulateLogin = debugTools.simulateLogin;
         
+        // Quick test function for user dropdown
+        window.debugTestUserDropdown = function() {
+            console.log('🧪 DEBUG: Testing user dropdown functionality...');
+            
+            // Simulate login
+            debugTools.simulateLogin('test', 'User');
+            
+            setTimeout(() => {
+                console.log('✅ Simulated login complete');
+                console.log('🔍 Current UI state:');
+                debugTools.verifyAuthState();
+                
+                // Check if dropdown is visible and functional
+                const userDropdown = document.getElementById('userDropdownContainer');
+                const dropdownButton = userDropdown?.querySelector('.dropdown-toggle');
+                
+                if (userDropdown && !userDropdown.classList.contains('d-none')) {
+                    console.log('✅ User dropdown is visible');
+                    
+                    if (dropdownButton) {
+                        console.log('🔘 Attempting to click dropdown button...');
+                        dropdownButton.click();
+                        
+                        setTimeout(() => {
+                            const dropdownMenu = userDropdown.querySelector('.dropdown-menu');
+                            const menuItems = dropdownMenu?.querySelectorAll('.dropdown-item');
+                            
+                            if (dropdownMenu && dropdownMenu.classList.contains('show')) {
+                                console.log('✅ Dropdown menu opened successfully');
+                                console.log('📋 Menu items found:', menuItems?.length || 0);
+                                
+                                // Test each menu item
+                                menuItems?.forEach((item, index) => {
+                                    const itemText = item.textContent?.trim();
+                                    const itemHref = item.getAttribute('href');
+                                    console.log(`  ${index + 1}. "${itemText}" → ${itemHref}`);
+                                });
+                                
+                                // Check for admin section visibility
+                                const adminSection = document.getElementById('adminMenuSection');
+                                if (adminSection) {
+                                    const isVisible = adminSection.style.display !== 'none' && !adminSection.classList.contains('hide-admin');
+                                    console.log('🔑 Admin section visible:', isVisible);
+                                }
+                                
+                            } else {
+                                console.log('⚠️ Dropdown menu did not open');
+                            }
+                        }, 200);
+                    }
+                } else {
+                    console.log('❌ User dropdown is not visible');
+                }
+            }, 500);
+        };
+        
+        // Test function for admin user dropdown
+        window.debugTestAdminDropdown = function() {
+            console.log('🧪 DEBUG: Testing admin user dropdown functionality...');
+            
+            // Simulate admin login
+            debugTools.simulateLogin('admin', 'Admin');
+            
+            setTimeout(() => {
+                console.log('✅ Simulated admin login complete');
+                debugTools.verifyAuthState();
+                
+                const userDropdown = document.getElementById('userDropdownContainer');
+                const dropdownButton = userDropdown?.querySelector('.dropdown-toggle');
+                
+                if (dropdownButton) {
+                    dropdownButton.click();
+                    
+                    setTimeout(() => {
+                        const dropdownMenu = userDropdown.querySelector('.dropdown-menu');
+                        const adminSection = document.getElementById('adminMenuSection');
+                        
+                        if (dropdownMenu && dropdownMenu.classList.contains('show')) {
+                            console.log('✅ Admin dropdown opened successfully');
+                            
+                            if (adminSection && adminSection.style.display !== 'none') {
+                                console.log('✅ Admin menu section is visible for Admin role');
+                            } else {
+                                console.log('❌ Admin menu section is not visible for Admin role');
+                            }
+                        }
+                    }, 200);
+                }
+            }, 500);
+        };
+        
         console.log('🧪 DEBUG: Authentication debug tools available:');
         console.log('  - debugAuth() - Verify current authentication state');
         console.log('  - debugForceReset() - Force reset to unauthenticated');
         console.log('  - debugSimulateLogin(username, role) - Simulate login');
+        console.log('  - debugTestUserDropdown() - Test complete user dropdown flow');
+        console.log('  - debugTestAdminDropdown() - Test admin dropdown with admin menu section');
     }
 
 })();

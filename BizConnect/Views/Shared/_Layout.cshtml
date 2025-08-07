@@ -777,14 +777,372 @@
             padding-right: 0 !important;
         }
 
-        /* CRITICAL: Force hide user dropdown on initial load */
+        /* User dropdown visibility control */
         #userDropdownContainer {
+            display: none;
+        }
+
+        /* Show when authenticated with show-user class */
+        #userDropdownContainer.show-user {
+            display: flex !important;
+        }
+
+        /* Force hide when has d-none class */
+        #userDropdownContainer.d-none {
             display: none !important;
         }
 
-        /* Only show when explicitly has show-user class */
-        #userDropdownContainer.show-user {
-            display: flex !important;
+        /* =====================================
+           Professional User Dropdown Styling  
+           ===================================== */
+
+        /* User dropdown container - Fixed positioning to prevent jumping */
+        #userDropdownContainer {
+            align-items: center;
+            position: relative;
+        }
+        
+        /* Ensure dropdown wrapper has stable positioning */
+        #userDropdownContainer .dropdown {
+            position: relative;
+        }
+
+        /* User dropdown button styling */
+        #userDropdownContainer .btn-signin.dropdown-toggle {
+            background: linear-gradient(135deg, var(--kbank-green) 0%, #45a049 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 8px 16px;
+            font-weight: 600;
+            color: white;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            min-width: 120px;
+            text-align: left;
+        }
+
+        /* Hover effect for user button */
+        #userDropdownContainer .btn-signin.dropdown-toggle:hover {
+            background: linear-gradient(135deg, #45a049 0%, var(--kbank-green-dark) 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+
+        /* Active/pressed state */
+        #userDropdownContainer .btn-signin.dropdown-toggle:active,
+        #userDropdownContainer .btn-signin.dropdown-toggle.show {
+            background: linear-gradient(135deg, var(--kbank-green-dark) 0%, #388E3C 100%);
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+        }
+
+        /* User icon styling */
+        #userDropdownContainer .btn-signin .fa-user-circle {
+            font-size: 1.1rem;
+            margin-right: 0.5rem;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+        }
+
+        /* Username text styling */
+        #userDropdownContainer .btn-signin span {
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        /* Dropdown arrow styling */
+        #userDropdownContainer .dropdown-toggle::after {
+            margin-left: 0.75rem;
+            border-top-color: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        #userDropdownContainer .dropdown-toggle.show::after {
+            transform: rotate(180deg);
+        }
+
+        /* Professional dropdown menu styling - Fixed positioning */
+        #userDropdownContainer .dropdown-menu {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 
+                0 16px 48px rgba(0, 0, 0, 0.18),
+                0 8px 24px rgba(0, 0, 0, 0.12),
+                0 0 0 1px rgba(255, 255, 255, 0.15);
+            padding: 12px 0;
+            margin-top: 10px;
+            min-width: 240px;
+            backdrop-filter: blur(24px);
+            background: rgba(255, 255, 255, 0.98);
+            /* Fixed positioning to prevent jumping */
+            position: absolute !important;
+            top: 100% !important;
+            right: 0 !important;
+            left: auto !important;
+            transform: none !important;
+            transform-origin: top right !important;
+            /* Smooth show/hide animation without position changes */
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            overflow: hidden;
+        }
+        
+        /* Add subtle gradient overlay */
+        #userDropdownContainer .dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.8) 0%, 
+                rgba(248, 250, 252, 0.9) 50%, 
+                rgba(255, 255, 255, 0.95) 100%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Stable dropdown show/hide states - No conflicting transforms */
+        #userDropdownContainer .dropdown-menu:not(.show) {
+            opacity: 0;
+            visibility: hidden;
+            transform: none !important;
+        }
+        
+        #userDropdownContainer .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: none !important;
+        }
+        
+        /* Remove any Bootstrap transform conflicts */
+        #userDropdownContainer .dropdown-menu[data-bs-popper] {
+            position: absolute !important;
+            top: 100% !important;
+            right: 0 !important;
+            left: auto !important;
+            transform: none !important;
+        }
+
+        /* Dropdown item styling */
+        #userDropdownContainer .dropdown-item {
+            padding: 14px 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-radius: 12px;
+            margin: 0 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Sarabun', 'Inter', sans-serif;
+            letter-spacing: 0.01em;
+            z-index: 1;
+        }
+
+        /* Dropdown item hover effect */
+        #userDropdownContainer .dropdown-item:hover {
+            background: linear-gradient(135deg, 
+                rgba(76, 175, 80, 0.12) 0%, 
+                rgba(25, 118, 210, 0.08) 100%);
+            color: var(--kbank-green);
+            transform: translateX(6px) translateY(-1px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);
+        }
+
+        /* Active dropdown item */
+        #userDropdownContainer .dropdown-item:active {
+            background: linear-gradient(135deg, 
+                rgba(76, 175, 80, 0.12) 0%, 
+                rgba(25, 118, 210, 0.08) 100%);
+        }
+
+        /* Dropdown item icons */
+        #userDropdownContainer .dropdown-item i {
+            width: 22px;
+            text-align: center;
+            margin-right: 14px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.12));
+            color: #666;
+        }
+
+        /* Icon color changes on hover */
+        #userDropdownContainer .dropdown-item:hover i.fa-tachometer-alt {
+            color: var(--primary-blue);
+            transform: scale(1.1);
+        }
+
+        #userDropdownContainer .dropdown-item:hover i.fa-user-cog {
+            color: var(--kbank-green);
+            transform: scale(1.1);
+        }
+
+        #userDropdownContainer .dropdown-item:hover i.fa-sign-out-alt {
+            color: #FF6B6B;
+            transform: scale(1.1);
+        }
+
+        /* Menu text styling */
+        #userDropdownContainer .dropdown-item .menu-text {
+            font-family: 'Sarabun', 'Inter', sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            transition: all 0.3s ease;
+        }
+
+        /* Dropdown divider styling */
+        #userDropdownContainer .dropdown-divider {
+            margin: 12px 20px;
+            border-color: rgba(0, 0, 0, 0.08);
+            position: relative;
+            height: 1px;
+        }
+
+        /* Enhanced divider with gradient */
+        #userDropdownContainer .dropdown-divider::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                var(--kbank-green-light) 15%, 
+                var(--primary-blue-light) 50%, 
+                var(--kbank-green-light) 85%, 
+                transparent 100%);
+            opacity: 0.4;
+            border-radius: 2px;
+        }
+
+        /* Sign out item special styling */
+        #userDropdownContainer .dropdown-item#signOutBtn {
+            color: #666;
+            margin-top: 4px;
+        }
+
+        #userDropdownContainer .dropdown-item#signOutBtn:hover {
+            background: linear-gradient(135deg, 
+                rgba(255, 107, 107, 0.12) 0%, 
+                rgba(255, 179, 179, 0.08) 100%);
+            color: #FF4444;
+            box-shadow: 0 4px 12px rgba(255, 68, 68, 0.15);
+        }
+        
+        #userDropdownContainer .dropdown-item#signOutBtn:hover i {
+            color: #FF4444;
+            transform: scale(1.1);
+        }
+
+        /* Mobile responsive adjustments - Fixed positioning */
+        @@media (max-width: 768px) {
+            #userDropdownContainer .btn-signin.dropdown-toggle {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+                min-width: 100px;
+            }
+
+            #userDropdownContainer .dropdown-menu {
+                min-width: 220px;
+                margin-top: 8px;
+                border-radius: 14px;
+                padding: 10px 0;
+                /* Stable mobile positioning */
+                position: absolute !important;
+                top: 100% !important;
+                right: 0 !important;
+                left: auto !important;
+                transform: none !important;
+            }
+            
+            /* Ensure mobile dropdown menu stays properly anchored */
+            #userDropdownContainer .dropdown-menu[data-bs-popper] {
+                right: 0 !important;
+                left: auto !important;
+                margin-right: 0 !important;
+            }
+
+            #userDropdownContainer .dropdown-item {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+                margin: 0 6px;
+                border-radius: 10px;
+            }
+
+            #userDropdownContainer .dropdown-item:hover {
+                transform: translateX(4px) translateY(-1px);
+            }
+            
+            #userDropdownContainer .dropdown-item i {
+                width: 20px;
+                margin-right: 12px;
+                font-size: 1rem;
+            }
+            
+            #userDropdownContainer .dropdown-divider {
+                margin: 10px 16px;
+            }
+        }
+
+        /* Extra small screens - Fixed positioning */
+        @@media (max-width: 480px) {
+            #userDropdownContainer .btn-signin.dropdown-toggle {
+                padding: 5px 10px;
+                font-size: 0.8rem;
+                min-width: 90px;
+            }
+
+            #userDropdownContainer .fa-user-circle {
+                font-size: 1rem;
+                margin-right: 0.4rem;
+            }
+            
+            #userDropdownContainer .dropdown-menu {
+                min-width: 200px;
+                /* Extra stable positioning for small screens */
+                position: absolute !important;
+                top: 100% !important;
+                right: 0 !important;
+                left: auto !important;
+                transform: none !important;
+                margin-right: 0;
+            }
+            
+            /* Override Bootstrap popper positioning on small screens */
+            #userDropdownContainer .dropdown-menu[data-bs-popper] {
+                right: 0 !important;
+                left: auto !important;
+                transform: none !important;
+            }
+
+            /* Additional small screen adjustments */
+            #userDropdownContainer .dropdown-menu {
+                border-radius: 12px;
+                padding: 8px 0;
+            }
+            
+            #userDropdownContainer .dropdown-item {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+                margin: 0 4px;
+                border-radius: 8px;
+            }
+            
+            #userDropdownContainer .dropdown-item i {
+                width: 18px;
+                margin-right: 10px;
+                font-size: 0.9rem;
+            }
+            
+            #userDropdownContainer .dropdown-divider {
+                margin: 8px 12px;
+            }
         }
 
         /* Prevent Bootstrap dropdown auto-opening */
@@ -794,6 +1152,22 @@
 
         .dropdown-menu.show {
             display: block !important;
+        }
+        
+        /* Hide admin menu section when not authorized */
+        #adminMenuSection[style*="display: none"] {
+            display: none !important;
+        }
+        
+        /* Smooth transitions for menu visibility */
+        #adminMenuSection {
+            transition: opacity 0.3s ease, max-height 0.3s ease;
+        }
+        
+        #adminMenuSection.hide-admin {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
         }
 
         /* Ensure sign-in button is visible by default */
@@ -1868,6 +2242,78 @@
             }
         }
 
+        /* Enhanced Notification Animations */
+        @@keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+        
+        @@keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100%) scale(0.9);
+            }
+        }
+        
+        @@keyframes progressBar {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        
+        /* Enhanced Notification Container */
+        .notification-container {
+            top: 80px !important;
+            right: 20px !important;
+            max-width: 380px !important;
+            z-index: 9999 !important;
+            pointer-events: none !important;
+        }
+        
+        .notification-container > * {
+            pointer-events: auto !important;
+            margin-bottom: 1rem !important;
+        }
+        
+        .enhanced-notification {
+            backdrop-filter: blur(10px) !important;
+            border: none !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        /* Mobile responsive notifications */
+        @@media (max-width: 768px) {
+            .notification-container {
+                top: 70px !important;
+                right: 10px !important;
+                left: 10px !important;
+                max-width: none !important;
+            }
+            
+            .enhanced-notification {
+                min-width: auto !important;
+                max-width: none !important;
+                width: 100% !important;
+            }
+        }
+        
+        @@media (max-width: 480px) {
+            .notification-container {
+                top: 60px !important;
+                right: 8px !important;
+                left: 8px !important;
+            }
+        }
+
         /* Accessibility enhancements */
         @@media (prefers-reduced-motion: reduce) {
             * {
@@ -1907,49 +2353,109 @@
     <script>
         // Minimal global functions - most functionality moved to separate JS files
         
-        // Global notification function for other scripts
-        function showNotification(message, type = 'info') {
+        // Enhanced global notification function with auto-dismiss and manual close
+        function showNotification(message, type = 'info', options = {}) {
             // Create notification container if it doesn't exist
             let container = document.getElementById('notificationContainer');
             if (!container) {
                 container = document.createElement('div');
                 container.id = 'notificationContainer';
-                container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
+                container.className = 'position-fixed notification-container';
+                container.style.cssText = 'top: 80px; right: 20px; max-width: 380px; z-index: 9999; pointer-events: none;';
                 document.body.appendChild(container);
             }
             
-            // Create notification element
+            // Default options
+            const defaults = {
+                title: type.charAt(0).toUpperCase() + type.slice(1),
+                duration: 5000,
+                autoDismiss: true,
+                showCloseButton: true
+            };
+            const config = { ...defaults, ...options };
+            
+            // Create enhanced notification element
+            const notificationId = 'notification_' + Date.now();
             const notification = document.createElement('div');
             const colors = {
                 success: 'alert-success',
-                error: 'alert-danger',
+                error: 'alert-danger', 
                 warning: 'alert-warning',
                 info: 'alert-info'
             };
             const icons = {
                 success: 'fa-check-circle',
-                error: 'fa-exclamation-circle',
-                warning: 'fa-exclamation-triangle',
+                error: 'fa-exclamation-triangle',
+                warning: 'fa-exclamation-circle',
                 info: 'fa-info-circle'
             };
             
-            notification.className = `alert ${colors[type]} alert-dismissible fade show shadow-sm`;
-            notification.style.minWidth = '300px';
+            notification.id = notificationId;
+            notification.className = `alert ${colors[type]} alert-dismissible fade show shadow-lg enhanced-notification`;
+            notification.style.cssText = `
+                min-width: 350px; 
+                max-width: 380px; 
+                border-radius: 12px; 
+                border: none;
+                backdrop-filter: blur(10px);
+                animation: slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+                margin-bottom: 1rem;
+                pointer-events: auto;
+                position: relative;
+                overflow: hidden;
+            `;
+            
+            // Add auto-dismiss progress bar
+            let progressBarHtml = '';
+            if (config.autoDismiss && config.duration > 0) {
+                notification.classList.add('auto-dismiss');
+                progressBarHtml = '<div class="progress-bar" style="position: absolute; bottom: 0; left: 0; height: 3px; background: rgba(255,255,255,0.6); width: 100%; animation: progressBar ' + (config.duration/1000) + 's linear forwards;"></div>';
+            }
+            
             notification.innerHTML = `
-                <i class="fas ${icons[type]} me-2"></i>
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.25rem 0;">
+                    <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                        <i class="fas ${icons[type]}"></i>
+                    </div>
+                    <div style="flex: 1; line-height: 1.5;">
+                        <div style="font-weight: 600; margin-bottom: 0.25rem; font-size: 0.9rem;">${config.title}</div>
+                        <div style="font-size: 0.85rem;">${message}</div>
+                    </div>
+                    ${config.showCloseButton ? '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="opacity: 0.8; transition: all 0.2s ease;" onmouseover="this.style.opacity=1; this.style.transform=\'scale(1.1)\'" onmouseout="this.style.opacity=0.8; this.style.transform=\'scale(1)\'"></button>' : ''}
+                </div>
+                ${progressBarHtml}
             `;
             
             container.appendChild(notification);
             
-            // Auto remove after 5 seconds
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.classList.remove('show');
-                    setTimeout(() => notification.remove(), 150);
-                }
-            }, 5000);
+            // Auto remove with enhanced animation
+            if (config.autoDismiss && config.duration > 0) {
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.style.animation = 'slideOutRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+                        setTimeout(() => {
+                            if (notification.parentNode) {
+                                notification.remove();
+                            }
+                        }, 300);
+                    }
+                }, config.duration);
+            }
+            
+            // Manual close button functionality
+            const closeBtn = notification.querySelector('.btn-close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    notification.style.animation = 'slideOutRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.remove();
+                        }
+                    }, 300);
+                });
+            }
+            
+            return notification;
         }
 
         // Dynamic height adjustment for viewport optimization
