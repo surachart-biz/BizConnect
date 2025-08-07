@@ -221,7 +221,8 @@
 
             // Validate OTAC before submission
             if (!otacHandler.validateInput(otacInput)) {
-                utils.showNotification('กรุณากรอกรหัส OTAC ที่ถูกต้อง', 'danger');
+                const message = languageToggle.t('validOtacRequired') || 'กรุณากรอกรหัส OTAC ที่ถูกต้อง';
+                utils.showNotification(message, 'danger');
                 otacInput.focus();
                 return;
             }
@@ -343,30 +344,94 @@
         },
 
         setupScrollToTop: function() {
-            // Create scroll to top button
+            // Create scroll to top button with proper styling and positioning
             const scrollBtn = document.createElement('button');
             scrollBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-            scrollBtn.className = 'btn btn-primary rounded-circle position-fixed d-none';
-            scrollBtn.style.cssText = 'bottom: 20px; right: 20px; z-index: 999; width: 50px; height: 50px;';
+            scrollBtn.className = 'scroll-to-top-btn rounded-circle position-fixed d-none';
+            scrollBtn.id = 'scrollToTopBtn';
+            scrollBtn.style.cssText = `
+                bottom: 20px; 
+                right: 20px; 
+                z-index: 1000; 
+                width: 50px; 
+                height: 50px;
+                background: linear-gradient(135deg, #4CAF50, #388E3C);
+                color: white;
+                border: none;
+                box-shadow: 0 4px 20px rgba(76, 175, 80, 0.3);
+                transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+                font-size: 1.2rem;
+                cursor: pointer;
+            `;
             scrollBtn.setAttribute('aria-label', 'กลับไปด้านบน');
+            scrollBtn.setAttribute('title', 'กลับไปด้านบน');
+            
+            // Add hover effects
+            scrollBtn.addEventListener('mouseenter', () => {
+                scrollBtn.style.transform = 'translateY(-3px) scale(1.1)';
+                scrollBtn.style.boxShadow = '0 6px 25px rgba(76, 175, 80, 0.4)';
+            });
+            
+            scrollBtn.addEventListener('mouseleave', () => {
+                scrollBtn.style.transform = 'translateY(0) scale(1)';
+                scrollBtn.style.boxShadow = '0 4px 20px rgba(76, 175, 80, 0.3)';
+            });
             
             document.body.appendChild(scrollBtn);
 
-            // Show/hide based on scroll position
-            window.addEventListener('scroll', () => {
-                if (window.pageYOffset > 300) {
+            // Show/hide with smooth transitions based on scroll position
+            let isVisible = false;
+            window.addEventListener('scroll', utils.debounce(() => {
+                const shouldShow = window.pageYOffset > 300;
+                
+                if (shouldShow && !isVisible) {
                     scrollBtn.classList.remove('d-none');
-                } else {
-                    scrollBtn.classList.add('d-none');
+                    scrollBtn.style.opacity = '0';
+                    scrollBtn.style.transform = 'translateY(10px) scale(0.8)';
+                    
+                    // Animate in
+                    requestAnimationFrame(() => {
+                        scrollBtn.style.transition = 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)';
+                        scrollBtn.style.opacity = '1';
+                        scrollBtn.style.transform = 'translateY(0) scale(1)';
+                    });
+                    isVisible = true;
+                    
+                } else if (!shouldShow && isVisible) {
+                    scrollBtn.style.transition = 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)';
+                    scrollBtn.style.opacity = '0';
+                    scrollBtn.style.transform = 'translateY(10px) scale(0.8)';
+                    
+                    setTimeout(() => {
+                        if (!isVisible) return; // Check if still should be hidden
+                        scrollBtn.classList.add('d-none');
+                    }, 300);
+                    isVisible = false;
                 }
-            });
+            }, 100));
 
-            // Scroll to top on click
-            scrollBtn.addEventListener('click', () => {
+            // Scroll to top with smooth animation and click feedback
+            scrollBtn.addEventListener('click', (e) => {
+                // Click animation
+                scrollBtn.style.transform = 'translateY(2px) scale(0.95)';
+                
+                setTimeout(() => {
+                    scrollBtn.style.transform = 'translateY(0) scale(1)';
+                }, 150);
+                
+                // Smooth scroll to top
                 window.scrollTo({
                     top: 0,
                     behavior: 'smooth'
                 });
+                
+                // Hide immediately after click
+                scrollBtn.style.opacity = '0.7';
+                setTimeout(() => {
+                    scrollBtn.style.opacity = '1';
+                }, 300);
+                
+                e.preventDefault();
             });
         }
     };
@@ -521,7 +586,10 @@
         },
 
         handleFormError: function(error) {
-            utils.showNotification('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง', 'danger');
+            const message = languageToggle.getCurrentLanguage() === 'th' 
+                ? 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง' 
+                : 'An error occurred. Please try again.';
+            utils.showNotification(message, 'danger');
             
             // Reset form state
             const submitBtn = document.getElementById('verifyBtn');
@@ -531,33 +599,201 @@
         }
     };
 
-    // Language toggle functionality
+    // Enhanced Language toggle functionality with UI translation
     const languageToggle = {
+        currentLanguage: 'th',
+        translations: {
+            'th': {
+                // Header elements
+                'signin': 'เข้าสู่ระบบ',
+                'signout': 'ออกจากระบบ',
+                'adminDashboard': 'แผงควบคุมผู้ดูแล',
+                'profile': 'จัดการโปรไฟล์',
+                
+                // Hero section
+                'heroTitle': 'ลงทะเบียนหักบัญชีอัตโนมัติ',
+                'heroSubtitle': 'สะดวก รวดเร็ว และปลอดภัย ด้วยระบบ OTAC จาก KBank สำหรับการลงทะเบียนบริการหักบัญชีอัตโนมัติ',
+                'secureBadge': 'ระบบปลอดภัย รับรองโดย KBank',
+                
+                // OTAC Form
+                'otacLabel': 'รหัส OTAC',
+                'otacPlaceholder': 'ABC12345',
+                'verifyButton': 'ยืนยันและดำเนินการต่อ',
+                'verifyingText': 'กำลังตรวจสอบ...',
+                
+                // Login Modal
+                'staffLogin': 'เข้าสู่ระบบเจ้าหน้าที่',
+                'staffOnly': 'สำหรับเจ้าหน้าที่และผู้ดูแลระบบเท่านั้น',
+                'username': 'ชื่อผู้ใช้งาน',
+                'password': 'รหัสผ่าน',
+                'signingIn': 'กำลังตรวจสอบ...',
+                'demoAccounts': 'บัญชีทดสอบ:',
+                'enterUsername': 'กรุณากรอกชื่อผู้ใช้งาน',
+                'enterPassword': 'กรุณากรอกรหัสผ่าน',
+                
+                // Notifications
+                'languageChanged': 'เปลี่ยนเป็นภาษาไทยแล้ว',
+                'loginSuccess': 'เข้าสู่ระบบสำเร็จ!',
+                'loginError': 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',
+                'logoutSuccess': 'ออกจากระบบเรียบร้อยแล้ว',
+                'fillAllFields': 'กรุณากรอกข้อมูลให้ครบถ้วน',
+                'validOtacRequired': 'กรุณากรอกรหัส OTAC ที่ถูกต้อง'
+            },
+            'en': {
+                // Header elements
+                'signin': 'Sign In',
+                'signout': 'Sign Out',
+                'adminDashboard': 'Admin Dashboard',
+                'profile': 'Manage Profile',
+                
+                // Hero section
+                'heroTitle': 'Automatic Direct Debit Registration',
+                'heroSubtitle': 'Convenient, Fast, and Secure with KBank OTAC system for automatic direct debit service registration',
+                'secureBadge': 'Secure System Certified by KBank',
+                
+                // OTAC Form
+                'otacLabel': 'OTAC Code',
+                'otacPlaceholder': 'ABC12345',
+                'verifyButton': 'Verify and Continue',
+                'verifyingText': 'Verifying...',
+                
+                // Login Modal
+                'staffLogin': 'Staff Login',
+                'staffOnly': 'For staff and system administrators only',
+                'username': 'Username',
+                'password': 'Password',
+                'signingIn': 'Signing in...',
+                'demoAccounts': 'Demo Accounts:',
+                'enterUsername': 'Please enter username',
+                'enterPassword': 'Please enter password',
+                
+                // Notifications
+                'languageChanged': 'Changed to English',
+                'loginSuccess': 'Login successful!',
+                'loginError': 'Invalid username or password',
+                'logoutSuccess': 'Logged out successfully',
+                'fillAllFields': 'Please fill in all fields',
+                'validOtacRequired': 'Please enter a valid OTAC code'
+            }
+        },
+
         init: function() {
             const langTH = document.getElementById('langTH');
             const langEN = document.getElementById('langEN');
             
             if (langTH && langEN) {
-                langTH.addEventListener('click', () => this.switchLanguage('th'));
-                langEN.addEventListener('click', () => this.switchLanguage('en'));
+                langTH.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.switchLanguage('th');
+                });
+                langEN.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.switchLanguage('en');
+                });
             }
+
+            // Load saved language preference
+            const savedLang = localStorage.getItem('preferredLanguage') || 'th';
+            this.switchLanguage(savedLang, false);
         },
 
-        switchLanguage: function(lang) {
+        switchLanguage: function(lang, showNotification = true) {
+            this.currentLanguage = lang;
+            
+            // Update language toggle buttons
             const langTH = document.getElementById('langTH');
             const langEN = document.getElementById('langEN');
             
             if (langTH && langEN) {
-                langTH.className = lang === 'th' ? 'btn btn-secondary btn-sm' : 'btn btn-outline-secondary btn-sm';
-                langEN.className = lang === 'en' ? 'btn btn-secondary btn-sm' : 'btn btn-outline-secondary btn-sm';
+                langTH.className = lang === 'th' ? 'lang-btn active' : 'lang-btn';
+                langEN.className = lang === 'en' ? 'lang-btn active' : 'lang-btn';
             }
+            
+            // Update all elements with data-text attributes
+            this.updateElementsText(lang);
             
             // Store language preference
             sessionStorage.setItem('language', lang);
             localStorage.setItem('preferredLanguage', lang);
             
             // Show notification
-            utils.showNotification(lang === 'th' ? 'เปลี่ยนเป็นภาษาไทยแล้ว' : 'Changed to English', 'success');
+            if (showNotification) {
+                utils.showNotification(this.translations[lang].languageChanged, 'success');
+            }
+        },
+
+        updateElementsText: function(lang) {
+            const elements = document.querySelectorAll('[data-text-th][data-text-en]');
+            
+            elements.forEach(element => {
+                const text = lang === 'th' ? element.dataset.textTh : element.dataset.textEn;
+                if (text) {
+                    // Handle different element types
+                    if (element.tagName === 'INPUT') {
+                        if (element.type === 'text' || element.type === 'password') {
+                            element.placeholder = text;
+                        } else {
+                            element.value = text;
+                        }
+                    } else if (element.tagName === 'A' && element.classList.contains('btn')) {
+                        // Handle buttons with spans
+                        const span = element.querySelector('span');
+                        if (span) {
+                            span.textContent = text;
+                        } else {
+                            // Fallback - update full text but preserve icons
+                            const icon = element.querySelector('i');
+                            if (icon) {
+                                element.innerHTML = '';
+                                element.appendChild(icon);
+                                element.appendChild(document.createTextNode(' ' + text));
+                            } else {
+                                element.textContent = text;
+                            }
+                        }
+                    } else if (element.classList.contains('signin-text') || element.classList.contains('menu-text')) {
+                        // Handle specific text spans within buttons/menus
+                        element.textContent = text;
+                    } else {
+                        // Handle regular text elements
+                        element.textContent = text;
+                    }
+                }
+            });
+
+            // Update specific dynamic content
+            this.updateDynamicContent(lang);
+        },
+
+        updateDynamicContent: function(lang) {
+            const translations = this.translations[lang];
+            
+            // Update OTAC form elements that might not have data attributes
+            const otacLabel = document.querySelector('.input-label');
+            if (otacLabel) {
+                otacLabel.textContent = translations.otacLabel;
+            }
+
+            const verifyBtn = document.getElementById('verifyBtn');
+            if (verifyBtn) {
+                const btnText = verifyBtn.querySelector('.btn-text');
+                if (btnText) {
+                    btnText.innerHTML = `<i class="fas fa-arrow-right"></i> ${translations.verifyButton}`;
+                }
+                
+                const spinnerText = verifyBtn.querySelector('.btn-spinner');
+                if (spinnerText) {
+                    spinnerText.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status"></span> ${translations.verifyingText}`;
+                }
+            }
+        },
+
+        getCurrentLanguage: function() {
+            return this.currentLanguage;
+        },
+
+        t: function(key) {
+            return this.translations[this.currentLanguage][key] || key;
         }
     };
 
@@ -571,6 +807,7 @@
         otacHandler.init();
         formHandler.init();
         languageToggle.init();
+        authIntegration.init();
         statsAnimator.init();
         smoothScroller.init();
         animationObserver.init();
@@ -589,6 +826,215 @@
         initLandingPage();
     }
 
+    // Authentication Integration
+    const authIntegration = {
+        init: function() {
+            console.log('🔄 Landing: Initializing authentication integration...');
+            
+            // CRITICAL: Force unauthenticated state first
+            this.forceUnauthenticatedState();
+            
+            // Setup password visibility toggle
+            this.setupPasswordToggle();
+            
+            // Setup login form validation
+            this.setupLoginValidation();
+            
+            // NOTE: Do NOT add sign-in button event handlers here
+            // The sign-in button modal functionality is handled in Index.cshtml
+            
+            // Delay auth check to let auth.js initialize first
+            setTimeout(() => {
+                this.checkAuthStatus();
+            }, 250);
+        },
+
+        // Force UI to unauthenticated state immediately
+        forceUnauthenticatedState: function() {
+            console.log('🚨 Landing: Forcing unauthenticated state...');
+            
+            const signInContainer = document.getElementById('signInContainer');
+            const userDropdownContainer = document.getElementById('userDropdownContainer');
+            
+            if (signInContainer) {
+                signInContainer.classList.remove('d-none', 'hide-signin');
+                signInContainer.style.display = 'flex';
+                console.log('✅ Landing: Sign-in container forced visible');
+            }
+            
+            if (userDropdownContainer) {
+                userDropdownContainer.classList.add('d-none');
+                userDropdownContainer.classList.remove('show-user');
+                userDropdownContainer.style.display = 'none';
+                console.log('✅ Landing: User dropdown container forced hidden');
+            }
+        },
+
+        checkAuthStatus: function() {
+            console.log('🔍 Landing: Checking authentication status...');
+            
+            // First ensure we start with unauthenticated state
+            this.forceUnauthenticatedState();
+            
+            // Check if auth.js has loaded and has auth status
+            if (window.authManager && typeof window.authManager.isLoggedIn === 'function') {
+                const isLoggedIn = window.authManager.isLoggedIn();
+                console.log('🔍 Landing: Auth manager status check - logged in:', isLoggedIn);
+                
+                if (isLoggedIn) {
+                    const userData = window.authManager.getCurrentUser();
+                    console.log('🔓 Landing: Auth manager detected logged-in user:', userData);
+                    if (userData && userData.username) {
+                        this.updateUIForLoggedInUser(userData);
+                    } else {
+                        console.log('⚠️ Landing: Invalid user data, forcing unauthenticated');
+                        this.updateUI(null);
+                    }
+                } else {
+                    console.log('🔒 Landing: User not logged in');
+                    this.updateUI(null);
+                }
+            } else {
+                // Ensure UI shows sign-in by default when no auth manager
+                console.log('🔒 Landing: No auth manager available, showing sign-in state');
+                this.updateUI(null);
+            }
+        },
+
+        updateUI: function(userData) {
+            console.log('🔄 Landing: Updating UI state for user:', userData);
+            
+            const signInContainer = document.getElementById('signInContainer');
+            const userDropdownContainer = document.getElementById('userDropdownContainer');
+            const userName = document.getElementById('userName');
+
+            if (userData && userData.username) {
+                console.log('🔓 Landing: Showing authenticated UI');
+                
+                // Show user dropdown container, hide sign in container
+                if (signInContainer) {
+                    signInContainer.classList.add('d-none', 'hide-signin');
+                    signInContainer.style.display = 'none';
+                }
+                if (userDropdownContainer) {
+                    userDropdownContainer.classList.remove('d-none');
+                    userDropdownContainer.classList.add('show-user');
+                    userDropdownContainer.style.display = 'flex';
+                }
+                if (userName) {
+                    userName.textContent = userData.username;
+                }
+            } else {
+                console.log('🔒 Landing: Showing unauthenticated UI');
+                
+                // Show sign in container, hide user dropdown container
+                if (signInContainer) {
+                    signInContainer.classList.remove('d-none', 'hide-signin');
+                    signInContainer.style.display = 'flex';
+                }
+                if (userDropdownContainer) {
+                    userDropdownContainer.classList.add('d-none');
+                    userDropdownContainer.classList.remove('show-user');
+                    userDropdownContainer.style.display = 'none';
+                }
+            }
+        },
+
+        setupPasswordToggle: function() {
+            const toggleBtn = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('passwordToggleIcon');
+
+            if (toggleBtn && passwordInput && toggleIcon) {
+                toggleBtn.addEventListener('click', () => {
+                    const isPassword = passwordInput.type === 'password';
+                    passwordInput.type = isPassword ? 'text' : 'password';
+                    toggleIcon.className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+                });
+            }
+        },
+
+        setupLoginValidation: function() {
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                // Add real-time validation
+                const usernameField = document.getElementById('username');
+                const passwordField = document.getElementById('password');
+
+                if (usernameField) {
+                    usernameField.addEventListener('blur', () => {
+                        this.validateField(usernameField, 'username');
+                    });
+                }
+
+                if (passwordField) {
+                    passwordField.addEventListener('blur', () => {
+                        this.validateField(passwordField, 'password');
+                    });
+                }
+            }
+        },
+
+        validateField: function(field, type) {
+            const isValid = field.value.trim().length > 0;
+            const errorMessage = type === 'username' 
+                ? languageToggle.t('enterUsername')
+                : languageToggle.t('enterPassword');
+
+            if (isValid) {
+                field.classList.remove('is-invalid');
+                field.classList.add('is-valid');
+            } else if (field.value.length > 0) {
+                field.classList.remove('is-valid');
+                field.classList.add('is-invalid');
+                // Update the invalid feedback text
+                const feedback = field.parentElement.querySelector('.invalid-feedback span');
+                if (feedback) {
+                    feedback.textContent = errorMessage;
+                }
+            }
+        },
+
+        updateUIForLoggedInUser: function(userData) {
+            console.log('🔓 Landing: Updating UI for logged-in user:', userData);
+            
+            const signInContainer = document.getElementById('signInContainer');
+            const userDropdownContainer = document.getElementById('userDropdownContainer');
+            const userName = document.getElementById('userName');
+
+            if (signInContainer && userDropdownContainer && userName && userData.username) {
+                signInContainer.classList.add('d-none', 'hide-signin');
+                signInContainer.style.display = 'none';
+                
+                userDropdownContainer.classList.remove('d-none');
+                userDropdownContainer.classList.add('show-user');
+                userDropdownContainer.style.display = 'flex';
+                
+                userName.textContent = userData.username;
+                
+                console.log('✅ Landing: Updated UI for authenticated user');
+            } else {
+                console.log('⚠️ Landing: Missing elements or invalid user data, forcing unauthenticated');
+                this.updateUI(null);
+            }
+        },
+
+        showLoginError: function(message) {
+            const errorAlert = document.getElementById('loginErrorAlert');
+            const errorMessage = document.getElementById('loginErrorMessage');
+            
+            if (errorAlert && errorMessage) {
+                errorMessage.textContent = message;
+                errorAlert.classList.remove('d-none');
+                
+                // Hide after 5 seconds
+                setTimeout(() => {
+                    errorAlert.classList.add('d-none');
+                }, 5000);
+            }
+        }
+    };
+
     // Expose utility functions globally for debugging
     if (window.location.hostname === 'localhost') {
         window.BizConnectLanding = {
@@ -596,8 +1042,12 @@
             otacHandler,
             formHandler,
             languageToggle,
+            authIntegration,
             state
         };
     }
+
+    // Make language toggle available globally for auth.js integration
+    window.BizConnectLanguage = languageToggle;
 
 })();

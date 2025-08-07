@@ -3,78 +3,81 @@
     ViewData["Title"] = "BizConnect - KBank OTAC Registration";
 }
 
-<!-- Site Header with Authentication -->
-<header class="site-header bg-white shadow-sm">
-    <div class="container">
-        <div class="row align-items-center py-3">
-            <div class="col-md-6">
-                <div class="d-flex align-items-center">
-                    <div class="logo me-3">
-                        <i class="fas fa-university text-success me-2"></i>
-                        <span class="h4 mb-0 fw-bold">BizConnect</span>
-                        <span class="badge bg-success ms-2">KBank Partner</span>
-                    </div>
-                </div>
+<div class="landing-wrapper">
+<!-- Site Header with Authentication - Styled to match _Layout.cshtml -->
+<header class="header">
+    <nav class="nav-container">
+        <div class="logo-section">
+            <div class="logo">BC</div>
+            <span class="brand-name">BizConnect</span>
+            <span class="kbank-badge">KBank Partner</span>
+        </div>
+
+        <div class="nav-actions">
+            <!-- Language Toggle -->
+            <div class="language-toggle">
+                <button class="lang-btn" id="langEN" data-lang="en">EN</button>
+                <button class="lang-btn active" id="langTH" data-lang="th">TH</button>
             </div>
-            <div class="col-md-6 text-end">
-                <div class="header-actions">
-                    <!-- Language Toggle -->
-                    <div class="btn-group me-3">
-                        <button class="btn btn-outline-secondary btn-sm" id="langTH">TH</button>
-                        <button class="btn btn-secondary btn-sm" id="langEN">EN</button>
-                    </div>
-                    
-                    <!-- Sign In Button -->
-                    <button class="btn btn-success" id="signInBtn" data-bs-toggle="modal" data-bs-target="#loginModal">
-                        <i class="fas fa-sign-in-alt me-2"></i>
-                        เข้าสู่ระบบ
+            
+            <!-- Sign In Container -->
+            <div id="signInContainer">
+                <button class="btn-signin" id="signInBtn" type="button" data-text-th="เข้าสู่ระบบ" data-text-en="Sign In">
+                    <i class="fas fa-user me-2"></i>
+                    <span class="signin-text">เข้าสู่ระบบ</span>
+                </button>
+            </div>
+            
+            <!-- User Dropdown Container (hidden by default) -->
+            <div id="userDropdownContainer" class="d-none" style="display: none !important;">
+                <div class="dropdown" id="userMenu">
+                    <button class="btn-signin dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-2"></i>
+                        <span id="userName">ผู้ใช้งาน</span>
                     </button>
-                    
-                    <!-- User Menu (hidden by default) -->
-                    <div class="dropdown d-none" id="userMenu">
-                        <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle me-2"></i>
-                            <span id="userName">ผู้ใช้งาน</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a class="dropdown-item" href="#" id="adminDashboardLink">
-                                    <i class="fas fa-tachometer-alt me-2"></i>
-                                    Admin Dashboard
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user-cog me-2"></i>
-                                    จัดการโปรไฟล์
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item" href="#" id="signOutBtn">
-                                    <i class="fas fa-sign-out-alt me-2"></i>
-                                    ออกจากระบบ
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <li>
+                            <a class="dropdown-item" href="#" id="adminDashboardLink" data-text-th="แผงควบคุมผู้ดูแล" data-text-en="Admin Dashboard">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                <span class="menu-text">แผงควบคุมผู้ดูแล</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#" data-text-th="จัดการโปรไฟล์" data-text-en="Manage Profile">
+                                <i class="fas fa-user-cog me-2"></i>
+                                <span class="menu-text">จัดการโปรไฟล์</span>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="#" id="signOutBtn" data-text-th="ออกจากระบบ" data-text-en="Sign Out">
+                                <i class="fas fa-sign-out-alt me-2"></i>
+                                <span class="menu-text">ออกจากระบบ</span>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
-    </div>
+    </nav>
 </header>
+
 
 <!-- Hero Section -->
 <section class="hero-section">
     <div class="hero-content">
         <div class="hero-badge">
             <i class="fas fa-shield-alt"></i>
-            ระบบปลอดภัย รับรองโดย KBank
+            <span data-text-th="ระบบปลอดภัย รับรองโดย KBank" data-text-en="Secure System Certified by KBank">
+                ระบบปลอดภัย รับรองโดย KBank
+            </span>
         </div>
 
-        <h1 class="hero-title">ลงทะเบียนหักบัญชีอัตโนมัติ</h1>
+        <h1 class="hero-title" data-text-th="ลงทะเบียนหักบัญชีอัตโนมัติ" data-text-en="Automatic Direct Debit Registration">
+            ลงทะเบียนหักบัญชีอัตโนมัติ
+        </h1>
 
-        <p class="hero-subtitle">
+        <p class="hero-subtitle" data-text-th="สะดวก รวดเร็ว และปลอดภัย ด้วยระบบ OTAC จาก KBank สำหรับการลงทะเบียนบริการหักบัญชีอัตโนมัติ" data-text-en="Convenient, Fast, and Secure with KBank OTAC system for automatic direct debit service registration">
             สะดวก รวดเร็ว และปลอดภัย ด้วยระบบ OTAC จาก KBank สำหรับการลงทะเบียนบริการหักบัญชีอัตโนมัติ
         </p>
 
@@ -83,47 +86,47 @@
                 <div class="feature-icon">
                     <i class="fas fa-check"></i>
                 </div>
-                <span>ปลอดภัยด้วยรหัส OTAC แบบใช้ครั้งเดียว</span>
+                <span data-text-th="ปลอดภัยด้วยรหัส OTAC แบบใช้ครั้งเดียว" data-text-en="Secure with one-time OTAC code">ปลอดภัยด้วยรหัส OTAC แบบใช้ครั้งเดียว</span>
             </div>
 
             <div class="feature-item">
                 <div class="feature-icon">
                     <i class="fas fa-clock"></i>
                 </div>
-                <span>ใช้เวลาเพียง 3 นาที เสร็จสิ้นการลงทะเบียน</span>
+                <span data-text-th="ใช้เวลาเพียง 3 นาที เสร็จสิ้นการลงทะเบียน" data-text-en="Complete registration in just 3 minutes">ใช้เวลาเพียง 3 นาที เสร็จสิ้นการลงทะเบียน</span>
             </div>
 
             <div class="feature-item">
                 <div class="feature-icon">
                     <i class="fas fa-mobile-alt"></i>
                 </div>
-                <span>รองรับทุกอุปกรณ์ ทั้งมือถือและคอมพิวเตอร์</span>
+                <span data-text-th="รองรับทุกอุปกรณ์ ทั้งมือถือและคอมพิวเตอร์" data-text-en="Supports all devices, mobile and desktop">รองรับทุกอุปกรณ์ ทั้งมือถือและคอมพิวเตอร์</span>
             </div>
         </div>
 
         <div class="hero-actions">
-            <a href="#otac-form" class="btn btn-primary">
+            <a href="#otac-form" class="btn btn-primary" data-text-th="เริ่มลงทะเบียนเลย" data-text-en="Start Registration Now">
                 <i class="fas fa-play"></i>
-                เริ่มลงทะเบียนเลย
+                <span>เริ่มลงทะเบียนเลย</span>
             </a>
-            <a href="#how-it-works" class="btn btn-outline">
+            <a href="#how-it-works" class="btn btn-outline" data-text-th="วิธีการใช้งาน" data-text-en="How It Works">
                 <i class="fas fa-info-circle"></i>
-                วิธีการใช้งาน
+                <span>วิธีการใช้งาน</span>
             </a>
         </div>
 
         <div class="trust-indicators">
             <div class="trust-item">
                 <i class="fas fa-shield-alt"></i>
-                <span>ปลอดภัย 100%</span>
+                <span data-text-th="ปลอดภัย 100%" data-text-en="100% Secure">ปลอดภัย 100%</span>
             </div>
             <div class="trust-item">
                 <i class="fas fa-users"></i>
-                <span>ผู้ใช้กว่า 10,000+ คน</span>
+                <span data-text-th="ผู้ใช้กว่า 10,000+ คน" data-text-en="10,000+ Users">ผู้ใช้กว่า 10,000+ คน</span>
             </div>
             <div class="trust-item">
                 <i class="fas fa-star"></i>
-                <span>ความพึงพอใจ 98.5%</span>
+                <span data-text-th="ความพึงพอใจ 98.5%" data-text-en="98.5% Satisfaction">ความพึงพอใจ 98.5%</span>
             </div>
         </div>
     </div>
@@ -135,8 +138,8 @@
                 <div class="card-icon">
                     <i class="fas fa-key"></i>
                 </div>
-                <h3 class="card-title">ยืนยันรหัส OTAC</h3>
-                <p class="card-subtitle">กรอกรหัส OTAC ที่ได้รับจากเจ้าหน้าที่</p>
+                <h3 class="card-title" data-text-th="ยืนยันรหัส OTAC" data-text-en="Verify OTAC Code">ยืนยันรหัส OTAC</h3>
+                <p class="card-subtitle" data-text-th="กรอกรหัส OTAC ที่ได้รับจากเจ้าหน้าที่" data-text-en="Enter the OTAC code received from staff">กรอกรหัส OTAC ที่ได้รับจากเจ้าหน้าที่</p>
             </div>
 
             @using (Html.BeginForm("VerifyOtac", "Home", FormMethod.Post, new { @class = "otac-form", @id = "otacForm" }))
@@ -294,50 +297,110 @@
     </div>
 </section>
 
-<!-- Login Modal -->
-<div class="modal fade" id="loginModal" tabindex="-1">
+<!-- Enhanced Login Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+        <div class="modal-content border-0 shadow-lg">
             <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title">
+                <h5 class="modal-title fw-bold" id="loginModalLabel">
                     <i class="fas fa-shield-alt text-success me-2"></i>
-                    เข้าสู่ระบบเจ้าหน้าที่
+                    <span data-text-th="เข้าสู่ระบบเจ้าหน้าที่" data-text-en="Staff Login">เข้าสู่ระบบเจ้าหน้าที่</span>
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body pt-0">
-                <div class="alert alert-info border-0 bg-light">
+                <div class="alert alert-info border-0 bg-light mb-3">
                     <i class="fas fa-info-circle me-2"></i>
-                    <small>สำหรับเจ้าหน้าที่และผู้ดูแลระบบเท่านั้น</small>
+                    <small data-text-th="สำหรับเจ้าหน้าที่และผู้ดูแลระบบเท่านั้น" data-text-en="For staff and system administrators only">
+                        สำหรับเจ้าหน้าที่และผู้ดูแลระบบเท่านั้น
+                    </small>
                 </div>
                 
-                <form id="loginForm">
+                <!-- Login Error Alert (hidden by default) -->
+                <div class="alert alert-danger d-none" id="loginErrorAlert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span id="loginErrorMessage"></span>
+                </div>
+                
+                <form id="loginForm" novalidate>
                     <div class="mb-3">
-                        <label for="username" class="form-label">ชื่อผู้ใช้งาน</label>
-                        <input type="text" class="form-control" id="username" required>
+                        <label for="username" class="form-label fw-semibold" data-text-th="ชื่อผู้ใช้งาน" data-text-en="Username">
+                            ชื่อผู้ใช้งาน
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="fas fa-user text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control" id="username" 
+                                   placeholder="admin, employee, or test" 
+                                   autocomplete="username" required>
+                            <div class="invalid-feedback">
+                                <span data-text-th="กรุณากรอกชื่อผู้ใช้งาน" data-text-en="Please enter username">
+                                    กรุณากรอกชื่อผู้ใช้งาน
+                                </span>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="mb-3">
-                        <label for="password" class="form-label">รหัสผ่าน</label>
-                        <input type="password" class="form-control" id="password" required>
+                        <label for="password" class="form-label fw-semibold" data-text-th="รหัสผ่าน" data-text-en="Password">
+                            รหัสผ่าน
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="fas fa-lock text-muted"></i>
+                            </span>
+                            <input type="password" class="form-control" id="password" 
+                                   placeholder="••••••••" 
+                                   autocomplete="current-password" required>
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword" aria-label="Toggle password visibility">
+                                <i class="fas fa-eye" id="passwordToggleIcon"></i>
+                            </button>
+                            <div class="invalid-feedback">
+                                <span data-text-th="กรุณากรอกรหัสผ่าน" data-text-en="Please enter password">
+                                    กรุณากรอกรหัสผ่าน
+                                </span>
+                            </div>
+                        </div>
                     </div>
                     
-                    <button type="submit" class="btn btn-success w-100" id="loginSubmitBtn">
+                    <button type="submit" class="btn btn-success w-100 py-2 fw-semibold" id="loginSubmitBtn">
                         <span class="login-text">
                             <i class="fas fa-sign-in-alt me-2"></i>
-                            เข้าสู่ระบบ
+                            <span data-text-th="เข้าสู่ระบบ" data-text-en="Sign In">เข้าสู่ระบบ</span>
                         </span>
                         <span class="login-spinner d-none">
-                            <span class="spinner-border spinner-border-sm me-2"></span>
-                            กำลังตรวจสอบ...
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            <span data-text-th="กำลังตรวจสอบ..." data-text-en="Signing in...">กำลังตรวจสอบ...</span>
                         </span>
                     </button>
                 </form>
                 
-                <div class="mt-3 text-center">
-                    <small class="text-muted">
-                        Demo: admin/admin123, employee/emp123, test/test123
-                    </small>
+                <!-- Demo Credentials -->
+                <div class="mt-4">
+                    <div class="border-top pt-3">
+                        <h6 class="text-muted small mb-2" data-text-th="บัญชีทดสอบ:" data-text-en="Demo Accounts:">บัญชีทดสอบ:</h6>
+                        <div class="row g-2 small">
+                            <div class="col-4">
+                                <div class="bg-light p-2 rounded text-center">
+                                    <div class="fw-semibold text-primary">Admin</div>
+                                    <div class="text-muted">admin123</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="bg-light p-2 rounded text-center">
+                                    <div class="fw-semibold text-success">Employee</div>
+                                    <div class="text-muted">emp123</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="bg-light p-2 rounded text-center">
+                                    <div class="fw-semibold text-info">Test</div>
+                                    <div class="text-muted">test123</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -346,8 +409,402 @@
 
 <!-- Notification Container -->
 <div id="notificationContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+</div>
 
 @section Scripts {
-    <script src="~/js/landing.js" asp-append-version="true"></script>
-    <script src="~/js/auth.js" asp-append-version="true"></script>
+    <!-- CRITICAL: Ensure Bootstrap is loaded before initializing modal -->
+    <script>
+        // Bootstrap verification and enhanced error handling
+        function verifyBootstrapAvailability() {
+            console.log('🔍 Verifying Bootstrap availability...');
+            
+            const checks = {
+                bootstrap: typeof bootstrap !== 'undefined',
+                bootstrapModal: typeof bootstrap !== 'undefined' && bootstrap.Modal,
+                bootstrapModalFunction: typeof bootstrap !== 'undefined' && typeof bootstrap.Modal === 'function',
+                jqueryBootstrap: typeof $ !== 'undefined' && $.fn && $.fn.modal,
+                layoutBootstrap: typeof window.isBootstrapReady === 'function' && window.isBootstrapReady()
+            };
+            
+            console.log('📊 Bootstrap availability checks:', checks);
+            
+            return checks.bootstrap && checks.bootstrapModal && checks.bootstrapModalFunction;
+        }
+        
+        // Enhanced initialization with multiple fallback attempts
+        function initializeWithBootstrapCheck() {
+            console.log('🚀 Starting enhanced Bootstrap initialization...');
+            
+            if (verifyBootstrapAvailability()) {
+                console.log('✅ Bootstrap is ready, proceeding with initialization');
+                initializeSignInModal();
+                return;
+            }
+            
+            // Use layout's Bootstrap waiter if available
+            if (typeof window.waitForBootstrap === 'function') {
+                console.log('⏳ Using layout Bootstrap waiter...');
+                window.waitForBootstrap(function(success) {
+                    if (success) {
+                        console.log('✅ Layout Bootstrap waiter succeeded');
+                        initializeSignInModal();
+                    } else {
+                        console.log('⚠️ Layout Bootstrap waiter failed, using custom waiter');
+                        waitForBootstrap(initializeSignInModal);
+                    }
+                });
+            } else {
+                console.log('⏳ Using custom Bootstrap waiter...');
+                waitForBootstrap(initializeSignInModal);
+            }
+        }
+        console.log('🔄 Modal script loaded');
+        
+        // Global modal instance for debugging
+        let globalModalInstance = null;
+        
+        // Wait for Bootstrap to be fully available with better error handling
+        function waitForBootstrap(callback, maxAttempts = 200) {
+            let attempts = 0;
+            
+            function checkBootstrap() {
+                attempts++;
+                console.log(`⏳ Bootstrap check attempt ${attempts}...`);
+                
+                // Check multiple Bootstrap availability conditions
+                const bootstrapAvailable = (
+                    typeof bootstrap !== 'undefined' && 
+                    bootstrap.Modal &&
+                    typeof bootstrap.Modal === 'function'
+                );
+                
+                const jQueryBootstrapAvailable = (
+                    typeof $ !== 'undefined' && 
+                    $.fn && 
+                    $.fn.modal
+                );
+                
+                if (bootstrapAvailable) {
+                    console.log('✅ Bootstrap 5 loaded successfully!');
+                    callback();
+                } else if (jQueryBootstrapAvailable) {
+                    console.log('✅ Bootstrap 4/jQuery version available, adapting...');
+                    // Adapt for jQuery Bootstrap
+                    window.bootstrap = {
+                        Modal: function(element, options) {
+                            return {
+                                show: function() { $(element).modal('show'); },
+                                hide: function() { $(element).modal('hide'); },
+                                dispose: function() { $(element).modal('dispose'); }
+                            };
+                        }
+                    };
+                    callback();
+                } else if (attempts < maxAttempts) {
+                    // Increase delay for later attempts
+                    const delay = attempts > 50 ? 100 : 25;
+                    setTimeout(checkBootstrap, delay);
+                } else {
+                    console.error('❌ Bootstrap failed to load after', maxAttempts, 'attempts');
+                    console.error('Available globals:', {
+                        bootstrap: typeof bootstrap,
+                        $: typeof $,
+                        jQuery: typeof jQuery
+                    });
+                    
+                    // Try fallback initialization without Bootstrap
+                    console.log('🔄 Attempting fallback modal initialization...');
+                    initializeFallbackModal();
+                }
+            }
+            
+            checkBootstrap();
+        }
+        
+        // Verify all required elements exist
+        function verifyModalElements() {
+            const loginModal = document.getElementById('loginModal');
+            const signInBtn = document.getElementById('signInBtn');
+            
+            console.log('🔍 Element verification:');
+            console.log('  - loginModal:', loginModal ? '✅ Found' : '❌ Missing');
+            console.log('  - signInBtn:', signInBtn ? '✅ Found' : '❌ Missing');
+            
+            if (loginModal) {
+                console.log('  - Modal classes:', loginModal.className);
+                console.log('  - Modal attributes:', {
+                    id: loginModal.id,
+                    tabindex: loginModal.tabIndex,
+                    'aria-hidden': loginModal.getAttribute('aria-hidden')
+                });
+            }
+            
+            return loginModal && signInBtn;
+        }
+        
+        // Fallback modal initialization for when Bootstrap fails to load
+        function initializeFallbackModal() {
+            console.log('🔄 Initializing fallback modal system...');
+            
+            const loginModal = document.getElementById('loginModal');
+            if (!loginModal) {
+                console.error('❌ Login modal element not found for fallback');
+                return;
+            }
+            
+            // Create simple modal controller
+            globalModalInstance = {
+                show: function() {
+                    console.log('📺 Fallback: Showing modal');
+                    loginModal.style.display = 'block';
+                    loginModal.classList.add('show');
+                    loginModal.setAttribute('aria-hidden', 'false');
+                    
+                    // Add backdrop
+                    const backdrop = document.createElement('div');
+                    backdrop.className = 'modal-backdrop fade show';
+                    backdrop.id = 'fallback-backdrop';
+                    document.body.appendChild(backdrop);
+                    document.body.classList.add('modal-open');
+                    
+                    // Focus username field
+                    setTimeout(() => {
+                        const usernameField = document.getElementById('username');
+                        if (usernameField) usernameField.focus();
+                    }, 100);
+                },
+                
+                hide: function() {
+                    console.log('📺 Fallback: Hiding modal');
+                    loginModal.style.display = 'none';
+                    loginModal.classList.remove('show');
+                    loginModal.setAttribute('aria-hidden', 'true');
+                    
+                    // Remove backdrop
+                    const backdrop = document.getElementById('fallback-backdrop');
+                    if (backdrop) backdrop.remove();
+                    document.body.classList.remove('modal-open');
+                },
+                
+                dispose: function() {
+                    this.hide();
+                }
+            };
+            
+            console.log('✅ Fallback modal system initialized');
+            setupModalEventHandlers();
+        }
+        
+        // Initialize modal when Bootstrap is ready
+        function initializeSignInModal() {
+            console.log('🚀 Starting Sign-In Modal initialization...');
+            
+            if (!verifyModalElements()) {
+                console.error('❌ Modal elements verification failed');
+                return;
+            }
+            
+            const loginModal = document.getElementById('loginModal');
+            const signInBtn = document.getElementById('signInBtn');
+            
+            // Create Bootstrap modal instance
+            try {
+                globalModalInstance = new bootstrap.Modal(loginModal, {
+                    backdrop: true,
+                    keyboard: true,
+                    focus: true
+                });
+                console.log('✅ Bootstrap Modal instance created successfully');
+                
+                // Test modal instance
+                console.log('🧪 Testing modal instance methods...');
+                console.log('  - show method:', typeof globalModalInstance.show);
+                console.log('  - hide method:', typeof globalModalInstance.hide);
+                
+            } catch (error) {
+                console.error('❌ Error creating Bootstrap Modal instance:', error);
+                console.log('🔄 Falling back to custom modal implementation...');
+                initializeFallbackModal();
+                return;
+            }
+            
+            // Remove existing event listeners first
+            const newSignInBtn = signInBtn.cloneNode(true);
+            signInBtn.parentNode.replaceChild(newSignInBtn, signInBtn);
+            console.log('🔄 Sign-in button cloned to remove existing listeners');
+            
+            // Add click event listener to the new button
+            newSignInBtn.addEventListener('click', function(e) {
+                console.log('🔐 CLICK EVENT: Sign-in button clicked!');
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                
+                try {
+                    console.log('🎭 Attempting to show modal...');
+                    globalModalInstance.show();
+                    console.log('✅ Modal show() method called');
+                } catch (error) {
+                    console.error('❌ Error in modal show():', error);
+                }
+            });
+            
+            setupModalEventHandlers();
+            
+            // Global debug functions
+            window.debugShowModal = function() {
+                console.log('🧪 DEBUG: Manually showing modal...');
+                try {
+                    globalModalInstance.show();
+                    console.log('✅ DEBUG: Modal show() called');
+                } catch (error) {
+                    console.error('❌ DEBUG: Error showing modal:', error);
+                }
+            };
+            
+            window.debugModalInstance = globalModalInstance;
+            
+            console.log('✅ Sign-in modal initialization COMPLETED');
+            console.log('💡 You can test the modal by running: debugShowModal()');
+        }
+        
+        // Setup modal event handlers (works for both Bootstrap and fallback)
+        function setupModalEventHandlers() {
+            const loginModal = document.getElementById('loginModal');
+            if (!loginModal) return;
+            
+            // Bootstrap event listeners (if available)
+            try {
+                loginModal.addEventListener('show.bs.modal', function() {
+                    console.log('🎭 Modal SHOW event triggered');
+                });
+                
+                loginModal.addEventListener('shown.bs.modal', function() {
+                    console.log('🎭 Modal SHOWN event - modal is now visible');
+                    const usernameField = document.getElementById('username');
+                    if (usernameField) {
+                        setTimeout(() => usernameField.focus(), 100);
+                    }
+                });
+                
+                loginModal.addEventListener('hide.bs.modal', function() {
+                    console.log('🎭 Modal HIDE event triggered');
+                });
+                
+                loginModal.addEventListener('hidden.bs.modal', function() {
+                    console.log('🎭 Modal HIDDEN event - modal is now hidden');
+                });
+            } catch (error) {
+                console.log('ℹ️ Bootstrap modal events not available, using fallback');
+            }
+            
+            // Close button handlers (works for both Bootstrap and fallback)
+            const closeButtons = loginModal.querySelectorAll('[data-bs-dismiss="modal"], .btn-close');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (globalModalInstance && globalModalInstance.hide) {
+                        globalModalInstance.hide();
+                    }
+                });
+            });
+            
+            // Backdrop click handler
+            loginModal.addEventListener('click', function(e) {
+                if (e.target === loginModal) {
+                    if (globalModalInstance && globalModalInstance.hide) {
+                        globalModalInstance.hide();
+                    }
+                }
+            });
+            
+            // Escape key handler
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && loginModal.classList.contains('show')) {
+                    if (globalModalInstance && globalModalInstance.hide) {
+                        globalModalInstance.hide();
+                    }
+                }
+            });
+            
+            // Global debug functions
+            window.debugShowModal = function() {
+                console.log('🧪 DEBUG: Manually showing modal...');
+                try {
+                    globalModalInstance.show();
+                    console.log('✅ DEBUG: Modal show() called');
+                } catch (error) {
+                    console.error('❌ DEBUG: Error showing modal:', error);
+                }
+            };
+            
+            window.debugModalInstance = globalModalInstance;
+            
+            console.log('✅ Sign-in modal initialization COMPLETED');
+            console.log('💡 You can test the modal by running: debugShowModal()');
+        }
+        
+        // Multiple initialization attempts for robustness
+        function startInitialization() {
+            console.log('🔄 Starting enhanced modal initialization process...');
+            
+            // Try immediate initialization if DOM is already loaded
+            if (document.readyState !== 'loading') {
+                console.log('📄 DOM already loaded, attempting immediate initialization');
+                setTimeout(initializeWithBootstrapCheck, 100);
+            }
+            
+            // Also try on DOMContentLoaded
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('📄 DOMContentLoaded fired, attempting initialization');
+                setTimeout(initializeWithBootstrapCheck, 200);
+            });
+            
+            // Final fallback attempt after window loads
+            window.addEventListener('load', function() {
+                console.log('🌍 Window load event fired, final initialization attempt');
+                setTimeout(() => {
+                    if (!globalModalInstance) {
+                        console.log('⚠️ Modal not yet initialized, trying final attempt...');
+                        initializeWithBootstrapCheck();
+                    } else {
+                        console.log('✅ Modal already initialized, skipping final attempt');
+                    }
+                }, 500);
+            });
+        }
+        
+        // Start the initialization process immediately
+        startInitialization();
+    </script>
+    
+    <!-- Load custom scripts with proper timing -->
+    <script>
+        // Global flag to indicate modal initialization is complete
+        window.modalInitialized = false;
+        
+        // Set flag when modal initialization completes
+        const originalStartInit = startInitialization;
+        startInitialization = function() {
+            originalStartInit();
+            // Set flag after giving time for initialization
+            setTimeout(() => {
+                window.modalInitialized = true;
+                console.log('✅ Modal initialization flag set');
+            }, 2000);
+        };
+    </script>
+    
+    <!-- Load landing.js and auth.js with proper timing -->
+    <script src="~/js/landing.js" asp-append-version="true" defer></script>
+    <script src="~/js/auth.js" asp-append-version="true" defer></script>
+    
+    <!-- Development-only modal test script -->
+    <script>
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            const testScript = document.createElement('script');
+            testScript.src = '~/js/modal-test.js';
+            testScript.defer = true;
+            document.head.appendChild(testScript);
+        }
+    </script>
 }

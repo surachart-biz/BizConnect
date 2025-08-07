@@ -4,8 +4,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - BizConnect</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" 
+          integrity="sha384-9ndCyUa9k/S+jT2K8LbD7Jjt6HV6FKvK6eEn3M6+ggFgzQKtfOsOjQxfMJkh9v9V" 
+          crossorigin="anonymous" 
+          onerror="this.onerror=null;this.href='/lib/bootstrap/dist/css/bootstrap.min.css';">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" 
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+          crossorigin="anonymous" 
+          referrerpolicy="no-referrer">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -131,11 +137,11 @@
             color: var(--text-secondary);
         }
 
-            .lang-btn.active {
-                background: white;
-                color: var(--text-primary);
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
+        .lang-btn.active {
+            background: white;
+            color: var(--text-primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
         /* Sign In Button */
         .btn-signin {
@@ -154,11 +160,11 @@
             text-decoration: none;
         }
 
-            .btn-signin:hover {
-                background: var(--kbank-green-dark);
-                transform: translateY(-2px);
-                box-shadow: var(--shadow-medium);
-            }
+        .btn-signin:hover {
+            background: var(--kbank-green-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
 
         /* Hero Section */
         .hero-section {
@@ -263,10 +269,10 @@
             box-shadow: var(--shadow-medium);
         }
 
-            .btn-primary:hover {
-                transform: translateY(-3px);
-                box-shadow: var(--shadow-large);
-            }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-large);
+        }
 
         .btn-outline {
             background: transparent;
@@ -274,10 +280,10 @@
             border: 2px solid var(--kbank-green);
         }
 
-            .btn-outline:hover {
-                background: var(--kbank-green);
-                color: white;
-            }
+        .btn-outline:hover {
+            background: var(--kbank-green);
+            color: white;
+        }
 
         .trust-indicators {
             display: flex;
@@ -365,11 +371,11 @@
             transition: all 0.3s ease;
         }
 
-            .otac-input:focus {
-                outline: none;
-                border-color: var(--kbank-green);
-                box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
-            }
+        .otac-input:focus {
+            outline: none;
+            border-color: var(--kbank-green);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
 
         .card-action {
             width: 100%;
@@ -384,10 +390,10 @@
             transition: all 0.3s ease;
         }
 
-            .card-action:hover {
-                transform: translateY(-2px);
-                box-shadow: var(--shadow-medium);
-            }
+        .card-action:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
 
         .visual-bg {
             position: absolute;
@@ -446,10 +452,10 @@
             transition: all 0.3s ease;
         }
 
-            .step-card:hover {
-                transform: translateY(-5px);
-                box-shadow: var(--shadow-medium);
-            }
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-medium);
+        }
 
         .step-number {
             position: absolute;
@@ -596,9 +602,9 @@
             transition: color 0.3s ease;
         }
 
-            .footer-link:hover {
-                color: var(--kbank-green-light);
-            }
+        .footer-link:hover {
+            color: var(--kbank-green-light);
+        }
 
         .footer-bottom {
             border-top: 1px solid #444;
@@ -606,7 +612,6 @@
             color: #cccccc;
             font-size: 0.9rem;
         }
-
 
         /* Responsive Design */
         @@media (max-width: 768px) {
@@ -666,7 +671,6 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -677,7 +681,6 @@
             0%, 100% {
                 transform: translateY(0px);
             }
-
             50% {
                 transform: translateY(-10px);
             }
@@ -695,42 +698,118 @@
             animation: fadeInUp 0.8s ease both;
         }
 
-            .step-card:nth-child(1) {
-                animation-delay: 0.1s;
-            }
+        .step-card:nth-child(1) { animation-delay: 0.1s; }
+        .step-card:nth-child(2) { animation-delay: 0.2s; }
+        .step-card:nth-child(3) { animation-delay: 0.3s; }
 
-            .step-card:nth-child(2) {
-                animation-delay: 0.2s;
-            }
+        /* Enhanced Modal Styling for Proper Popup Display */
+        .modal {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 1055 !important;
+            width: 100% !important;
+            height: 100% !important;
+            display: none !important;
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            outline: 0 !important;
+        }
 
-            .step-card:nth-child(3) {
-                animation-delay: 0.3s;
-            }
+        .modal.show {
+            display: block !important;
+        }
+
+        .modal-backdrop {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 1050 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            background-color: rgba(0, 0, 0, 0.5) !important;
+        }
+
+        .modal.fade .modal-dialog {
+            transition: transform 0.3s ease-out !important;
+            transform: translate(0, -50px) !important;
+        }
+
+        .modal.show .modal-dialog {
+            transform: none !important;
+        }
+
+        .modal-dialog {
+            position: relative !important;
+            width: auto !important;
+            margin: 1.75rem !important;
+            pointer-events: none !important;
+        }
+
+        .modal-dialog-centered {
+            display: flex !important;
+            align-items: center !important;
+            min-height: calc(100% - 3.5rem) !important;
+        }
+
+        .modal-content {
+            position: relative !important;
+            display: flex !important;
+            flex-direction: column !important;
+            width: 100% !important;
+            pointer-events: auto !important;
+            background-color: #fff !important;
+            background-clip: padding-box !important;
+            border: none !important;
+            border-radius: 15px !important;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15) !important;
+            outline: 0 !important;
+        }
+
+        /* Ensure modal appears above all other content */
+        .modal {
+            z-index: 1055 !important;
+        }
+
+        /* Fix for body scroll lock when modal is open */
+        body.modal-open {
+            overflow: hidden !important;
+            padding-right: 0 !important;
+        }
+
+        /* CRITICAL: Force hide user dropdown on initial load */
+        #userDropdownContainer {
+            display: none !important;
+        }
+
+        /* Only show when explicitly has show-user class */
+        #userDropdownContainer.show-user {
+            display: flex !important;
+        }
+
+        /* Prevent Bootstrap dropdown auto-opening */
+        .dropdown-menu {
+            display: none !important;
+        }
+
+        .dropdown-menu.show {
+            display: block !important;
+        }
+
+        /* Ensure sign-in button is visible by default */
+        #signInContainer {
+            display: flex !important;
+        }
+
+        /* Hide sign-in when authenticated */
+        #signInContainer.hide-signin {
+            display: none !important;
+        }
     </style>
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <nav class="nav-container">
-            <div class="logo-section">
-                <div class="logo">BC</div>
-                <span class="brand-name">BizConnect</span>
-                <span class="kbank-badge">KBank Partner</span>
-            </div>
-
-            <div class="nav-actions">
-                <div class="language-toggle">
-                    <button class="lang-btn">EN</button>
-                    <button class="lang-btn active">TH</button>
-                </div>
-                <button class="btn-signin" id="signInBtn">
-                    <i class="fas fa-user"></i>
-                    เข้าสู่ระบบ
-                </button>
-            </div>
-        </nav>
-    </header>
+    <!-- Header is now managed by individual views (Index.cshtml, etc.) -->
     @RenderBody()
     <!-- Footer -->
     <footer class="footer">
@@ -802,6 +881,36 @@
             }, 5000);
         }
 
+        // Dynamic height adjustment for viewport optimization
+        function adjustHeroHeight() {
+            const header = document.querySelector('.header');
+            const heroSection = document.querySelector('.hero-section');
+            
+            if (header && heroSection) {
+                const headerHeight = header.offsetHeight;
+                const viewportHeight = window.innerHeight;
+                const calculatedHeight = viewportHeight - headerHeight;
+                
+                // Set minimum height based on actual header height
+                heroSection.style.minHeight = calculatedHeight + 'px';
+                
+                // Debug logging (remove in production)
+                console.log('Header height:', headerHeight);
+                console.log('Viewport height:', viewportHeight);
+                console.log('Calculated hero height:', calculatedHeight);
+                
+                // Warn if content might cause scrolling
+                const heroContent = heroSection.offsetHeight;
+                if (heroContent > calculatedHeight) {
+                    console.warn('Hero content might cause scrolling. Content height:', heroContent, 'Available height:', calculatedHeight);
+                }
+            }
+        }
+
+        // Run on load and resize
+        window.addEventListener('load', adjustHeroHeight);
+        window.addEventListener('resize', adjustHeroHeight);
+
         // Global scroll effects for header
         window.addEventListener('scroll', function() {
             const header = document.querySelector('.header');
@@ -818,8 +927,78 @@
 
         // Make showNotification available globally
         window.showNotification = showNotification;
+        
+        // Bootstrap readiness check
+        window.isBootstrapReady = function() {
+            return typeof bootstrap !== 'undefined' && bootstrap.Modal;
+        };
+        
+        // Wait for Bootstrap to be ready
+        window.waitForBootstrap = function(callback, maxWait = 5000) {
+            const startTime = Date.now();
+            
+            function check() {
+                if (window.isBootstrapReady()) {
+                    callback(true);
+                } else if (Date.now() - startTime < maxWait) {
+                    setTimeout(check, 50);
+                } else {
+                    console.warn('Bootstrap ready timeout reached');
+                    callback(false);
+                }
+            }
+            
+            check();
+        };
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap JS with fallback -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" 
+            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" 
+            crossorigin="anonymous" 
+            onerror="loadBootstrapFallback()"></script>
+    
+    <script>
+        // Bootstrap fallback loader
+        function loadBootstrapFallback() {
+            console.log('⚠️ CDN Bootstrap failed, loading local fallback...');
+            
+            // Try to load local Bootstrap
+            const fallbackScript = document.createElement('script');
+            fallbackScript.src = '/lib/bootstrap/dist/js/bootstrap.bundle.min.js';
+            fallbackScript.onerror = function() {
+                console.error('❌ Local Bootstrap fallback also failed');
+                // Create minimal modal functionality
+                window.bootstrap = window.bootstrap || {};
+                window.bootstrap.Modal = window.bootstrap.Modal || function(element, options) {
+                    return {
+                        show: function() {
+                            element.style.display = 'block';
+                            element.classList.add('show');
+                            document.body.classList.add('modal-open');
+                        },
+                        hide: function() {
+                            element.style.display = 'none';
+                            element.classList.remove('show');
+                            document.body.classList.remove('modal-open');
+                        },
+                        dispose: function() { /* no-op */ }
+                    };
+                };
+                console.log('✅ Minimal Bootstrap Modal polyfill created');
+            };
+            document.head.appendChild(fallbackScript);
+        }
+        
+        // Check if Bootstrap loaded correctly after a brief delay
+        setTimeout(function() {
+            if (typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+                console.log('⚠️ Bootstrap not detected after timeout, loading fallback...');
+                loadBootstrapFallback();
+            } else {
+                console.log('✅ Bootstrap loaded successfully from CDN');
+            }
+        }, 1000);
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
