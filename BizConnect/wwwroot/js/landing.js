@@ -1,6 +1,7 @@
 /**
  * BizConnect Landing Page JavaScript
- * Handles OTAC input formatting, form validation, animations, and user interactions
+ * Handles OTAC input formatting, blur-based validation, multilingual support, and user interactions
+ * Updated: No progress tracking, blur-based validation only
  */
 
 (function() {
@@ -12,15 +13,13 @@
         OTAC_MAX_LENGTH: 8,
         OTAC_PATTERN: /^[A-Z0-9]+$/,
         ANIMATION_DURATION: 300,
-        STATS_ANIMATION_DURATION: 2000,
         DEBOUNCE_DELAY: 300
     };
 
     // State management
     const state = {
         isFormSubmitting: false,
-        statsAnimated: false,
-        otacValidated: false
+        currentLanguage: 'th'
     };
 
     // Utility functions
@@ -34,37 +33,6 @@
                 clearTimeout(timeoutId);
                 timeoutId = setTimeout(() => func.apply(this, args), delay);
             };
-        },
-
-        /**
-         * Animate number counting
-         */
-        animateNumber: function(element, target, duration = 2000, decimals = 0) {
-            const start = 0;
-            const increment = target / (duration / 16);
-            let current = start;
-
-            const timer = setInterval(() => {
-                current += increment;
-                if (current >= target) {
-                    current = target;
-                    clearInterval(timer);
-                }
-                element.textContent = decimals > 0 ? current.toFixed(decimals) : Math.floor(current);
-            }, 16);
-        },
-
-        /**
-         * Check if element is in viewport
-         */
-        isInViewport: function(element) {
-            const rect = element.getBoundingClientRect();
-            return (
-                rect.top >= 0 &&
-                rect.left >= 0 &&
-                rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-                rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-            );
         },
 
         /**
@@ -91,26 +59,158 @@
         }
     };
 
-    // OTAC Input Handler
+    // Enhanced Language System with Real-Time Switching
+    const BizConnectLanguage = {
+        currentLanguage: 'th',
+        
+        init: function() {
+            // Load saved language preference
+            const savedLang = localStorage.getItem('preferredLanguage') || 'th';
+            this.switchLanguage(savedLang, false);
+            
+            // Bind language toggle events
+            document.getElementById('langTH')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.switchLanguage('th');
+            });
+            
+            document.getElementById('langEN')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.switchLanguage('en');
+            });
+        },
+
+        switchLanguage: function(lang, showNotification = true) {
+            this.currentLanguage = lang;
+            state.currentLanguage = lang;
+            
+            // Update toggle buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('lang' + lang.toUpperCase())?.classList.add('active');
+            
+            // Update all elements with bilingual data attributes
+            this.updateElementsText(lang);
+            
+            // Update form placeholders
+            this.updatePlaceholders(lang);
+            
+            // Store language preference
+            localStorage.setItem('preferredLanguage', lang);
+            sessionStorage.setItem('language', lang);
+            
+            if (showNotification) {
+                const message = lang === 'th' ? 'เปลี่ยนเป็นภาษาไทยแล้ว' : 'Changed to English';
+                this.showNotification(message, 'success');
+            }
+        },
+
+        updateElementsText: function(lang) {
+            const elements = document.querySelectorAll('[data-text-th][data-text-en]');
+            elements.forEach(element => {
+                const text = lang === 'th' ? element.getAttribute('data-text-th') : element.getAttribute('data-text-en');
+                if (text) {
+                    if (element.tagName === 'INPUT' && (element.type === 'button' || element.type === 'submit')) {
+                        element.value = text;
+                    } else {
+                        element.textContent = text;
+                    }
+                }
+            });
+        },
+
+        updatePlaceholders: function(lang) {
+            const elements = document.querySelectorAll('[data-placeholder-th][data-placeholder-en]');
+            elements.forEach(element => {
+                const placeholder = lang === 'th' ? element.getAttribute('data-placeholder-th') : element.getAttribute('data-placeholder-en');
+                if (placeholder && element.placeholder !== undefined) {
+                    element.placeholder = placeholder;
+                }
+            });
+        },
+
+        getCurrentLanguage: function() {
+            return this.currentLanguage;
+        },
+
+        t: function(key) {
+            const translations = {
+                'th': {
+                    'validOtacRequired': 'กรุณากรอกรหัส OTAC ที่ถูกต้อง',
+                    'languageChanged': 'เปลี่ยนเป็นภาษาไทยแล้ว',
+                    'processingRequest': 'กำลังดำเนินการ กรุณารอสักครู่...',
+                    'enterUsername': 'กรุณากรอกชื่อผู้ใช้งาน',
+                    'enterPassword': 'กรุณากรอกรหัสผ่าน'
+                },
+                'en': {
+                    'validOtacRequired': 'Please enter a valid OTAC code',
+                    'languageChanged': 'Changed to English',
+                    'processingRequest': 'Processing your request, please wait...',
+                    'enterUsername': 'Please enter username',
+                    'enterPassword': 'Please enter password'
+                }
+            };
+            return translations[this.currentLanguage][key] || key;
+        },
+
+        showNotification: function(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 5000);
+        }
+    };
+
+    // Enhanced OTAC Handler with Blur-Based Validation
     const otacHandler = {
         init: function() {
             const otacInput = document.getElementById('OtacCode');
             if (!otacInput) return;
-
+            
             this.setupEventListeners(otacInput);
-            this.setupValidation(otacInput);
         },
 
         setupEventListeners: function(input) {
-            // Format input on keyup
-            input.addEventListener('input', (e) => this.formatInput(e.target));
+            let hasUserInteracted = false;
             
-            // Validate on blur
-            input.addEventListener('blur', (e) => this.validateInput(e.target));
+            // Format input on keyup
+            input.addEventListener('input', (e) => {
+                this.formatInput(e.target);
+                // Clear validation state on input (neutral state)
+                if (hasUserInteracted) {
+                    e.target.classList.remove('is-valid', 'is-invalid');
+                }
+            });
+            
+            // Validate only on blur after user interaction
+            input.addEventListener('blur', (e) => {
+                hasUserInteracted = true;
+                this.validateInput(e.target);
+            });
+            
+            // Clear validation state on focus
+            input.addEventListener('focus', (e) => {
+                e.target.classList.remove('is-valid', 'is-invalid');
+            });
             
             // Handle paste events
             input.addEventListener('paste', (e) => {
-                setTimeout(() => this.formatInput(e.target), 10);
+                setTimeout(() => {
+                    this.formatInput(e.target);
+                    if (hasUserInteracted) {
+                        e.target.classList.remove('is-valid', 'is-invalid');
+                    }
+                }, 10);
             });
 
             // Prevent invalid characters
@@ -127,7 +227,6 @@
             }
 
             input.value = value;
-            this.updateInputState(input, value);
         },
 
         filterKeypress: function(e) {
@@ -141,8 +240,16 @@
             const value = input.value.trim();
             const isValid = this.isValidOtac(value);
 
-            this.updateValidationUI(input, isValid);
-            state.otacValidated = isValid;
+            // Apply validation styling only after blur
+            if (isValid) {
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+            } else if (value.length > 0) {
+                input.classList.remove('is-valid');
+                input.classList.add('is-invalid');
+            } else {
+                input.classList.remove('is-valid', 'is-invalid');
+            }
 
             return isValid;
         },
@@ -151,59 +258,16 @@
             return value.length >= CONFIG.OTAC_MIN_LENGTH && 
                    value.length <= CONFIG.OTAC_MAX_LENGTH && 
                    CONFIG.OTAC_PATTERN.test(value);
-        },
-
-        updateInputState: function(input, value) {
-            // Update character count feedback
-            const lengthFeedback = document.querySelector('.otac-length-feedback');
-            if (lengthFeedback) {
-                lengthFeedback.textContent = `${value.length}/${CONFIG.OTAC_MAX_LENGTH}`;
-            }
-
-            // Add visual feedback for completion
-            if (value.length >= CONFIG.OTAC_MIN_LENGTH) {
-                input.classList.add('is-valid');
-                input.classList.remove('is-invalid');
-            } else if (value.length > 0) {
-                input.classList.add('is-invalid');
-                input.classList.remove('is-valid');
-            } else {
-                input.classList.remove('is-valid', 'is-invalid');
-            }
-        },
-
-        updateValidationUI: function(input, isValid) {
-            const submitBtn = document.getElementById('verifyBtn');
-            
-            if (isValid) {
-                input.classList.add('is-valid');
-                input.classList.remove('is-invalid');
-                if (submitBtn) submitBtn.disabled = false;
-            } else if (input.value.length > 0) {
-                input.classList.add('is-invalid');
-                input.classList.remove('is-valid');
-                if (submitBtn) submitBtn.disabled = true;
-            }
-        },
-
-        setupValidation: function(input) {
-            // Real-time validation with debouncing
-            const debouncedValidation = utils.debounce(() => {
-                this.validateInput(input);
-            }, CONFIG.DEBOUNCE_DELAY);
-
-            input.addEventListener('input', debouncedValidation);
         }
     };
 
-    // Form Handler
+    // Enhanced Form Handler with Proper Validation
     const formHandler = {
         init: function() {
             const form = document.getElementById('otacForm');
             if (!form) return;
 
             this.setupFormSubmission(form);
-            this.setupButtonStates();
         },
 
         setupFormSubmission: function(form) {
@@ -221,8 +285,8 @@
 
             // Validate OTAC before submission
             if (!otacHandler.validateInput(otacInput)) {
-                const message = languageToggle.t('validOtacRequired') || 'กรุณากรอกรหัส OTAC ที่ถูกต้อง';
-                utils.showNotification(message, 'danger');
+                const message = BizConnectLanguage.t('validOtacRequired');
+                BizConnectLanguage.showNotification(message, 'danger');
                 otacInput.focus();
                 return;
             }
@@ -258,66 +322,14 @@
         },
 
         submitForm: function(form) {
+            // Show processing notification
+            const message = BizConnectLanguage.t('processingRequest');
+            BizConnectLanguage.showNotification(message, 'info');
+            
             // Submit the actual form
             setTimeout(() => {
                 form.submit();
             }, 500); // Small delay for better UX
-        },
-
-        setupButtonStates: function() {
-            const submitBtn = document.getElementById('verifyBtn');
-            const otacInput = document.getElementById('OtacCode');
-
-            if (!submitBtn || !otacInput) return;
-
-            // Initial state
-            submitBtn.disabled = !otacHandler.isValidOtac(otacInput.value);
-
-            // Update state based on input changes
-            otacInput.addEventListener('input', () => {
-                if (!state.isFormSubmitting) {
-                    submitBtn.disabled = !otacHandler.isValidOtac(otacInput.value);
-                }
-            });
-        }
-    };
-
-    // Statistics Animation
-    const statsAnimator = {
-        init: function() {
-            this.setupIntersectionObserver();
-        },
-
-        setupIntersectionObserver: function() {
-            const statsSection = document.querySelector('.stats-section');
-            if (!statsSection) return;
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting && !state.statsAnimated) {
-                        this.animateStats();
-                        state.statsAnimated = true;
-                    }
-                });
-            }, {
-                threshold: 0.3
-            });
-
-            observer.observe(statsSection);
-        },
-
-        animateStats: function() {
-            const statNumbers = document.querySelectorAll('.stat-number[data-target]');
-            
-            statNumbers.forEach((element, index) => {
-                const target = parseFloat(element.getAttribute('data-target'));
-                const decimals = target % 1 !== 0 ? 1 : 0;
-                
-                setTimeout(() => {
-                    utils.animateNumber(element, target, CONFIG.STATS_ANIMATION_DURATION, decimals);
-                    element.classList.add('fade-in-up');
-                }, index * 200);
-            });
         }
     };
 
@@ -325,7 +337,6 @@
     const smoothScroller = {
         init: function() {
             this.setupSmoothScrolling();
-            this.setupScrollToTop();
         },
 
         setupSmoothScrolling: function() {
@@ -341,490 +352,8 @@
                     }
                 });
             });
-        },
-
-        setupScrollToTop: function() {
-            // Create scroll to top button with proper styling and positioning
-            const scrollBtn = document.createElement('button');
-            scrollBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-            scrollBtn.className = 'scroll-to-top-btn rounded-circle position-fixed d-none';
-            scrollBtn.id = 'scrollToTopBtn';
-            scrollBtn.style.cssText = `
-                bottom: 20px; 
-                right: 20px; 
-                z-index: 1000; 
-                width: 50px; 
-                height: 50px;
-                background: linear-gradient(135deg, #4CAF50, #388E3C);
-                color: white;
-                border: none;
-                box-shadow: 0 4px 20px rgba(76, 175, 80, 0.3);
-                transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-                font-size: 1.2rem;
-                cursor: pointer;
-            `;
-            scrollBtn.setAttribute('aria-label', 'กลับไปด้านบน');
-            scrollBtn.setAttribute('title', 'กลับไปด้านบน');
-            
-            // Add hover effects
-            scrollBtn.addEventListener('mouseenter', () => {
-                scrollBtn.style.transform = 'translateY(-3px) scale(1.1)';
-                scrollBtn.style.boxShadow = '0 6px 25px rgba(76, 175, 80, 0.4)';
-            });
-            
-            scrollBtn.addEventListener('mouseleave', () => {
-                scrollBtn.style.transform = 'translateY(0) scale(1)';
-                scrollBtn.style.boxShadow = '0 4px 20px rgba(76, 175, 80, 0.3)';
-            });
-            
-            document.body.appendChild(scrollBtn);
-
-            // Show/hide with smooth transitions based on scroll position
-            let isVisible = false;
-            window.addEventListener('scroll', utils.debounce(() => {
-                const shouldShow = window.pageYOffset > 300;
-                
-                if (shouldShow && !isVisible) {
-                    scrollBtn.classList.remove('d-none');
-                    scrollBtn.style.opacity = '0';
-                    scrollBtn.style.transform = 'translateY(10px) scale(0.8)';
-                    
-                    // Animate in
-                    requestAnimationFrame(() => {
-                        scrollBtn.style.transition = 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)';
-                        scrollBtn.style.opacity = '1';
-                        scrollBtn.style.transform = 'translateY(0) scale(1)';
-                    });
-                    isVisible = true;
-                    
-                } else if (!shouldShow && isVisible) {
-                    scrollBtn.style.transition = 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)';
-                    scrollBtn.style.opacity = '0';
-                    scrollBtn.style.transform = 'translateY(10px) scale(0.8)';
-                    
-                    setTimeout(() => {
-                        if (!isVisible) return; // Check if still should be hidden
-                        scrollBtn.classList.add('d-none');
-                    }, 300);
-                    isVisible = false;
-                }
-            }, 100));
-
-            // Scroll to top with smooth animation and click feedback
-            scrollBtn.addEventListener('click', (e) => {
-                // Click animation
-                scrollBtn.style.transform = 'translateY(2px) scale(0.95)';
-                
-                setTimeout(() => {
-                    scrollBtn.style.transform = 'translateY(0) scale(1)';
-                }, 150);
-                
-                // Smooth scroll to top
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-                
-                // Hide immediately after click
-                scrollBtn.style.opacity = '0.7';
-                setTimeout(() => {
-                    scrollBtn.style.opacity = '1';
-                }, 300);
-                
-                e.preventDefault();
-            });
         }
     };
-
-    // Intersection Observer for Animations
-    const animationObserver = {
-        init: function() {
-            this.setupObserver();
-        },
-
-        setupObserver: function() {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('fade-in-up');
-                    }
-                });
-            }, {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            });
-
-            // Observe elements that should animate on scroll
-            document.querySelectorAll('.process-step, .accordion-item, .stat-item').forEach(el => {
-                observer.observe(el);
-            });
-        }
-    };
-
-    // Process Step Interactions
-    const processSteps = {
-        init: function() {
-            this.setupHoverEffects();
-            this.setupClickToScroll();
-        },
-
-        setupHoverEffects: function() {
-            document.querySelectorAll('.process-step').forEach(step => {
-                step.addEventListener('mouseenter', () => {
-                    step.style.transform = 'translateY(-10px) scale(1.02)';
-                });
-
-                step.addEventListener('mouseleave', () => {
-                    step.style.transform = 'translateY(0) scale(1)';
-                });
-            });
-        },
-
-        setupClickToScroll: function() {
-            // Clicking on step 2 (OTAC verification) scrolls to form
-            const step2 = document.querySelector('.process-step:nth-child(2)');
-            if (step2) {
-                step2.style.cursor = 'pointer';
-                step2.addEventListener('click', () => {
-                    document.getElementById('otacForm')?.scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                });
-            }
-        }
-    };
-
-    // FAQ Enhancements
-    const faqEnhancements = {
-        init: function() {
-            this.setupAccordionTracking();
-            this.addSearchFunctionality();
-        },
-
-        setupAccordionTracking: function() {
-            document.querySelectorAll('.accordion-button').forEach(button => {
-                button.addEventListener('click', () => {
-                    // Track FAQ interactions (can be extended for analytics)
-                    const question = button.textContent.trim();
-                    console.log('FAQ clicked:', question);
-                });
-            });
-        },
-
-        addSearchFunctionality: function() {
-            // Could add FAQ search functionality here in the future
-            // This would filter FAQ items based on search terms
-        }
-    };
-
-    // Accessibility Enhancements
-    const accessibilityHelper = {
-        init: function() {
-            this.setupKeyboardNavigation();
-            this.setupAriaLabels();
-            this.setupFocusManagement();
-        },
-
-        setupKeyboardNavigation: function() {
-            // Enhanced keyboard navigation for form
-            const otacInput = document.getElementById('OtacCode');
-            const submitBtn = document.getElementById('verifyBtn');
-
-            if (otacInput && submitBtn) {
-                otacInput.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' && otacHandler.isValidOtac(otacInput.value)) {
-                        e.preventDefault();
-                        submitBtn.click();
-                    }
-                });
-            }
-        },
-
-        setupAriaLabels: function() {
-            // Add appropriate ARIA labels
-            const otacInput = document.getElementById('OtacCode');
-            if (otacInput) {
-                otacInput.setAttribute('aria-describedby', 'otac-help');
-                
-                // Create help text element if it doesn't exist
-                if (!document.getElementById('otac-help')) {
-                    const helpText = document.createElement('div');
-                    helpText.id = 'otac-help';
-                    helpText.className = 'visually-hidden';
-                    helpText.textContent = 'กรอกรหัส OTAC 6-8 ตัวอักษร ประกอบด้วยตัวอักษรภาษาอังกฤษตัวใหญ่และตัวเลข';
-                    otacInput.parentNode.appendChild(helpText);
-                }
-            }
-        },
-
-        setupFocusManagement: function() {
-            // Focus management for better accessibility
-            const form = document.getElementById('otacForm');
-            if (form) {
-                form.addEventListener('submit', () => {
-                    // Prevent focus loss during submission
-                    const submitBtn = document.getElementById('verifyBtn');
-                    if (submitBtn) {
-                        submitBtn.setAttribute('aria-busy', 'true');
-                    }
-                });
-            }
-        }
-    };
-
-    // Error Handling
-    const errorHandler = {
-        init: function() {
-            this.setupGlobalErrorHandling();
-        },
-
-        setupGlobalErrorHandling: function() {
-            window.addEventListener('error', (e) => {
-                console.error('Landing page error:', e.error);
-                // Could send error to logging service
-            });
-        },
-
-        handleFormError: function(error) {
-            const message = languageToggle.getCurrentLanguage() === 'th' 
-                ? 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง' 
-                : 'An error occurred. Please try again.';
-            utils.showNotification(message, 'danger');
-            
-            // Reset form state
-            const submitBtn = document.getElementById('verifyBtn');
-            if (submitBtn) {
-                formHandler.hideLoadingState(submitBtn);
-            }
-        }
-    };
-
-    // Enhanced Language toggle functionality with UI translation
-    const languageToggle = {
-        currentLanguage: 'th',
-        translations: {
-            'th': {
-                // Header elements
-                'signin': 'เข้าสู่ระบบ',
-                'signout': 'ออกจากระบบ',
-                'adminDashboard': 'แผงควบคุมผู้ดูแล',
-                'profile': 'จัดการโปรไฟล์',
-                
-                // Hero section
-                'heroTitle': 'ลงทะเบียนหักบัญชีอัตโนมัติ',
-                'heroSubtitle': 'สะดวก รวดเร็ว และปลอดภัย ด้วยระบบ OTAC จาก KBank สำหรับการลงทะเบียนบริการหักบัญชีอัตโนมัติ',
-                'secureBadge': 'ระบบปลอดภัย รับรองโดย KBank',
-                
-                // OTAC Form
-                'otacLabel': 'รหัส OTAC',
-                'otacPlaceholder': 'ABC12345',
-                'verifyButton': 'ยืนยันและดำเนินการต่อ',
-                'verifyingText': 'กำลังตรวจสอบ...',
-                
-                // Login Modal
-                'staffLogin': 'เข้าสู่ระบบเจ้าหน้าที่',
-                'staffOnly': 'สำหรับเจ้าหน้าที่และผู้ดูแลระบบเท่านั้น',
-                'username': 'ชื่อผู้ใช้งาน',
-                'password': 'รหัสผ่าน',
-                'signingIn': 'กำลังตรวจสอบ...',
-                'demoAccounts': 'บัญชีทดสอบ:',
-                'enterUsername': 'กรุณากรอกชื่อผู้ใช้งาน',
-                'enterPassword': 'กรุณากรอกรหัสผ่าน',
-                
-                // Notifications
-                'languageChanged': 'เปลี่ยนเป็นภาษาไทยแล้ว',
-                'loginSuccess': 'เข้าสู่ระบบสำเร็จ!',
-                'loginError': 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',
-                'logoutSuccess': 'ออกจากระบบเรียบร้อยแล้ว',
-                'fillAllFields': 'กรุณากรอกข้อมูลให้ครบถ้วน',
-                'validOtacRequired': 'กรุณากรอกรหัส OTAC ที่ถูกต้อง'
-            },
-            'en': {
-                // Header elements
-                'signin': 'Sign In',
-                'signout': 'Sign Out',
-                'adminDashboard': 'Admin Dashboard',
-                'profile': 'Manage Profile',
-                
-                // Hero section
-                'heroTitle': 'Automatic Direct Debit Registration',
-                'heroSubtitle': 'Convenient, Fast, and Secure with KBank OTAC system for automatic direct debit service registration',
-                'secureBadge': 'Secure System Certified by KBank',
-                
-                // OTAC Form
-                'otacLabel': 'OTAC Code',
-                'otacPlaceholder': 'ABC12345',
-                'verifyButton': 'Verify and Continue',
-                'verifyingText': 'Verifying...',
-                
-                // Login Modal
-                'staffLogin': 'Staff Login',
-                'staffOnly': 'For staff and system administrators only',
-                'username': 'Username',
-                'password': 'Password',
-                'signingIn': 'Signing in...',
-                'demoAccounts': 'Demo Accounts:',
-                'enterUsername': 'Please enter username',
-                'enterPassword': 'Please enter password',
-                
-                // Notifications
-                'languageChanged': 'Changed to English',
-                'loginSuccess': 'Login successful!',
-                'loginError': 'Invalid username or password',
-                'logoutSuccess': 'Logged out successfully',
-                'fillAllFields': 'Please fill in all fields',
-                'validOtacRequired': 'Please enter a valid OTAC code'
-            }
-        },
-
-        init: function() {
-            const langTH = document.getElementById('langTH');
-            const langEN = document.getElementById('langEN');
-            
-            if (langTH && langEN) {
-                langTH.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.switchLanguage('th');
-                });
-                langEN.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.switchLanguage('en');
-                });
-            }
-
-            // Load saved language preference
-            const savedLang = localStorage.getItem('preferredLanguage') || 'th';
-            this.switchLanguage(savedLang, false);
-        },
-
-        switchLanguage: function(lang, showNotification = true) {
-            this.currentLanguage = lang;
-            
-            // Update language toggle buttons
-            const langTH = document.getElementById('langTH');
-            const langEN = document.getElementById('langEN');
-            
-            if (langTH && langEN) {
-                langTH.className = lang === 'th' ? 'lang-btn active' : 'lang-btn';
-                langEN.className = lang === 'en' ? 'lang-btn active' : 'lang-btn';
-            }
-            
-            // Update all elements with data-text attributes
-            this.updateElementsText(lang);
-            
-            // Store language preference
-            sessionStorage.setItem('language', lang);
-            localStorage.setItem('preferredLanguage', lang);
-            
-            // Show notification
-            if (showNotification) {
-                utils.showNotification(this.translations[lang].languageChanged, 'success');
-            }
-        },
-
-        updateElementsText: function(lang) {
-            const elements = document.querySelectorAll('[data-text-th][data-text-en]');
-            
-            elements.forEach(element => {
-                const text = lang === 'th' ? element.dataset.textTh : element.dataset.textEn;
-                if (text) {
-                    // Handle different element types
-                    if (element.tagName === 'INPUT') {
-                        if (element.type === 'text' || element.type === 'password') {
-                            element.placeholder = text;
-                        } else {
-                            element.value = text;
-                        }
-                    } else if (element.tagName === 'A' && element.classList.contains('btn')) {
-                        // Handle buttons with spans
-                        const span = element.querySelector('span');
-                        if (span) {
-                            span.textContent = text;
-                        } else {
-                            // Fallback - update full text but preserve icons
-                            const icon = element.querySelector('i');
-                            if (icon) {
-                                element.innerHTML = '';
-                                element.appendChild(icon);
-                                element.appendChild(document.createTextNode(' ' + text));
-                            } else {
-                                element.textContent = text;
-                            }
-                        }
-                    } else if (element.classList.contains('signin-text') || element.classList.contains('menu-text')) {
-                        // Handle specific text spans within buttons/menus
-                        element.textContent = text;
-                    } else {
-                        // Handle regular text elements
-                        element.textContent = text;
-                    }
-                }
-            });
-
-            // Update specific dynamic content
-            this.updateDynamicContent(lang);
-        },
-
-        updateDynamicContent: function(lang) {
-            const translations = this.translations[lang];
-            
-            // Update OTAC form elements that might not have data attributes
-            const otacLabel = document.querySelector('.input-label');
-            if (otacLabel) {
-                otacLabel.textContent = translations.otacLabel;
-            }
-
-            const verifyBtn = document.getElementById('verifyBtn');
-            if (verifyBtn) {
-                const btnText = verifyBtn.querySelector('.btn-text');
-                if (btnText) {
-                    btnText.innerHTML = `<i class="fas fa-arrow-right"></i> ${translations.verifyButton}`;
-                }
-                
-                const spinnerText = verifyBtn.querySelector('.btn-spinner');
-                if (spinnerText) {
-                    spinnerText.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status"></span> ${translations.verifyingText}`;
-                }
-            }
-        },
-
-        getCurrentLanguage: function() {
-            return this.currentLanguage;
-        },
-
-        t: function(key) {
-            return this.translations[this.currentLanguage][key] || key;
-        }
-    };
-
-    // Main initialization
-    function initLandingPage() {
-        // Initialize for both landing page and any page that needs these features
-        const hasOtacForm = document.getElementById('otacForm');
-        const isLandingPage = document.querySelector('.hero-section') || hasOtacForm;
-
-        // Initialize all modules
-        otacHandler.init();
-        formHandler.init();
-        languageToggle.init();
-        authIntegration.init();
-        statsAnimator.init();
-        smoothScroller.init();
-        animationObserver.init();
-        processSteps.init();
-        faqEnhancements.init();
-        accessibilityHelper.init();
-        errorHandler.init();
-
-        console.log('BizConnect Landing Page initialized successfully');
-    }
-
-    // Initialize when DOM is ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initLandingPage);
-    } else {
-        initLandingPage();
-    }
 
     // Authentication Integration
     const authIntegration = {
@@ -978,8 +507,8 @@
         validateField: function(field, type) {
             const isValid = field.value.trim().length > 0;
             const errorMessage = type === 'username' 
-                ? languageToggle.t('enterUsername')
-                : languageToggle.t('enterPassword');
+                ? BizConnectLanguage.t('enterUsername')
+                : BizConnectLanguage.t('enterPassword');
 
             if (isValid) {
                 field.classList.remove('is-invalid');
@@ -1035,19 +564,38 @@
         }
     };
 
+    // Main initialization
+    function initLandingPage() {
+        // Initialize all modules
+        BizConnectLanguage.init();
+        otacHandler.init();
+        formHandler.init();
+        smoothScroller.init();
+        authIntegration.init();
+        
+        console.log('BizConnect Landing Page initialized successfully');
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initLandingPage);
+    } else {
+        initLandingPage();
+    }
+
+    // Make BizConnectLanguage globally available
+    window.BizConnectLanguage = BizConnectLanguage;
+
     // Expose utility functions globally for debugging
     if (window.location.hostname === 'localhost') {
         window.BizConnectLanding = {
             utils,
             otacHandler,
             formHandler,
-            languageToggle,
+            BizConnectLanguage,
             authIntegration,
             state
         };
     }
-
-    // Make language toggle available globally for auth.js integration
-    window.BizConnectLanguage = languageToggle;
 
 })();

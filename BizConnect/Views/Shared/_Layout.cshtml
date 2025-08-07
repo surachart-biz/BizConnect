@@ -2326,7 +2326,64 @@
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <!-- Header is now managed by individual views (Index.cshtml, etc.) -->
+    <!-- Professional Site Header with Multilingual Support -->
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo-section">
+                <div class="logo">BC</div>
+                <span class="brand-name">BizConnect</span>
+                <span class="kbank-badge">KBank Partner</span>
+            </div>
+
+            <div class="nav-actions">
+                <!-- Language Toggle -->
+                <div class="language-toggle">
+                    <button class="lang-btn" id="langEN" data-lang="en">EN</button>
+                    <button class="lang-btn active" id="langTH" data-lang="th">TH</button>
+                </div>
+                
+                <!-- Sign In Container -->
+                <div id="signInContainer">
+                    <button class="btn-signin" id="signInBtn" type="button" data-text-th="เข้าสู่ระบบ" data-text-en="Sign In">
+                        <i class="fas fa-user me-2"></i>
+                        <span class="signin-text">เข้าสู่ระบบ</span>
+                    </button>
+                </div>
+                
+                <!-- User Dropdown Container (hidden by default) -->
+                <div id="userDropdownContainer" class="d-none">
+                    <div class="dropdown" id="userMenu">
+                        <button class="btn-signin dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-2"></i>
+                            <span id="userName">ผู้ใช้งาน</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li id="adminMenuSection">
+                                <a class="dropdown-item" href="#" id="adminDashboardLink" data-text-th="แผงควบคุมผู้ดูแล" data-text-en="Admin Dashboard">
+                                    <i class="fas fa-tachometer-alt me-2"></i>
+                                    <span class="menu-text">แผงควบคุมผู้ดูแล</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/Account/Profile" data-text-th="จัดการโปรไฟล์" data-text-en="Manage Profile">
+                                    <i class="fas fa-user-cog me-2"></i>
+                                    <span class="menu-text">จัดการโปรไฟล์</span>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="#" id="signOutBtn" data-text-th="ออกจากระบบ" data-text-en="Sign Out">
+                                    <i class="fas fa-sign-out-alt me-2"></i>
+                                    <span class="menu-text">ออกจากระบบ</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
     @RenderBody()
     <!-- Footer -->
     <footer class="footer">
@@ -2349,6 +2406,171 @@
             </div>
         </div>
     </footer>
+
+    <!-- Professional BizConnect Authentication Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bizconnect-auth-modal">
+                <!-- Gradient Header with BizConnect Branding -->
+                <div class="auth-modal-header">
+                    <div class="auth-header-content">
+                        <div class="auth-logo">
+                            <div class="auth-logo-icon">BC</div>
+                            <div class="auth-logo-text">
+                                <span class="brand-name">BizConnect</span>
+                                <span class="brand-subtitle" data-text-th="ระบบเจ้าหน้าที่" data-text-en="Staff System">ระบบเจ้าหน้าที่</span>
+                            </div>
+                        </div>
+                        <button type="button" class="auth-close-btn" data-bs-dismiss="modal" aria-label="Close">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="auth-header-decoration"></div>
+                </div>
+                
+                <div class="auth-modal-body">
+                    <!-- Security Badge -->
+                    <div class="auth-security-badge">
+                        <i class="fas fa-shield-check"></i>
+                        <span data-text-th="เข้าสู่ระบบที่ปลอดภัย" data-text-en="Secure Staff Access">เข้าสู่ระบบที่ปลอดภัย</span>
+                    </div>
+                    
+                    <!-- Alert Container -->
+                    <div class="auth-alert-container">
+                        <!-- Info Alert -->
+                        <div class="auth-alert auth-alert-info" id="authInfoAlert">
+                            <i class="fas fa-info-circle"></i>
+                            <span data-text-th="สำหรับเจ้าหน้าที่และผู้ดูแลระบบเท่านั้น" data-text-en="For authorized staff and administrators only">
+                                สำหรับเจ้าหน้าที่และผู้ดูแลระบบเท่านั้น
+                            </span>
+                        </div>
+                        
+                        <!-- Error Alert (hidden by default) -->
+                        <div class="auth-alert auth-alert-error d-none" id="loginErrorAlert">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span id="loginErrorMessage"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Login Form -->
+                    <form id="loginForm" class="auth-form" novalidate>
+                        <!-- Username Field -->
+                        <div class="auth-form-group">
+                            <div class="floating-label-container">
+                                <input type="text" class="floating-label-input" id="username" 
+                                       placeholder=" " autocomplete="username" required>
+                                <label for="username" class="floating-label" 
+                                       data-text-th="ชื่อผู้ใช้งาน" data-text-en="Username">ชื่อผู้ใช้งาน</label>
+                                <div class="input-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="field-validation-container">
+                                    <div class="validation-message" data-text-th="กรุณากรอกชื่อผู้ใช้งาน" data-text-en="Please enter username">
+                                        กรุณากรอกชื่อผู้ใช้งาน
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Password Field -->
+                        <div class="auth-form-group">
+                            <div class="floating-label-container">
+                                <input type="password" class="floating-label-input" id="password" 
+                                       placeholder=" " autocomplete="current-password" required>
+                                <label for="password" class="floating-label" 
+                                       data-text-th="รหัสผ่าน" data-text-en="Password">รหัสผ่าน</label>
+                                <div class="input-icon">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                <button type="button" class="password-toggle" id="togglePassword" 
+                                        aria-label="Toggle password visibility">
+                                    <i class="fas fa-eye" id="passwordToggleIcon"></i>
+                                </button>
+                                <div class="field-validation-container">
+                                    <div class="validation-message" data-text-th="กรุณากรอกรหัสผ่าน" data-text-en="Please enter password">
+                                        กรุณากรอกรหัสผ่าน
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <button type="submit" class="auth-submit-btn" id="loginSubmitBtn">
+                            <span class="btn-content">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span class="btn-text" data-text-th="เข้าสู่ระบบ" data-text-en="Sign In">เข้าสู่ระบบ</span>
+                            </span>
+                            <span class="btn-loading d-none">
+                                <span class="loading-spinner"></span>
+                                <span class="loading-text" data-text-th="กำลังเข้าสู่ระบบ..." data-text-en="Signing In...">กำลังเข้าสู่ระบบ...</span>
+                            </span>
+                        </button>
+                    </form>
+                    
+                    <!-- Demo Credentials Section -->
+                    <div class="demo-credentials">
+                        <div class="demo-header">
+                            <i class="fas fa-flask"></i>
+                            <span class="demo-title" data-text-th="บัญชีทดสอบ" data-text-en="Demo Accounts">บัญชีทดสอบ</span>
+                        </div>
+                        
+                        <div class="demo-accounts">
+                            <div class="demo-account" data-username="admin" data-password="admin123">
+                                <div class="demo-account-header">
+                                    <div class="demo-account-icon admin">
+                                        <i class="fas fa-user-shield"></i>
+                                    </div>
+                                    <div class="demo-account-info">
+                                        <span class="demo-account-role">Admin</span>
+                                        <span class="demo-account-desc" data-text-th="ผู้ดูแลระบบ" data-text-en="System Administrator">ผู้ดูแลระบบ</span>
+                                    </div>
+                                </div>
+                                <div class="demo-account-credentials">
+                                    <span class="username">admin</span>
+                                    <span class="password">admin123</span>
+                                </div>
+                            </div>
+                            
+                            <div class="demo-account" data-username="employee" data-password="emp123">
+                                <div class="demo-account-header">
+                                    <div class="demo-account-icon employee">
+                                        <i class="fas fa-user-tie"></i>
+                                    </div>
+                                    <div class="demo-account-info">
+                                        <span class="demo-account-role">Employee</span>
+                                        <span class="demo-account-desc" data-text-th="เจ้าหน้าที่" data-text-en="Staff Member">เจ้าหน้าที่</span>
+                                    </div>
+                                </div>
+                                <div class="demo-account-credentials">
+                                    <span class="username">employee</span>
+                                    <span class="password">emp123</span>
+                                </div>
+                            </div>
+                            
+                            <div class="demo-account" data-username="test" data-password="test123">
+                                <div class="demo-account-header">
+                                    <div class="demo-account-icon test">
+                                        <i class="fas fa-vial"></i>
+                                    </div>
+                                    <div class="demo-account-info">
+                                        <span class="demo-account-role">Test</span>
+                                        <span class="demo-account-desc" data-text-th="บัญชีทดลอง" data-text-en="Test Account">บัญชีทดลอง</span>
+                                    </div>
+                                </div>
+                                <div class="demo-account-credentials">
+                                    <span class="username">test</span>
+                                    <span class="password">test123</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
 
     <script>
         // Minimal global functions - most functionality moved to separate JS files
@@ -2576,6 +2798,237 @@
             }
         }, 1000);
     </script>
+    
+    <!-- Enhanced Language System and Modal Initialization -->
+    <script>
+        // Enhanced Language System with Real-Time Switching
+        const BizConnectLanguage = {
+            currentLanguage: 'th',
+            
+            init: function() {
+                // Load saved language preference
+                const savedLang = localStorage.getItem('preferredLanguage') || 'th';
+                this.switchLanguage(savedLang, false);
+                
+                // Bind language toggle events
+                document.getElementById('langTH')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.switchLanguage('th');
+                });
+                
+                document.getElementById('langEN')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.switchLanguage('en');
+                });
+            },
+
+            switchLanguage: function(lang, showNotification = true) {
+                this.currentLanguage = lang;
+                
+                // Update toggle buttons
+                document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+                document.getElementById('lang' + lang.toUpperCase())?.classList.add('active');
+                
+                // Update all elements with bilingual data attributes
+                this.updateElementsText(lang);
+                
+                // Update form placeholders
+                this.updatePlaceholders(lang);
+                
+                // Store language preference
+                localStorage.setItem('preferredLanguage', lang);
+                sessionStorage.setItem('language', lang);
+                
+                if (showNotification && typeof showNotification === 'function') {
+                    const message = lang === 'th' ? 'เปลี่ยนเป็นภาษาไทยแล้ว' : 'Changed to English';
+                    showNotification(message, 'success');
+                }
+            },
+
+            updateElementsText: function(lang) {
+                const elements = document.querySelectorAll('[data-text-th][data-text-en]');
+                elements.forEach(element => {
+                    const text = lang === 'th' ? element.getAttribute('data-text-th') : element.getAttribute('data-text-en');
+                    if (text) {
+                        if (element.tagName === 'INPUT' && (element.type === 'button' || element.type === 'submit')) {
+                            element.value = text;
+                        } else {
+                            element.textContent = text;
+                        }
+                    }
+                });
+            },
+
+            updatePlaceholders: function(lang) {
+                const elements = document.querySelectorAll('[data-placeholder-th][data-placeholder-en]');
+                elements.forEach(element => {
+                    const placeholder = lang === 'th' ? element.getAttribute('data-placeholder-th') : element.getAttribute('data-placeholder-en');
+                    if (placeholder && element.placeholder !== undefined) {
+                        element.placeholder = placeholder;
+                    }
+                });
+            },
+
+            getCurrentLanguage: function() {
+                return this.currentLanguage;
+            }
+        };
+
+        // Modal initialization when Bootstrap is ready
+        let globalModalInstance = null;
+        
+        function initializeSignInModal() {
+            if (!window.bootstrap || !bootstrap.Modal) {
+                console.warn('Bootstrap not available for modal initialization');
+                return;
+            }
+            
+            const loginModal = document.getElementById('loginModal');
+            const signInBtn = document.getElementById('signInBtn');
+            
+            if (!loginModal || !signInBtn) return;
+            
+            try {
+                globalModalInstance = new bootstrap.Modal(loginModal, {
+                    backdrop: true,
+                    keyboard: true,
+                    focus: true
+                });
+                
+                // Add click event listener to sign-in button
+                signInBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    globalModalInstance.show();
+                });
+                
+                // Setup modal event handlers
+                setupModalFeatures();
+                
+                console.log('Sign-in modal initialized successfully');
+                
+            } catch (error) {
+                console.error('Error initializing modal:', error);
+            }
+        }
+        
+        function setupModalFeatures() {
+            // Setup floating labels
+            const floatingInputs = document.querySelectorAll('.floating-label-input');
+            floatingInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    this.classList.remove('error', 'valid');
+                });
+                
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+                
+                input.addEventListener('focus', function() {
+                    this.classList.remove('error', 'valid');
+                });
+            });
+            
+            // Setup password toggle
+            const toggleBtn = document.getElementById('togglePassword');
+            const passwordField = document.getElementById('password');
+            const toggleIcon = document.getElementById('passwordToggleIcon');
+            
+            if (toggleBtn && passwordField && toggleIcon) {
+                toggleBtn.addEventListener('click', function() {
+                    const isPassword = passwordField.type === 'password';
+                    passwordField.type = isPassword ? 'text' : 'password';
+                    toggleIcon.className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+                });
+            }
+            
+            // Setup demo credentials
+            const demoAccounts = document.querySelectorAll('.demo-account');
+            demoAccounts.forEach(account => {
+                account.addEventListener('click', function() {
+                    const username = this.dataset.username;
+                    const password = this.dataset.password;
+                    
+                    const usernameField = document.getElementById('username');
+                    const passwordField = document.getElementById('password');
+                    
+                    if (usernameField && passwordField) {
+                        usernameField.value = username;
+                        passwordField.value = password;
+                        
+                        // Clear any existing errors
+                        usernameField.classList.remove('error');
+                        passwordField.classList.remove('error');
+                    }
+                });
+            });
+            
+            // Setup form submission
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // Add form submission logic here
+                    console.log('Login form submitted');
+                });
+            }
+        }
+        
+        function validateField(field) {
+            if (!field) return false;
+            
+            const value = field.value.trim();
+            let isValid = false;
+            
+            if (field.id === 'username') {
+                isValid = value.length >= 3;
+            } else if (field.id === 'password') {
+                isValid = value.length >= 4;
+            } else {
+                isValid = value.length > 0;
+            }
+            
+            if (isValid) {
+                field.classList.remove('error');
+                field.classList.add('valid');
+            } else if (value.length > 0) {
+                field.classList.remove('valid');
+                field.classList.add('error');
+            } else {
+                field.classList.remove('valid', 'error');
+            }
+            
+            return isValid;
+        }
+        
+        // Initialize everything when DOM is ready
+        function initializeLayout() {
+            BizConnectLanguage.init();
+            
+            // Initialize modal when Bootstrap is available
+            if (window.bootstrap && bootstrap.Modal) {
+                initializeSignInModal();
+            } else {
+                // Wait for Bootstrap to load
+                setTimeout(() => {
+                    if (window.bootstrap && bootstrap.Modal) {
+                        initializeSignInModal();
+                    }
+                }, 1000);
+            }
+        }
+        
+        // Make BizConnectLanguage globally available
+        window.BizConnectLanguage = BizConnectLanguage;
+        
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeLayout);
+        } else {
+            initializeLayout();
+        }
+    </script>
+    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

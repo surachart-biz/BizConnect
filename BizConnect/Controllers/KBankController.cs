@@ -43,7 +43,6 @@ public class KBankController : BaseController
     /// </summary>
     /// <returns>Registration form view</returns>
     [HttpGet("register")]
-    [Authorize] // Require authentication to start registration
     public async Task<IActionResult> Register()
     {
         _logger.LogInformation("User {UserId} accessed KBank ODD registration form", User.Identity?.Name);
@@ -72,7 +71,6 @@ public class KBankController : BaseController
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Redirect to KBank registration page or form with validation errors</returns>
     [HttpPost("register")]
-    [Authorize] // Require authentication to start registration
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Register(KBankOddRegisterViewModel viewModel, CancellationToken cancellationToken = default)
     {

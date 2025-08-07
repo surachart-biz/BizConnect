@@ -1,0 +1,2645 @@
+/* =====================================
+   Professional KBank Registration Form Styling
+   ===================================== */
+
+:root {
+    /* BizConnect Professional Color Palette */
+    --kbank-green: #4CAF50;
+    --kbank-green-light: #66BB6A;
+    --kbank-green-dark: #2E7D32;
+    --kbank-green-ultra-light: #E8F5E8;
+    --bizconnect-primary: #1B5E20;
+    --bizconnect-secondary: #4CAF50;
+    --primary-blue: #1565C0;
+    --primary-blue-light: #1976D2;
+    --primary-blue-dark: #0D47A1;
+    --accent-gold: #FFA000;
+    --success: #2E7D32;
+    --warning: #F57C00;
+    --danger: #C62828;
+    --info: #1976D2;
+    --trust-blue: #0D47A1;
+    --professional-gray: #37474F;
+    
+    /* Enhanced Neutrals */
+    --neutral-50: #FAFAFA;
+    --neutral-100: #F5F5F5;
+    --neutral-200: #EEEEEE;
+    --neutral-300: #E0E0E0;
+    --neutral-400: #BDBDBD;
+    --neutral-500: #9E9E9E;
+    --neutral-600: #757575;
+    --neutral-700: #424242;
+    --neutral-800: #303030;
+    --neutral-900: #212121;
+    
+    /* Text Colors */
+    --text-primary: #1a1a1a;
+    --text-secondary: #666666;
+    --text-tertiary: #999999;
+    --text-muted: #B0B0B0;
+    
+    /* Enhanced Shadows */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.18);
+    --shadow-focus: 0 0 0 4px rgba(76, 175, 80, 0.12);
+    --shadow-focus-error: 0 0 0 4px rgba(244, 67, 54, 0.12);
+    
+    /* Enhanced Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-2xl: 24px;
+    --radius-full: 9999px;
+    
+    /* Transitions */
+    --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* =====================================
+   Enhanced Page Header Styling
+   ===================================== */
+
+.bc-page-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding: 2rem 0;
+}
+
+.bc-icon-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+}
+
+.bc-icon-wrapper::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    background: linear-gradient(135deg, 
+        rgba(76, 175, 80, 0.1) 0%, 
+        rgba(25, 118, 210, 0.1) 100%);
+    border-radius: 50%;
+    animation: iconGlow 3s ease-in-out infinite;
+}
+
+.bc-icon-wrapper i {
+    position: relative;
+    z-index: 2;
+    color: var(--kbank-green);
+    filter: drop-shadow(0 4px 8px rgba(76, 175, 80, 0.3));
+    transition: all var(--transition-normal);
+}
+
+.bc-icon-wrapper:hover i {
+    transform: scale(1.1) rotate(5deg);
+    color: var(--primary-blue);
+}
+
+.bc-page-header h1 {
+    font-size: 2.75rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, 
+        var(--bizconnect-primary) 0%, 
+        var(--kbank-green) 50%, 
+        var(--trust-blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    text-align: center;
+}
+
+.bc-page-header p {
+    font-size: 1.25rem;
+    color: var(--professional-gray);
+    font-weight: 500;
+    max-width: 650px;
+    margin: 0 auto;
+    line-height: 1.6;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.bc-security-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--success) 0%, var(--kbank-green) 100%);
+    color: white;
+    padding: 0.5rem 1.25rem;
+    border-radius: 25px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+    margin-top: 1rem;
+}
+
+.bc-security-badge i {
+    font-size: 1rem;
+}
+
+/* =====================================
+   Professional Form Container
+   ===================================== */
+
+.kbank-registration-form {
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.98) 0%, 
+        rgba(248, 250, 252, 0.95) 100%);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-xl);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    position: relative;
+}
+
+.kbank-registration-form::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 20%, rgba(76, 175, 80, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(25, 118, 210, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Enhanced Card Header */
+.card-header {
+    background: linear-gradient(135deg, 
+        var(--kbank-green) 0%, 
+        #45a049 25%, 
+        var(--primary-blue) 75%, 
+        var(--primary-blue-dark) 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 8s ease-in-out infinite;
+    border: none;
+    padding: 2rem 2.5rem 1.5rem;
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+}
+
+.card-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 30% 70%, rgba(255,255,255,0.1) 0%, transparent 60%),
+        radial-gradient(circle at 70% 30%, rgba(255,255,255,0.08) 0%, transparent 50%);
+    z-index: 1;
+}
+
+.card-header .card-title {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-header .card-title i {
+    font-size: 1.75rem;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+}
+
+/* Enhanced Card Body */
+.card-body {
+    padding: 2.5rem;
+    position: relative;
+    z-index: 2;
+    background: transparent;
+}
+
+/* =====================================
+   Professional Form Field Styling
+   ===================================== */
+
+.form-group {
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.02em;
+}
+
+.form-label.required::after {
+    content: "*";
+    color: var(--danger);
+    font-weight: 800;
+    margin-left: 0.5rem;
+    font-size: 1.2rem;
+    display: inline-block;
+    line-height: 1;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.form-label i {
+    font-size: 1.1rem;
+    color: var(--kbank-green);
+    filter: drop-shadow(0 1px 3px rgba(76, 175, 80, 0.2));
+    transition: all var(--transition-normal);
+}
+
+/* Professional Input Fields */
+.form-control,
+.form-select {
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.98) 0%, 
+        rgba(248, 250, 252, 0.95) 100%);
+    border: 2px solid var(--neutral-300);
+    border-radius: var(--radius-lg);
+    padding: 1.125rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(10px);
+    position: relative;
+    z-index: 1;
+    min-height: 52px;
+}
+
+.form-control::placeholder {
+    color: var(--text-tertiary);
+    font-weight: 400;
+    font-style: italic;
+}
+
+.form-group {
+    position: relative;
+}
+
+.form-group .field-status {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    font-size: 1.25rem;
+    opacity: 0;
+    transition: all var(--transition-normal);
+}
+
+.form-control.is-valid ~ .field-status::before {
+    content: '✓';
+    color: var(--success);
+    opacity: 1;
+}
+
+.form-control.is-invalid ~ .field-status::before {
+    content: '⚠';
+    color: var(--danger);
+    opacity: 1;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--kbank-green);
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.15), 
+                0 4px 20px rgba(76, 175, 80, 0.2),
+                var(--shadow-md);
+    background: linear-gradient(135deg, white 0%, #fefffe 100%);
+    transform: translateY(-2px);
+    position: relative;
+    z-index: 10;
+}
+
+/* Enhanced focus states for sections */
+.personal-info-section .form-control:focus,
+.personal-info-section .form-select:focus {
+    border-color: var(--kbank-green);
+    box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.15), 
+                0 4px 20px rgba(76, 175, 80, 0.2),
+                var(--shadow-md);
+}
+
+.bank-info-section .form-control:focus,
+.bank-info-section .form-select:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.15), 
+                0 4px 20px rgba(25, 118, 210, 0.2),
+                var(--shadow-md);
+}
+
+.contact-info-section .form-control:focus,
+.contact-info-section .form-select:focus {
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 0 4px rgba(255, 160, 0, 0.15), 
+                0 4px 20px rgba(255, 160, 0, 0.2),
+                var(--shadow-md);
+}
+
+.form-control:hover,
+.form-select:hover {
+    border-color: var(--kbank-green-light);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+/* Enhanced Placeholder Styling */
+.form-control::placeholder {
+    color: var(--text-tertiary);
+    font-weight: 500;
+    transition: all var(--transition-normal);
+}
+
+.form-control:focus::placeholder {
+    color: var(--text-muted);
+    transform: translateY(-2px);
+}
+
+/* Enhanced Validation States */
+.form-control.is-valid,
+.form-select.is-valid {
+    border-color: var(--success);
+    background: linear-gradient(135deg, 
+        rgba(232, 245, 232, 0.98) 0%, 
+        rgba(220, 237, 200, 0.95) 100%);
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15), var(--shadow-md);
+    position: relative;
+}
+
+.form-control.is-valid::after {
+    content: '';
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%232E7D32' d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.061L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z'/%3e%3c/svg%3e") no-repeat;
+    background-size: contain;
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+    border-color: var(--danger);
+    background: linear-gradient(135deg, 
+        rgba(255, 235, 238, 0.98) 0%, 
+        rgba(255, 205, 210, 0.95) 100%);
+    box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.15), var(--shadow-md);
+    animation: inputShake 0.4s ease-in-out;
+    position: relative;
+}
+
+.form-control.is-invalid::after {
+    content: '';
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%23C62828' d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z'/%3e%3c/svg%3e") no-repeat;
+    background-size: contain;
+}
+
+/* Enhanced Help Text */
+.form-text {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    line-height: 1.5;
+}
+
+.form-text::before {
+    content: "ℹ️";
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+/* Enhanced Validation Messages */
+.text-danger {
+    color: var(--danger);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    animation: errorSlideIn var(--transition-normal);
+}
+
+.text-danger::before {
+    content: "⚠️";
+    font-size: 0.9rem;
+}
+
+/* =====================================
+   Enhanced Button Styling
+   ===================================== */
+
+.btn {
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 0.875rem 2rem;
+    border-radius: var(--radius-lg);
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    box-shadow: var(--shadow-md);
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent);
+    transition: left var(--transition-slow);
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+/* Primary Button */
+.btn-primary {
+    background: linear-gradient(135deg, 
+        var(--kbank-green) 0%, 
+        #45a049 25%, 
+        var(--primary-blue) 75%, 
+        var(--primary-blue-dark) 100%);
+    background-size: 200% 200%;
+    color: white;
+    box-shadow: 
+        0 6px 20px rgba(76, 175, 80, 0.3),
+        0 2px 8px rgba(25, 118, 210, 0.2);
+    animation: gradientShift 6s ease-in-out infinite;
+}
+
+.btn-primary:hover {
+    background-position: 100% 50%;
+    transform: translateY(-3px);
+    box-shadow: 
+        0 12px 32px rgba(76, 175, 80, 0.4),
+        0 6px 16px rgba(25, 118, 210, 0.3);
+    color: white;
+}
+
+.btn-primary:active {
+    transform: translateY(-1px);
+    box-shadow: 
+        0 4px 12px rgba(76, 175, 80, 0.3),
+        0 2px 6px rgba(25, 118, 210, 0.2);
+}
+
+.btn-primary:disabled {
+    background: linear-gradient(135deg, var(--neutral-400), var(--neutral-500));
+    color: var(--neutral-600);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: var(--shadow-sm);
+    animation: none;
+}
+
+/* Outline Secondary Button */
+.btn-outline-secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 2px solid var(--neutral-400);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-outline-secondary:hover {
+    background: var(--neutral-100);
+    border-color: var(--kbank-green);
+    color: var(--kbank-green);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-outline-secondary:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Loading State */
+.btn-loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* =====================================
+   Information Card Enhancement
+   ===================================== */
+
+.card.border-info {
+    border: none !important;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    background: linear-gradient(135deg, 
+        rgba(227, 242, 253, 0.95) 0%, 
+        rgba(187, 222, 251, 0.95) 100%);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+    position: relative;
+}
+
+.card.border-info::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, 
+        var(--info) 0%, 
+        var(--primary-blue) 50%, 
+        var(--info) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+.card.border-info .card-header {
+    background: linear-gradient(135deg, 
+        var(--info) 0%, 
+        var(--primary-blue) 100%);
+    border: none;
+    padding: 1.25rem 2rem;
+    position: relative;
+    z-index: 2;
+}
+
+.card.border-info .card-header h6 {
+    margin: 0;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.card.border-info .card-header i {
+    font-size: 1.25rem;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
+}
+
+.card.border-info .card-body {
+    padding: 2rem;
+    background: transparent;
+    position: relative;
+    z-index: 1;
+}
+
+.card.border-info .card-body ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.card.border-info .card-body li {
+    position: relative;
+    padding: 0.75rem 0 0.75rem 2.5rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    line-height: 1.6;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.card.border-info .card-body li:last-child {
+    border-bottom: none;
+}
+
+.card.border-info .card-body li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    top: 0.75rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: linear-gradient(135deg, var(--success), #00E676);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 800;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Enhanced Information Card Components */
+.bc-info-card-enhanced {
+    background: linear-gradient(135deg, 
+        rgba(227, 242, 253, 0.98) 0%, 
+        rgba(187, 222, 251, 0.95) 100%);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(25, 118, 210, 0.2) !important;
+}
+
+.bc-security-section {
+    border-bottom: 2px solid rgba(25, 118, 210, 0.1);
+}
+
+.bc-section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+}
+
+.bc-security-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--radius-md);
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-normal);
+}
+
+.bc-security-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.bc-security-item i {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.bc-info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.bc-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+    transition: all var(--transition-normal);
+}
+
+.bc-info-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.bc-info-item:hover {
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: var(--radius-md);
+    margin: 0 -1rem;
+    padding: 1rem;
+}
+
+.bc-info-item i {
+    font-size: 1.25rem;
+    margin-top: 0.125rem;
+    flex-shrink: 0;
+    width: 24px;
+    text-align: center;
+}
+
+.bc-info-item div {
+    flex: 1;
+    line-height: 1.6;
+}
+
+.bc-info-item strong {
+    color: var(--text-primary);
+    font-weight: 700;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+/* Enhanced User Guidance */
+.bc-field-hints {
+    margin-bottom: 2.5rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, 
+        rgba(255, 248, 225, 0.98) 0%, 
+        rgba(255, 243, 224, 0.95) 100%);
+    border-radius: var(--radius-lg);
+    border-left: 5px solid var(--accent-gold);
+    box-shadow: 0 4px 20px rgba(255, 160, 0, 0.1), var(--shadow-sm);
+    position: relative;
+    border: 1px solid rgba(255, 160, 0, 0.2);
+}
+
+.bc-field-hints::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 20%, rgba(255, 160, 0, 0.05) 0%, transparent 50%);
+    border-radius: var(--radius-lg);
+    pointer-events: none;
+}
+
+.bc-hint-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1.25rem;
+    position: relative;
+    z-index: 2;
+}
+
+.bc-hint-title i {
+    color: var(--accent-gold);
+    filter: drop-shadow(0 2px 4px rgba(255, 160, 0, 0.3));
+    animation: iconGlow 3s ease-in-out infinite;
+}
+
+.bc-hint-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.bc-hint-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    position: relative;
+    z-index: 2;
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-normal);
+}
+
+.bc-hint-item:hover {
+    background: rgba(255, 255, 255, 0.6);
+    transform: translateX(5px);
+}
+
+.bc-hint-item::before {
+    content: '\1F4A1';
+    font-size: 1rem;
+    margin-top: 0.125rem;
+    flex-shrink: 0;
+    opacity: 0.8;
+    filter: drop-shadow(0 1px 2px rgba(255, 160, 0, 0.3));
+}
+
+.bc-hint-item:last-child {
+    margin-bottom: 0;
+}
+
+/* =====================================
+
+.form-actions {
+    padding-top: 2rem;
+    border-top: 2px solid var(--neutral-200);
+    margin-top: 2rem;
+    display: flex;
+    gap: 1.25rem;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+/* =====================================
+   Mobile Responsive Enhancements
+   ===================================== */
+
+@media (max-width: 768px) {
+    /* Enhanced Mobile Header */
+    .bc-page-header {
+        padding: 1.5rem 0;
+    }
+    
+    .bc-page-header h1 {
+        font-size: 2.25rem;
+        line-height: 1.1;
+    }
+    
+    .bc-page-header p {
+        font-size: 1.125rem;
+        padding: 0 1rem;
+    }
+    
+    .bc-security-badge {
+        font-size: 0.8rem;
+        padding: 0.4rem 1rem;
+    }
+    
+    /* Enhanced Mobile Form Layout */
+    .card-header {
+        padding: 1.5rem 1.5rem 1.25rem;
+    }
+    
+    .card-body {
+        padding: 1.75rem 1.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Touch-Optimized Form Fields */
+    .form-control,
+    .form-select {
+        padding: 1rem 1.25rem;
+        font-size: 16px; /* Prevent zoom on iOS */
+        min-height: 56px; /* Better touch target */
+        border-radius: var(--radius-md);
+    }
+    
+    .form-label {
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-text {
+        font-size: 0.8rem;
+        margin-top: 0.375rem;
+    }
+    
+    /* Touch-Optimized Buttons */
+    .btn {
+        padding: 1.125rem 1.75rem;
+        font-size: 1rem;
+        width: 100%;
+        max-width: none;
+        min-height: 54px;
+        border-radius: var(--radius-md);
+    }
+    
+    .form-actions {
+        flex-direction: column-reverse;
+        gap: 1rem;
+        padding-top: 1.5rem;
+    }
+    
+    /* Mobile Language Toggle */
+    .language-toggle {
+        padding: 3px;
+    }
+    
+    .lang-btn {
+        padding: 5px 10px;
+        font-size: 0.8rem;
+    }
+    
+    /* Enhanced Mobile Hints */
+    .bc-field-hints {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .bc-hint-title {
+        font-size: 0.95rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .bc-hint-item {
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Enhanced Mobile Information Card */
+    .card.border-info .card-body {
+        padding: 1.25rem;
+    }
+    
+    .bc-security-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .bc-security-item {
+        padding: 0.75rem;
+        font-size: 0.8rem;
+    }
+    
+    .bc-security-item i {
+        font-size: 1.25rem;
+    }
+    
+    .bc-info-item {
+        padding: 0.75rem 0;
+        gap: 0.75rem;
+    }
+    
+    .bc-info-item:hover {
+        margin: 0 -0.75rem;
+        padding: 0.75rem;
+    }
+    
+    .bc-info-item i {
+        font-size: 1.1rem;
+    }
+    
+    .bc-info-item div {
+        font-size: 0.9rem;
+    }
+    
+    /* Legacy compatibility */
+    .card.border-info .card-body li {
+        padding: 0.625rem 0 0.625rem 2.25rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Extra Small Screen Optimizations */
+    .bc-icon-wrapper i {
+        font-size: 2.5rem !important;
+    }
+    
+    .bc-page-header {
+        padding: 1rem 0;
+    }
+    
+    .bc-page-header h1 {
+        font-size: 1.875rem;
+        line-height: 1.1;
+        margin-bottom: 0.75rem;
+    }
+    
+    .bc-page-header p {
+        font-size: 1rem;
+        line-height: 1.5;
+        padding: 0 0.5rem;
+    }
+    
+    .bc-security-badge {
+        font-size: 0.75rem;
+        padding: 0.375rem 0.875rem;
+    }
+    
+    /* Compact Form Layout */
+    .card-header {
+        padding: 1rem 1.25rem 0.875rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem 1.25rem;
+    }
+    
+    .card-header .card-title {
+        font-size: 1.1rem;
+        gap: 0.5rem;
+    }
+    
+    .card-header .card-title i {
+        font-size: 1.25rem;
+    }
+    
+    /* Compact Form Fields */
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-control,
+    .form-select {
+        padding: 0.875rem 1rem;
+        font-size: 16px;
+        min-height: 52px;
+    }
+    
+    .form-label {
+        font-size: 0.9rem;
+        gap: 0.5rem;
+    }
+    
+    .form-label i {
+        font-size: 1rem;
+    }
+    
+    .form-text {
+        font-size: 0.75rem;
+        line-height: 1.4;
+    }
+    
+    /* Extra small screens language toggle */
+    .lang-btn {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+    }
+    
+    /* Compact Hints */
+    .bc-field-hints {
+        padding: 0.875rem;
+    }
+    
+    .bc-hint-title {
+        font-size: 0.9rem;
+        gap: 0.5rem;
+    }
+    
+    .bc-hint-item {
+        font-size: 0.8rem;
+        gap: 0.5rem;
+    }
+    
+    /* Compact Information Card */
+    .bc-security-section {
+        margin-bottom: 1.25rem;
+    }
+    
+    .bc-section-title {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .bc-security-item {
+        padding: 0.625rem;
+        font-size: 0.75rem;
+    }
+    
+    .bc-security-item i {
+        font-size: 1.1rem;
+    }
+    
+    .bc-info-item {
+        padding: 0.625rem 0;
+        gap: 0.625rem;
+    }
+    
+    .bc-info-item:hover {
+        margin: 0 -0.625rem;
+        padding: 0.625rem;
+    }
+    
+    .bc-info-item i {
+        font-size: 1rem;
+        width: 20px;
+    }
+    
+    .bc-info-item div {
+        font-size: 0.85rem;
+        line-height: 1.5;
+    }
+    
+    .bc-info-item strong {
+        font-size: 0.875rem;
+    }
+}
+
+/* =====================================
+   Enhanced Animations
+   ===================================== */
+
+@keyframes gradientShift {
+    0%, 100% { 
+        background-position: 0% 50%; 
+    }
+    50% { 
+        background-position: 100% 50%; 
+    }
+}
+
+@keyframes iconGlow {
+    0%, 100% { 
+        opacity: 1; 
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.8; 
+        transform: scale(1.05);
+    }
+}
+
+@keyframes shimmer {
+    0%, 100% { 
+        background-position: -200% 0; 
+    }
+    50% { 
+        background-position: 200% 0; 
+    }
+}
+
+@keyframes inputShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-3px); }
+    40% { transform: translateX(3px); }
+    60% { transform: translateX(-2px); }
+    80% { transform: translateX(2px); }
+}
+
+@keyframes errorSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { 
+        transform: translateY(-50%) scale(1);
+        opacity: 1;
+    }
+    50% { 
+        transform: translateY(-50%) scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+/* Language Toggle Styles */
+.language-toggle {
+    display: flex;
+    background: var(--neutral-100);
+    border-radius: 8px;
+    padding: 4px;
+    gap: 2px;
+}
+
+.lang-btn {
+    padding: 6px 12px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.lang-btn.active {
+    background: white;
+    color: var(--text-primary);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-weight: 600;
+}
+
+.lang-btn:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--kbank-green);
+}
+
+/* =====================================
+   Accessibility Enhancements
+   ===================================== */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .form-control,
+    .form-select {
+        border-width: 3px;
+    }
+    
+    .btn-primary {
+        background: var(--kbank-green);
+        border: 2px solid var(--kbank-green-dark);
+    }
+    
+    .text-danger::before {
+        content: "⚠";
+        font-weight: 900;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus visible enhancements */
+.form-control:focus-visible,
+.form-select:focus-visible,
+.btn:focus-visible {
+    outline: 3px solid var(--kbank-green);
+    outline-offset: 2px;
+}
+
+/* Screen reader only content */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Enhanced Touch Interactions */
+.form-control,
+.form-select,
+.btn {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.btn:active {
+    transform: scale(0.98) translateY(0);
+}
+
+.form-control:active,
+.form-select:active {
+    transform: scale(1.01);
+}
+
+/* Loading Spinner Animation */
+.loading-spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Enhanced Field Focus States for Mobile */
+@media (pointer: coarse) {
+    .form-control:focus,
+    .form-select:focus {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-focus), 0 8px 25px rgba(76, 175, 80, 0.2);
+    }
+    
+    .btn:hover {
+        transform: none; /* Disable hover effects on touch devices */
+    }
+    
+    .bc-security-item:hover,
+    .bc-info-item:hover {
+        transform: none;
+    }
+}
+
+/* Enhanced Keyboard Navigation */
+.form-control:focus-visible,
+.form-select:focus-visible {
+    outline: 3px solid var(--kbank-green);
+    outline-offset: 3px;
+}
+
+.btn:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 3px;
+}
+
+/* =====================================
+   Print Styles
+   ===================================== */
+
+@media print {
+    .kbank-registration-form {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        background: white;
+    }
+    
+    .card-header {
+        background: var(--kbank-green) !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+    
+    .btn {
+        display: none;
+    }
+    
+    .card.border-info::before {
+        display: none;
+    }
+}
+
+/* =====================================
+   Form Section Styling and Organization  
+   ===================================== */
+
+/* Form Section Base Styling - ENSURE FLEXBOX WORKS */
+.form-section {
+    margin-bottom: 3rem;
+    padding: 2.5rem;
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.98) 0%, 
+        rgba(248, 250, 252, 0.96) 100%);
+    border-radius: var(--radius-xl);
+    border: 2px solid rgba(224, 224, 224, 0.4);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        0 4px 16px rgba(0, 0, 0, 0.06);
+    position: relative;
+    transition: all var(--transition-normal);
+    backdrop-filter: blur(15px);
+    
+    /* ENSURE FLEXBOX WORKS INSIDE SECTIONS */
+    display: block !important;
+    width: 100% !important;
+    overflow: visible !important;
+}
+
+.form-section:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+        0 12px 48px rgba(0, 0, 0, 0.15),
+        0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* Section Headers */
+.section-header {
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 1rem 0;
+    letter-spacing: 0.02em;
+}
+
+.section-icon {
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: white;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+}
+
+.section-divider {
+    height: 3px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, 
+        var(--kbank-green) 0%, 
+        var(--primary-blue) 50%, 
+        var(--accent-gold) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+    margin-bottom: 1rem;
+}
+
+/* Section Color Coding */
+.personal-info-section {
+    border-left: 6px solid var(--kbank-green);
+    border-top: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.personal-info-section .section-icon {
+    background: linear-gradient(135deg, var(--kbank-green), #66BB6A);
+    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+}
+
+.personal-info-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(76, 175, 80, 0.03) 0%, 
+        rgba(102, 187, 106, 0.02) 50%,
+        rgba(76, 175, 80, 0.01) 100%);
+    border-radius: var(--radius-xl);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.bank-info-section {
+    border-left: 6px solid var(--primary-blue);
+    border-top: 1px solid rgba(25, 118, 210, 0.2);
+}
+
+.bank-info-section .section-icon {
+    background: linear-gradient(135deg, var(--primary-blue), #42A5F5);
+    box-shadow: 0 4px 16px rgba(25, 118, 210, 0.3);
+}
+
+.bank-info-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(25, 118, 210, 0.03) 0%, 
+        rgba(66, 165, 245, 0.02) 50%,
+        rgba(25, 118, 210, 0.01) 100%);
+    border-radius: var(--radius-xl);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.contact-info-section {
+    border-left: 5px solid var(--accent-gold);
+}
+
+.contact-info-section .section-icon {
+    background: linear-gradient(135deg, var(--accent-gold), #FFB74D);
+}
+
+.contact-info-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(255, 160, 0, 0.02) 0%, 
+        rgba(255, 183, 77, 0.01) 100%);
+    border-radius: var(--radius-xl);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Form Section Content - CRITICAL GRID FIXES */
+.form-section .row {
+    position: relative;
+    z-index: 2;
+    /* FORCE PROPER BOOTSTRAP GRID DISPLAY */
+    display: flex !important;
+    flex-wrap: wrap !important;
+    margin-left: calc(-0.5 * var(--bs-gutter-x, 1.5rem)) !important;
+    margin-right: calc(-0.5 * var(--bs-gutter-x, 1.5rem)) !important;
+}
+
+/* CRITICAL: Remove any constraints that break the grid */
+.form-section .row .col-md-6,
+.form-section .row .col-md-8,
+.form-section .row .col-md-4,
+.form-section .row .col-md-12 {
+    position: relative !important;
+    z-index: 1 !important;
+    padding-left: calc(var(--bs-gutter-x, 1.5rem) * 0.5) !important;
+    padding-right: calc(var(--bs-gutter-x, 1.5rem) * 0.5) !important;
+    margin-top: var(--bs-gutter-y, 0) !important;
+}
+
+.form-section .form-group {
+    margin-bottom: 1.75rem;
+    position: relative;
+    width: 100%;
+    /* Ensure form groups don't break out of their containers */
+    box-sizing: border-box;
+}
+
+.form-section .form-group:last-child {
+    margin-bottom: 0;
+}
+
+/* Enhanced 2-Column Layout with Better Spacing - FORCE GRID WORKING */
+.row.g-4 {
+    --bs-gutter-x: 2rem !important;
+    --bs-gutter-y: 1.5rem !important;
+    /* Force Bootstrap Grid System to work */
+    display: flex !important;
+    flex-wrap: wrap !important;
+    margin-left: calc(-0.5 * var(--bs-gutter-x)) !important;
+    margin-right: calc(-0.5 * var(--bs-gutter-x)) !important;
+    margin-top: calc(-1 * var(--bs-gutter-y)) !important;
+}
+
+/* Direct targeting of the specific form structure */
+.kbank-registration-form .form-section .row.g-4 {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    margin-left: calc(-0.5 * 2rem) !important;
+    margin-right: calc(-0.5 * 2rem) !important;
+}
+
+.kbank-registration-form .form-section .row.g-4 > * {
+    flex-shrink: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: calc(2rem * 0.5) !important;
+    padding-right: calc(2rem * 0.5) !important;
+    margin-top: 1.5rem !important;
+}
+
+/* Force specific desktop breakpoints */
+@media (min-width: 768px) {
+    .kbank-registration-form .form-section .row.g-4 .col-md-6 {
+        flex: 0 0 50% !important;
+        width: 50% !important;
+        max-width: 50% !important;
+    }
+    
+    .kbank-registration-form .form-section .row.g-4 .col-md-8 {
+        flex: 0 0 66.66666667% !important;
+        width: 66.66666667% !important;
+        max-width: 66.66666667% !important;
+    }
+    
+    .kbank-registration-form .form-section .row.g-4 .col-md-4 {
+        flex: 0 0 33.33333333% !important;
+        width: 33.33333333% !important;
+        max-width: 33.33333333% !important;
+    }
+}
+
+/* CRITICAL: Ensure Bootstrap Grid Works Properly */
+.form-section .row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    margin-left: calc(-0.5 * var(--bs-gutter-x, 1.5rem)) !important;
+    margin-right: calc(-0.5 * var(--bs-gutter-x, 1.5rem)) !important;
+    margin-top: calc(-1 * var(--bs-gutter-y, 0)) !important;
+}
+
+.form-section .row > * {
+    flex-shrink: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: calc(var(--bs-gutter-x, 1.5rem) * 0.5) !important;
+    padding-right: calc(var(--bs-gutter-x, 1.5rem) * 0.5) !important;
+    margin-top: var(--bs-gutter-y, 0) !important;
+}
+
+/* DESKTOP 2-COLUMN LAYOUT - FORCE SIDE BY SIDE */
+@media (min-width: 768px) {
+    .form-section .row.g-4 {
+        --bs-gutter-x: 2.5rem;
+        --bs-gutter-y: 2rem;
+    }
+    
+    /* CRITICAL: Force proper column widths for 2-column layout */
+    .form-section .col-md-6 {
+        flex: 0 0 50% !important;
+        width: 50% !important;
+        max-width: 50% !important;
+        display: block !important;
+    }
+    
+    .form-section .col-md-8 {
+        flex: 0 0 66.66666667% !important;
+        width: 66.66666667% !important;
+        max-width: 66.66666667% !important;
+        display: block !important;
+    }
+    
+    .form-section .col-md-4 {
+        flex: 0 0 33.33333333% !important;
+        width: 33.33333333% !important;
+        max-width: 33.33333333% !important;
+        display: block !important;
+    }
+    
+    .form-section .col-md-12 {
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        display: block !important;
+    }
+    
+    /* Ensure form fields don't break the grid */
+    .form-section .col-md-6 .form-control,
+    .form-section .col-md-6 .form-select {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Bank Display Card Styling */
+.bank-display-card {
+    background: linear-gradient(135deg, 
+        rgba(76, 175, 80, 0.05) 0%, 
+        rgba(25, 118, 210, 0.08) 100%);
+    border: 2px solid rgba(76, 175, 80, 0.2);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.bank-display-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, 
+        var(--kbank-green) 0%, 
+        var(--primary-blue) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+.bank-logo-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    z-index: 2;
+}
+
+.bank-logo-section i {
+    font-size: 2.5rem;
+    color: var(--kbank-green);
+    filter: drop-shadow(0 2px 8px rgba(76, 175, 80, 0.3));
+}
+
+.bank-info h6 {
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    font-size: 1.125rem;
+}
+
+.bank-info small {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* Mobile Responsiveness for Sections - FORCE SINGLE COLUMN */
+@media (max-width: 767px) {
+    .form-section {
+        padding: 2rem 1.5rem;
+        margin-bottom: 2rem;
+        border-left-width: 4px;
+    }
+    
+    .section-header {
+        margin-bottom: 1.5rem;
+    }
+    
+    .section-title {
+        font-size: 1.125rem;
+        gap: 0.75rem;
+    }
+    
+    .section-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 1.25rem;
+    }
+    
+    .form-section .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .row.g-4 {
+        --bs-gutter-x: 1rem;
+        --bs-gutter-y: 1.25rem;
+    }
+    
+    /* FORCE SINGLE COLUMN ON MOBILE */
+    .form-section .col-md-6,
+    .form-section .col-md-8,
+    .form-section .col-md-4,
+    .form-section .col-md-12 {
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .bank-display-card {
+        padding: 1.25rem;
+    }
+    
+    .bank-logo-section i {
+        font-size: 2rem;
+    }
+    
+    .bank-info h6 {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-section {
+        padding: 1.5rem 1.25rem;
+        margin-bottom: 1.5rem;
+        border-left-width: 3px;
+    }
+    
+    .section-title {
+        font-size: 1rem;
+        gap: 0.5rem;
+    }
+    
+    .section-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 1.1rem;
+    }
+    
+    .row.g-4 {
+        --bs-gutter-x: 0.75rem;
+        --bs-gutter-y: 1rem;
+    }
+    
+    /* ENSURE SINGLE COLUMN ON VERY SMALL SCREENS */
+    .form-section .col-md-6,
+    .form-section .col-md-8,
+    .form-section .col-md-4,
+    .form-section .col-md-12 {
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .bank-display-card {
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .bank-logo-section {
+        gap: 0.75rem;
+    }
+    
+    .bank-logo-section i {
+        font-size: 1.75rem;
+    }
+    
+    .bank-info h6 {
+        font-size: 0.95rem;
+    }
+    
+    .bank-info small {
+        font-size: 0.75rem;
+    }
+}
+
+/* =====================================
+   BOOTSTRAP GRID FORCE - CRITICAL FIXES FOR 2-COLUMN LAYOUT
+   ===================================== */
+
+/* OVERRIDE ANY CSS THAT MIGHT BREAK THE GRID */
+* {
+    box-sizing: border-box !important;
+}
+
+/* FORCE PROPER DISPLAY TYPES FOR GRID ELEMENTS */
+.row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+}
+
+.col,
+.col-1, .col-2, .col-3, .col-4, .col-5, .col-6,
+.col-7, .col-8, .col-9, .col-10, .col-11, .col-12,
+.col-auto,
+.col-sm, .col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6,
+.col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12,
+.col-sm-auto,
+.col-md, .col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6,
+.col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11, .col-md-12,
+.col-md-auto {
+    display: block !important;
+    position: relative !important;
+}
+
+/* CRITICAL: Ensure 2-column layout specifically */
+@media (min-width: 768px) {
+    .form-section .row .col-md-6 {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+        width: 50% !important;
+        display: block !important;
+        float: none !important;
+        position: relative !important;
+    }
+    
+    /* Extra specificity for overriding any conflicting styles */
+    .personal-info-section .row .col-md-6,
+    .bank-info-section .row .col-md-6 {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+        width: 50% !important;
+        display: block !important;
+    }
+    
+    /* For account/branch layout */
+    .form-section .row .col-md-8 {
+        flex: 0 0 66.66666667% !important;
+        max-width: 66.66666667% !important;
+        width: 66.66666667% !important;
+        display: block !important;
+    }
+    
+    .form-section .row .col-md-4 {
+        flex: 0 0 33.33333333% !important;
+        max-width: 33.33333333% !important;
+        width: 33.33333333% !important;
+        display: block !important;
+    }
+}
+
+/* FORCE BOOTSTRAP GRID TO WORK PROPERLY */
+.container-fluid,
+.container,
+.container-sm,
+.container-md,
+.container-lg,
+.container-xl,
+.container-xxl {
+    width: 100% !important;
+    padding-right: var(--bs-gutter-x, 0.75rem) !important;
+    padding-left: var(--bs-gutter-x, 0.75rem) !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+}
+
+/* FORCE ROW BEHAVIOR */
+.row {
+    --bs-gutter-x: 1.5rem !important;
+    --bs-gutter-y: 0 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    margin-top: calc(-1 * var(--bs-gutter-y)) !important;
+    margin-right: calc(-0.5 * var(--bs-gutter-x)) !important;
+    margin-left: calc(-0.5 * var(--bs-gutter-x)) !important;
+}
+
+/* FORCE COLUMN BEHAVIOR */
+.row > * {
+    flex-shrink: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-right: calc(var(--bs-gutter-x) * 0.5) !important;
+    padding-left: calc(var(--bs-gutter-x) * 0.5) !important;
+    margin-top: var(--bs-gutter-y) !important;
+}
+
+/* FORCE BOOTSTRAP GRID COLUMNS TO WORK PROPERLY */
+@media (min-width: 768px) {
+    .col-md-1 { flex: 0 0 8.33333333% !important; width: 8.33333333% !important; display: block !important; }
+    .col-md-2 { flex: 0 0 16.66666667% !important; width: 16.66666667% !important; display: block !important; }
+    .col-md-3 { flex: 0 0 25% !important; width: 25% !important; display: block !important; }
+    .col-md-4 { flex: 0 0 33.33333333% !important; width: 33.33333333% !important; display: block !important; }
+    .col-md-5 { flex: 0 0 41.66666667% !important; width: 41.66666667% !important; display: block !important; }
+    .col-md-6 { flex: 0 0 50% !important; width: 50% !important; max-width: 50% !important; display: block !important; }
+    .col-md-7 { flex: 0 0 58.33333333% !important; width: 58.33333333% !important; display: block !important; }
+    .col-md-8 { flex: 0 0 66.66666667% !important; width: 66.66666667% !important; max-width: 66.66666667% !important; display: block !important; }
+    .col-md-9 { flex: 0 0 75% !important; width: 75% !important; display: block !important; }
+    .col-md-10 { flex: 0 0 83.33333333% !important; width: 83.33333333% !important; display: block !important; }
+    .col-md-11 { flex: 0 0 91.66666667% !important; width: 91.66666667% !important; display: block !important; }
+    .col-md-12 { flex: 0 0 100% !important; width: 100% !important; max-width: 100% !important; display: block !important; }
+}
+
+/* TEMPORARY DEBUGGING: Visual indicators to verify grid is working */
+@media (min-width: 768px) {
+    /* Add colored borders to verify 2-column layout is working */
+    .form-section .col-md-6 {
+        border: 2px solid rgba(76, 175, 80, 0.3) !important;
+        border-radius: 8px !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .form-section .col-md-8 {
+        border: 2px solid rgba(25, 118, 210, 0.3) !important;
+        border-radius: 8px !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .form-section .col-md-4 {
+        border: 2px solid rgba(255, 160, 0, 0.3) !important;
+        border-radius: 8px !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    /* Add labels to verify column sizes */
+    .form-section .col-md-6::before {
+        content: "50% Column (col-md-6)";
+        position: absolute;
+        top: -10px;
+        left: 10px;
+        background: rgba(76, 175, 80, 0.9);
+        color: white;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: bold;
+        border-radius: 4px;
+        z-index: 999;
+        pointer-events: none;
+    }
+    
+    .form-section .col-md-8::before {
+        content: "67% Column (col-md-8)";
+        position: absolute;
+        top: -10px;
+        left: 10px;
+        background: rgba(25, 118, 210, 0.9);
+        color: white;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: bold;
+        border-radius: 4px;
+        z-index: 999;
+        pointer-events: none;
+    }
+    
+    .form-section .col-md-4::before {
+        content: "33% Column (col-md-4)";
+        position: absolute;
+        top: -10px;
+        left: 10px;
+        background: rgba(255, 160, 0, 0.9);
+        color: white;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: bold;
+        border-radius: 4px;
+        z-index: 999;
+        pointer-events: none;
+    }
+    
+    /* Add row indicator */
+    .form-section .row::before {
+        content: "Bootstrap Row Container";
+        position: absolute;
+        top: -25px;
+        left: 0;
+        background: rgba(220, 53, 69, 0.9);
+        color: white;
+        padding: 2px 8px;
+        font-size: 10px;
+        font-weight: bold;
+        border-radius: 4px;
+        z-index: 1000;
+        pointer-events: none;
+    }
+}
+
+/* =====================================
+   Form Width Optimization
+   ===================================== */
+
+/* Main container optimizations */
+.container {
+    max-width: 1140px; /* Ensure container doesn't get too wide */
+}
+
+/* Form container with optimal width constraints - ENSURE GRID WORKS */
+.kbank-registration-form {
+    max-width: 800px; /* Main constraint as required */
+    width: 100%;
+    margin: 0 auto; /* Center the form */
+    position: relative;
+    /* Ensure Bootstrap grid can work inside */
+    contain: none !important;
+    overflow: visible !important;
+}
+
+/* Form Sections Container */
+.form-sections-container {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+/* Enhanced form section separation */
+.form-section + .form-section {
+    margin-top: 2.5rem;
+}
+
+/* Better visual hierarchy for form sections */
+.form-section {
+    position: relative;
+    z-index: 2;
+    
+    /* Enhanced card-like appearance */
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.08),
+        0 4px 16px rgba(0, 0, 0, 0.04);
+    
+    /* Subtle hover animation */
+    transition: all var(--transition-normal);
+}
+
+.form-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 12px 48px rgba(0, 0, 0, 0.12),
+        0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.form-section .section-header {
+    border-bottom: 1px solid rgba(224, 224, 224, 0.3);
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* Enhanced section divider animations */
+.section-divider {
+    opacity: 0.8;
+    transition: opacity var(--transition-normal);
+}
+
+.form-section:hover .section-divider {
+    opacity: 1;
+}
+
+/* Enhanced responsive breakpoints for better form width control */
+@media (min-width: 576px) {
+    .kbank-registration-form {
+        max-width: 800px; /* Keep consistent max-width */
+        margin: 0 auto;
+    }
+}
+
+@media (min-width: 768px) {
+    .kbank-registration-form {
+        max-width: 800px; /* Maintain 800px max-width */
+    }
+    
+    /* Optimize form field widths for desktop */
+    .form-control,
+    .form-select {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+@media (min-width: 992px) {
+    .kbank-registration-form {
+        max-width: 800px; /* Consistent max-width */
+    }
+    
+    /* Better spacing for larger screens */
+    .bc-page-header {
+        padding: 2.5rem 0;
+    }
+    
+    .card-body {
+        padding: 2.5rem 3rem;
+    }
+    
+    .card-header {
+        padding: 2rem 3rem 1.5rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .kbank-registration-form {
+        max-width: 800px; /* Final constraint at 800px */
+    }
+    
+    /* Optimal padding for very large screens */
+    .card-body {
+        padding: 3rem 3.5rem;
+    }
+    
+    .card-header {
+        padding: 2.5rem 3.5rem 2rem;
+    }
+}
+
+@media (min-width: 1400px) {
+    .kbank-registration-form {
+        max-width: 800px; /* Maintain 800px maximum form width as required */
+    }
+}
+
+/* =====================================
+   CRITICAL 2-COLUMN LAYOUT FIX - DIRECT APPROACH
+   ===================================== */
+
+/* Direct 2-column layout without relying on Bootstrap variables */
+@media (min-width: 768px) {
+    /* Personal Information Section - 2 columns */
+    .personal-info-section .row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        margin-left: -1rem !important;
+        margin-right: -1rem !important;
+    }
+    
+    .personal-info-section .row .col-md-6 {
+        width: 50% !important;
+        max-width: 50% !important;
+        flex: 0 0 50% !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        margin-bottom: 1.5rem !important;
+        display: block !important;
+        position: relative !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Bank Information Section - Account 67% + Branch 33% */
+    .bank-info-section .row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        margin-left: -1rem !important;
+        margin-right: -1rem !important;
+    }
+    
+    .bank-info-section .row .col-md-8 {
+        width: 66.66666667% !important;
+        max-width: 66.66666667% !important;
+        flex: 0 0 66.66666667% !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        margin-bottom: 1.5rem !important;
+        display: block !important;
+        position: relative !important;
+        box-sizing: border-box !important;
+    }
+    
+    .bank-info-section .row .col-md-4 {
+        width: 33.33333333% !important;
+        max-width: 33.33333333% !important;
+        flex: 0 0 33.33333333% !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        margin-bottom: 1.5rem !important;
+        display: block !important;
+        position: relative !important;
+        box-sizing: border-box !important;
+    }
+    
+    .bank-info-section .row .col-md-12 {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        margin-bottom: 1.5rem !important;
+        display: block !important;
+        position: relative !important;
+        box-sizing: border-box !important;
+    }
+}
+
+/* Mobile: Force single column */
+@media (max-width: 767px) {
+    .form-section .row .col-md-6,
+    .form-section .row .col-md-8,
+    .form-section .row .col-md-4,
+    .form-section .row .col-md-12 {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        margin-bottom: 1.25rem !important;
+    }
+}
+
+/* =====================================
+   Enhanced Professional Layout
+   ===================================== */
+
+/* Form container positioning and centering */
+.row.justify-content-center {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Page header width optimization */
+.bc-page-header {
+    max-width: 800px;
+    margin: 0 auto 2.5rem;
+}
+
+.bc-page-header h1 {
+    max-width: 600px;
+    margin: 0 auto 1rem;
+}
+
+.bc-page-header p {
+    max-width: 550px;
+    margin: 0 auto 1rem;
+}
+
+/* Information card width matching */
+.card.border-info {
+    max-width: 100%;
+    width: 100%;
+}
+
+/* Enhanced form field layout for better UX */
+.form-group {
+    position: relative;
+}
+
+/* Improved form actions spacing and alignment */
+.form-actions {
+    padding-top: 2.5rem;
+    border-top: 2px solid rgba(224, 224, 224, 0.8);
+    margin-top: 2.5rem;
+    display: flex;
+    gap: 1.5rem;
+    justify-content: space-between;
+    align-items: center;
+}
+
+@media (max-width: 767px) {
+    .form-actions {
+        flex-direction: column-reverse;
+        gap: 1rem;
+        justify-content: center;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+        max-width: none;
+    }
+}
+
+/* Enhanced field hints container width */
+.bc-field-hints {
+    max-width: 100%;
+    margin: 0 auto 2rem;
+}
+
+/* Improved visual hierarchy for desktop screens */
+@media (min-width: 768px) {
+    .bc-page-header h1 {
+        font-size: 2.5rem;
+        line-height: 1.2;
+    }
+    
+    .bc-page-header p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+    
+    .form-label {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+    
+    .form-control,
+    .form-select {
+        font-size: 0.95rem;
+        padding: 1rem 1.25rem;
+    }
+    
+    .btn {
+        font-size: 0.95rem;
+        padding: 0.875rem 2rem;
+        min-width: 150px;
+    }
+}
+
+/* Ultra-wide screen optimizations */
+@media (min-width: 1600px) {
+    .container {
+        max-width: 1200px; /* Prevent excessive width on ultra-wide screens */
+    }
+    
+    .kbank-registration-form {
+        max-width: 700px; /* Keep form constrained on ultra-wide screens */
+    }
+}
+
+/* =====================================
+   Enhanced Mobile Layout
+   ===================================== */
+
+/* Improved mobile container spacing */
+@media (max-width: 575px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    /* Tighter mobile layout */
+    .bc-page-header {
+        padding: 1.5rem 0.5rem;
+    }
+    
+    .kbank-registration-form {
+        margin: 0 auto;
+    }
+    
+    .card-body {
+        padding: 1.5rem 1.25rem;
+    }
+    
+    .card-header {
+        padding: 1.5rem 1.25rem 1.25rem;
+    }
+}
+
+/* Enhanced tablet layout */
+@media (min-width: 576px) and (max-width: 991px) {
+    .container {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+    
+    .bc-page-header {
+        padding: 2rem 1rem;
+    }
+    
+    .card-body {
+        padding: 2rem 2.25rem;
+    }
+    
+    .card-header {
+        padding: 1.75rem 2.25rem 1.5rem;
+    }
+}
+
+/* =====================================
+   Professional Layout Enhancements
+   ===================================== */
+
+/* Consistent vertical rhythm */
+.kbank-registration-form + .card.border-info {
+    margin-top: 2rem;
+}
+
+/* Enhanced form field grouping */
+.form-group:not(:last-child) {
+    margin-bottom: 1.75rem;
+}
+
+/* Better visual separation between sections */
+.bc-field-hints + form {
+    border-top: 1px solid rgba(224, 224, 224, 0.6);
+    padding-top: 2rem;
+}
+
+/* Improved information card positioning */
+.card.border-info {
+    margin-top: 2.5rem;
+}
+
+@media (min-width: 768px) {
+    .card.border-info {
+        margin-top: 3rem;
+    }
+}
+
+/* Enhanced header styling for professional appearance */
+.header {
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.98) 0%, 
+        rgba(248, 250, 252, 0.95) 100%);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+    border-bottom: 1px solid rgba(224, 224, 224, 0.6);
+}
+
+.header .nav-container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+@media (max-width: 767px) {
+    .header .nav-container {
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* =====================================
+   Accessibility and UX Improvements
+   ===================================== */
+
+/* Enhanced focus states for better navigation */
+.form-control:focus,
+.form-select:focus {
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15), 
+                0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: var(--kbank-green);
+    outline: none;
+}
+
+/* Improved button focus states */
+.btn:focus-visible {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.8), 
+                0 0 0 6px rgba(76, 175, 80, 0.3);
+    outline: none;
+}
+
+/* Enhanced form validation feedback positioning */
+.form-group .text-danger {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.form-group .form-text {
+    margin-top: 0.375rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+}
+
+/* Better error state visibility */
+.form-control.is-invalid,
+.form-select.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.form-control.is-valid,
+.form-select.is-valid {
+    border-color: #198754;
+    box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.1);
+}
+
+/* =====================================
+   FINAL 2-COLUMN LAYOUT ENFORCEMENT
+   - Highest specificity to override any conflicting styles
+   ===================================== */
+
+/* Desktop 2-column layout - Absolute enforcement */
+@media screen and (min-width: 768px) {
+    /* Target the exact form structure with maximum specificity */
+    .kbank-registration-form .card-body .form-sections-container .form-section .row.g-4 {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        margin-left: -1rem !important;
+        margin-right: -1rem !important;
+    }
+    
+    .kbank-registration-form .card-body .form-sections-container .form-section .row.g-4 > .col-md-6 {
+        width: 50% !important;
+        max-width: 50% !important;
+        flex: 0 0 50% !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        display: block !important;
+        position: relative !important;
+        float: none !important;
+        clear: none !important;
+        margin-bottom: 1.5rem !important;
+        box-sizing: border-box !important;
+    }
+    
+    .kbank-registration-form .card-body .form-sections-container .form-section .row.g-4 > .col-md-8 {
+        width: 66.66666667% !important;
+        max-width: 66.66666667% !important;
+        flex: 0 0 66.66666667% !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        display: block !important;
+        position: relative !important;
+        float: none !important;
+        clear: none !important;
+        margin-bottom: 1.5rem !important;
+        box-sizing: border-box !important;
+    }
+    
+    .kbank-registration-form .card-body .form-sections-container .form-section .row.g-4 > .col-md-4 {
+        width: 33.33333333% !important;
+        max-width: 33.33333333% !important;
+        flex: 0 0 33.33333333% !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        display: block !important;
+        position: relative !important;
+        float: none !important;
+        clear: none !important;
+        margin-bottom: 1.5rem !important;
+        box-sizing: border-box !important;
+    }
+    
+    .kbank-registration-form .card-body .form-sections-container .form-section .row.g-4 > .col-md-12 {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        display: block !important;
+        position: relative !important;
+        float: none !important;
+        clear: none !important;
+        margin-bottom: 1.5rem !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Ensure form groups don't interfere with layout */
+    .kbank-registration-form .form-section .col-md-6 .form-group,
+    .kbank-registration-form .form-section .col-md-8 .form-group,
+    .kbank-registration-form .form-section .col-md-4 .form-group,
+    .kbank-registration-form .form-section .col-md-12 .form-group {
+        width: 100% !important;
+        margin-bottom: 1.5rem !important;
+        display: block !important;
+    }
+    
+    /* Ensure form controls take full width of their containers */
+    .kbank-registration-form .form-section .col-md-6 .form-control,
+    .kbank-registration-form .form-section .col-md-6 .form-select,
+    .kbank-registration-form .form-section .col-md-8 .form-control,
+    .kbank-registration-form .form-section .col-md-8 .form-select,
+    .kbank-registration-form .form-section .col-md-4 .form-control,
+    .kbank-registration-form .form-section .col-md-4 .form-select,
+    .kbank-registration-form .form-section .col-md-12 .form-control,
+    .kbank-registration-form .form-section .col-md-12 .form-select {
+        width: 100% !important;
+        max-width: 100% !important;
+        display: block !important;
+        box-sizing: border-box !important;
+    }
+}
+
+/* Mobile: Ensure single column layout */
+@media screen and (max-width: 767px) {
+    .kbank-registration-form .card-body .form-sections-container .form-section .row.g-4 > .col-md-6,
+    .kbank-registration-form .card-body .form-sections-container .form-section .row.g-4 > .col-md-8,
+    .kbank-registration-form .card-body .form-sections-container .form-section .row.g-4 > .col-md-4,
+    .kbank-registration-form .card-body .form-sections-container .form-section .row.g-4 > .col-md-12 {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        display: block !important;
+        margin-bottom: 1.25rem !important;
+    }
+}
