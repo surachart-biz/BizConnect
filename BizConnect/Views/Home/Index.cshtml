@@ -1,466 +1,353 @@
+@model BizConnect.Models.ViewModels.LandingPageViewModel
 @{
-    ViewData["Title"] = "BizConnect - KBank ODD Registration";
+    ViewData["Title"] = "BizConnect - KBank OTAC Registration";
 }
 
-
-
-@if (User.Identity?.IsAuthenticated == true)
-{
-    <!-- Authenticated User - KBank ODD Dashboard -->
-    <div class="kbank-dashboard">
-        <!-- Quick Access Hero -->
-        <section class="kbank-hero">
-            <div class="container position-relative">
-                <div class="row align-items-center">
-                    <div class="col-lg-8">
-                        <div class="hero-content">
-                            <div class="trust-badge mb-3">
-                                <i class="fas fa-university text-warning me-2"></i>
-                                <span data-en="Official KBank Partner" data-th="พันธมิตรทางการของ KBank">Official KBank Partner</span>
-                            </div>
-                            <h1 class="display-4 fw-bold mb-3">
-                                <span data-en="Welcome back," data-th="ยินดีต้อนรับกลับ,">Welcome back,</span> @User.Identity.Name
-                            </h1>
-                            <p class="lead mb-4">
-                                <span data-en="Manage your KBank ODD registrations and monitor your daily operations efficiently." data-th="จัดการการลงทะเบียน KBank ODD และติดตามการดำเนินงานประจำวันอย่างมีประสิทธิภาพ">Manage your KBank ODD registrations and monitor your daily operations efficiently.</span>
-                            </p>
-                            <div class="hero-actions">
-                                <a asp-controller="KBank" asp-action="Register" class="btn btn-light btn-lg me-3">
-                                    <i class="fas fa-plus me-2"></i>
-                                    <span data-en="New Registration" data-th="ลงทะเบียนใหม่">New Registration</span>
-                                </a>
-                                <a asp-controller="KBank" asp-action="Start" class="btn btn-outline-light btn-lg">
-                                    <i class="fas fa-list me-2"></i>
-                                    <span data-en="View All" data-th="ดูทั้งหมด">View All</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 text-center">
-                        <div class="hero-stats">
-                            <div class="stat-item mb-3">
-                                <div class="h2 fw-bold">24</div>
-                                <div data-en="Pending Today" data-th="รอดำเนินการวันนี้">Pending Today</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="h2 fw-bold text-warning">156</div>
-                                <div data-en="Completed This Month" data-th="เสร็จสิ้นเดือนนี้">Completed This Month</div>
-                            </div>
-                        </div>
+<!-- Site Header with Authentication -->
+<header class="site-header bg-white shadow-sm">
+    <div class="container">
+        <div class="row align-items-center py-3">
+            <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                    <div class="logo me-3">
+                        <i class="fas fa-university text-success me-2"></i>
+                        <span class="h4 mb-0 fw-bold">BizConnect</span>
+                        <span class="badge bg-success ms-2">KBank Partner</span>
                     </div>
                 </div>
             </div>
-        </section>
-
-        @if (User.IsInRole("Admin"))
-        {
-            <!-- Admin Quick Access -->
-            <section class="py-4 bg-light">
-                <div class="container">
-                    <div class="alert alert-info d-flex align-items-center">
-                        <i class="fas fa-shield-alt me-3"></i>
-                        <div class="flex-grow-1">
-                            <h5 class="mb-1" data-en="Administrator Access" data-th="การเข้าถึงของผู้ดูแลระบบ">Administrator Access</h5>
-                            <p class="mb-0" data-en="Manage ODD registrations, generate OTAC codes, and monitor system activity" data-th="จัดการการลงทะเบียน ODD, สร้างรหัส OTAC และติดตามกิจกรรมของระบบ">Manage ODD registrations, generate OTAC codes, and monitor system activity</p>
-                        </div>
-                        <a asp-controller="Home" asp-action="Dashboard" asp-area="Admin" class="btn btn-primary">
-                            <i class="fas fa-tachometer-alt me-2"></i>
-                            <span data-en="Admin Dashboard" data-th="แดชบอร์ดผู้ดูแล">Admin Dashboard</span>
-                        </a>
+            <div class="col-md-6 text-end">
+                <div class="header-actions">
+                    <!-- Language Toggle -->
+                    <div class="btn-group me-3">
+                        <button class="btn btn-outline-secondary btn-sm" id="langTH">TH</button>
+                        <button class="btn btn-secondary btn-sm" id="langEN">EN</button>
+                    </div>
+                    
+                    <!-- Sign In Button -->
+                    <button class="btn btn-success" id="signInBtn" data-bs-toggle="modal" data-bs-target="#loginModal">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        เข้าสู่ระบบ
+                    </button>
+                    
+                    <!-- User Menu (hidden by default) -->
+                    <div class="dropdown d-none" id="userMenu">
+                        <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-2"></i>
+                            <span id="userName">ผู้ใช้งาน</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="#" id="adminDashboardLink">
+                                    <i class="fas fa-tachometer-alt me-2"></i>
+                                    Admin Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-user-cog me-2"></i>
+                                    จัดการโปรไฟล์
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="#" id="signOutBtn">
+                                    <i class="fas fa-sign-out-alt me-2"></i>
+                                    ออกจากระบบ
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
-            </section>
-        }
+            </div>
+        </div>
     </div>
-}
-else
-{
-    <!-- Non-Authenticated User Landing Page -->
-    <div class="kbank-landing">
-        <!-- Hero Section -->
-        <section class="position-relative overflow-hidden" style="background: var(--gradient-hero); color: white; padding: 120px 0;">
-            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: var(--glass-overlay); backdrop-filter: blur(5px);"></div>
-            <div class="container position-relative">
-                <div class="row align-items-center min-vh-75">
-                    <div class="col-lg-6">
-                        <div class="hero-content fade-in-up">
-                            <!-- Trust indicators -->
-                            <div class="mb-4">
-                                <div class="badge-modern badge-kbank mb-2 me-2">
-                                    <i class="fas fa-shield-check"></i>
-                                    <span data-en="Bank-Grade Security" data-th="ความปลอดภัยระดับธนาคาร">Bank-Grade Security</span>
-                                </div>
-                                <div class="badge-modern badge-warning mb-2 me-2">
-                                    <i class="fas fa-university"></i>
-                                    <span data-en="KBank Official Partner" data-th="พันธมิตรทางการของ KBank">KBank Official Partner</span>
-                                </div>
-                                <div class="badge-modern badge-primary mb-2">
-                                    <i class="fas fa-clock"></i>
-                                    <span data-en="24/7 Available" data-th="ใช้ได้ 24/7">24/7 Available</span>
-                                </div>
-                            </div>
+</header>
 
-                            <h1 class="display-3 fw-bold mb-4">
-                                <span data-en="KBank ODD Registration" data-th="การลงทะเบียน KBank ODD">KBank ODD Registration</span>
-                                <div class="text-warning" data-en="Made Simple" data-th="ง่ายดาย">Made Simple</div>
-                            </h1>
-                            
-                            <p class="lead mb-4">
-                                <span data-en="Streamline your KBank Omnibus Deposit Data registration process with our secure, user-friendly platform designed for financial institutions." data-th="ปรับปรุงกระบวนการลงทะเบียน KBank Omnibus Deposit Data ด้วยแพลตฟอร์มที่ปลอดภัยและเป็นมิตรกับผู้ใช้ที่ออกแบบมาสำหรับสถาบันการเงิน">Streamline your KBank Omnibus Deposit Data registration process with our secure, user-friendly platform designed for financial institutions.</span>
-                            </p>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-content">
+        <div class="hero-badge">
+            <i class="fas fa-shield-alt"></i>
+            ระบบปลอดภัย รับรองโดย KBank
+        </div>
 
-                            <!-- Key benefits -->
-                            <div class="hero-benefits mb-4">
-                                <div class="d-flex align-items-center mb-2">
-                                    <i class="fas fa-check-circle text-warning me-3"></i>
-                                    <span data-en="Automated OTAC code generation" data-th="การสร้างรหัส OTAC อัตโนมัติ">Automated OTAC code generation</span>
-                                </div>
-                                <div class="d-flex align-items-center mb-2">
-                                    <i class="fas fa-check-circle text-warning me-3"></i>
-                                    <span data-en="Real-time registration tracking" data-th="การติดตามการลงทะเบียนแบบเรียลไทม์">Real-time registration tracking</span>
-                                </div>
-                                <div class="d-flex align-items-center mb-2">
-                                    <i class="fas fa-check-circle text-warning me-3"></i>
-                                    <span data-en="Secure data handling & encryption" data-th="การจัดการข้อมูลที่ปลอดภัยและการเข้ารหัส">Secure data handling & encryption</span>
-                                </div>
-                            </div>
+        <h1 class="hero-title">ลงทะเบียนหักบัญชีอัตโนมัติ</h1>
 
-                            <div class="hero-actions">
-                                <a asp-action="Verify" class="btn-modern btn-gold me-3">
-                                    <i class="fas fa-user-plus"></i>
-                                    <span data-en="สมัครบริการหักบัญชีอัตโนมัติ" data-th="สมัครบริการหักบัญชีอัตโนมัติ">สมัครบริการหักบัญชีอัตโนมัติ</span>
-                                </a>
-                                <a asp-controller="Account" asp-action="Login" class="btn-modern btn-outline-modern" style="border-color: white; color: white;">
-                                    <i class="fas fa-sign-in-alt"></i>
-                                    <span data-en="เข้าสู่ระบบ (เจ้าหน้าที่)" data-th="เข้าสู่ระบบ (เจ้าหน้าที่)">เข้าสู่ระบบ (เจ้าหน้าที่)</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="hero-visual text-center fade-in-right" style="animation-delay: 0.3s;">
-                            <div class="position-relative d-inline-block">
-                                <div class="glass-card p-5 rounded-circle d-inline-block" style="width: 300px; height: 300px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-university" style="font-size: 8rem; color: var(--kbank-green);"></i>
-                                </div>
-                                <!-- Floating security indicators -->
-                                <div class="position-absolute" style="top: 10%; right: -10%; animation: bounce-in 2s infinite;">
-                                    <div class="glass-card p-2 rounded-circle">
-                                        <i class="fas fa-lock text-success"></i>
-                                    </div>
-                                </div>
-                                <div class="position-absolute" style="top: 60%; left: -10%; animation: bounce-in 2s infinite 0.5s;">
-                                    <div class="glass-card p-2 rounded-circle">
-                                        <i class="fas fa-shield-alt text-kbank"></i>
-                                    </div>
-                                </div>
-                                <div class="position-absolute" style="bottom: 10%; right: 20%; animation: bounce-in 2s infinite 1s;">
-                                    <div class="glass-card p-2 rounded-circle">
-                                        <i class="fas fa-key text-gold"></i>
-                                    </div>
-                                </div>
-                                <div class="position-absolute" style="bottom: 40%; left: 10%; animation: bounce-in 2s infinite 1.5s;">
-                                    <div class="glass-card p-2 rounded-circle">
-                                        <i class="fas fa-check-circle text-success"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <p class="hero-subtitle">
+            สะดวก รวดเร็ว และปลอดภัย ด้วยระบบ OTAC จาก KBank สำหรับการลงทะเบียนบริการหักบัญชีอัตโนมัติ
+        </p>
+
+        <div class="hero-features">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-check"></i>
                 </div>
+                <span>ปลอดภัยด้วยรหัส OTAC แบบใช้ครั้งเดียว</span>
             </div>
-        </section>
 
-        <!-- 4-Step Process Section -->
-        <section id="how-it-works" class="py-5" style="background: var(--gradient-backdrop);">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12 text-center mb-5">
-                        <h2 class="display-5 fw-bold text-kbank mb-3 fade-in-up">
-                            <span data-en="How KBank ODD Registration Works" data-th="วิธีการทำงานของการลงทะเบียน KBank ODD">How KBank ODD Registration Works</span>
-                        </h2>
-                        <p class="lead text-muted fade-in-up" style="animation-delay: 0.2s;">
-                            <span data-en="Simple 4-step process to complete your registration" data-th="กระบวนการ 4 ขั้นตอนง่ายๆ เพื่อลงทะเบียนให้เสร็จสมบูรณ์">Simple 4-step process to complete your registration</span>
-                        </p>
-                    </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-clock"></i>
                 </div>
-
-                <div class="row g-4">
-                    <!-- Step 1: Get OTAC from Staff -->
-                    <div class="col-md-6 col-lg-3">
-                        <div class="glass-card text-center h-100 fade-in-up" style="animation-delay: 0.1s;">
-                            <div class="card-modern-body p-4">
-                                <div class="position-relative d-inline-block mb-3">
-                                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; background: var(--gradient-kbank); color: white; font-size: 2rem; font-weight: bold;">1</div>
-                                </div>
-                                <div class="mb-3" style="font-size: 3rem; color: var(--kbank-green);">
-                                    <i class="fas fa-user-tie"></i>
-                                </div>
-                                <h4 class="fw-bold mb-3 text-kbank" data-en="Get OTAC Code" data-th="รับรหัส OTAC">Get OTAC Code</h4>
-                                <p class="text-muted" data-en="Receive your unique 8-character OTAC code from our staff member" data-th="รับรหัส OTAC 8 หลักที่ไม่ซ้ำกันจากเจ้าหน้าที่ของเรา">Receive your unique 8-character OTAC code from our staff member</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 2: Validate OTAC -->
-                    <div class="col-md-6 col-lg-3">
-                        <div class="glass-card text-center h-100 fade-in-up" style="animation-delay: 0.2s;">
-                            <div class="card-modern-body p-4">
-                                <div class="position-relative d-inline-block mb-3">
-                                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; background: var(--gradient-success); color: white; font-size: 2rem; font-weight: bold;">2</div>
-                                </div>
-                                <div class="mb-3" style="font-size: 3rem; color: var(--success);">
-                                    <i class="fas fa-key"></i>
-                                </div>
-                                <h4 class="fw-bold mb-3 text-kbank" data-en="Validate OTAC" data-th="ยืนยันรหัส OTAC">Validate OTAC</h4>
-                                <p class="text-muted" data-en="Enter your OTAC code to verify authorization and proceed to registration" data-th="ป้อนรหัส OTAC ของคุณเพื่อตรวจสอบการอนุญาตและดำเนินการลงทะเบียน">Enter your OTAC code to verify authorization and proceed to registration</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 3: Fill Registration Form -->
-                    <div class="col-md-6 col-lg-3">
-                        <div class="glass-card text-center h-100 fade-in-up" style="animation-delay: 0.3s;">
-                            <div class="card-modern-body p-4">
-                                <div class="position-relative d-inline-block mb-3">
-                                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; background: var(--gradient-primary); color: white; font-size: 2rem; font-weight: bold;">3</div>
-                                </div>
-                                <div class="mb-3" style="font-size: 3rem; color: var(--primary-blue);">
-                                    <i class="fas fa-id-card"></i>
-                                </div>
-                                <h4 class="fw-bold mb-3 text-kbank" data-en="Fill Details" data-th="กรอกข้อมูล">Fill Details</h4>
-                                <p class="text-muted" data-en="Complete the registration form with your National ID, contact, and bank account information" data-th="กรอกแบบฟอร์มลงทะเบียนด้วยบัตรประชาชน ข้อมูลติดต่อ และข้อมูลบัญชีธนาคาร">Complete the registration form with your National ID, contact, and bank account information</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 4: Submit to KBank -->
-                    <div class="col-md-6 col-lg-3">
-                        <div class="glass-card text-center h-100 fade-in-up" style="animation-delay: 0.4s;">
-                            <div class="card-modern-body p-4">
-                                <div class="position-relative d-inline-block mb-3">
-                                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; background: var(--gradient-gold); color: white; font-size: 2rem; font-weight: bold;">4</div>
-                                </div>
-                                <div class="mb-3" style="font-size: 3rem; color: var(--accent-gold);">
-                                    <i class="fas fa-university"></i>
-                                </div>
-                                <h4 class="fw-bold mb-3 text-kbank" data-en="Submit to KBank" data-th="ส่งข้อมูลให้ KBank">Submit to KBank</h4>
-                                <p class="text-muted" data-en="Your registration is securely submitted to KBank for automatic debit service setup" data-th="การลงทะเบียนของคุณจะถูกส่งอย่างปลอดภัยไปยัง KBank เพื่อตั้งค่าบริการหักบัญชีอัตโนมัติ">Your registration is securely submitted to KBank for automatic debit service setup</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mt-5">
-                    <div class="col-12 text-center">
-                        <a asp-action="Verify" class="btn-modern btn-kbank btn-lg scale-in" style="animation-delay: 0.5s;">
-                            <i class="fas fa-arrow-right"></i>
-                            <span data-en="Begin Registration Process" data-th="เริ่มกระบวนการลงทะเบียน">Begin Registration Process</span>
-                        </a>
-                    </div>
-                </div>
+                <span>ใช้เวลาเพียง 3 นาที เสร็จสิ้นการลงทะเบียน</span>
             </div>
-        </section>
 
-        <!-- FAQ Section -->
-        <section class="py-5">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12 text-center mb-5">
-                        <h2 class="display-5 fw-bold text-primary mb-3">
-                            <span data-en="Frequently Asked Questions" data-th="คำถามที่พบบ่อย">Frequently Asked Questions</span>
-                        </h2>
-                        <p class="lead text-muted">
-                            <span data-en="Common questions about KBank ODD registration" data-th="คำถามทั่วไปเกี่ยวกับการลงทะเบียน KBank ODD">Common questions about KBank ODD registration</span>
-                        </p>
-                    </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
                 </div>
-
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="accordion" id="faqAccordion">
-                            <!-- FAQ 1 -->
-                            <div class="glass-card mb-3 fade-in-up" style="animation-delay: 0.1s;">
-                                <button class="w-100 border-0 bg-transparent p-4 text-start d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
-                                    <h5 class="mb-0 fw-semibold text-dark">
-                                        <span data-en="What is KBank ODD Registration?" data-th="การลงทะเบียน KBank ODD คืออะไร?">What is KBank ODD Registration?</span>
-                                    </h5>
-                                    <i class="fas fa-chevron-down text-kbank"></i>
-                                </button>
-                                <div id="faq1" class="collapse" data-bs-parent="#faqAccordion">
-                                    <div class="px-4 pb-4">
-                                        <div class="glass p-3 rounded">
-                                            <p class="mb-0" data-en="KBank ODD (Omnibus Deposit Data) Registration is a secure process that allows financial institutions to register and manage deposit data with KBank's systems. This ensures compliance with banking regulations and secure data handling." data-th="การลงทะเบียน KBank ODD (Omnibus Deposit Data) เป็นกระบวนการที่ปลอดภัยที่ช่วยให้สถาบันการเงินสามารถลงทะเบียนและจัดการข้อมูลเงินฝากกับระบบของ KBank ได้ สิ่งนี้ช่วยให้มั่นใจในการปฏิบัติตามกฎระเบียบของธนาคารและการจัดการข้อมูลที่ปลอดภัย">KBank ODD (Omnibus Deposit Data) Registration is a secure process that allows financial institutions to register and manage deposit data with KBank's systems. This ensures compliance with banking regulations and secure data handling.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- FAQ 2 -->
-                            <div class="glass-card mb-3 fade-in-up" style="animation-delay: 0.2s;">
-                                <button class="w-100 border-0 bg-transparent p-4 text-start d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
-                                    <h5 class="mb-0 fw-semibold text-dark">
-                                        <span data-en="How secure is my data?" data-th="ข้อมูลของฉันปลอดภัยแค่ไหน?">How secure is my data?</span>
-                                    </h5>
-                                    <i class="fas fa-chevron-down text-kbank"></i>
-                                </button>
-                                <div id="faq2" class="collapse" data-bs-parent="#faqAccordion">
-                                    <div class="px-4 pb-4">
-                                        <div class="glass p-3 rounded">
-                                            <p class="mb-0" data-en="We use bank-grade security with end-to-end encryption, secure HTTPS connections, and comply with all financial industry standards. Your data is protected with the same level of security used by major banking institutions." data-th="เราใช้ความปลอดภัยระดับธนาคารพร้อมการเข้ารหัสแบบ end-to-end การเชื่อมต่อ HTTPS ที่ปลอดภัย และปฏิบัติตามมาตรฐานอุตสาหกรรมการเงินทั้งหมด ข้อมูลของคุณได้รับการปกป้องด้วยระดับความปลอดภัยเดียวกับที่ใช้โดยสถาบันการธนาคารขนาดใหญ่">We use bank-grade security with end-to-end encryption, secure HTTPS connections, and comply with all financial industry standards. Your data is protected with the same level of security used by major banking institutions.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- FAQ 3 -->
-                            <div class="glass-card mb-3 fade-in-up" style="animation-delay: 0.3s;">
-                                <button class="w-100 border-0 bg-transparent p-4 text-start d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
-                                    <h5 class="mb-0 fw-semibold text-dark">
-                                        <span data-en="What is an OTAC code?" data-th="รหัส OTAC คืออะไร?">What is an OTAC code?</span>
-                                    </h5>
-                                    <i class="fas fa-chevron-down text-kbank"></i>
-                                </button>
-                                <div id="faq3" class="collapse" data-bs-parent="#faqAccordion">
-                                    <div class="px-4 pb-4">
-                                        <div class="glass p-3 rounded">
-                                            <p class="mb-0" data-en="OTAC (One-Time Authorization Code) is a unique, time-limited code generated for each registration. It provides an additional layer of security and ensures that only authorized users can complete the registration process." data-th="OTAC (One-Time Authorization Code) เป็นรหัสเฉพาะที่มีเวลาจำกัดที่สร้างขึ้นสำหรับการลงทะเบียนแต่ละครั้ง ให้ความปลอดภัยเพิ่มเติมและรับประกันว่ามีเพียงผู้ใช้ที่ได้รับอนุญาตเท่านั้นที่สามารถดำเนินการลงทะเบียนให้เสร็จสิ้นได้">OTAC (One-Time Authorization Code) is a unique, time-limited code generated for each registration. It provides an additional layer of security and ensures that only authorized users can complete the registration process.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- FAQ 4 -->
-                            <div class="glass-card mb-3 fade-in-up" style="animation-delay: 0.4s;">
-                                <button class="w-100 border-0 bg-transparent p-4 text-start d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
-                                    <h5 class="mb-0 fw-semibold text-dark">
-                                        <span data-en="How long does the registration process take?" data-th="กระบวนการลงทะเบียนใช้เวลานานแค่ไหน?">How long does the registration process take?</span>
-                                    </h5>
-                                    <i class="fas fa-chevron-down text-kbank"></i>
-                                </button>
-                                <div id="faq4" class="collapse" data-bs-parent="#faqAccordion">
-                                    <div class="px-4 pb-4">
-                                        <div class="glass p-3 rounded">
-                                            <p class="mb-0" data-en="The registration process typically takes 5-10 minutes to complete. OTAC codes are generated instantly, and validation is processed in real-time. You'll receive immediate confirmation upon successful completion." data-th="กระบวนการลงทะเบียนโดยทั่วไปใช้เวลา 5-10 นาทีในการดำเนินการให้เสร็จสิ้น รหัส OTAC จะถูกสร้างขึ้นทันที และการตรวจสอบจะดำเนินการแบบเรียลไทม์ คุณจะได้รับการยืนยันทันทีเมื่อดำเนินการเสร็จสิ้นเรียบร้อยแล้ว">The registration process typically takes 5-10 minutes to complete. OTAC codes are generated instantly, and validation is processed in real-time. You'll receive immediate confirmation upon successful completion.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- FAQ 5 -->
-                            <div class="glass-card mb-3 fade-in-up" style="animation-delay: 0.5s;">
-                                <button class="w-100 border-0 bg-transparent p-4 text-start d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
-                                    <h5 class="mb-0 fw-semibold text-dark">
-                                        <span data-en="Who can I contact for support?" data-th="ฉันสามารถติดต่อใครเพื่อขอความช่วยเหลือได้?">Who can I contact for support?</span>
-                                    </h5>
-                                    <i class="fas fa-chevron-down text-kbank"></i>
-                                </button>
-                                <div id="faq5" class="collapse" data-bs-parent="#faqAccordion">
-                                    <div class="px-4 pb-4">
-                                        <div class="glass p-3 rounded">
-                                            <p class="mb-0" data-en="Our support team is available 24/7 to assist with any questions or issues. You can reach us through the contact form, email support@bizconnect.com, or call our dedicated helpline at +66-2-XXX-XXXX." data-th="ทีมสนับสนุนของเราพร้อมให้บริการตลอด 24 ชั่วโมงเพื่อช่วยเหลือเกี่ยวกับคำถามหรือปัญหาใดๆ คุณสามารถติดต่อเราผ่านแบบฟอร์มติดต่อ อีเมล support@bizconnect.com หรือโทรหาสายด่วนเฉพาะของเราที่ +66-2-XXX-XXXX">Our support team is available 24/7 to assist with any questions or issues. You can reach us through the contact form, email support@bizconnect.com, or call our dedicated helpline at +66-2-XXX-XXXX.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <span>รองรับทุกอุปกรณ์ ทั้งมือถือและคอมพิวเตอร์</span>
             </div>
-        </section>
+        </div>
 
-        <!-- CTA Section -->
-        <section class="py-5 position-relative" style="background: var(--gradient-kbank); color: white;">
-            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: var(--glass-overlay); backdrop-filter: blur(5px);"></div>
-            <div class="container position-relative">
-                <div class="row">
-                    <div class="col-12 text-center">
-                        <h2 class="display-5 fw-bold mb-3 fade-in-up">
-                            <span data-en="Ready to Get Started?" data-th="พร้อมที่จะเริ่มต้นหรือยัง?">Ready to Get Started?</span>
-                        </h2>
-                        <p class="lead mb-4 fade-in-up" style="animation-delay: 0.2s;">
-                            <span data-en="Join thousands of financial institutions using our secure KBank ODD registration platform" data-th="เข้าร่วมกับสถาบันการเงินหลายพันแห่งที่ใช้แพลตฟอร์มการลงทะเบียน KBank ODD ที่ปลอดภัยของเรา">Join thousands of financial institutions using our secure KBank ODD registration platform</span>
-                        </p>
-                        <div class="fade-in-up" style="animation-delay: 0.4s;">
-                            <a asp-action="Verify" class="btn-modern btn-gold me-3">
-                                <i class="fas fa-user-plus"></i>
-                                <span data-en="สมัครบริการหักบัญชีอัตโนมัติ" data-th="สมัครบริการหักบัญชีอัตโนมัติ">สมัครบริการหักบัญชีอัตโนมัติ</span>
-                            </a>
-                            <a asp-controller="Account" asp-action="Login" class="btn-modern btn-outline-modern" style="border-color: white; color: white;">
-                                <i class="fas fa-sign-in-alt"></i>
-                                <span data-en="เข้าสู่ระบบ (เจ้าหน้าที่)" data-th="เข้าสู่ระบบ (เจ้าหน้าที่)">เข้าสู่ระบบ (เจ้าหน้าที่)</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
+        <div class="hero-actions">
+            <a href="#otac-form" class="btn btn-primary">
+                <i class="fas fa-play"></i>
+                เริ่มลงทะเบียนเลย
+            </a>
+            <a href="#how-it-works" class="btn btn-outline">
+                <i class="fas fa-info-circle"></i>
+                วิธีการใช้งาน
+            </a>
+        </div>
+
+        <div class="trust-indicators">
+            <div class="trust-item">
+                <i class="fas fa-shield-alt"></i>
+                <span>ปลอดภัย 100%</span>
             </div>
-        </section>
+            <div class="trust-item">
+                <i class="fas fa-users"></i>
+                <span>ผู้ใช้กว่า 10,000+ คน</span>
+            </div>
+            <div class="trust-item">
+                <i class="fas fa-star"></i>
+                <span>ความพึงพอใจ 98.5%</span>
+            </div>
+        </div>
     </div>
-}
+
+    <div class="hero-visual">
+        <div class="visual-bg"></div>
+        <div class="otac-card" id="otac-form">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-key"></i>
+                </div>
+                <h3 class="card-title">ยืนยันรหัส OTAC</h3>
+                <p class="card-subtitle">กรอกรหัส OTAC ที่ได้รับจากเจ้าหน้าที่</p>
+            </div>
+
+            @using (Html.BeginForm("VerifyOtac", "Home", FormMethod.Post, new { @class = "otac-form", @id = "otacForm" }))
+            {
+                @Html.AntiForgeryToken()
+                
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show mb-3">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        @Html.ValidationSummary(true, "", new { @class = "mb-0" })
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                
+                <div class="otac-input-group">
+                    <label class="input-label" for="OtacCode">รหัส OTAC</label>
+                    @Html.TextBoxFor(m => m.OtacCode, new { 
+                        @class = "otac-input", 
+                        @id = "OtacCode", 
+                        @placeholder = "ABC12345", 
+                        @maxlength = "8", 
+                        @required = "required" 
+                    })
+                    @Html.ValidationMessageFor(m => m.OtacCode, "", new { @class = "text-danger small mt-1" })
+                </div>
+
+                <button type="submit" class="card-action" id="verifyBtn">
+                    <span class="btn-text">
+                        <i class="fas fa-arrow-right"></i>
+                        ยืนยันและดำเนินการต่อ
+                    </span>
+                    <span class="btn-spinner d-none">
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        กำลังตรวจสอบ...
+                    </span>
+                </button>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Steps Section -->
+<section class="steps-section" id="how-it-works">
+    <div class="steps-container">
+        <div class="section-header">
+            <h2 class="section-title">วิธีการใช้งาน</h2>
+            <p class="section-subtitle">
+                เพียง 3 ขั้นตอนง่ายๆ คุณก็สามารถลงทะเบียนบริการหักบัญชีอัตโนมัติได้แล้ว
+            </p>
+        </div>
+
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <div class="step-icon">
+                    <i class="fas fa-ticket-alt"></i>
+                </div>
+                <h3 class="step-title">รับรหัส OTAC</h3>
+                <p class="step-description">
+                    ติดต่อเจ้าหน้าที่หรือผู้ให้บริการเพื่อขอรหัส OTAC สำหรับการลงทะเบียน บริการนี้ใช้ได้เพียงครั้งเดียว
+                </p>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <div class="step-icon">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <h3 class="step-title">กรอกข้อมูล</h3>
+                <p class="step-description">
+                    ยืนยันรหัส OTAC และกรอกข้อมูลส่วนตัว หมายเลขบัญชี และรายละเอียดที่จำเป็นสำหรับการลงทะเบียน
+                </p>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <div class="step-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="step-title">ยืนยันผ่าน KBank</h3>
+                <p class="step-description">
+                    ระบบจะเชื่อมต่อกับ KBank เพื่อยืนยันข้อมูลและเปิดใช้งานบริการหักบัญชีอัตโนมัติให้คุณ
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Security Section -->
+<section class="security-section">
+    <div class="security-container">
+        <div class="security-content">
+            <h2>ความปลอดภัยระดับธนาคาร</h2>
+
+            <div class="security-features">
+                <div class="security-feature">
+                    <div class="security-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="security-text">
+                        <h3>เข้ารหัสระดับสูง</h3>
+                        <p>ข้อมูลทั้งหมดได้รับการเข้ารหัส SSL/TLS และมาตรฐานความปลอดภัยของธนาคาร</p>
+                    </div>
+                </div>
+
+                <div class="security-feature">
+                    <div class="security-icon">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <div class="security-text">
+                        <h3>รหัส OTAC แบบใช้ครั้งเดียว</h3>
+                        <p>รหัสมีอายุจำกัดและใช้ได้เพียงครั้งเดียว ป้องกันการใช้งานโดยไม่ได้รับอนุญาต</p>
+                    </div>
+                </div>
+
+                <div class="security-feature">
+                    <div class="security-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="security-text">
+                        <h3>ติดตามและตรวจสอบ</h3>
+                        <p>ระบบมีการบันทึกและติดตามการใช้งานทุกขั้นตอนเพื่อความปลอดภัย</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="security-visual">
+            <div class="otac-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="card-title">การรักษาความปลอดภัย</h3>
+                    <p class="card-subtitle">มาตรฐานระดับธนาคาร</p>
+                </div>
+
+                <div style="padding: 1rem 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <span style="color: var(--text-secondary);">เข้ารหัสข้อมูล</span>
+                        <span style="color: var(--success); font-weight: 600;">✓ เปิดใช้งาน</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <span style="color: var(--text-secondary);">ยืนยันตัวตน</span>
+                        <span style="color: var(--success); font-weight: 600;">✓ เปิดใช้งาน</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: var(--text-secondary);">การตรวจสอบ</span>
+                        <span style="color: var(--success); font-weight: 600;">✓ เปิดใช้งาน</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Login Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title">
+                    <i class="fas fa-shield-alt text-success me-2"></i>
+                    เข้าสู่ระบบเจ้าหน้าที่
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body pt-0">
+                <div class="alert alert-info border-0 bg-light">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <small>สำหรับเจ้าหน้าที่และผู้ดูแลระบบเท่านั้น</small>
+                </div>
+                
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">ชื่อผู้ใช้งาน</label>
+                        <input type="text" class="form-control" id="username" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">รหัสผ่าน</label>
+                        <input type="password" class="form-control" id="password" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success w-100" id="loginSubmitBtn">
+                        <span class="login-text">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            เข้าสู่ระบบ
+                        </span>
+                        <span class="login-spinner d-none">
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                            กำลังตรวจสอบ...
+                        </span>
+                    </button>
+                </form>
+                
+                <div class="mt-3 text-center">
+                    <small class="text-muted">
+                        Demo: admin/admin123, employee/emp123, test/test123
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Container -->
+<div id="notificationContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
 
 @section Scripts {
-    <script>
-        // Language Toggle Functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const langButtons = document.querySelectorAll('.lang-btn');
-            const elementsWithLang = document.querySelectorAll('[data-en]');
-            
-            // Get saved language or default to English
-            let currentLang = localStorage.getItem('selectedLanguage') || 'en';
-            
-            // Apply saved language on page load
-            updateLanguage(currentLang);
-            
-            langButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const lang = this.getAttribute('data-lang');
-                    currentLang = lang;
-                    localStorage.setItem('selectedLanguage', lang);
-                    updateLanguage(lang);
-                    
-                    // Update button states
-                    langButtons.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-            
-            function updateLanguage(lang) {
-                elementsWithLang.forEach(el => {
-                    const text = el.getAttribute('data-' + lang);
-                    if (text) {
-                        el.textContent = text;
-                    }
-                });
-                
-                // Update active button state
-                langButtons.forEach(btn => {
-                    btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
-                });
-            }
-            
-            // Smooth scrolling for anchor links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                });
-            });
-            
-            // Process step hover effects
-            document.querySelectorAll('.process-step').forEach(step => {
-                step.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-5px) scale(1.02)';
-                });
-                step.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0) scale(1)';
-                });
-            });
-        });
-    </script>
+    <script src="~/js/landing.js" asp-append-version="true"></script>
+    <script src="~/js/auth.js" asp-append-version="true"></script>
 }

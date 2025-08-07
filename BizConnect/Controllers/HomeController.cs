@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using BizConnect.Models;
+using BizConnect.Models.ViewModels;
 using BizConnect.Services.DTOs;
 using BizConnect.Models.Api;
 using BizConnect.Services.Interfaces;
@@ -40,35 +41,78 @@ public class HomeController : BaseController
     /// </summary>
     public async Task<IActionResult> Index()
     {
+        var model = new LandingPageViewModel
+        {
+            OtacCode = string.Empty
+        };
+
+        return View(model);
+    }
+
+    
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> VerifyOtac(LandingPageViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View("Index", model);
+        }
+
         try
         {
-            var model = new ModernLandingPageViewModel
-            {
-                ShowOtacForm = true,
-                WelcomeMessage = GetLocalizedWelcomeMessage(),
-                TrustIndicators = GetDefaultTrustIndicators(),
-                SystemStatus = new BizConnect.ViewModels.Modern.PublicSystemStatus { Status = "Operational", Message = "All systems operational", IsOnline = true },
-                Features = GetFeatureHighlights(),
-                SecurityBadges = GetDefaultSecurityBadges(),
-                SupportInfo = GetSupportInformation()
-            };
+            // Phase 1: Simple validation - จะเชื่อมต่อ service จริงใน Phase ถัดไป
+            var otacCode = model.OtacCode.ToUpper().Trim();
 
-            return View(model);
+            // Basic format validation
+            if (string.IsNullOrEmpty(otacCode) || otacCode.Length < 6 || otacCode.Length > 8)
+            {
+                ModelState.AddModelError("OtacCode", "รหัส OTAC ต้องมีความยาว 6-8 ตัวอักษร");
+                return View("Index", model);
+            }
+
+            // Check if OTAC contains only alphanumeric characters
+            if (!System.Text.RegularExpressions.Regex.IsMatch(otacCode, @"^[A-Z0-9]+$"))
+            {
+                ModelState.AddModelError("OtacCode", "รหัส OTAC ต้องเป็นตัวอักษรภาษาอังกฤษตัวใหญ่และตัวเลขเท่านั้น");
+                return View("Index", model);
+            }
+
+            // Phase 1: Demo validation - accept certain test codes
+            var validTestCodes = new[] { "ABC12345", "TEST1234", "DEMO5678", "OTAC9999" };
+
+            if (validTestCodes.Contains(otacCode))
+            {
+                // Success - store OTAC for next step
+                TempData["OtacCode"] = otacCode;
+                TempData["SuccessMessage"] = $"รหัส OTAC {otacCode} ยืนยันสำเร็จ! กำลังเปลี่ยนเส้นทางไปยังฟอร์มลงทะเบียน...";
+
+                // Phase 1: Redirect to a success page or registration form
+                // In real implementation: return RedirectToAction("Register", "Registration", new { otac = otacCode });
+                return RedirectToAction("RegistrationSuccess", new { otac = otacCode });
+            }
+            else
+            {
+                // Invalid OTAC
+                ModelState.AddModelError("OtacCode", "รหัส OTAC ไม่ถูกต้องหรือหมดอายุแล้ว กรุณาติดต่อเจ้าหน้าที่");
+                return View("Index", model);
+            }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error loading modern landing page");
-            
-            // Fallback to basic landing page
-            var fallbackModel = new ModernLandingPageViewModel
-            {
-                ShowOtacForm = true,
-                WelcomeMessage = "ยินดีต้อนรับสู่ระบบ BizConnect",
-                SystemStatus = new BizConnect.ViewModels.Modern.PublicSystemStatus { Status = "Operational", Message = "All systems operational" }
-            };
-            
-            return View(fallbackModel);
+            // Log error in real implementation
+            ModelState.AddModelError("", "เกิดข้อผิดพลาดในระบบ กรุณาลองใหม่อีกครั้ง");
+            return View("Index", model);
         }
+    }
+
+    // Temporary success page for Phase 1 demo
+    public IActionResult RegistrationSuccess(string otac)
+    {
+        ViewBag.OtacCode = otac;
+        ViewBag.Message = $"รหัส OTAC {otac} ยืนยันสำเร็จ!";
+        return View();
     }
 
     public IActionResult Privacy()
@@ -387,11 +431,11 @@ public class HomeController : BaseController
     /// <summary>
     /// Get feature highlights for landing page
     /// </summary>
-    private List<FeatureHighlight> GetFeatureHighlights()
+    private List<BizConnect.Models.ViewModels.FeatureHighlight> GetFeatureHighlights()
     {
-        return new List<FeatureHighlight>
+        return new List<BizConnect.Models.ViewModels.FeatureHighlight>
         {
-            new FeatureHighlight
+            new BizConnect.Models.ViewModels.FeatureHighlight
             {
                 Title = "ปลอดภัยและเชื่อถือได้",
                 Description = "ระบบรักษาความปลอดภัยระดับธนาคาร",
@@ -399,7 +443,7 @@ public class HomeController : BaseController
                 Color = "success",
                 DisplayOrder = 1
             },
-            new FeatureHighlight
+            new BizConnect.Models.ViewModels.FeatureHighlight
             {
                 Title = "รวดเร็วและสะดวก",
                 Description = "ลงทะเบียนได้ภายใน 3 นาที",
@@ -407,7 +451,7 @@ public class HomeController : BaseController
                 Color = "primary",
                 DisplayOrder = 2
             },
-            new FeatureHighlight
+            new BizConnect.Models.ViewModels.FeatureHighlight
             {
                 Title = "สนับสนุน 24/7",
                 Description = "ติดต่อได้ตลอด 24 ชั่วโมง",
@@ -428,15 +472,15 @@ public class HomeController : BaseController
             ContactPhone = "02-123-4567",
             ContactEmail = "support@bizconnect.com",
             HelpDeskHours = "จันทร์-ศุกร์ 8:30-17:30 น.",
-            FrequentlyAskedQuestions = new List<FaqItem>
+            FrequentlyAskedQuestions = new List<BizConnect.ViewModels.Modern.FaqItem>
             {
-                new FaqItem
+                new BizConnect.ViewModels.Modern.FaqItem
                 {
                     Question = "OTAC คืออะไร?",
                     Answer = "OTAC คือรหัสยืนยันตัวตนชั่วคราว 8 หลัก ที่ใช้สำหรับเข้าใช้งานระบบ",
                     Category = "General"
                 },
-                new FaqItem
+                new BizConnect.ViewModels.Modern.FaqItem
                 {
                     Question = "จะได้รับ OTAC ได้อย่างไร?",
                     Answer = "ติดต่อธนาคารเพื่อขอรับรหัส OTAC หรือใช้ช่องทางออนไลน์",
@@ -484,7 +528,110 @@ public class HomeController : BaseController
     }
 
     /// <summary>
-    /// Get default trust indicators for landing page
+    /// Get landing page statistics
+    /// </summary>
+    private async Task<LandingPageStats?> GetLandingPageStats()
+    {
+        try
+        {
+            // In a real implementation, these would come from the database or services
+            return new LandingPageStats
+            {
+                TotalRegistrations = 15420,
+                SuccessfulRegistrations = 15210,
+                DailyRegistrations = 247,
+                SuccessRate = 98.7,
+                LastUpdated = DateTime.Now.ToString("HH:mm น.")
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting landing page stats");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Get trust indicators for landing page
+    /// </summary>
+    private List<BizConnect.Models.ViewModels.TrustIndicator> GetTrustIndicators()
+    {
+        return new List<BizConnect.Models.ViewModels.TrustIndicator>
+        {
+            new BizConnect.Models.ViewModels.TrustIndicator
+            {
+                Title = "SSL Certificate",
+                Description = "Secured with 256-bit encryption",
+                IconClass = "fas fa-shield-alt",
+                BadgeColor = "success",
+                IsVerified = true
+            },
+            new BizConnect.Models.ViewModels.TrustIndicator
+            {
+                Title = "Bank Authorized",
+                Description = "Official KBank partner platform",
+                IconClass = "fas fa-university",
+                BadgeColor = "primary",
+                IsVerified = true
+            },
+            new BizConnect.Models.ViewModels.TrustIndicator
+            {
+                Title = "System Uptime",
+                Description = "99.9% availability guarantee",
+                IconClass = "fas fa-check-circle",
+                BadgeColor = "success",
+                IsVerified = true
+            }
+        };
+    }
+
+    /// <summary>
+    /// Get FAQ items for landing page
+    /// </summary>
+    private List<BizConnect.Models.ViewModels.FaqItem> GetFaqItems()
+    {
+        return new List<BizConnect.Models.ViewModels.FaqItem>
+        {
+            new BizConnect.Models.ViewModels.FaqItem
+            {
+                Question = "รหัส OTAC คืออะไร และจะได้รับอย่างไร?",
+                Answer = "OTAC (One-Time Authorization Code) คือรหัสยืนยันตัวตนชั่วคราว 6-8 หลัก ที่ใช้สำหรับการลงทะเบียนบริการหักบัญชีอัตโนมัติ ผู้ใช้งานจะได้รับรหัสนี้จากเจ้าหน้าที่ หรือผ่านช่องทางที่ได้รับการยืนยันเท่านั้น",
+                Category = "OTAC",
+                DisplayOrder = 1
+            },
+            new BizConnect.Models.ViewModels.FaqItem
+            {
+                Question = "ข้อมูลของฉันปลอดภัยหรือไม่?",
+                Answer = "เราใช้ระบบรักษาความปลอดภัยระดับธนาคาร พร้อมการเข้ารหัสข้อมูล SSL 256-bit และปฏิบัติตามมาตรฐานความปลอดภัยของอุตสาหกรรมการเงิน ข้อมูลของคุณจะได้รับการปกป้องในระดับเดียวกับธนาคารชั้นนำ",
+                Category = "Security",
+                DisplayOrder = 2
+            },
+            new BizConnect.Models.ViewModels.FaqItem
+            {
+                Question = "การลงทะเบียนใช้เวลานานแค่ไหน?",
+                Answer = "การลงทะเบียนใช้เวลาเฉลี่ย 2-3 นาที โดยขึ้นอยู่กับความพร้อมของข้อมูล หลังจากกรอกข้อมูลเสร็จสิ้น ระบบจะประมวลผลและส่งข้อมูลไปยัง KBank โดยอัตโนมัติ คุณจะได้รับการแจ้งเตือนผลการดำเนินการทันที",
+                Category = "Process",
+                DisplayOrder = 3
+            },
+            new BizConnect.Models.ViewModels.FaqItem
+            {
+                Question = "ต้องใช้เอกสารอะไรในการลงทะเบียน?",
+                Answer = "คุณต้องเตรียมข้อมูลดังนี้: เลขประจำตัวประชาชน 13 หลัก, เบอร์โทรศัพท์มือถือ, เลขที่บัญชีธนาคาร KBank, ชื่อสาขาธนาคารที่เปิดบัญชี",
+                Category = "Requirements",
+                DisplayOrder = 4
+            },
+            new BizConnect.Models.ViewModels.FaqItem
+            {
+                Question = "หากมีปัญหาจะติดต่อใครได้บ้าง?",
+                Answer = "ทีมสนับสนุนของเราพร้อมให้บริการ: โทรศัพท์ 02-123-4567 (จันทร์-ศุกร์ 8:30-17:30 น.), อีเมล support@bizconnect.com (ตอบกลับภายใน 24 ชั่วโมง), ระบบแชทออนไลน์ในเว็บไซต์",
+                Category = "Support",
+                DisplayOrder = 5
+            }
+        };
+    }
+
+    /// <summary>
+    /// Get default trust indicators for landing page (legacy method for compatibility)
     /// </summary>
     private List<BizConnect.ViewModels.Modern.TrustIndicator> GetDefaultTrustIndicators()
     {

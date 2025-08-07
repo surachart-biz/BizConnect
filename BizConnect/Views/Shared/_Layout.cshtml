@@ -4,301 +4,822 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - BizConnect</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <!-- PWA Meta Tags -->
-    <meta name="description" content="Your comprehensive business networking and collaboration platform. Connect with professionals, manage projects, and grow your business network." />
-    <meta name="theme-color" content="#007bff" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="BizConnect" />
-    <meta name="msapplication-TileColor" content="#007bff" />
-    <meta name="msapplication-config" content="/browserconfig.xml" />
+        :root {
+            --kbank-green: #4CAF50;
+            --kbank-green-light: #81C784;
+            --kbank-green-dark: #388E3C;
+            --primary-blue: #1976D2;
+            --primary-blue-light: #42A5F5;
+            --accent-gold: #FFB000;
+            --success: #00C853;
+            --warning: #FF8F00;
+            --danger: #D32F2F;
+            --neutral-50: #FAFAFA;
+            --neutral-100: #F5F5F5;
+            --neutral-200: #EEEEEE;
+            --neutral-300: #E0E0E0;
+            --neutral-700: #424242;
+            --neutral-800: #303030;
+            --neutral-900: #212121;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --shadow-light: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-medium: 0 4px 20px rgba(0,0,0,0.15);
+            --shadow-large: 0 8px 32px rgba(0,0,0,0.2);
+            --border-radius: 12px;
+            --border-radius-large: 20px;
+        }
 
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json" />
+        body {
+            font-family: 'Sarabun', 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8faff 0%, #e8f4f8 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
 
-    <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png" />
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--neutral-200);
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-light);
+        }
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png" />
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            height: 70px;
+        }
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
 
-    <!-- Security Meta Tags -->
-    <meta name="csrf-token" content="@Html.AntiForgeryToken().ToString()">
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <meta name="user-authenticated" content="true">
-        <meta name="user-roles" content="@string.Join(",", User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value))">
-    }
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--kbank-green), var(--primary-blue));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
 
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/modern-ui.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/responsive.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/animations.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/BizConnect.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+        .brand-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--kbank-green), var(--primary-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .kbank-badge {
+            background: var(--kbank-green);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .language-toggle {
+            display: flex;
+            background: var(--neutral-100);
+            border-radius: 8px;
+            padding: 4px;
+            gap: 2px;
+        }
+
+        .lang-btn {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+        }
+
+            .lang-btn.active {
+                background: white;
+                color: var(--text-primary);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+        /* Sign In Button */
+        .btn-signin {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: var(--kbank-green);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+            .btn-signin:hover {
+                background: var(--kbank-green-dark);
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-medium);
+            }
+
+        /* Hero Section */
+        .hero-section {
+            padding: 4rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            min-height: 600px;
+        }
+
+        .hero-content {
+            max-width: 600px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, var(--kbank-green-light), var(--kbank-green));
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-light);
+        }
+
+        .hero-title {
+            font-size: 3.2rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--kbank-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .hero-features {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        .feature-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--kbank-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.1rem;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--kbank-green), var(--kbank-green-dark));
+            color: white;
+            box-shadow: var(--shadow-medium);
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-3px);
+                box-shadow: var(--shadow-large);
+            }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--kbank-green);
+            border: 2px solid var(--kbank-green);
+        }
+
+            .btn-outline:hover {
+                background: var(--kbank-green);
+                color: white;
+            }
+
+        .trust-indicators {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Hero Visual */
+        .hero-visual {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .otac-card {
+            background: white;
+            border-radius: var(--border-radius-large);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-large);
+            max-width: 400px;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--kbank-green), var(--primary-blue));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin: 0 auto 1rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .card-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .otac-input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .otac-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--neutral-300);
+            border-radius: var(--border-radius);
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 0.2em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+            .otac-input:focus {
+                outline: none;
+                border-color: var(--kbank-green);
+                box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+            }
+
+        .card-action {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--kbank-green), var(--kbank-green-dark));
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .card-action:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-medium);
+            }
+
+        .visual-bg {
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, var(--kbank-green-light), var(--primary-blue-light));
+            border-radius: 50%;
+            opacity: 0.1;
+            z-index: 1;
+        }
+
+        /* Steps Section */
+        .steps-section {
+            padding: 4rem 2rem;
+            background: white;
+        }
+
+        .steps-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .step-card {
+            background: var(--neutral-50);
+            border-radius: var(--border-radius-large);
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+            .step-card:hover {
+                transform: translateY(-5px);
+                box-shadow: var(--shadow-medium);
+            }
+
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--kbank-green), var(--kbank-green-dark));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .step-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--kbank-green-light), var(--kbank-green));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin: 1rem auto 1.5rem;
+        }
+
+        .step-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .step-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Security Section */
+        .security-section {
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, var(--neutral-50), var(--neutral-100));
+        }
+
+        .security-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .security-content h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .security-features {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .security-feature {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+        }
+
+        .security-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--kbank-green), var(--primary-blue));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .security-text h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .security-text p {
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 3rem 2rem 2rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .footer-description {
+            color: #cccccc;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-link {
+            color: #cccccc;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+            .footer-link:hover {
+                color: var(--kbank-green-light);
+            }
+
+        .footer-bottom {
+            border-top: 1px solid #444;
+            padding-top: 1.5rem;
+            color: #cccccc;
+            font-size: 0.9rem;
+        }
+
+
+        /* Responsive Design */
+        @@media (max-width: 768px) {
+            .nav-actions {
+                gap: 0.8rem;
+            }
+
+            .btn-signin {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+
+            .language-toggle {
+                padding: 3px;
+            }
+
+            .lang-btn {
+                padding: 5px 10px;
+                font-size: 0.8rem;
+            }
+
+            .hero-section {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                padding: 2rem 1rem;
+                text-align: center;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .security-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .trust-indicators {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Animations */
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @@keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .hero-content {
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .otac-card {
+            animation: fadeInUp 0.8s ease 0.2s both, float 3s ease-in-out infinite 2s;
+        }
+
+        .step-card {
+            animation: fadeInUp 0.8s ease both;
+        }
+
+            .step-card:nth-child(1) {
+                animation-delay: 0.1s;
+            }
+
+            .step-card:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+
+            .step-card:nth-child(3) {
+                animation-delay: 0.3s;
+            }
+    </style>
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <header class="modern-header">
-        <nav class="navbar navbar-expand-lg modern-navbar">
-            <div class="container">
-                <!-- Brand Logo -->
-                <a class="modern-brand" asp-controller="Home" asp-action="Index">
-                    <div class="modern-brand-icon">
-                        <i class="fas fa-network-wired"></i>
-                    </div>
-                    <span>BizConnect</span>
-                </a>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo-section">
+                <div class="logo">BC</div>
+                <span class="brand-name">BizConnect</span>
+                <span class="kbank-badge">KBank Partner</span>
+            </div>
 
-                <!-- Mobile Toggle Button -->
-                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <!-- Navigation Menu -->
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <!-- Main Navigation -->
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="modern-nav-link" asp-controller="Home" asp-action="Index">
-                                <i class="fas fa-home"></i>Home
-                            </a>
-                        </li>
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item">
-                                <a class="modern-nav-link" href="#" onclick="return false;">
-                                    <i class="fas fa-users"></i>Network
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="modern-nav-link" href="#" onclick="return false;">
-                                    <i class="fas fa-briefcase"></i>Opportunities
-                                </a>
-                            </li>
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <li class="nav-item">
-                                    <a class="modern-nav-link" asp-controller="Home" asp-action="Dashboard" asp-area="Admin">
-                                        <i class="fas fa-tachometer-alt"></i>Admin
-                                    </a>
-                                </li>
-                            }
-                        }
-                        <li class="nav-item">
-                            <a class="modern-nav-link" asp-controller="Home" asp-action="Privacy">
-                                <i class="fas fa-shield-alt"></i>Privacy
-                            </a>
-                        </li>
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item dropdown dropdown-modern">
-                                <a class="modern-nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-question-circle"></i>Help
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li class="dropdown-header">Getting Started</li>
-                                    <li><a class="dropdown-item" href="#" onclick="BizConnectGuidedTour.startDashboardTour()">
-                                        <i class="fas fa-play me-2"></i>Dashboard Tour
-                                    </a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="BizConnectGuidedTour.startNetworkingTour()">
-                                        <i class="fas fa-users me-2"></i>Networking Tour
-                                    </a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" asp-controller="Onboarding" asp-action="Index">
-                                        <i class="fas fa-redo me-2"></i>Restart Onboarding
-                                    </a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="showHelpModal()">
-                                        <i class="fas fa-info-circle me-2"></i>Getting Started
-                                    </a></li>
-                                </ul>
-                            </li>
-                        }
-                    </ul>
-
-                    <!-- User Menu -->
-                    <ul class="navbar-nav">
-                        <!-- Language Toggle -->
-                        <li class="nav-item me-3">
-                            @await Html.PartialAsync("_LanguageToggle")
-                        </li>
-                        
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <!-- Security Status Widget (Header) -->
-                            <li class="nav-item me-2">
-                                <div id="headerSecurityWidget" class="d-none"></div>
-                            </li>
-                        }
-                        
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <!-- Notifications (placeholder) -->
-                            <li class="nav-item">
-                                <a class="nav-link position-relative" href="#" onclick="return false;" title="Notifications">
-                                    <i class="fas fa-bell"></i>
-                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
-                                        3
-                                        <span class="visually-hidden">unread notifications</span>
-                                    </span>
-                                </a>
-                            </li>
-
-                            <!-- User Dropdown -->
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown"
-                                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <div class="bc-avatar me-2">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <span class="d-none d-md-inline">@User.Identity.Name</span>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end dropdown-modern" aria-labelledby="userDropdown">
-                                    <li>
-                                        <h6 class="dropdown-header">
-                                            <i class="fas fa-user-circle me-2"></i>@User.Identity.Name
-                                        </h6>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item" href="#" onclick="return false;">
-                                            <i class="fas fa-user-edit me-2"></i>Profile
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="#" onclick="return false;">
-                                            <i class="fas fa-cog me-2"></i>Settings
-                                        </a>
-                                    </li>
-                                    @if (User.IsInRole("Admin"))
-                                    {
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li>
-                                            <a class="dropdown-item" asp-controller="Home" asp-action="Dashboard" asp-area="Admin">
-                                                <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
-                                            </a>
-                                        </li>
-                                    }
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" asp-controller="Account" asp-action="Logout">
-                                            <i class="fas fa-sign-out-alt me-2"></i>Logout
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="modern-nav-link" asp-controller="Account" asp-action="Login">
-                                    <i class="fas fa-sign-in-alt"></i>Login
-                                </a>
-                            </li>
-                            <li class="nav-item ms-2">
-                                <a class="btn-modern btn-kbank" href="#" onclick="return false;">
-                                    <i class="fas fa-user-plus"></i>Sign Up
-                                </a>
-                            </li>
-                        }
-                    </ul>
+            <div class="nav-actions">
+                <div class="language-toggle">
+                    <button class="lang-btn">EN</button>
+                    <button class="lang-btn active">TH</button>
                 </div>
+                <button class="btn-signin" id="signInBtn">
+                    <i class="fas fa-user"></i>
+                    เข้าสู่ระบบ
+                </button>
             </div>
         </nav>
     </header>
-    <div class="container-fluid px-4">
-        <main role="main" class="py-4">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="glass-card mt-5 mx-4 mb-4 p-4 text-center">
-        <div class="d-flex justify-content-between align-items-center flex-wrap">
-            <div class="text-kbank fw-semibold">
-                &copy; 2025 BizConnect - Powered by KBank Technology
+    @RenderBody()
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-logo">BizConnect</div>
+            <p class="footer-description">
+                ระบบลงทะเบียนหักบัญชีอัตโนมัติที่ปลอดภัย รวดเร็ว และเชื่อถือได้ 
+                พัฒนาโดยความร่วมมือกับธนาคารกสิกรไทย
+            </p>
+            
+            <div class="footer-links">
+                <a href="#" class="footer-link">นโยบายความเป็นส่วนตัว</a>
+                <a href="#" class="footer-link">เงื่อนไขการใช้งาน</a>
+                <a href="#" class="footer-link">ติดต่อเรา</a>
+                <a href="#" class="footer-link">คำถามที่พบบ่อย</a>
             </div>
-            <div class="d-flex gap-3">
-                <a class="text-decoration-none text-muted" asp-controller="Home" asp-action="Privacy">
-                    <i class="fas fa-shield-alt me-1"></i>Privacy Policy
-                </a>
-                <a class="text-decoration-none text-muted" href="#">
-                    <i class="fas fa-file-contract me-1"></i>Terms of Service
-                </a>
-                <a class="text-decoration-none text-muted" href="#">
-                    <i class="fas fa-phone me-1"></i>Support
-                </a>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 BizConnect. สงวนสิทธิ์ทั้งหมด | พัฒนาโดย Official KBank Partner</p>
             </div>
         </div>
     </footer>
 
-    <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
-    <!-- Modern UI System -->
-    <script src="~/js/modern-ui.js" asp-append-version="true"></script>
-    <script src="~/js/real-time-updates.js" asp-append-version="true"></script>
-    
-    <!-- Legacy Scripts -->
-    <script src="~/js/language-switcher.js" asp-append-version="true"></script>
-    <script src="~/js/loading.js" asp-append-version="true"></script>
-    <script src="~/js/interactions.js" asp-append-version="true"></script>
-    <script src="~/js/guided-tour.js" asp-append-version="true"></script>
-    <script src="~/js/home-enhancements.js" asp-append-version="true"></script>
-    <script src="~/js/ui-interactions.js" asp-append-version="true"></script>
-    <script src="~/js/performance-monitor.js" asp-append-version="true"></script>
-    <script src="~/js/ui-tester.js" asp-append-version="true"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/sw-register.js" asp-append-version="true"></script>
-
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <!-- Security System Scripts -->
-        <script src="~/js/security-validation.js" asp-append-version="true"></script>
-        <script src="~/js/security-monitor.js" asp-append-version="true"></script>
-        <script src="~/js/session-manager.js" asp-append-version="true"></script>
-        <script src="~/js/security-widgets.js" asp-append-version="true"></script>
-        <script src="~/js/api-security.js" asp-append-version="true"></script>
-        <script src="~/js/security-integration.js" asp-append-version="true"></script>
+    <script>
+        // Minimal global functions - most functionality moved to separate JS files
         
-        <script>
-            // Configure security system for current user
-            window.sessionConfig = {
-                sessionTimeout: @(Context.Session.GetInt32("SessionTimeout") ?? 30),
-                warningTime: @(Context.Session.GetInt32("WarningTime") ?? 25),
-                enableAutoRefresh: true,
-                enableActivityTracking: true,
-                enableSecurityIntegration: true
+        // Global notification function for other scripts
+        function showNotification(message, type = 'info') {
+            // Create notification container if it doesn't exist
+            let container = document.getElementById('notificationContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'notificationContainer';
+                container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
+                document.body.appendChild(container);
+            }
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            const colors = {
+                success: 'alert-success',
+                error: 'alert-danger',
+                warning: 'alert-warning',
+                info: 'alert-info'
             };
-
-            window.securityWidgetsConfig = {
-                enableFloatingWidget: @(Context.Request.Path.StartsWithSegments("/Admin") ? "false" : "true"),
-                enableHeaderWidget: true,
-                enableFormWidgets: true,
-                position: 'bottom-right',
-                theme: 'auto'
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
             };
+            
+            notification.className = `alert ${colors[type]} alert-dismissible fade show shadow-sm`;
+            notification.style.minWidth = '300px';
+            notification.innerHTML = `
+                <i class="fas ${icons[type]} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            container.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 150);
+                }
+            }, 5000);
+        }
 
-            window.apiSecurityConfig = {
-                enableRequestSigning: false, // Enable when API keys are configured
-                enableRateLimiting: true,
-                enableResponseValidation: true,
-                enableRequestFingerprinting: true
-            };
-        </script>
-    }
+        // Global scroll effects for header
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('.header');
+            if (header) {
+                if (window.scrollY > 50) {
+                    header.style.background = 'rgba(255, 255, 255, 0.98)';
+                    header.style.backdropFilter = 'blur(15px)';
+                } else {
+                    header.style.background = 'rgba(255, 255, 255, 0.95)';
+                    header.style.backdropFilter = 'blur(12px)';
+                }
+            }
+        });
 
+        // Make showNotification available globally
+        window.showNotification = showNotification;
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
