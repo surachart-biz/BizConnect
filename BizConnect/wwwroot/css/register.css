@@ -1327,15 +1327,30 @@
     transform: scale(1.01);
 }
 
-/* Loading Spinner Animation */
-.loading-spinner {
-    display: inline-block;
-    width: 18px;
-    height: 18px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top: 2px solid white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+/* Button Loading State Enhancement */
+.btn .btn-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn .btn-loading .spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.125rem;
+}
+
+.btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Ensure loading spinner is white on primary buttons */
+.btn-primary .btn-loading .spinner-border {
+    border-color: rgba(255, 255, 255, 0.25);
+    border-right-color: white;
 }
 
 /* Enhanced Field Focus States for Mobile */
@@ -1973,89 +1988,7 @@
     .col-md-12 { flex: 0 0 100% !important; width: 100% !important; max-width: 100% !important; display: block !important; }
 }
 
-/* TEMPORARY DEBUGGING: Visual indicators to verify grid is working */
-@media (min-width: 768px) {
-    /* Add colored borders to verify 2-column layout is working */
-    .form-section .col-md-6 {
-        border: 2px solid rgba(76, 175, 80, 0.3) !important;
-        border-radius: 8px !important;
-        margin-bottom: 1rem !important;
-    }
-    
-    .form-section .col-md-8 {
-        border: 2px solid rgba(25, 118, 210, 0.3) !important;
-        border-radius: 8px !important;
-        margin-bottom: 1rem !important;
-    }
-    
-    .form-section .col-md-4 {
-        border: 2px solid rgba(255, 160, 0, 0.3) !important;
-        border-radius: 8px !important;
-        margin-bottom: 1rem !important;
-    }
-    
-    /* Add labels to verify column sizes */
-    .form-section .col-md-6::before {
-        content: "50% Column (col-md-6)";
-        position: absolute;
-        top: -10px;
-        left: 10px;
-        background: rgba(76, 175, 80, 0.9);
-        color: white;
-        padding: 2px 8px;
-        font-size: 11px;
-        font-weight: bold;
-        border-radius: 4px;
-        z-index: 999;
-        pointer-events: none;
-    }
-    
-    .form-section .col-md-8::before {
-        content: "67% Column (col-md-8)";
-        position: absolute;
-        top: -10px;
-        left: 10px;
-        background: rgba(25, 118, 210, 0.9);
-        color: white;
-        padding: 2px 8px;
-        font-size: 11px;
-        font-weight: bold;
-        border-radius: 4px;
-        z-index: 999;
-        pointer-events: none;
-    }
-    
-    .form-section .col-md-4::before {
-        content: "33% Column (col-md-4)";
-        position: absolute;
-        top: -10px;
-        left: 10px;
-        background: rgba(255, 160, 0, 0.9);
-        color: white;
-        padding: 2px 8px;
-        font-size: 11px;
-        font-weight: bold;
-        border-radius: 4px;
-        z-index: 999;
-        pointer-events: none;
-    }
-    
-    /* Add row indicator */
-    .form-section .row::before {
-        content: "Bootstrap Row Container";
-        position: absolute;
-        top: -25px;
-        left: 0;
-        background: rgba(220, 53, 69, 0.9);
-        color: white;
-        padding: 2px 8px;
-        font-size: 10px;
-        font-weight: bold;
-        border-radius: 4px;
-        z-index: 1000;
-        pointer-events: none;
-    }
-}
+/* Visual debugging removed - production ready */
 
 /* =====================================
    Form Width Optimization

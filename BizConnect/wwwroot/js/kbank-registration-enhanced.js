@@ -421,6 +421,8 @@
                         firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                     
+                    // Reset button state if validation fails
+                    resetSubmissionLoading(submitBtn);
                     return;
                 }
                 
@@ -449,14 +451,27 @@
             if (btnContent && btnLoading) {
                 btnContent.classList.add('d-none');
                 btnLoading.classList.remove('d-none');
+                button.disabled = true;
             } else {
                 // Fallback if structure is different
                 button.disabled = true;
                 button.innerHTML = `
-                    <div class="loading-spinner me-2"></div>
+                    <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
                     <span>กำลังดำเนินการ... / Processing...</span>
                 `;
             }
+        }
+        
+        function resetSubmissionLoading(button) {
+            const btnContent = button.querySelector('.btn-content');
+            const btnLoading = button.querySelector('.btn-loading');
+            
+            if (btnContent && btnLoading) {
+                btnContent.classList.remove('d-none');
+                btnLoading.classList.add('d-none');
+            }
+            
+            button.disabled = false;
         }
         
         // Initialize all components

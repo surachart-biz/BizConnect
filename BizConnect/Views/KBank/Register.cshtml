@@ -32,22 +32,7 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    
-                    <!-- User Guidance Hints -->
-                    <div class="bc-field-hints">
-                        <div class="bc-hint-title">
-                            <i class="fas fa-lightbulb"></i>
-                            <span data-th="คำแนะนำที่เป็นประโยชน์" data-en="Helpful Tips">คำแนะนำที่เป็นประโยชน์</span>
-                        </div>
-                        <ul class="bc-hint-list">
-                            <li class="bc-hint-item" data-th="เตรียมบัตรประชาชนและเอกสารบัญชีธนาคารให้พร้อม" data-en="Keep your National ID and bank account documents ready">เตรียมบัตรประชาชนและเอกสารบัญชีธนาคารให้พร้อม</li>
-                            <li class="bc-hint-item" data-th="ตรวจสอบให้แน่ใจว่าเบอร์โทรศัพท์สามารถใช้งานได้" data-en="Ensure your mobile number is active for verification">ตรวจสอบให้แน่ใจว่าเบอร์โทรศัพท์สามารถใช้งานได้</li>
-                            <li class="bc-hint-item" data-th="ข้อมูลทั้งหมดต้องตรงกับบัญชีธนาคารของคุณ" data-en="All information must match your bank account exactly">ข้อมูลทั้งหมดต้องตรงกับบัญชีธนาคารของคุณ</li>
-                            <li class="bc-hint-item" data-th="ช่องที่มีเครื่องหมาย * จำเป็นต้องกรอก" data-en="Fields marked with * are required for processing">ช่องที่มีเครื่องหมาย * จำเป็นต้องกรอก</li>
-                        </ul>
-                    </div>
-                    
-                    <form asp-action="RegisterForm" method="post" id="oddRegistrationForm" novalidate class="needs-validation">
+                    <form asp-action="Register" method="post" id="oddRegistrationForm" novalidate class="needs-validation">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="registrationId" value="@registrationId" />
                         
@@ -220,7 +205,7 @@
                                     <span data-th="ยืนยันการลงทะเบียน" data-en="Confirm Registration">ยืนยันการลงทะเบียน</span>
                                 </span>
                                 <span class="btn-loading d-none">
-                                    <div class="loading-spinner me-2"></div>
+                                    <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
                                     <span data-th="กำลังดำเนินการ..." data-en="Processing...">กำลังดำเนินการ...</span>
                                 </span>
                             </button>
@@ -516,6 +501,9 @@
                     if (typeof showNotification === 'function') {
                         showNotification(errorMessage, 'error');
                     }
+                    
+                    // Reset button state if validation fails
+                    resetButtonState(submitBtn);
                     return false;
                 }
 
@@ -526,9 +514,15 @@
                 if (btnContent && btnLoading) {
                     btnContent.classList.add('d-none');
                     btnLoading.classList.remove('d-none');
+                    submitBtn.disabled = true;
+                } else {
+                    // Fallback if structure is different
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `
+                        <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+                        <span>กำลังดำเนินการ...</span>
+                    `;
                 }
-                
-                submitBtn.disabled = true;
                 
                 // Show processing notification
                 const currentLang = localStorage.getItem('preferredLanguage') || 'th';
@@ -603,6 +597,19 @@
                 validFields.delete(field.name);
                 removeCustomError(field, 'mobile-error');
                 removeCustomError(field, 'national-id-error');
+            }
+
+            // Helper function to reset button state
+            function resetButtonState(button) {
+                const btnContent = button.querySelector('.btn-content');
+                const btnLoading = button.querySelector('.btn-loading');
+                
+                if (btnContent && btnLoading) {
+                    btnContent.classList.remove('d-none');
+                    btnLoading.classList.add('d-none');
+                }
+                
+                button.disabled = false;
             }
 
             // Helper functions for error/success messages
