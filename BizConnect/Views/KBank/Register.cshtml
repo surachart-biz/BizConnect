@@ -11,6 +11,7 @@
             <!-- Enhanced Page Header -->
             <div class="text-center mb-4">
                 <div class="bc-page-header">
+                    
                     <div class="bc-icon-wrapper mb-3">
                         <i class="fas fa-shield-alt fa-4x"></i>
                     </div>
@@ -194,11 +195,7 @@
                         </div> <!-- End form-sections-container -->
 
                         <!-- Enhanced Form Actions -->
-                        <div class="form-actions">
-                            <a href="@Url.Action("Start", "KBank")" class="btn btn-outline-secondary" id="backBtn">
-                                <i class="fas fa-arrow-left me-2"></i>
-                                <span data-th="ย้อนกลับ" data-en="Back">ย้อนกลับ</span>
-                            </a>
+                        <div class="form-actions justify-content-center">
                             <button type="submit" class="btn btn-primary" id="submitBtn">
                                 <span class="btn-content">
                                     <i class="fas fa-shield-alt me-2"></i>
@@ -215,7 +212,7 @@
             </div>
 
             <!-- Information Card -->
-            <div class="card mt-4 border-info">
+            <div class="card mt-4 border-info" style="max-width: 800px; margin: 2.5rem auto 0 auto;">
                 <div class="card-header bg-info text-white">
                     <h6 class="card-title mb-0">
                         <i class="fas fa-info-circle me-2"></i>
@@ -252,6 +249,22 @@
 
             // Language switching is now handled by the layout
             const currentLang = localStorage.getItem('preferredLanguage') || 'th';
+            
+            // Setup staff login button to trigger the login modal from layout
+            const staffLoginBtn = document.getElementById('staffLoginBtn');
+            if (staffLoginBtn) {
+                staffLoginBtn.addEventListener('click', function() {
+                    // Trigger the login modal if available
+                    if (typeof window.triggerLoginModal === 'function') {
+                        window.triggerLoginModal();
+                    } else if (window.globalModalInstance) {
+                        window.globalModalInstance.show();
+                    } else {
+                        // Fallback to direct navigation to login page
+                        window.location.href = '/Account/Login';
+                    }
+                });
+            }
             
             // Apply current language if layout hasn't initialized yet
             if (window.BizConnectLanguage) {
