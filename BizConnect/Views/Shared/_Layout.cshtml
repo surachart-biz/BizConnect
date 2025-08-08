@@ -2869,7 +2869,11 @@
             const loginModal = document.getElementById('loginModal');
             const signInBtn = document.getElementById('signInBtn');
 
-            if (!loginModal || !signInBtn) return;
+            // Only initialize sign-in modal if elements exist (user is not authenticated)
+            if (!loginModal || !signInBtn) {
+                console.log('Sign-in modal elements not found - user may be authenticated');
+                return;
+            }
 
             try {
                 globalModalInstance = new bootstrap.Modal(loginModal, {
@@ -2882,38 +2886,11 @@
                 window.globalModalInstance = globalModalInstance;
 
                 // Add click event listener to sign-in button (only when not authenticated)
-                if (signInBtn) {
-                    signInBtn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopImmediatePropagation();
-                        globalModalInstance.show();
-                    });
-                }
-
-                // Add click event listener to sign-out button (only when authenticated)
-                const signOutBtn = document.getElementById('signOutBtn');
-                if (signOutBtn) {
-                    signOutBtn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        // Show confirmation before signing out
-                        const currentLang = localStorage.getItem('language') || 'th';
-                        const confirmMessage = currentLang === 'en' 
-                            ? 'Are you sure you want to sign out?' 
-                            : 'คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ?';
-                        
-                        if (confirm(confirmMessage)) {
-                            const logoutForm = document.getElementById('logoutForm');
-                            if (logoutForm) {
-                                logoutForm.submit();
-                            } else {
-                                // Fallback to GET request if form not found
-                                window.location.href = '/Account/Logout';
-                            }
-                        }
-                    });
-                }
+                signInBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    globalModalInstance.show();
+                });
 
                 // Setup modal event handlers
                 setupModalFeatures();
@@ -2921,7 +2898,38 @@
                 console.log('Sign-in modal initialized successfully');
 
             } catch (error) {
-                console.error('Error initializing modal:', error);
+                console.error('Error initializing sign-in modal:', error);
+            }
+        }
+
+        function initializeSignOutButton() {
+            // Add click event listener to sign-out button (only when authenticated)
+            const signOutBtn = document.getElementById('signOutBtn');
+            const logoutForm = document.getElementById('logoutForm');
+            
+            if (signOutBtn) {
+                console.log('Sign-out button found, initializing event listener');
+                
+                signOutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    console.log('Sign-out button clicked');
+                    
+                    // Immediate logout without confirmation
+                    if (logoutForm) {
+                        console.log('Submitting logout form');
+                        logoutForm.submit();
+                    } else {
+                        console.warn('Logout form not found, using fallback redirect');
+                        // Fallback to GET request if form not found
+                        window.location.href = '/Account/Logout';
+                    }
+                });
+                
+                console.log('Sign-out button event listener attached successfully');
+            } else {
+                console.log('Sign-out button not found - user may not be authenticated');
             }
         }
 
@@ -3123,7 +3131,7 @@
         function initializeLayout() {
             BizConnectLanguage.init();
 
-            // Initialize modal when Bootstrap is available
+            // Initialize sign-in modal when Bootstrap is available (for non-authenticated users)
             if (window.bootstrap && bootstrap.Modal) {
                 initializeSignInModal();
             } else {
@@ -3134,6 +3142,9 @@
                     }
                 }, 1000);
             }
+
+            // Initialize sign-out button (for authenticated users)
+            initializeSignOutButton();
         }
 
         // Make BizConnectLanguage globally available

@@ -134,11 +134,8 @@
                 loginForm.addEventListener('submit', this.handleLogin);
             }
             
-            // Sign out
-            const signOutBtn = document.getElementById('signOutBtn');
-            if (signOutBtn) {
-                signOutBtn.addEventListener('click', this.handleSignOut);
-            }
+            // Sign out - handled by _Layout.cshtml to avoid duplicate event handlers
+            // The signOutBtn click handler is managed in _Layout.cshtml for immediate logout
             
             // Admin dashboard link
             const adminDashboardLink = document.getElementById('adminDashboardLink');
@@ -457,7 +454,8 @@
             }
         }
 
-        // Handle sign out
+        // Handle sign out (Deprecated - logout is now handled by _Layout.cshtml for consistency)
+        // This method is kept for backward compatibility but is no longer the primary logout handler
         async handleSignOut() {
             try {
                 // Call logout endpoint
