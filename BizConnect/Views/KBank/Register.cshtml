@@ -61,10 +61,6 @@
                                                data-placeholder-en="Enter your full name"
                                                placeholder="กรอกชื่อ-นามสกุล" 
                                                autocomplete="name" required aria-describedby="fullNameHelp" />
-                                        <div class="form-text" id="fullNameHelp">
-                                            <span data-th="กรอกชื่อและนามสกุลภาษาไทยหรืออังกฤษ" data-en="Enter your name in Thai or English">กรอกชื่อและนามสกุลภาษาไทยหรืออังกฤษ</span>
-                                        </div>
-                                        <span asp-validation-for="FullName" class="text-danger"></span>
                                     </div>
                                 </div>
 
@@ -80,10 +76,6 @@
                                                data-placeholder-en="08xxxxxxxx or +66xxxxxxxx"
                                                placeholder="08xxxxxxxx หรือ +66xxxxxxxx" 
                                                autocomplete="tel" required aria-describedby="mobileHelp" />
-                                        <div class="form-text" id="mobileHelp">
-                                            <span data-th="รูปแบบที่ถูกต้อง: 08xxxxxxxx หรือ +66xxxxxxxx" data-en="Valid format: 08xxxxxxxx or +66xxxxxxxx">รูปแบบที่ถูกต้อง: 08xxxxxxxx หรือ +66xxxxxxxx</span>
-                                        </div>
-                                        <span asp-validation-for="MobileNo" class="text-danger"></span>
                                     </div>
                                 </div>
 
@@ -99,10 +91,6 @@
                                                data-placeholder-en="Enter 13-digit National ID"
                                                placeholder="กรอกเลขบัตรประชาชน 13 หลัก" 
                                                id="nationalIdInput" maxlength="13" pattern="[0-9]{13}" required aria-describedby="idHelp" />
-                                        <div class="form-text" id="idHelp">
-                                            <span data-th="เลขบัตรประชาชนต้องมี 13 หลักตัวเลข" data-en="National ID must be exactly 13 digits">เลขบัตรประชาชนต้องมี 13 หลักตัวเลข</span>
-                                        </div>
-                                        <span asp-validation-for="IdValue" class="text-danger"></span>
                                     </div>
                                 </div>
 
@@ -118,9 +106,6 @@
                                                data-placeholder-en="example@email.com"
                                                placeholder="example@email.com" 
                                                autocomplete="email" aria-describedby="emailHelp" />
-                                        <div class="form-text" id="emailHelp">
-                                            <span data-th="อีเมลสำหรับติดต่อ (ไม่จำเป็น)" data-en="Contact email (optional)">อีเมลสำหรับติดต่อ (ไม่จำเป็น)</span>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -166,10 +151,6 @@
                                                data-placeholder-en="Enter your bank account number"
                                                placeholder="กรอกเลขที่บัญชีธนาคาร" 
                                                autocomplete="off" required aria-describedby="accountHelp" />
-                                        <div class="form-text" id="accountHelp">
-                                            <span data-th="เลขที่บัญชีธนาคารกสิกรไทย 10-15 หลัก" data-en="KBank account number 10-15 digits">เลขที่บัญชีธนาคารกสิกรไทย 10-15 หลัก</span>
-                                        </div>
-                                        <span asp-validation-for="AccountNo" class="text-danger"></span>
                                     </div>
                                 </div>
 
@@ -184,10 +165,6 @@
                                                 class="form-select" required aria-describedby="branchHelp">
                                             <option value="" data-th="-- เลือกสาขา --" data-en="-- Select Branch --">-- เลือกสาขา --</option>
                                         </select>
-                                        <div class="form-text" id="branchHelp">
-                                            <span data-th="เลือกสาขาที่คุณต้องการดำเนินการ" data-en="Select your preferred branch for processing">เลือกสาขาที่คุณต้องการดำเนินการ</span>
-                                        </div>
-                                        <span asp-validation-for="BranchId" class="text-danger"></span>
                                     </div>
                                 </div>
                             </div>

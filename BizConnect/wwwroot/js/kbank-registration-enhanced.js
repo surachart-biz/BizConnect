@@ -477,7 +477,7 @@
         // Initialize all components
         initLanguageSupport();
         setupFieldValidation();
-        setupFormSubmission();
+        //setupFormSubmission();
         
         // Show welcome message
         setTimeout(() => {

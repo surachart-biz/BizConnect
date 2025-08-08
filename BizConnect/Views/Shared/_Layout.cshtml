@@ -790,20 +790,11 @@
             padding-right: 0 !important;
         }
 
-        /* User dropdown visibility control */
+        /* User dropdown visibility control - Server-side rendering approach */
         #userDropdownContainer {
-            display: none;
+            display: flex;
+            align-items: center;
         }
-
-            /* Show when authenticated with show-user class */
-            #userDropdownContainer.show-user {
-                display: flex !important;
-            }
-
-            /* Force hide when has d-none class */
-            #userDropdownContainer.d-none {
-                display: none !important;
-            }
 
         /* =====================================
                    Professional User Dropdown Styling
@@ -811,7 +802,6 @@
 
         /* User dropdown container - Fixed positioning to prevent jumping */
         #userDropdownContainer {
-            align-items: center;
             position: relative;
         }
 
@@ -1163,15 +1153,11 @@
                 overflow: hidden;
             }
 
-        /* Ensure sign-in button is visible by default */
+        /* Sign-in container styling */
         #signInContainer {
-            display: flex !important;
+            display: flex;
+            align-items: center;
         }
-
-            /* Hide sign-in when authenticated */
-            #signInContainer.hide-signin {
-                display: none !important;
-            }
 
         /* =================================
                    Professional BizConnect Auth Modal Styles - Enhanced
@@ -2315,44 +2301,55 @@
                     <button class="lang-btn active" id="langTH" data-lang="th">TH</button>
                 </div>
 
-                <!-- Sign In Container -->
-                <div id="signInContainer">
-                    <button class="btn-signin" id="signInBtn" type="button" data-text-th="เข้าสู่ระบบ" data-text-en="Sign In">
-                        <i class="fas fa-user me-2"></i>
-                        <span class="signin-text">เข้าสู่ระบบ</span>
-                    </button>
-                </div>
-
-                <!-- User Dropdown Container (hidden by default) -->
-                <div id="userDropdownContainer" class="d-none">
-                    <div class="dropdown" id="userMenu">
-                        <button class="btn-signin dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle me-2"></i>
-                            <span id="userName">ผู้ใช้งาน</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow">
-                            <li id="adminMenuSection">
-                                <a class="dropdown-item" href="#" id="adminDashboardLink" data-text-th="แผงควบคุมผู้ดูแล" data-text-en="Admin Dashboard">
-                                    <i class="fas fa-tachometer-alt me-2"></i>
-                                    <span class="menu-text">แผงควบคุมผู้ดูแล</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="/Account/Profile" data-text-th="จัดการโปรไฟล์" data-text-en="Manage Profile">
-                                    <i class="fas fa-user-cog me-2"></i>
-                                    <span class="menu-text">จัดการโปรไฟล์</span>
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item" href="#" id="signOutBtn" data-text-th="ออกจากระบบ" data-text-en="Sign Out">
-                                    <i class="fas fa-sign-out-alt me-2"></i>
-                                    <span class="menu-text">ออกจากระบบ</span>
-                                </a>
-                            </li>
-                        </ul>
+                @if (User?.Identity?.IsAuthenticated == true)
+                {
+                    <!-- User Dropdown Container (authenticated) -->
+                    <div id="userDropdownContainer">
+                        <div class="dropdown" id="userMenu">
+                            <button class="btn-signin dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle me-2"></i>
+                                <span id="userName">@User.Identity.Name</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow">
+                                @if (User.IsInRole("Admin") || User.IsInRole("Employee"))
+                                {
+                                    <li id="adminMenuSection">
+                                        <a class="dropdown-item" href="@Url.Action("Dashboard", "Home", new { area = "Admin" })" data-text-th="แผงควบคุมผู้ดูแล" data-text-en="Admin Dashboard">
+                                            <i class="fas fa-tachometer-alt me-2"></i>
+                                            <span class="menu-text">แผงควบคุมผู้ดูแล</span>
+                                        </a>
+                                    </li>
+                                }
+                                <li>
+                                    <a class="dropdown-item" href="#" data-text-th="จัดการโปรไฟล์" data-text-en="Manage Profile">
+                                        <i class="fas fa-user-cog me-2"></i>
+                                        <span class="menu-text">จัดการโปรไฟล์</span>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form id="logoutForm" method="post" action="@Url.Action("LogoutPost", "Account")" style="display: none;">
+                                        @Html.AntiForgeryToken()
+                                    </form>
+                                    <a class="dropdown-item" href="#" id="signOutBtn" data-text-th="ออกจากระบบ" data-text-en="Sign Out">
+                                        <i class="fas fa-sign-out-alt me-2"></i>
+                                        <span class="menu-text">ออกจากระบบ</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
+                }
+                else
+                {
+                    <!-- Sign In Container (not authenticated) -->
+                    <div id="signInContainer">
+                        <button class="btn-signin" id="signInBtn" type="button" data-text-th="เข้าสู่ระบบ" data-text-en="Sign In">
+                            <i class="fas fa-user me-2"></i>
+                            <span class="signin-text">เข้าสู่ระบบ</span>
+                        </button>
+                    </div>
+                }
             </div>
         </nav>
     </header>
@@ -2884,12 +2881,39 @@
                 // Make modal instance globally accessible
                 window.globalModalInstance = globalModalInstance;
 
-                // Add click event listener to sign-in button
-                signInBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    globalModalInstance.show();
-                });
+                // Add click event listener to sign-in button (only when not authenticated)
+                if (signInBtn) {
+                    signInBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        globalModalInstance.show();
+                    });
+                }
+
+                // Add click event listener to sign-out button (only when authenticated)
+                const signOutBtn = document.getElementById('signOutBtn');
+                if (signOutBtn) {
+                    signOutBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Show confirmation before signing out
+                        const currentLang = localStorage.getItem('language') || 'th';
+                        const confirmMessage = currentLang === 'en' 
+                            ? 'Are you sure you want to sign out?' 
+                            : 'คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ?';
+                        
+                        if (confirm(confirmMessage)) {
+                            const logoutForm = document.getElementById('logoutForm');
+                            if (logoutForm) {
+                                logoutForm.submit();
+                            } else {
+                                // Fallback to GET request if form not found
+                                window.location.href = '/Account/Logout';
+                            }
+                        }
+                    });
+                }
 
                 // Setup modal event handlers
                 setupModalFeatures();
