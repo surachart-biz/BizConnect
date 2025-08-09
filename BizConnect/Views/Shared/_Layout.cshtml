@@ -3,6 +3,11 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    @{
+        var antiForgeryToken = Html.AntiForgeryToken().ToString();
+        var tokenValue = System.Text.RegularExpressions.Regex.Match(antiForgeryToken, @"value=""([^""]*)""").Groups[1].Value;
+    }
+    <meta name="__RequestVerificationToken" content="@tokenValue" />
     <title>@ViewData["Title"] - BizConnect</title>
     <link href="~/lib/bootstrap/dist/bootstrap.min.css" rel="stylesheet" asp-append-version="true" />
     @* <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -120,6 +125,9 @@
             display: flex;
             align-items: center;
             gap: 1rem;
+            flex-wrap: nowrap;
+            justify-content: flex-end;
+            position: relative; /* Enable positioning context for absolute children */
         }
 
         .language-toggle {
@@ -128,6 +136,8 @@
             border-radius: 8px;
             padding: 4px;
             gap: 2px;
+            flex-shrink: 0;
+            order: 1; /* Always appears first */
         }
 
         .lang-btn {
@@ -162,6 +172,17 @@
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
+            flex-shrink: 0;
+        }
+        
+        /* Sign-in container positioning */
+        #signInContainer {
+            display: flex;
+            align-items: center;
+            order: 2; /* Consistent positioning for auth state */
+            min-width: 120px; /* Reserve space to prevent layout shift */
+            flex-shrink: 0; /* Prevent shrinking during transitions */
+            transition: opacity 0.3s ease; /* Smooth transition */
         }
 
             .btn-signin:hover {
@@ -804,6 +825,12 @@
         /* User dropdown container - Fixed positioning to prevent jumping */
         #userDropdownContainer {
             position: relative;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            order: 2; /* Same position as signInContainer for seamless transition */
+            min-width: 120px; /* Reserve space to prevent layout shift */
+            transition: opacity 0.3s ease; /* Smooth transition */
         }
 
             /* Ensure dropdown wrapper has stable positioning */
@@ -1027,8 +1054,53 @@
                         transform: scale(1.1);
                     }
 
+        /* Ensure smooth transitions and prevent layout jumps */
+        #userDropdownContainer[style*="opacity: 0"] {
+            pointer-events: none;
+            visibility: hidden;
+        }
+        
+        #userDropdownContainer[style*="opacity: 1"] {
+            pointer-events: auto;
+            visibility: visible;
+        }
+
+        /* Prevent layout shifts during authentication state changes */
+        #signInContainer, 
+        #userDropdownContainer {
+            will-change: opacity;
+            backface-visibility: hidden; /* Enable hardware acceleration */
+            -webkit-backface-visibility: hidden;
+        }
+
+        /* Ensure consistent spacing during transition */
+        .nav-actions > *:not(.language-toggle) {
+            flex-shrink: 0;
+        }
+
+        /* Smooth container transitions with stable positioning */
+        .nav-actions {
+            position: relative;
+            overflow: visible; /* Ensure absolute positioned children are visible */
+        }
+        
+        /* Prevent any flickering during authentication transitions */
+        .nav-actions * {
+            transform: translateZ(0); /* Force hardware acceleration for all nav elements */
+        }
+
+        /* Ensure language toggle maintains position during auth state changes */
+        .language-toggle {
+            position: relative;
+            z-index: 2; /* Keep above any transition elements */
+        }
+
         /* Mobile responsive adjustments - Fixed positioning */
         @@media (max-width: 768px) {
+            .nav-actions {
+                gap: 0.8rem;
+            }
+            
             #userDropdownContainer .btn-signin.dropdown-toggle {
                 padding: 6px 12px;
                 font-size: 0.85rem;
@@ -2380,18 +2452,9 @@
                                         </a>
                                     </li>
                                 }
-                                <li>
-                                    <a class="dropdown-item" href="#" data-text-th="จัดการโปรไฟล์" data-text-en="Manage Profile">
-                                        <i class="fas fa-user-cog me-2"></i>
-                                        <span class="menu-text">จัดการโปรไฟล์</span>
-                                    </a>
-                                </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <form id="logoutForm" method="post" action="@Url.Action("LogoutPost", "Account")" style="display: none;">
-                                        @Html.AntiForgeryToken()
-                                    </form>
-                                    <a class="dropdown-item" href="#" id="signOutBtn" data-text-th="ออกจากระบบ" data-text-en="Sign Out">
+                                    <a class="dropdown-item" href="@Url.Action("Logout", "Account")" id="signOutBtn" data-text-th="ออกจากระบบ" data-text-en="Sign Out">
                                         <i class="fas fa-sign-out-alt me-2"></i>
                                         <span class="menu-text">ออกจากระบบ</span>
                                     </a>
@@ -2907,7 +2970,6 @@
         function initializeSignOutButton() {
             // Add click event listener to sign-out button (only when authenticated)
             const signOutBtn = document.getElementById('signOutBtn');
-            const logoutForm = document.getElementById('logoutForm');
             
             if (signOutBtn) {
                 console.log('Sign-out button found, initializing event listener');
@@ -2916,17 +2978,10 @@
                     e.preventDefault();
                     e.stopPropagation();
                     
-                    console.log('Sign-out button clicked');
+                    console.log('Sign-out button clicked - redirecting to GET logout endpoint');
                     
-                    // Immediate logout without confirmation
-                    if (logoutForm) {
-                        console.log('Submitting logout form');
-                        logoutForm.submit();
-                    } else {
-                        console.warn('Logout form not found, using fallback redirect');
-                        // Fallback to GET request if form not found
-                        window.location.href = '/Account/Logout';
-                    }
+                    // Use the simple GET logout endpoint to avoid anti-forgery token issues
+                    window.location.href = '/Account/Logout';
                 });
                 
                 console.log('Sign-out button event listener attached successfully');
@@ -3064,50 +3119,61 @@
 
             // Show loading state
             if (submitBtn) {
-                const btnText = submitBtn.querySelector('.btn-text');
-                const loadingText = submitBtn.querySelector('.loading-text');
+                const btnContent = submitBtn.querySelector('.btn-content');
+                const loadingContent = submitBtn.querySelector('.btn-loading');
                 
-                if (btnText) btnText.classList.add('d-none');
-                if (loadingText) loadingText.classList.remove('d-none');
+                if (btnContent) btnContent.classList.add('d-none');
+                if (loadingContent) loadingContent.classList.remove('d-none');
                 
                 submitBtn.disabled = true;
             }
 
-            // Create form data and submit to Account/Login
+            // Create form data and submit to AJAX endpoint for seamless experience
             const formData = new FormData(form);
             
-            fetch('/Account/Login', {
+            fetch('/Account/LoginAjax', {
                 method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Check if we got redirected (successful login)
-                    if (response.redirected || response.url !== window.location.origin + '/Account/Login') {
-                        window.location.href = response.url || '/';
-                        return;
-                    }
-                    return response.text();
-                } else {
-                    throw new Error('Login request failed');
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(html => {
-                if (html) {
-                    // Parse response for validation errors
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = html;
-                    const errorMessages = tempDiv.querySelectorAll('.text-danger, .validation-summary-errors');
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Successful login - update UI without page refresh
+                    console.log('Login successful:', data);
                     
-                    if (errorMessages.length > 0) {
-                        let errorText = '';
-                        errorMessages.forEach(msg => {
-                            errorText += msg.textContent.trim() + ' ';
-                        });
-                        showLoginError(errorText.trim() || 'Login failed. Please check your credentials.');
-                    } else {
-                        // No errors found, but no redirect either - this shouldn't happen
-                        showLoginError('An unexpected error occurred. Please try again.');
+                    // Show success notification
+                    if (typeof showNotification === 'function') {
+                        showNotification(
+                            data.message || 'Welcome back! Logged in successfully.', 
+                            'success',
+                            { 
+                                title: 'Authentication Success',
+                                duration: 3000
+                            }
+                        );
+                    }
+                    
+                    // Update navigation to authenticated state
+                    updateNavigationAfterLogin(data.user);
+                    
+                    // Close modal with smooth animation
+                    closeModalSmoothly();
+                    
+                } else {
+                    // Login failed - show error
+                    showLoginError(data.error || 'Login failed. Please try again.');
+                    
+                    // Handle account lockout
+                    if (data.lockout) {
+                        console.warn('Account or IP locked due to failed attempts');
                     }
                 }
             })
@@ -3118,11 +3184,11 @@
             .finally(() => {
                 // Reset button state
                 if (submitBtn) {
-                    const btnText = submitBtn.querySelector('.btn-text');
-                    const loadingText = submitBtn.querySelector('.loading-text');
+                    const btnContent = submitBtn.querySelector('.btn-content');
+                    const loadingContent = submitBtn.querySelector('.btn-loading');
                     
-                    if (btnText) btnText.classList.remove('d-none');
-                    if (loadingText) loadingText.classList.add('d-none');
+                    if (btnContent) btnContent.classList.remove('d-none');
+                    if (loadingContent) loadingContent.classList.add('d-none');
                     
                     submitBtn.disabled = false;
                 }
@@ -3171,6 +3237,264 @@
             }
 
             return isValid;
+        }
+
+        /**
+         * Updates the navigation UI after successful login without page refresh
+         * @@param {Object} user - User information from login response
+         */
+        function updateNavigationAfterLogin(user) {
+            console.log('Updating navigation for user:', user);
+            
+            const navActions = document.querySelector('.nav-actions');
+            if (!navActions) return;
+            
+            const signInContainer = document.getElementById('signInContainer');
+            
+            // Step 1: Prevent layout jumping by setting explicit flexbox constraints upfront
+            // Lock the navigation container dimensions to prevent any shifting
+            const navActionsRect = navActions.getBoundingClientRect();
+            navActions.style.width = navActionsRect.width + 'px';
+            navActions.style.minWidth = navActionsRect.width + 'px';
+            
+            // Create the user dropdown container with identical positioning as signInContainer
+            if (!document.getElementById('userDropdownContainer')) {
+                const userDropdownHtml = `
+                    <div id="userDropdownContainer" style="position: absolute; top: 0; right: 0; opacity: 0; visibility: hidden; display: flex; align-items: center; flex-shrink: 0; min-width: 120px; pointer-events: none; z-index: 1;">
+                        <div class="dropdown" id="userMenu">
+                            <button class="btn-signin dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle me-2"></i>
+                                <span id="userName">${user.username}</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow">
+                                ${user.hasAdminAccess ? `
+                                    <li id="adminMenuSection">
+                                        <a class="dropdown-item" href="/Admin/Home/Dashboard" data-text-th="แผงควบคุมผู้ดูแล" data-text-en="Admin Dashboard">
+                                            <i class="fas fa-tachometer-alt me-2"></i>
+                                            <span class="menu-text">แผงควบคุมผู้ดูแล</span>
+                                        </a>
+                                    </li>
+                                ` : ''}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="/Account/Logout" id="signOutBtn" data-text-th="ออกจากระบบ" data-text-en="Sign Out">
+                                        <i class="fas fa-sign-out-alt me-2"></i>
+                                        <span class="menu-text">ออกจากระบบ</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                
+                // Position the user dropdown exactly where signInContainer is
+                if (signInContainer) {
+                    const signInRect = signInContainer.getBoundingClientRect();
+                    const navActionsRect = navActions.getBoundingClientRect();
+                    
+                    // Insert the dropdown container directly into navActions with absolute positioning
+                    navActions.insertAdjacentHTML('beforeend', userDropdownHtml);
+                    
+                    const userDropdownContainer = document.getElementById('userDropdownContainer');
+                    if (userDropdownContainer) {
+                        // Position exactly over the signInContainer
+                        const rightOffset = navActionsRect.right - signInRect.right;
+                        const topOffset = signInRect.top - navActionsRect.top;
+                        
+                        userDropdownContainer.style.right = rightOffset + 'px';
+                        userDropdownContainer.style.top = topOffset + 'px';
+                        userDropdownContainer.style.width = signInRect.width + 'px';
+                        userDropdownContainer.style.height = signInRect.height + 'px';
+                    }
+                }
+                
+                // Setup logout handler immediately
+                setupLogoutHandler();
+            }
+            
+            const userDropdownContainer = document.getElementById('userDropdownContainer');
+            
+            // Step 2: Perform instant, seamless overlay transition with no DOM manipulation
+            if (signInContainer && userDropdownContainer) {
+                // Ensure both elements are perfectly aligned
+                signInContainer.style.position = 'relative';
+                signInContainer.style.zIndex = '0';
+                
+                userDropdownContainer.style.visibility = 'visible';
+                userDropdownContainer.style.pointerEvents = 'auto';
+                
+                // Apply synchronized fade transitions with hardware acceleration
+                signInContainer.style.transition = 'opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1)';
+                userDropdownContainer.style.transition = 'opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1)';
+                
+                // Force layout calculation to ensure positioning is applied
+                userDropdownContainer.offsetWidth;
+                signInContainer.offsetWidth;
+                
+                // Execute the crossfade with perfect timing
+                requestAnimationFrame(() => {
+                    signInContainer.style.opacity = '0';
+                    userDropdownContainer.style.opacity = '1';
+                    
+                    // Clean up after transition completes
+                    setTimeout(() => {
+                        if (signInContainer && signInContainer.parentNode) {
+                            signInContainer.parentNode.removeChild(signInContainer);
+                        }
+                        
+                        // Convert user dropdown from absolute to flexbox positioning after cleanup
+                        if (userDropdownContainer) {
+                            userDropdownContainer.style.position = 'static';
+                            userDropdownContainer.style.top = 'auto';
+                            userDropdownContainer.style.right = 'auto';
+                            userDropdownContainer.style.width = 'auto';
+                            userDropdownContainer.style.height = 'auto';
+                            userDropdownContainer.style.zIndex = 'auto';
+                        }
+                        
+                        // Release the width constraint on navActions
+                        navActions.style.width = '';
+                        navActions.style.minWidth = '';
+                    }, 250);
+                });
+            }
+            
+            // Step 3: Update language-specific text after layout is stable
+            if (typeof BizConnectLanguage !== 'undefined' && BizConnectLanguage.currentLanguage) {
+                setTimeout(() => {
+                    BizConnectLanguage.updateElementsText(BizConnectLanguage.currentLanguage);
+                }, 300);
+            }
+            
+            // Step 4: Final failsafe to ensure clean layout after all transitions
+            setTimeout(() => {
+                const finalUserDropdown = document.getElementById('userDropdownContainer');
+                if (finalUserDropdown) {
+                    // Ensure final positioning is correct
+                    finalUserDropdown.style.position = 'static';
+                    finalUserDropdown.style.display = 'flex';
+                    finalUserDropdown.style.opacity = '1';
+                    finalUserDropdown.style.visibility = 'visible';
+                    finalUserDropdown.style.pointerEvents = 'auto';
+                    
+                    // Clear any positioning artifacts
+                    ['top', 'right', 'width', 'height', 'zIndex'].forEach(prop => {
+                        if (finalUserDropdown.style[prop] && finalUserDropdown.style[prop] !== 'auto') {
+                            finalUserDropdown.style[prop] = '';
+                        }
+                    });
+                }
+                
+                // Ensure nav-actions is back to normal
+                if (navActions) {
+                    navActions.style.width = '';
+                    navActions.style.minWidth = '';
+                }
+            }, 500);
+            
+            console.log('Navigation updated successfully for authenticated user');
+        }
+
+        /**
+         * Closes the login modal with smooth animation
+         */
+        function closeModalSmoothly() {
+            if (window.globalModalInstance) {
+                // Add a small delay for user feedback
+                setTimeout(() => {
+                    try {
+                        window.globalModalInstance.hide();
+                        
+                        // Clear form data after successful login
+                        setTimeout(() => {
+                            const loginForm = document.getElementById('loginForm');
+                            if (loginForm) {
+                                loginForm.reset();
+                                
+                                // Clear any validation states
+                                const inputs = loginForm.querySelectorAll('.floating-label-input');
+                                inputs.forEach(input => {
+                                    input.classList.remove('error', 'valid');
+                                });
+                            }
+                            
+                            // Clear any error messages
+                            clearLoginErrors();
+                        }, 300);
+                        
+                    } catch (error) {
+                        console.error('Error closing modal:', error);
+                        // Fallback: try to close modal manually
+                        const modal = document.getElementById('loginModal');
+                        if (modal) {
+                            modal.classList.remove('show');
+                            modal.style.display = 'none';
+                            document.body.classList.remove('modal-open');
+                            
+                            // Remove backdrop if it exists
+                            const backdrop = document.querySelector('.modal-backdrop');
+                            if (backdrop) backdrop.remove();
+                        }
+                    }
+                }, 500);
+            }
+        }
+
+        /**
+         * Sets up logout functionality for the dynamically created dropdown
+         */
+        function setupLogoutHandler() {
+            const signOutBtn = document.getElementById('signOutBtn');
+            if (signOutBtn) {
+                console.log('Setting up logout handler for dynamically created dropdown');
+                
+                signOutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    console.log('Logout button clicked - redirecting to GET logout endpoint');
+                    
+                    // Use the simple GET logout endpoint to avoid anti-forgery token issues
+                    window.location.href = '/Account/Logout';
+                });
+            } else {
+                console.warn('Sign out button not found for logout handler setup');
+            }
+        }
+
+        /**
+         * Helper function to get anti-forgery token for AJAX requests
+         */
+        function getAntiForgeryToken() {
+            // First, try to find an existing token in the page
+            let token = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (token && token.value) {
+                return token.value;
+            }
+            
+            // If no token found, try to get it from login modal (if exists)
+            const loginModal = document.getElementById('signInModal');
+            if (loginModal) {
+                token = loginModal.querySelector('input[name="__RequestVerificationToken"]');
+                if (token && token.value) {
+                    return token.value;
+                }
+            }
+            
+            // If still no token, try to get it from any form on the page
+            const forms = document.querySelectorAll('form input[name="__RequestVerificationToken"]');
+            if (forms.length > 0) {
+                return forms[0].value;
+            }
+            
+            // Last resort: try to get from meta tag if it exists
+            const metaToken = document.querySelector('meta[name="__RequestVerificationToken"]');
+            if (metaToken) {
+                return metaToken.getAttribute('content');
+            }
+            
+            console.warn('No anti-forgery token found on page');
+            return '';
         }
 
         // Initialize everything when DOM is ready

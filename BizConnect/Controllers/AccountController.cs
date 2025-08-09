@@ -200,6 +200,7 @@ public class AccountController : Controller
     }
 
     [HttpPost]
+    [Route("Account/LogoutPost")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> LogoutPost()
     {
@@ -221,6 +222,149 @@ public class AccountController : Controller
         _logger.LogInformation("User {Username} logged out from IP {IP}.", username, clientIp);
 
         return RedirectToAction("Index", "Home");
+    }
+
+    /// <summary>
+    /// AJAX-optimized login endpoint for modal-based authentication.
+    /// Returns JSON responses instead of redirects for seamless UX.
+    /// Maintains all security controls from the main Login endpoint.
+    /// </summary>
+    [HttpPost]
+    [Route("Account/LoginAjax")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> LoginAjax(LoginViewModel model)
+    {
+        var clientIp = GetClientIpAddress();
+        var userAgent = Request.Headers["User-Agent"].ToString();
+
+        // Check rate limiting - same security controls as main login
+        var rateLimitStatus = await _rateLimitingService.CheckRateLimitAsync(clientIp, "login");
+        if (rateLimitStatus.IsLocked)
+        {
+            await _securityAuditService.LogSuspiciousActivityAsync(
+                "AJAX login attempt from locked IP", 
+                $"IP {clientIp} attempted AJAX login while locked", 
+                clientIp);
+            
+            return Json(new { 
+                success = false, 
+                error = rateLimitStatus.Message,
+                lockout = true 
+            });
+        }
+
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+            
+            return Json(new { 
+                success = false, 
+                error = "Please check your input and try again.",
+                validationErrors = errors 
+            });
+        }
+
+        // Check user-specific lockout
+        var userLockout = await _rateLimitingService.CheckUserLockoutAsync(model.Username);
+        if (userLockout.IsLocked)
+        {
+            await _securityAuditService.LogFailedLoginAsync(
+                model.Username, 
+                clientIp, 
+                "AJAX login blocked - Account locked due to multiple failed attempts", 
+                userAgent);
+            
+            return Json(new { 
+                success = false, 
+                error = "This account has been temporarily locked due to multiple failed login attempts.",
+                lockout = true 
+            });
+        }
+
+        var user = await _userService.AuthenticateAsync(model.Username, model.Password);
+        
+        if (user != null && user.IsActive)
+        {
+            // Clear failed attempts on successful login
+            await _rateLimitingService.ClearFailedAttemptsAsync(clientIp, "login");
+            await _rateLimitingService.ClearUserLockoutAsync(model.Username);
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role),
+                new Claim("ip_address", clientIp),
+                new Claim("login_time", DateTimeOffset.UtcNow.ToString()),
+                new Claim("login_method", "ajax_modal") // Track login method for audit
+            };
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var authProperties = new AuthenticationProperties
+            {
+                IsPersistent = model.RememberMe,
+                ExpiresUtc = model.RememberMe ? DateTimeOffset.UtcNow.AddDays(7) : DateTimeOffset.UtcNow.AddMinutes(30),
+                AllowRefresh = true
+            };
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, 
+                new ClaimsPrincipal(claimsIdentity), authProperties);
+
+            // Log successful authentication with AJAX method indicator
+            await _securityAuditService.LogSuccessfulLoginAsync(user.Username, clientIp, $"{userAgent} [AJAX Modal]");
+            _logger.LogInformation("User {Username} logged in via AJAX modal from IP {IP}.", user.Username, clientIp);
+
+            // Store session information
+            HttpContext.Session.SetString("LoginTime", DateTime.UtcNow.ToString());
+            HttpContext.Session.SetString("UserRole", user.Role);
+            HttpContext.Session.SetString("LoginMethod", "ajax_modal");
+
+            // Return success with user info for frontend navigation update
+            return Json(new { 
+                success = true, 
+                user = new {
+                    username = user.Username,
+                    role = user.Role,
+                    isAdmin = user.Role == "Admin",
+                    isEmployee = user.Role == "Employee",
+                    hasAdminAccess = user.Role == "Admin" || user.Role == "Employee"
+                },
+                message = "Login successful",
+                redirectUrl = GetPostLoginUrl(user.Role) // Optional - for fallback navigation
+            });
+        }
+        else
+        {
+            // Record failed attempt - same security logging as main endpoint
+            var reason = user == null ? "Invalid credentials" : "Account is inactive";
+            await _rateLimitingService.RecordFailedAttemptAsync(clientIp, "login", model.Username);
+            await _securityAuditService.LogFailedLoginAsync(model.Username, clientIp, $"AJAX {reason}", userAgent);
+            
+            _logger.LogWarning("Failed AJAX login attempt for username: {Username} from IP {IP} - {Reason}", 
+                model.Username, clientIp, reason);
+
+            return Json(new { 
+                success = false, 
+                error = "Invalid username or password, or account is inactive. Please check your credentials and try again.",
+                lockout = false 
+            });
+        }
+    }
+
+    /// <summary>
+    /// Helper method to determine the appropriate redirect URL based on user role.
+    /// Used by both traditional and AJAX login endpoints.
+    /// </summary>
+    private string GetPostLoginUrl(string userRole)
+    {
+        return userRole switch
+        {
+            "Admin" or "Employee" => Url.Action("Dashboard", "Home", new { area = "Admin" })!,
+            _ => Url.Action("Register", "KBank", new { area = "" })!
+        };
     }
 
     [HttpGet]
