@@ -165,7 +165,6 @@ public class AccountController : Controller
 
     [HttpGet]
     [Route("Account/Logout")]
-    [Authorize]
     public async Task<IActionResult> Logout()
     {
         try
@@ -190,18 +189,17 @@ public class AccountController : Controller
             await _securityAuditService.LogLogoutAsync(username ?? "Unknown", clientIp);
             _logger.LogInformation("User {Username} logged out successfully from IP {IP}.", username, clientIp);
 
-            // Use absolute URL to ensure proper redirect
-            return Redirect("/Account/Login");
+            // Redirect to landing page after successful logout
+            return RedirectToAction("Index", "Home");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during logout process");
-            return Redirect("/Account/Login");
+            return RedirectToAction("Index", "Home");
         }
     }
 
     [HttpPost]
-    [Authorize]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> LogoutPost()
     {
@@ -222,7 +220,7 @@ public class AccountController : Controller
         await _securityAuditService.LogLogoutAsync(username ?? "Unknown", clientIp);
         _logger.LogInformation("User {Username} logged out from IP {IP}.", username, clientIp);
 
-        return RedirectToAction("Login");
+        return RedirectToAction("Index", "Home");
     }
 
     [HttpGet]

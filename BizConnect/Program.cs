@@ -168,6 +168,16 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/Account/Login";
         options.LogoutPath = "/Account/Logout";
         options.AccessDeniedPath = "/Account/AccessDenied";
+        options.ReturnUrlParameter = "ReturnUrl";
+        
+        // Events to handle authentication scenarios
+        options.Events.OnRedirectToLogin = context =>
+        {
+            // Only redirect to login if explicitly accessing protected resources
+            // Allow landing page to be accessible without authentication
+            context.Response.Redirect(context.RedirectUri);
+            return Task.CompletedTask;
+        };
         options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // 30-minute idle timeout
         options.SlidingExpiration = true;
 
@@ -229,10 +239,9 @@ builder.Services.AddAuthorization(options =>
         policy.RequireAssertion(context => 
             context.User.HasClaim("otac_verified", "true")));
     
-    // Fallback policy - require authentication for all controllers by default
-    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
+    // No fallback policy - allow anonymous access by default
+    // Controllers must explicitly use [Authorize] attribute for protection
+    // This allows public pages like landing page to be accessible without authentication
 });
 
 // Add localization services for Thai/English support
@@ -360,8 +369,8 @@ builder.Services.AddSwaggerGen(options =>
 // Add MVC services with enhanced model validation
 builder.Services.AddControllersWithViews(options =>
 {
-    // Global authorization filter
-    options.Filters.Add(new Microsoft.AspNetCore.Mvc.Authorization.AuthorizeFilter());
+    // No global authorization filter - use [Authorize] attribute on controllers that need protection
+    // This allows public pages to be accessible without authentication
     
     // Global anti-forgery token validation for state-changing operations
     options.Filters.Add(new Microsoft.AspNetCore.Mvc.AutoValidateAntiforgeryTokenAttribute());

@@ -10,6 +10,7 @@ namespace BizConnect.Controllers;
 /// <summary>
 /// Controller for KBank Online Direct Debit (ODD) operations
 /// </summary>
+[AllowAnonymous]
 [Route("kbank/odd")]
 public class KBankController : BaseController
 {

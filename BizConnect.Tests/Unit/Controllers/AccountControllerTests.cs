@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System.Security.Claims;
+using System.Threading;
 using Xunit;
 using AuthService = Microsoft.AspNetCore.Authentication.IAuthenticationService;
 
@@ -98,6 +99,76 @@ public class AccountControllerTests
     // The main focus is testing error handling for invalid credentials
 
     [Fact]
+    public async Task Logout_Get_RedirectsToHomePage()
+    {
+        // Arrange
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, "testuser"),
+            new Claim(ClaimTypes.NameIdentifier, "123")
+        };
+        var identity = new ClaimsIdentity(claims, "Test");
+        var principal = new ClaimsPrincipal(identity);
+        _controller.HttpContext.User = principal;
+
+        // Setup session
+        _controller.HttpContext.Session = new TestSession();
+
+        // Act
+        var result = await _controller.Logout();
+
+        // Assert
+        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("Index", redirectResult.ActionName);
+        Assert.Equal("Home", redirectResult.ControllerName);
+        
+        // Verify security audit logging was called
+        _mockSecurityAuditService.Verify(s => s.LogLogoutAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Logout_Get_WithNoAuthentication_StillRedirectsToHomePage()
+    {
+        // Arrange - No authenticated user
+        _controller.HttpContext.User = new ClaimsPrincipal();
+        _controller.HttpContext.Session = new TestSession();
+
+        // Act
+        var result = await _controller.Logout();
+
+        // Assert
+        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("Index", redirectResult.ActionName);
+        Assert.Equal("Home", redirectResult.ControllerName);
+    }
+
+    [Fact]
+    public async Task LogoutPost_RedirectsToHomePage()
+    {
+        // Arrange
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, "testuser"),
+            new Claim(ClaimTypes.NameIdentifier, "123")
+        };
+        var identity = new ClaimsIdentity(claims, "Test");
+        var principal = new ClaimsPrincipal(identity);
+        _controller.HttpContext.User = principal;
+        _controller.HttpContext.Session = new TestSession();
+
+        // Act
+        var result = await _controller.LogoutPost();
+
+        // Assert
+        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("Index", redirectResult.ActionName);
+        Assert.Equal("Home", redirectResult.ControllerName);
+        
+        // Verify security audit logging was called
+        _mockSecurityAuditService.Verify(s => s.LogLogoutAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+    }
+
+    [Fact]
     public async Task Login_Post_WithInvalidModelState_ReturnsViewWithModel()
     {
         // Arrange
@@ -132,5 +203,44 @@ public class AccountControllerTests
 
         // Assert
         Assert.IsType<ViewResult>(result);
+    }
+}
+
+// Test helper class for mocking ISession
+public class TestSession : ISession
+{
+    private readonly Dictionary<string, byte[]> _sessionStorage = new Dictionary<string, byte[]>();
+    public bool IsAvailable => true;
+    public string Id => Guid.NewGuid().ToString();
+    public IEnumerable<string> Keys => _sessionStorage.Keys;
+
+    public void Clear()
+    {
+        _sessionStorage.Clear();
+    }
+
+    public Task CommitAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task LoadAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
+
+    public void Remove(string key)
+    {
+        _sessionStorage.Remove(key);
+    }
+
+    public void Set(string key, byte[] value)
+    {
+        _sessionStorage[key] = value;
+    }
+
+    public bool TryGetValue(string key, out byte[] value)
+    {
+        return _sessionStorage.TryGetValue(key, out value);
     }
 }

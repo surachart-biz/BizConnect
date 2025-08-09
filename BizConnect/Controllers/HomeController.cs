@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BizConnect.Controllers;
 
+[AllowAnonymous]
 public class HomeController : BaseController
 {
     private readonly ILogger<HomeController> _logger;
