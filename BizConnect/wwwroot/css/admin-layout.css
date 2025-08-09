@@ -1,5 +1,12 @@
 /* ====== MODERN ADMIN DESIGN SYSTEM ====== */
 
+/* Ensure proper scroll behavior for admin pages */
+html {
+    scroll-behavior: smooth;
+    overflow-x: hidden; /* Prevent horizontal scrolling globally */
+    overflow-y: auto; /* Ensure vertical scrolling is available */
+}
+
 /* Color Palette - Consistent with Landing Page */
 :root {
     /* Primary Brand Colors (from landing page) */
@@ -68,6 +75,7 @@
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
+    overflow-y: auto; /* Ensure vertical scrolling is always available */
 }
 
 /* ====== TOP NAVIGATION BAR ====== */
@@ -443,10 +451,18 @@
     padding: 2rem;
     min-height: calc(100vh - var(--topbar-height));
     transition: var(--transition-normal);
+    overflow-y: auto; /* Ensure content can scroll when it overflows */
+    overflow-x: hidden; /* Prevent horizontal overflow */
 }
 
 .admin-content.sidebar-collapsed {
     margin-left: var(--sidebar-collapsed-width);
+}
+
+/* ====== PAGE CONTENT WRAPPER ====== */
+.page-content {
+    overflow-y: auto; /* Ensure page content can scroll */
+    overflow-x: hidden; /* Prevent horizontal overflow */
 }
 
 /* ====== CONTENT HEADER ====== */
@@ -536,6 +552,41 @@
 .breadcrumb-current {
     color: var(--text-primary);
     font-weight: 600;
+}
+
+/* ====== SCROLL ENHANCEMENTS ====== */
+
+/* Ensure smooth scrolling for long content */
+.admin-dashboard,
+.activity-timeline,
+.health-checks {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 102, 204, 0.3) transparent;
+}
+
+.admin-dashboard::-webkit-scrollbar,
+.activity-timeline::-webkit-scrollbar,
+.health-checks::-webkit-scrollbar {
+    width: 6px;
+}
+
+.admin-dashboard::-webkit-scrollbar-track,
+.activity-timeline::-webkit-scrollbar-track,
+.health-checks::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.admin-dashboard::-webkit-scrollbar-thumb,
+.activity-timeline::-webkit-scrollbar-thumb,
+.health-checks::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 102, 204, 0.3);
+    border-radius: 3px;
+}
+
+.admin-dashboard::-webkit-scrollbar-thumb:hover,
+.activity-timeline::-webkit-scrollbar-thumb:hover,
+.health-checks::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 102, 204, 0.5);
 }
 
 /* ====== RESPONSIVE DESIGN ====== */
@@ -682,22 +733,37 @@
     gap: 0.75rem;
 }
 
-/* Skip link accessibility */
+/* Skip link accessibility - Properly hidden until focused */
 .skip-link {
     position: absolute;
-    top: -40px;
-    left: 6px;
+    left: -9999px;
+    top: 6px;
     z-index: 9999;
     color: white;
     background: var(--kbank-green);
     padding: 8px 16px;
     text-decoration: none;
-    border-radius: 0 0 4px 4px;
-    transition: top 0.3s;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
 }
 
 .skip-link:focus {
-    top: 0;
+    left: 6px;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    outline: 2px solid white;
+    outline-offset: 2px;
+}
+
+.skip-link:hover:focus {
+    background: var(--kbank-green-dark);
+    transform: translateY(0) scale(1.05);
 }
 
 /* Screen reader only content */
