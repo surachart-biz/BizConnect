@@ -1,0 +1,503 @@
+/* Responsive Design System for BizConnect */
+/*
+ * Mobile-first responsive design utilities and breakpoint-specific styles
+ * Based on Bootstrap 5 breakpoints with custom enhancements
+ */
+
+/* ============================================================================
+   RESPONSIVE BREAKPOINTS
+   Following Bootstrap 5 conventions:
+   xs: 0px and up (default)
+   sm: 576px and up
+   md: 768px and up
+   lg: 992px and up
+   xl: 1200px and up
+   xxl: 1400px and up
+============================================================================ */
+
+/* Container Responsive Behaviors */
+@media (min-width: 576px) {
+    .container-responsive {
+        max-width: 540px;
+    }
+}
+
+@media (min-width: 768px) {
+    .container-responsive {
+        max-width: 720px;
+    }
+}
+
+@media (min-width: 992px) {
+    .container-responsive {
+        max-width: 960px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container-responsive {
+        max-width: 1140px;
+    }
+}
+
+@media (min-width: 1400px) {
+    .container-responsive {
+        max-width: 1320px;
+    }
+}
+
+/* ============================================================================
+   ADMIN LAYOUT RESPONSIVE BEHAVIOR
+============================================================================ */
+
+/* Mobile First: Hide sidebar by default on small screens */
+@media (max-width: 991.98px) {
+    .admin-sidebar {
+        transform: translateX(-100%);
+        z-index: 1040;
+    }
+    
+    .admin-sidebar.show {
+        transform: translateX(0);
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+    }
+    
+    .admin-content {
+        margin-left: 0 !important;
+        padding: var(--spacing-md);
+    }
+    
+    .sidebar-toggle-mobile {
+        display: block !important;
+    }
+    
+    .sidebar-toggle {
+        display: none !important;
+    }
+}
+
+/* Tablet and Desktop: Show sidebar */
+@media (min-width: 992px) {
+    .sidebar-toggle-mobile {
+        display: none !important;
+    }
+    
+    .sidebar-toggle {
+        display: block !important;
+    }
+    
+    .admin-sidebar {
+        transform: translateX(0);
+    }
+}
+
+/* Large screens: More spacing */
+@media (min-width: 1400px) {
+    .admin-content {
+        padding: var(--spacing-xl);
+    }
+}
+
+/* ============================================================================
+   COMPONENT RESPONSIVE BEHAVIOR
+============================================================================ */
+
+/* Cards */
+@media (max-width: 767.98px) {
+    .card-modern {
+        margin-bottom: var(--spacing-md);
+        border-radius: var(--border-radius-md);
+    }
+    
+    .card-modern-header,
+    .card-modern-body,
+    .card-modern-footer {
+        padding: var(--spacing-md);
+    }
+    
+    .card-modern-title {
+        font-size: var(--font-size-base);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .card-modern-header,
+    .card-modern-body,
+    .card-modern-footer {
+        padding: var(--spacing-sm);
+    }
+}
+
+/* Stats Widgets */
+@media (max-width: 767.98px) {
+    .stats-widget {
+        padding: var(--spacing-md);
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .stats-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .stats-number {
+        font-size: var(--font-size-2xl);
+    }
+    
+    .stats-label {
+        font-size: 0.65rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .stats-widget {
+        padding: var(--spacing-sm);
+        text-align: center;
+    }
+    
+    .stats-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+        margin: 0 auto var(--spacing-sm) auto;
+    }
+    
+    .stats-number {
+        font-size: var(--font-size-xl);
+    }
+}
+
+/* Buttons */
+@media (max-width: 767.98px) {
+    .btn-modern {
+        padding: 0.625rem 1.25rem;
+        font-size: var(--font-size-sm);
+    }
+    
+    .btn-modern.btn-lg {
+        padding: 0.875rem 1.75rem;
+        font-size: var(--font-size-base);
+    }
+    
+    .btn-modern.btn-sm {
+        padding: 0.375rem 0.875rem;
+        font-size: var(--font-size-xs);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .btn-modern {
+        padding: 0.5rem 1rem;
+        font-size: var(--font-size-sm);
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    .btn-modern:last-child {
+        margin-bottom: 0;
+    }
+    
+    .btn-group-mobile .btn-modern {
+        width: auto;
+        margin-bottom: 0;
+        margin-right: 0.5rem;
+    }
+    
+    .btn-group-mobile .btn-modern:last-child {
+        margin-right: 0;
+    }
+}
+
+/* Tables */
+@media (max-width: 991.98px) {
+    .table-responsive-modern {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .table-responsive-modern table {
+        min-width: 600px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    /* Stack table approach for very small screens */
+    .table-stack-mobile {
+        border: 0;
+    }
+    
+    .table-stack-mobile thead {
+        display: none;
+    }
+    
+    .table-stack-mobile tr {
+        display: block;
+        background: white;
+        border-radius: var(--border-radius-md);
+        box-shadow: var(--shadow-sm);
+        margin-bottom: var(--spacing-md);
+        padding: var(--spacing-md);
+    }
+    
+    .table-stack-mobile td {
+        border: none;
+        display: block;
+        text-align: left;
+        padding: 0.25rem 0;
+        border-bottom: 1px solid var(--gray-200);
+    }
+    
+    .table-stack-mobile td:last-child {
+        border-bottom: none;
+    }
+    
+    .table-stack-mobile td:before {
+        content: attr(data-label) ': ';
+        font-weight: 600;
+        color: var(--gray-700);
+        display: inline-block;
+        width: 100px;
+    }
+}
+
+/* Modals */
+@media (max-width: 575.98px) {
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+    
+    .modal-dialog-centered {
+        min-height: calc(100vh - 1rem);
+    }
+    
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: var(--spacing-md);
+    }
+    
+    .modal-title {
+        font-size: var(--font-size-lg);
+    }
+}
+
+/* Dropdowns */
+@media (max-width: 767.98px) {
+    .dropdown-menu {
+        position: static !important;
+        float: none;
+        width: 100%;
+        margin-top: 0;
+        border-radius: var(--border-radius-md);
+        box-shadow: var(--shadow-lg);
+    }
+}
+
+/* Navigation */
+@media (max-width: 991.98px) {
+    .navbar-nav .nav-link {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .navbar-nav .nav-link:last-child {
+        border-bottom: none;
+    }
+    
+    .navbar-collapse {
+        background: rgba(0, 0, 0, 0.95);
+        border-radius: var(--border-radius-md);
+        margin-top: var(--spacing-md);
+        padding: var(--spacing-md);
+    }
+}
+
+/* ============================================================================
+   UTILITY CLASSES FOR RESPONSIVE DESIGN
+============================================================================ */
+
+/* Display utilities */
+.d-xs-block { display: block !important; }
+.d-xs-inline { display: inline !important; }
+.d-xs-inline-block { display: inline-block !important; }
+.d-xs-flex { display: flex !important; }
+.d-xs-inline-flex { display: inline-flex !important; }
+.d-xs-none { display: none !important; }
+
+@media (min-width: 576px) {
+    .d-sm-block { display: block !important; }
+    .d-sm-inline { display: inline !important; }
+    .d-sm-inline-block { display: inline-block !important; }
+    .d-sm-flex { display: flex !important; }
+    .d-sm-inline-flex { display: inline-flex !important; }
+    .d-sm-none { display: none !important; }
+}
+
+@media (min-width: 768px) {
+    .d-md-block { display: block !important; }
+    .d-md-inline { display: inline !important; }
+    .d-md-inline-block { display: inline-block !important; }
+    .d-md-flex { display: flex !important; }
+    .d-md-inline-flex { display: inline-flex !important; }
+    .d-md-none { display: none !important; }
+}
+
+@media (min-width: 992px) {
+    .d-lg-block { display: block !important; }
+    .d-lg-inline { display: inline !important; }
+    .d-lg-inline-block { display: inline-block !important; }
+    .d-lg-flex { display: flex !important; }
+    .d-lg-inline-flex { display: inline-flex !important; }
+    .d-lg-none { display: none !important; }
+}
+
+@media (min-width: 1200px) {
+    .d-xl-block { display: block !important; }
+    .d-xl-inline { display: inline !important; }
+    .d-xl-inline-block { display: inline-block !important; }
+    .d-xl-flex { display: flex !important; }
+    .d-xl-inline-flex { display: inline-flex !important; }
+    .d-xl-none { display: none !important; }
+}
+
+/* Text alignment */
+.text-xs-left { text-align: left !important; }
+.text-xs-center { text-align: center !important; }
+.text-xs-right { text-align: right !important; }
+
+@media (min-width: 576px) {
+    .text-sm-left { text-align: left !important; }
+    .text-sm-center { text-align: center !important; }
+    .text-sm-right { text-align: right !important; }
+}
+
+@media (min-width: 768px) {
+    .text-md-left { text-align: left !important; }
+    .text-md-center { text-align: center !important; }
+    .text-md-right { text-align: right !important; }
+}
+
+@media (min-width: 992px) {
+    .text-lg-left { text-align: left !important; }
+    .text-lg-center { text-align: center !important; }
+    .text-lg-right { text-align: right !important; }
+}
+
+/* Flex utilities */
+@media (max-width: 575.98px) {
+    .flex-xs-column { flex-direction: column !important; }
+    .flex-xs-wrap { flex-wrap: wrap !important; }
+    .justify-content-xs-center { justify-content: center !important; }
+    .align-items-xs-center { align-items: center !important; }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .flex-sm-column { flex-direction: column !important; }
+    .flex-sm-wrap { flex-wrap: wrap !important; }
+    .justify-content-sm-center { justify-content: center !important; }
+    .align-items-sm-center { align-items: center !important; }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .flex-md-column { flex-direction: column !important; }
+    .flex-md-wrap { flex-wrap: wrap !important; }
+    .justify-content-md-center { justify-content: center !important; }
+    .align-items-md-center { align-items: center !important; }
+}
+
+/* ============================================================================
+   RESPONSIVE SPACING
+============================================================================ */
+
+/* Responsive margins and padding */
+@media (max-width: 575.98px) {
+    .p-xs-1 { padding: 0.25rem !important; }
+    .p-xs-2 { padding: 0.5rem !important; }
+    .p-xs-3 { padding: 1rem !important; }
+    .m-xs-1 { margin: 0.25rem !important; }
+    .m-xs-2 { margin: 0.5rem !important; }
+    .m-xs-3 { margin: 1rem !important; }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .p-sm-1 { padding: 0.25rem !important; }
+    .p-sm-2 { padding: 0.5rem !important; }
+    .p-sm-3 { padding: 1rem !important; }
+    .p-sm-4 { padding: 1.5rem !important; }
+    .m-sm-1 { margin: 0.25rem !important; }
+    .m-sm-2 { margin: 0.5rem !important; }
+    .m-sm-3 { margin: 1rem !important; }
+    .m-sm-4 { margin: 1.5rem !important; }
+}
+
+@media (min-width: 768px) {
+    .p-md-4 { padding: 1.5rem !important; }
+    .p-md-5 { padding: 3rem !important; }
+    .m-md-4 { margin: 1.5rem !important; }
+    .m-md-5 { margin: 3rem !important; }
+}
+
+/* ============================================================================
+   RESPONSIVE IMAGES AND MEDIA
+============================================================================ */
+
+.img-responsive {
+    max-width: 100%;
+    height: auto;
+}
+
+.video-responsive {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
+}
+
+.video-responsive iframe,
+.video-responsive object,
+.video-responsive embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* ============================================================================
+   RESPONSIVE PRINT STYLES
+============================================================================ */
+
+@media print {
+    .d-print-none { display: none !important; }
+    .d-print-block { display: block !important; }
+    .d-print-inline { display: inline !important; }
+    .d-print-inline-block { display: inline-block !important; }
+    
+    .admin-sidebar,
+    .admin-topbar,
+    .btn-modern,
+    .dropdown-menu,
+    .modal,
+    .tooltip,
+    .popover {
+        display: none !important;
+    }
+    
+    .admin-content {
+        margin-left: 0 !important;
+        margin-top: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .card-modern,
+    .stats-widget,
+    .glass-card {
+        box-shadow: none !important;
+        border: 1px solid var(--gray-400) !important;
+        break-inside: avoid;
+    }
+}

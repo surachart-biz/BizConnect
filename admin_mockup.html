@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BizConnect Admin Dashboard - Modern UI Mockup</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ====== MODERN ADMIN DESIGN SYSTEM ====== */
+        
+        /* Color Palette - Consistent with Landing Page */
+        :root {
+            /* Primary Brand Colors (from landing page) */
+            --kbank-green: #4CAF50;
+            --kbank-green-light: #81C784;
+            --kbank-green-dark: #388E3C;
+            --primary-blue: #1976D2;
+            --primary-blue-light: #42A5F5;
+            --accent-gold: #FFB000;
+            
+            /* Admin-Specific Colors */
+            --admin-primary: #0066CC;
+            --admin-secondary: #004499;
+            --admin-success: #28a745;
+            --admin-warning: #ffc107;
+            --admin-danger: #dc3545;
+            --admin-info: #17a2b8;
+            
+            /* Neutral Colors */
+            --neutral-50: #FAFAFA;
+            --neutral-100: #F5F5F5;
+            --neutral-200: #EEEEEE;
+            --neutral-300: #E0E0E0;
+            --neutral-700: #424242;
+            --neutral-800: #303030;
+            --neutral-900: #212121;
+            
+            /* Typography */
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-muted: #9e9e9e;
+            
+            /* Shadows & Effects */
+            --shadow-light: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-medium: 0 4px 20px rgba(0,0,0,0.12);
+            --shadow-large: 0 8px 32px rgba(0,0,0,0.16);
+            --shadow-hover: 0 8px 25px rgba(0,0,0,0.15);
+            
+            /* Glass & Backdrop Effects */
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --backdrop-blur: blur(20px);
+            
+            /* Layout */
+            --sidebar-width: 280px;
+            --sidebar-collapsed-width: 80px;
+            --topbar-height: 70px;
+            --border-radius: 12px;
+            --border-radius-large: 20px;
+            
+            /* Animations */
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Sarabun', sans-serif;
+            background: linear-gradient(135deg, #f8faff 0%, #e8f4f8 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* ====== TOP NAVIGATION BAR ====== */
+        .admin-topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--topbar-height);
+            background: var(--glass-bg);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1030;
+            box-shadow: var(--shadow-light);
+            display: flex;
+            align-items: center;
+            padding: 0 2rem;
+            transition: var(--transition-normal);
+        }
+        
+        .topbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: none;
+        }
+        
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            padding: 0.75rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .sidebar-toggle:hover {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--kbank-green);
+            transform: scale(1.05);
+        }
+        
+        .modern-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .modern-brand-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--kbank-green), var(--primary-blue));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow-medium);
+        }
+        
+        .brand-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--kbank-green), var(--primary-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .topbar-btn {
+            position: relative;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.75rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .topbar-btn:hover {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--kbank-green);
+            transform: translateY(-2px);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, var(--admin-danger), #ff6b6b);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            backdrop-filter: var(--backdrop-blur);
+        }
+        
+        .user-menu:hover {
+            background: white;
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-2px);
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--kbank-green), var(--primary-blue));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            line-height: 1;
+        }
+        
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1;
+        }
+        
+        /* ====== SIDEBAR NAVIGATION ====== */
+        .admin-sidebar {
+            position: fixed;
+            top: var(--topbar-height);
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--topbar-height));
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow-large);
+            overflow-y: auto;
+            z-index: 1020;
+            transition: var(--transition-normal);
+        }
+        
+        .admin-sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: var(--backdrop-blur);
+        }
+        
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            margin: 0;
+        }
+        
+        .sidebar-subtitle {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0.25rem 0 0 0;
+        }
+        
+        .sidebar-nav {
+            padding: 1.5rem 0;
+        }
+        
+        .nav-section {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .nav-section::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 1.5rem;
+            right: 1.5rem;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        }
+        
+        .nav-section:last-child::after {
+            display: none;
+        }
+        
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 0 1.5rem;
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1.5rem;
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            transition: var(--transition-normal);
+            border-left: 3px solid transparent;
+            border-radius: 0 15px 15px 0;
+            margin: 0 0 6px 0;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(25, 118, 210, 0.05) 100%);
+            opacity: 0;
+            transition: var(--transition-normal);
+        }
+        
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
+            border-left-color: var(--accent-gold);
+            transform: translateX(8px);
+            box-shadow: var(--shadow-medium);
+        }
+        
+        .nav-link:hover::before {
+            opacity: 1;
+        }
+        
+        .nav-link.active {
+            background: linear-gradient(135deg, var(--kbank-green) 0%, var(--primary-blue) 100%);
+            color: white;
+            border-left-color: var(--accent-gold);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+            transform: translateX(4px);
+        }
+        
+        .nav-link.active::before {
+            opacity: 1;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);
+        }
+        
+        .nav-link i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+            transition: var(--transition-fast);
+            flex-shrink: 0;
+        }
+        
+        .nav-link:hover i {
+            transform: scale(1.15);
+        }
+        
+        .nav-link .nav-text {
+            transition: var(--transition-normal);
+        }
+        
+        .nav-link .badge {
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        
+        /* ====== MAIN CONTENT AREA ====== */
+        .admin-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--topbar-height);
+            padding: 2rem;
+            min-height: calc(100vh - var(--topbar-height));
+            transition: var(--transition-normal);
+        }
+        
+        .admin-content.sidebar-collapsed {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+        
+        /* ====== CONTENT HEADER ====== */
+        .content-header {
+            background: var(--glass-bg);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-large);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-light);
+        }
+        
+        .content-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin: 0 0 0.5rem 0;
+            background: linear-gradient(135deg, var(--text-primary), var(--kbank-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .content-subtitle {
+            color: var(--text-secondary);
+            margin: 0 0 1rem 0;
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+        
+        .breadcrumb-custom {
+            background: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .breadcrumb-custom .breadcrumb-item a {
+            color: var(--kbank-green);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .breadcrumb-custom .breadcrumb-item.active {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        /* ====== DASHBOARD WIDGETS ====== */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stats-card {
+            background: var(--glass-bg);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-large);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-light);
+            transition: var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--kbank-green), var(--primary-blue));
+            border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+            border-color: rgba(76, 175, 80, 0.3);
+        }
+        
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .stats-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .stats-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--kbank-green), var(--primary-blue));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow-medium);
+        }
+        
+        .stats-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-label {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+        
+        .stats-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .trend-up {
+            color: var(--admin-success);
+        }
+        
+        .trend-down {
+            color: var(--admin-danger);
+        }
+        
+        .trend-neutral {
+            color: var(--text-secondary);
+        }
+        
+        /* ====== DATA TABLES ====== */
+        .data-table-container {
+            background: var(--glass-bg);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-large);
+            box-shadow: var(--shadow-light);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--neutral-200);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        
+        .table-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .btn-modern {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary-modern {
+            background: linear-gradient(135deg, var(--kbank-green), var(--kbank-green-dark));
+            color: white;
+            box-shadow: var(--shadow-medium);
+        }
+        
+        .btn-primary-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        .btn-outline-modern {
+            background: transparent;
+            color: var(--kbank-green);
+            border: 2px solid var(--kbank-green);
+        }
+        
+        .btn-outline-modern:hover {
+            background: var(--kbank-green);
+            color: white;
+        }
+        
+        .modern-table {
+            width: 100%;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+        
+        .modern-table thead th {
+            background: var(--neutral-50);
+            color: var(--text-primary);
+            font-weight: 600;
+            padding: 1rem;
+            border: none;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .modern-table tbody td {
+            padding: 1rem;
+            border-top: 1px solid var(--neutral-200);
+            vertical-align: middle;
+        }
+        
+        .modern-table tbody tr:hover {
+            background: rgba(76, 175, 80, 0.05);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .status-pending {
+            background: rgba(255, 193, 7, 0.15);
+            color: #f57c00;
+        }
+        
+        .status-success {
+            background: rgba(76, 175, 80, 0.15);
+            color: var(--kbank-green-dark);
+        }
+        
+        .status-failed {
+            background: rgba(220, 53, 69, 0.15);
+            color: #c62828;
+        }
+        
+        /* ====== RESPONSIVE DESIGN ====== */
+        @media (max-width: 768px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+                box-shadow: var(--shadow-large);
+            }
+            
+            .admin-sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .admin-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            
+            .topbar-content {
+                padding: 0 1rem;
+            }
+            
+            .content-header {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .content-title {
+                font-size: 1.5rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .user-info {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .admin-content {
+                padding: 0.75rem;
+            }
+            
+            .content-header {
+                padding: 1rem;
+            }
+            
+            .content-title {
+                font-size: 1.25rem;
+            }
+            
+            .stats-card {
+                padding: 1rem;
+            }
+            
+            .stats-value {
+                font-size: 2rem;
+            }
+        }
+        
+        /* ====== ANIMATIONS ====== */
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .slide-in-left {
+            animation: slideInLeft 0.5s ease-out;
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* ====== UTILITY CLASSES ====== */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-large);
+            box-shadow: var(--shadow-light);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, var(--kbank-green), var(--primary-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .shadow-hover {
+            transition: var(--transition-normal);
+        }
+        
+        .shadow-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="admin-topbar">
+        <div class="topbar-content">
+            <div class="topbar-left">
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <a href="#" class="modern-brand">
+                    <div class="modern-brand-icon">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <span class="brand-text">BizConnect Admin</span>
+                </a>
+            </div>
+            
+            <div class="topbar-right">
+                <div class="topbar-actions">
+                    <!-- Language Toggle -->
+                    <button class="topbar-btn" title="Switch Language">
+                        <i class="fas fa-language"></i>
+                    </button>
+                    
+                    <!-- Notifications -->
+                    <button class="topbar-btn" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    
+                    <!-- Full Screen -->
+                    <button class="topbar-btn" title="Full Screen">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+                
+                <!-- User Menu -->
+                <div class="user-menu">
+                    <div class="user-avatar">AD</div>
+                    <div class="user-info">
+                        <div class="user-name">Admin User</div>
+                        <div class="user-role">Administrator</div>
+                    </div>
+                    <i class="fas fa-chevron-down" style="color: var(--text-secondary); font-size: 0.8rem;"></i>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <nav class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-header">
+            <h5 class="sidebar-title">KBank ODD System</h5>
+            <p class="sidebar-subtitle">Admin Dashboard</p>
+        </div>
+
+        <div class="sidebar-nav">
+            <!-- Dashboard Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">Dashboard</div>
+                <div class="nav-item">
+                    <a class="nav-link active" href="#">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span class="nav-text">Overview</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-chart-line"></i>
+                        <span class="nav-text">Analytics</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-chart-pie"></i>
+                        <span class="nav-text">Reports</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ODD Management Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">ODD Management</div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-file-alt"></i>
+                        <span class="nav-text">Registrations</span>
+                        <span class="badge bg-warning rounded-pill">12</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-key"></i>
+                        <span class="nav-text">OTAC Codes</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-history"></i>
+                        <span class="nav-text">Transaction History</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- User Management Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">User Management</div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-users"></i>
+                        <span class="nav-text">All Users</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-user-shield"></i>
+                        <span class="nav-text">Admins</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-user-plus"></i>
+                        <span class="nav-text">Add New User</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- System Section -->
+            <div class="nav-section">
+                <div class="nav-section-title">System</div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-cogs"></i>
+                        <span class="nav-text">Settings</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-download"></i>
+                        <span class="nav-text">Export Data</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-shield-alt"></i>
+                        <span class="nav-text">Security Logs</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="admin-content" id="adminContent">
+        <!-- Content Header -->
+        <div class="content-header fade-in-up">
+            <h1 class="content-title">Dashboard Overview</h1>
+            <p class="content-subtitle">Monitor KBank ODD registration system performance and manage operations</p>
+            
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb breadcrumb-custom">
+                    <li class="breadcrumb-item"><a href="#">Admin</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                </ol>
+            </nav>
+        </div>
+
+        <!-- Dashboard Stats Grid -->
+        <div class="dashboard-grid fade-in-up" style="animation-delay: 0.1s;">
+            <!-- Pending Registrations -->
+            <div class="stats-card shadow-hover">
+                <div class="stats-header">
+                    <div>
+                        <div class="stats-title">Pending</div>
+                        <div class="stats-value">24</div>
+                        <div class="stats-label">Pending Registrations</div>
+                        <div class="stats-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+12% from yesterday</span>
+                        </div>
+                    </div>
+                    <div class="stats-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Count -->
+            <div class="stats-card shadow-hover">
+                <div class="stats-header">
+                    <div>
+                        <div class="stats-title">Success</div>
+                        <div class="stats-value">156</div>
+                        <div class="stats-label">Successful Registrations</div>
+                        <div class="stats-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+8% from yesterday</span>
+                        </div>
+                    </div>
+                    <div class="stats-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Code Generation -->
+            <div class="stats-card shadow-hover">
+                <div class="stats-header">
+                    <div>
+                        <div class="stats-title">Generated</div>
+                        <div class="stats-value">89</div>
+                        <div class="stats-label">OTAC Codes Today</div>
+                        <div class="stats-trend trend-neutral">
+                            <i class="fas fa-minus"></i>
+                            <span>Same as yesterday</span>
+                        </div>
+                    </div>
+                    <div class="stats-icon">
+                        <i class="fas fa-key"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expiration Metrics -->
+            <div class="stats-card shadow-hover">
+                <div class="stats-header">
+                    <div>
+                        <div class="stats-title">Expiring</div>
+                        <div class="stats-value">7</div>
+                        <div class="stats-label">Codes Expiring Soon</div>
+                        <div class="stats-trend trend-down">
+                            <i class="fas fa-arrow-down"></i>
+                            <span>-3% from yesterday</span>
+                        </div>
+                    </div>
+                    <div class="stats-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Registrations Table -->
+        <div class="data-table-container fade-in-up" style="animation-delay: 0.2s;">
+            <div class="table-header">
+                <h3 class="table-title">Recent ODD Registrations</h3>
+                <div class="table-actions">
+                    <button class="btn-modern btn-outline-modern">
+                        <i class="fas fa-download"></i>
+                        Export
+                    </button>
+                    <button class="btn-modern btn-primary-modern">
+                        <i class="fas fa-plus"></i>
+                        Generate OTAC
+                    </button>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>Registration ID</th>
+                            <th>Customer Name</th>
+                            <th>Account Number</th>
+                            <th>OTAC Code</th>
+                            <th>Status</th>
+                            <th>Created Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>REG-2024-001</strong></td>
+                            <td>สมชาย ใจดี</td>
+                            <td>123-4-56789-0</td>
+                            <td><code>ABC12345</code></td>
+                            <td><span class="status-badge status-success">Success</span></td>
+                            <td>2024-08-09 14:30</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>REG-2024-002</strong></td>
+                            <td>วันทนา พรมมา</td>
+                            <td>123-4-56789-1</td>
+                            <td><code>XYZ98765</code></td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td>2024-08-09 13:15</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>REG-2024-003</strong></td>
+                            <td>กิตติ ศรีสุข</td>
+                            <td>123-4-56789-2</td>
+                            <td><code>DEF54321</code></td>
+                            <td><span class="status-badge status-failed">Failed</span></td>
+                            <td>2024-08-09 12:45</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <em>More registrations loading...</em>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Sidebar Toggle Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('adminSidebar');
+            const content = document.getElementById('adminContent');
+            
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                content.classList.toggle('sidebar-collapsed');
+            });
+            
+            // Mobile sidebar toggle
+            if (window.innerWidth <= 768) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                });
+            }
+            
+            // Auto-hide mobile sidebar on window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('show');
+                }
+            });
+        });
+        
+        console.log('🚀 Modern Admin Dashboard Mockup Loaded');
+    </script>
+</body>
+</html>

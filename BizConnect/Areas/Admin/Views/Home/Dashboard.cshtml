@@ -7,18 +7,27 @@
 
 @section HeaderActions {
     <div class="d-flex gap-2">
-        <button class="btn-modern btn-outline-modern" onclick="refreshDashboard()">
-            <i class="fas fa-sync-alt"></i>Refresh
+        <button class="btn-modern btn-outline-modern" onclick="refreshDashboard()" title="Refresh Data">
+            <i class="fas fa-sync-alt me-1"></i>
+            <span class="d-none d-sm-inline">Refresh</span>
         </button>
         <div class="dropdown dropdown-modern">
-            <button class="btn-modern btn-primary-modern dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                <i class="fas fa-download"></i>Export
+            <button class="btn-modern btn-kbank dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Export Reports">
+                <i class="fas fa-download me-1"></i>
+                <span class="d-none d-sm-inline">Export</span>
             </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#"><i class="fas fa-file-excel"></i>Excel Report</a></li>
-                <li><a class="dropdown-item" href="#"><i class="fas fa-file-pdf"></i>PDF Report</a></li>
+            <ul class="dropdown-menu shadow-lg">
+                <li><h6 class="dropdown-header">Export Options</h6></li>
+                <li><a class="dropdown-item" href="#" onclick="exportReport('excel')">
+                    <i class="fas fa-file-excel text-success me-2"></i>Excel Report
+                </a></li>
+                <li><a class="dropdown-item" href="#" onclick="exportReport('pdf')">
+                    <i class="fas fa-file-pdf text-danger me-2"></i>PDF Report
+                </a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#"><i class="fas fa-chart-bar"></i>Analytics</a></li>
+                <li><a class="dropdown-item" href="#" onclick="openAnalytics()">
+                    <i class="fas fa-chart-line text-primary me-2"></i>View Analytics
+                </a></li>
             </ul>
         </div>
     </div>
@@ -26,117 +35,154 @@
 
 
 <div class="admin-dashboard">
-    <!-- KBank ODD Overview Widgets -->
+    <!-- Enhanced KBank ODD Overview Widgets -->
     <div class="row g-4 mb-4">
         <!-- ODD Registrations Today -->
         <div class="col-xl-3 col-md-6">
-            <div class="stats-widget fade-in-up">
-                <div class="stats-icon">
-                    <i class="fas fa-plus-circle"></i>
-                </div>
-                <div class="stats-number" data-target="@Model.TodayOddRegistrations" data-duration="2000">
-                    @Model.TodayOddRegistrations
-                </div>
-                <div class="stats-label">Today's Registrations</div>
-                <div class="d-flex justify-content-between mt-3">
-                    <div class="text-center">
-                        <div class="badge-modern badge-warning">@Model.PendingOddRegistrations</div>
-                        <small class="d-block text-muted mt-1">Pending</small>
+            <div class="kpi-card kpi-card-primary fade-in-up" data-animation-delay="0">
+                <div class="kpi-card-gradient"></div>
+                <div class="kpi-card-header">
+                    <div class="kpi-icon">
+                        <i class="fas fa-plus-circle"></i>
                     </div>
-                    <div class="text-center">
-                        <div class="badge-modern badge-success">@Model.CompletedOddRegistrations</div>
-                        <small class="d-block text-muted mt-1">Completed</small>
+                    <div class="kpi-trend">
+                        <span class="trend-indicator trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            +@((Model.TodayOddRegistrations > 0 ? ((double)Model.TodayOddRegistrations / Math.Max(Model.TotalOddRegistrations - Model.TodayOddRegistrations, 1) * 100) : 0).ToString("F0"))%
+                        </span>
                     </div>
                 </div>
-                <div class="position-absolute top-0 end-0 p-3">
-                    <small class="text-success d-flex align-items-center">
-                        <i class="fas fa-arrow-up me-1"></i>
-                        +@((Model.TodayOddRegistrations > 0 ? ((double)Model.TodayOddRegistrations / Math.Max(Model.TotalOddRegistrations - Model.TodayOddRegistrations, 1) * 100) : 0).ToString("F0"))%
-                    </small>
+                <div class="kpi-content">
+                    <div class="kpi-number" data-target="@Model.TodayOddRegistrations" data-duration="2000">
+                        @Model.TodayOddRegistrations
+                    </div>
+                    <div class="kpi-label">Today's Registrations</div>
+                </div>
+                <div class="kpi-footer">
+                    <div class="kpi-metrics">
+                        <div class="metric-item">
+                            <span class="metric-value text-warning">@Model.PendingOddRegistrations</span>
+                            <span class="metric-label">Pending</span>
+                        </div>
+                        <div class="metric-separator"></div>
+                        <div class="metric-item">
+                            <span class="metric-value text-success">@Model.CompletedOddRegistrations</span>
+                            <span class="metric-label">Completed</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- OTAC Codes Generated -->
         <div class="col-xl-3 col-md-6">
-            <div class="stats-widget fade-in-up" style="animation-delay: 0.1s;">
-                <div class="stats-icon" style="background: var(--gradient-success);">
-                    <i class="fas fa-key"></i>
+            <div class="kpi-card kpi-card-success fade-in-up" data-animation-delay="100">
+                <div class="kpi-card-gradient"></div>
+                <div class="kpi-card-header">
+                    <div class="kpi-icon">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <div class="kpi-trend">
+                        <span class="trend-indicator trend-neutral">
+                            <i class="fas fa-plus"></i>
+                            @Model.TodayOtacGenerated
+                        </span>
+                    </div>
                 </div>
-                <div class="stats-number" data-target="@Model.ActiveOtacCodes" data-duration="2000">
-                    @Model.ActiveOtacCodes
+                <div class="kpi-content">
+                    <div class="kpi-number" data-target="@Model.ActiveOtacCodes" data-duration="2000">
+                        @Model.ActiveOtacCodes
+                    </div>
+                    <div class="kpi-label">Active OTAC Codes</div>
                 </div>
-                <div class="stats-label">Active OTAC Codes</div>
-                <div class="progress-modern mt-3">
-                    <div class="progress-bar-modern" data-value="@(Model.OtacUsageRate)%" style="background: var(--gradient-success);"></div>
-                </div>
-                <small class="text-muted d-flex justify-content-between mt-2">
-                    <span>Usage Rate</span>
-                    <span class="fw-semibold">@Model.OtacUsageRate%</span>
-                </small>
-                <div class="position-absolute top-0 end-0 p-3">
-                    <small class="text-success d-flex align-items-center">
-                        <i class="fas fa-plus me-1"></i>
-                        @Model.TodayOtacGenerated
-                    </small>
+                <div class="kpi-footer">
+                    <div class="progress-container">
+                        <div class="progress-header">
+                            <span class="progress-label">Usage Rate</span>
+                            <span class="progress-value">@Model.OtacUsageRate%</span>
+                        </div>
+                        <div class="kpi-progress">
+                            <div class="kpi-progress-bar" data-value="@Model.OtacUsageRate" style="--progress-color: var(--gradient-success)"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Success Rate -->
         <div class="col-xl-3 col-md-6">
-            <div class="stats-widget fade-in-up" style="animation-delay: 0.2s;">
-                <div class="stats-icon" style="background: var(--gradient-primary);">
-                    <i class="fas fa-chart-line"></i>
+            <div class="kpi-card kpi-card-info fade-in-up" data-animation-delay="200">
+                <div class="kpi-card-gradient"></div>
+                <div class="kpi-card-header">
+                    <div class="kpi-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="kpi-trend">
+                        <span class="trend-indicator trend-stable">
+                            <i class="fas fa-equals"></i>
+                            High
+                        </span>
+                    </div>
                 </div>
-                <div class="stats-number" data-target="@Model.SuccessRate" data-duration="2000">
-                    @Model.SuccessRate%
+                <div class="kpi-content">
+                    <div class="kpi-number" data-target="@Model.SuccessRate" data-duration="2000">
+                        @Model.SuccessRate%
+                    </div>
+                    <div class="kpi-label">Success Rate</div>
                 </div>
-                <div class="stats-label">Success Rate</div>
-                <div class="d-flex justify-content-center mt-3">
-                    <div class="position-relative" style="width: 80px; height: 80px;">
-                        <svg class="w-100 h-100" viewBox="0 0 80 80" style="transform: rotate(-90deg);">
-                            <circle cx="40" cy="40" r="30" stroke="var(--gray-200)" stroke-width="6" fill="none" />
-                            <circle cx="40" cy="40" r="30" stroke="var(--primary-blue)" stroke-width="6" fill="none"
-                                    stroke-dasharray="@(188.5 * Model.SuccessRate / 100) 188.5" 
-                                    stroke-linecap="round" class="transition-all duration-1000" />
-                        </svg>
-                        <div class="position-absolute top-50 start-50 translate-middle text-center">
-                            <div class="fw-bold text-primary-modern" style="font-size: 0.9rem;">@Model.SuccessRate%</div>
+                <div class="kpi-footer">
+                    <div class="circular-progress-container">
+                        <div class="circular-progress" data-percentage="@Model.SuccessRate">
+                            <svg class="circular-progress-svg" viewBox="0 0 100 100">
+                                <circle class="circular-progress-bg" cx="50" cy="50" r="45"></circle>
+                                <circle class="circular-progress-bar" cx="50" cy="50" r="45" 
+                                        style="stroke-dasharray: @(282.7 * Model.SuccessRate / 100) 282.7"></circle>
+                            </svg>
+                            <div class="circular-progress-text">
+                                <span class="percentage">@Model.SuccessRate%</span>
+                            </div>
+                        </div>
+                        <div class="completion-text">
+                            @Model.CompletedOddRegistrations of @Model.TotalOddRegistrations completed
                         </div>
                     </div>
                 </div>
-                <small class="text-muted text-center d-block mt-2">
-                    @Model.CompletedOddRegistrations of @Model.TotalOddRegistrations completed
-                </small>
             </div>
         </div>
 
         <!-- Monthly Summary -->
         <div class="col-xl-3 col-md-6">
-            <div class="stats-widget fade-in-up" style="animation-delay: 0.3s;">
-                <div class="stats-icon" style="background: var(--gradient-gold);">
-                    <i class="fas fa-calendar-month"></i>
-                </div>
-                <div class="stats-number" data-target="@Model.ThisMonthOddRegistrations" data-duration="2000">
-                    @Model.ThisMonthOddRegistrations
-                </div>
-                <div class="stats-label">Monthly Registrations</div>
-                <div class="d-flex justify-content-between mt-3">
-                    <div class="text-center">
-                        <div class="badge-modern badge-danger">@Model.FailedOddRegistrations</div>
-                        <small class="d-block text-muted mt-1">Failed</small>
+            <div class="kpi-card kpi-card-warning fade-in-up" data-animation-delay="300">
+                <div class="kpi-card-gradient"></div>
+                <div class="kpi-card-header">
+                    <div class="kpi-icon">
+                        <i class="fas fa-calendar-month"></i>
                     </div>
-                    <div class="text-center">
-                        <div class="badge-modern badge-primary">@Model.ExpiredOtacCodes</div>
-                        <small class="d-block text-muted mt-1">Expired</small>
+                    <div class="kpi-trend">
+                        <span class="trend-indicator trend-time">
+                            <i class="fas fa-calendar"></i>
+                            Month
+                        </span>
                     </div>
                 </div>
-                <div class="position-absolute top-0 end-0 p-3">
-                    <small class="text-gold d-flex align-items-center">
-                        <i class="fas fa-calendar me-1"></i>
-                        This Month
-                    </small>
+                <div class="kpi-content">
+                    <div class="kpi-number" data-target="@Model.ThisMonthOddRegistrations" data-duration="2000">
+                        @Model.ThisMonthOddRegistrations
+                    </div>
+                    <div class="kpi-label">Monthly Registrations</div>
+                </div>
+                <div class="kpi-footer">
+                    <div class="kpi-metrics">
+                        <div class="metric-item">
+                            <span class="metric-value text-danger">@Model.FailedOddRegistrations</span>
+                            <span class="metric-label">Failed</span>
+                        </div>
+                        <div class="metric-separator"></div>
+                        <div class="metric-item">
+                            <span class="metric-value text-primary">@Model.ExpiredOtacCodes</span>
+                            <span class="metric-label">Expired</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -144,48 +190,83 @@
 
     <!-- Recent Activity and Quick Actions -->
     <div class="row g-4">
-        <!-- Recent ODD Registrations -->
+        <!-- Enhanced Recent ODD Registrations -->
         <div class="col-lg-8">
-            <div class="glass-card fade-in-up" style="animation-delay: 0.4s;">
-                <div class="card-modern-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="card-modern-title">
-                            <i class="fas fa-clock me-2 text-kbank"></i>
-                            Recent ODD Registrations
-                        </h3>
-                        <a href="#" class="btn-modern btn-outline-modern">
-                            <i class="fas fa-list"></i>View All
+            <div class="activity-card fade-in-up" data-animation-delay="400">
+                <div class="activity-header">
+                    <div class="activity-title-section">
+                        <div class="activity-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="activity-title-text">
+                            <h3 class="activity-title">Recent ODD Registrations</h3>
+                            <p class="activity-subtitle">Latest registration activities and status updates</p>
+                        </div>
+                    </div>
+                    <div class="activity-actions">
+                        <button class="btn-modern btn-sm btn-ghost" onclick="refreshActivity()" title="Refresh">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <a asp-controller="OddRegistration" asp-action="Index" asp-area="Admin" 
+                           class="btn-modern btn-sm btn-outline-kbank">
+                            <i class="fas fa-list me-1"></i>View All
                         </a>
                     </div>
                 </div>
-                <div class="card-modern-body">
+                <div class="activity-body">
                     @if (Model.RecentRegistrations.Any())
                     {
-                        <div class="recent-activity">
+                        <div class="activity-timeline">
                             @foreach (var registration in Model.RecentRegistrations)
                             {
-                                <div class="d-flex align-items-center p-3 mb-3 glass rounded-3 transition-all hover:shadow-md">
-                                    <div class="flex-shrink-0 me-3">
-                                        <div class="status-indicator status-@(registration?.Status?.ToLower())">
-                                            <div class="status-dot"></div>
-                                            <span>@registration.Status</span>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <div class="fw-semibold text-dark mb-1">Registration @registration.ExternalReference</div>
-                                        <div class="text-muted small">
-                                            <i class="fas fa-clock me-1"></i>@registration.CreatedAt.ToString("MMM dd, yyyy HH:mm")
-                                            @if (!string.IsNullOrEmpty(registration.FullName))
+                                <div class="timeline-item" data-status="@registration.Status?.ToLower()">
+                                    <div class="timeline-marker">
+                                        <div class="timeline-status status-@(registration.Status?.ToLower())">
+                                            @switch (registration.Status?.ToLower())
                                             {
-                                                <span class="ms-3"><i class="fas fa-user me-1"></i>@registration.FullName</span>
+                                                case "pending":
+                                                    <i class="fas fa-clock"></i>
+                                                    break;
+                                                case "completed":
+                                                case "success":
+                                                    <i class="fas fa-check-circle"></i>
+                                                    break;
+                                                case "failed":
+                                                case "error":
+                                                    <i class="fas fa-times-circle"></i>
+                                                    break;
+                                                default:
+                                                    <i class="fas fa-circle"></i>
+                                                    break;
                                             }
                                         </div>
                                     </div>
-                                    <div class="flex-shrink-0">
-                                        <div class="action-group">
-                                            <a href="#" class="action-btn action-btn-view" title="View Details">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
+                                    <div class="timeline-content">
+                                        <div class="timeline-header">
+                                            <div class="timeline-title">Registration #@registration.ExternalReference</div>
+                                            <div class="timeline-status-badge status-@(registration.Status?.ToLower())">
+                                                @registration.Status
+                                            </div>
+                                        </div>
+                                        <div class="timeline-details">
+                                            @if (!string.IsNullOrEmpty(registration.FullName))
+                                            {
+                                                <div class="detail-item">
+                                                    <i class="fas fa-user me-2"></i>
+                                                    <span>@registration.FullName</span>
+                                                </div>
+                                            }
+                                            <div class="detail-item">
+                                                <i class="fas fa-calendar me-2"></i>
+                                                <span>@registration.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                                <span class="text-muted ms-2">@registration.CreatedAt.ToString("HH:mm")</span>
+                                            </div>
+                                        </div>
+                                        <div class="timeline-actions">
+                                            <button class="action-btn" onclick="viewRegistrationDetails('@registration.ExternalReference')" title="View Details">
+                                                <i class="fas fa-eye me-1"></i>
+                                                View Details
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -194,98 +275,197 @@
                     }
                     else
                     {
-                        <div class="empty-state">
-                            <div class="empty-state-icon">
+                        <div class="empty-state-modern">
+                            <div class="empty-state-illustration">
                                 <i class="fas fa-inbox"></i>
                             </div>
-                            <h4 class="empty-state-title">No Recent Registrations</h4>
-                            <p class="empty-state-message">No ODD registrations have been created recently. Check back later for updates.</p>
+                            <div class="empty-state-content">
+                                <h4 class="empty-state-title">No Recent Activity</h4>
+                                <p class="empty-state-description">
+                                    No ODD registrations have been processed recently. 
+                                    New registrations will appear here automatically.
+                                </p>
+                            </div>
                         </div>
                     }
                 </div>
             </div>
         </div>
 
-        <!-- Quick Actions & System Status -->
+        <!-- Enhanced Quick Actions & System Status -->
         <div class="col-lg-4">
-            <!-- Quick Actions -->
-            <div class="glass-card mb-4 fade-in-up" style="animation-delay: 0.5s;">
-                <div class="card-modern-header">
-                    <h3 class="card-modern-title">
-                        <i class="fas fa-bolt me-2 text-gold"></i>
-                        Quick Actions
-                    </h3>
-                </div>
-                <div class="card-modern-body">
-                    <div class="d-grid gap-3">
-                        <a asp-controller="Otac" asp-action="Index" asp-area="Admin" class="btn-modern btn-kbank">
-                            <i class="fas fa-key"></i>Generate OTAC
-                        </a>
-                        <a href="#" class="btn-modern btn-primary-modern">
-                            <i class="fas fa-upload"></i>Import Excel
-                        </a>
-                        <a href="#" class="btn-modern btn-gold">
-                            <i class="fas fa-download"></i>Export Data
-                        </a>
-                        <a asp-controller="Users" asp-action="Create" asp-area="Admin" class="btn-modern btn-outline-modern">
-                            <i class="fas fa-user-plus"></i>Add User
-                        </a>
+            <!-- Enhanced Quick Actions -->
+            <div class="quick-actions-card fade-in-up" data-animation-delay="500">
+                <div class="quick-actions-header">
+                    <div class="quick-actions-icon">
+                        <i class="fas fa-bolt"></i>
                     </div>
+                    <div class="quick-actions-title">
+                        <h3>Quick Actions</h3>
+                        <p>Frequently used operations</p>
+                    </div>
+                </div>
+                <div class="quick-actions-grid">
+                    <a asp-controller="Otac" asp-action="Index" asp-area="Admin" 
+                       class="quick-action-item primary" title="Generate new OTAC codes">
+                        <div class="action-icon">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <div class="action-content">
+                            <span class="action-title">Generate OTAC</span>
+                            <span class="action-subtitle">Create new codes</span>
+                        </div>
+                        <div class="action-indicator">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                    <button class="quick-action-item success" onclick="openImportModal()" 
+                            title="Import registration data from Excel">
+                        <div class="action-icon">
+                            <i class="fas fa-upload"></i>
+                        </div>
+                        <div class="action-content">
+                            <span class="action-title">Import Excel</span>
+                            <span class="action-subtitle">Upload data</span>
+                        </div>
+                        <div class="action-indicator">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </button>
+                    <button class="quick-action-item warning" onclick="exportData()" 
+                            title="Export system data and reports">
+                        <div class="action-icon">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <div class="action-content">
+                            <span class="action-title">Export Data</span>
+                            <span class="action-subtitle">Download reports</span>
+                        </div>
+                        <div class="action-indicator">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </button>
+                    <a asp-controller="Users" asp-action="Create" asp-area="Admin" 
+                       class="quick-action-item info" title="Add new system user">
+                        <div class="action-icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="action-content">
+                            <span class="action-title">Add User</span>
+                            <span class="action-subtitle">Create account</span>
+                        </div>
+                        <div class="action-indicator">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
                 </div>
             </div>
 
-            <!-- System Status -->
-            <div class="glass-card fade-in-up" style="animation-delay: 0.6s;">
-                <div class="card-modern-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="card-modern-title">
-                            <i class="fas fa-server me-2 text-primary-modern"></i>
-                            System Status
-                        </h3>
-                        <span class="badge-modern badge-success">Online</span>
+            <!-- Enhanced System Status -->
+            <div class="system-status-card fade-in-up" data-animation-delay="600">
+                <div class="status-header">
+                    <div class="status-title-section">
+                        <div class="status-icon">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <div class="status-title-text">
+                            <h3>System Health</h3>
+                            <p>Real-time system monitoring</p>
+                        </div>
+                    </div>
+                    <div class="overall-status">
+                        <div class="status-badge status-online">
+                            <div class="status-dot"></div>
+                            <span>Online</span>
+                        </div>
                     </div>
                 </div>
-                <div class="card-modern-body">
-                    <div class="space-y-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-database me-2 text-kbank"></i>
-                                <span class="text-muted">Database</span>
+                <div class="status-body">
+                    <div class="health-checks">
+                        <!-- Database Health -->
+                        <div class="health-check-item">
+                            <div class="health-check-header">
+                                <div class="health-check-info">
+                                    <div class="health-check-icon database">
+                                        <i class="fas fa-database"></i>
+                                    </div>
+                                    <div class="health-check-details">
+                                        <span class="health-check-name">Database</span>
+                                        <span class="health-check-description">PostgreSQL Connection</span>
+                                    </div>
+                                </div>
+                                <div class="health-check-status status-healthy">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Healthy</span>
+                                </div>
                             </div>
-                            <span class="badge-modern badge-success">Healthy</span>
-                        </div>
-                        <div class="progress-modern mb-4">
-                            <div class="progress-bar-modern" data-value="95%" style="background: var(--gradient-success);"></div>
-                        </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-key me-2 text-kbank"></i>
-                                <span class="text-muted">OTAC Service</span>
+                            <div class="health-check-metrics">
+                                <div class="metric-bar">
+                                    <div class="metric-progress" data-value="95" style="--metric-color: var(--gradient-success)"></div>
+                                </div>
+                                <span class="metric-value">95% Uptime</span>
                             </div>
-                            <span class="badge-modern badge-success">Active</span>
                         </div>
-                        <div class="progress-modern mb-4">
-                            <div class="progress-bar-modern" data-value="100%" style="background: var(--gradient-success);"></div>
-                        </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-cloud me-2 text-kbank"></i>
-                                <span class="text-muted">API Status</span>
+
+                        <!-- OTAC Service Health -->
+                        <div class="health-check-item">
+                            <div class="health-check-header">
+                                <div class="health-check-info">
+                                    <div class="health-check-icon otac">
+                                        <i class="fas fa-key"></i>
+                                    </div>
+                                    <div class="health-check-details">
+                                        <span class="health-check-name">OTAC Service</span>
+                                        <span class="health-check-description">Code Generation System</span>
+                                    </div>
+                                </div>
+                                <div class="health-check-status status-active">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Active</span>
+                                </div>
                             </div>
-                            <span class="badge-modern badge-warning">Monitoring</span>
+                            <div class="health-check-metrics">
+                                <div class="metric-bar">
+                                    <div class="metric-progress" data-value="100" style="--metric-color: var(--gradient-success)"></div>
+                                </div>
+                                <span class="metric-value">100% Available</span>
+                            </div>
                         </div>
-                        <div class="progress-modern mb-4">
-                            <div class="progress-bar-modern" data-value="85%" style="background: linear-gradient(135deg, var(--warning) 0%, var(--warning-dark) 100%);"></div>
+
+                        <!-- API Health -->
+                        <div class="health-check-item">
+                            <div class="health-check-header">
+                                <div class="health-check-info">
+                                    <div class="health-check-icon api">
+                                        <i class="fas fa-cloud"></i>
+                                    </div>
+                                    <div class="health-check-details">
+                                        <span class="health-check-name">API Gateway</span>
+                                        <span class="health-check-description">External Integrations</span>
+                                    </div>
+                                </div>
+                                <div class="health-check-status status-monitoring">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span>Monitoring</span>
+                                </div>
+                            </div>
+                            <div class="health-check-metrics">
+                                <div class="metric-bar">
+                                    <div class="metric-progress" data-value="85" style="--metric-color: var(--gradient-warning)"></div>
+                                </div>
+                                <span class="metric-value">85% Response Rate</span>
+                            </div>
                         </div>
-                        
-                        <div class="text-center pt-3 border-top border-glass">
-                            <small class="text-muted d-flex align-items-center justify-content-center">
-                                <i class="fas fa-sync-alt me-2"></i>
-                                Last updated: @DateTime.Now.ToString("HH:mm:ss")
-                            </small>
+                    </div>
+
+                    <div class="status-footer">
+                        <div class="last-updated">
+                            <i class="fas fa-sync-alt"></i>
+                            <span>Updated <span class="update-time" data-timestamp="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss")">@DateTime.Now.ToString("HH:mm:ss")</span></span>
                         </div>
+                        <button class="refresh-status-btn" onclick="refreshSystemStatus()" title="Refresh Status">
+                            <i class="fas fa-redo-alt"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -296,60 +476,200 @@
 
 @section Scripts {
     <script>
-        function refreshDashboard() {
-            // Add loading state using modern UI interactions
-            const refreshBtn = document.querySelector('[onclick="refreshDashboard()"]');
-            if (refreshBtn && window.uiInteractions) {
-                window.uiInteractions.showButtonLoading(refreshBtn);
-                
-                // Simulate refresh (in real app, this would make an AJAX call)
+        // Enhanced Dashboard JavaScript - KBank ODD System
+        class DashboardManager {
+            constructor() {
+                this.refreshInterval = null;
+                this.animationDelays = new Map();
+                this.isRefreshing = false;
+                this.init();
+            }
+
+            init() {
+                this.initializeAnimations();
+                this.initializeCounters();
+                this.initializeProgressBars();
+                this.initializeRealTimeUpdates();
+                this.setupEventListeners();
+            }
+
+            initializeAnimations() {
+                const cards = document.querySelectorAll('[data-animation-delay]');
+                cards.forEach((card, index) => {
+                    const delay = parseInt(card.dataset.animationDelay) || (index * 100);
+                    card.style.animationDelay = `${delay}ms`;
+                    card.classList.add('fade-in-up');
+                });
+            }
+
+            initializeCounters() {
+                const counters = document.querySelectorAll('.kpi-number[data-target]');
+                counters.forEach(counter => {
+                    const target = parseInt(counter.dataset.target);
+                    const duration = parseInt(counter.dataset.duration) || 2000;
+                    this.animateCounter(counter, 0, target, duration);
+                });
+            }
+
+            initializeProgressBars() {
                 setTimeout(() => {
-                    window.uiInteractions.hideButtonLoading(refreshBtn);
-                    
-                    // Re-animate counters after refresh
-                    const counters = document.querySelectorAll('.stats-number[data-target]');
-                    counters.forEach(counter => {
-                        const target = parseInt(counter.dataset.target);
-                        const duration = parseInt(counter.dataset.duration) || 2000;
-                        if (window.uiInteractions.animateCounter) {
-                            window.uiInteractions.animateCounter(counter, 0, target, duration);
+                    // KPI Progress Bars
+                    document.querySelectorAll('.kpi-progress-bar[data-value]').forEach(bar => {
+                        const value = parseInt(bar.dataset.value);
+                        bar.style.setProperty('--progress-width', `${value}%`);
+                        bar.style.width = `${value}%`;
+                    });
+
+                    // Metric Progress Bars
+                    document.querySelectorAll('.metric-progress[data-value]').forEach(bar => {
+                        const value = parseInt(bar.dataset.value);
+                        bar.style.width = `${value}%`;
+                    });
+
+                    // Circular Progress
+                    document.querySelectorAll('.circular-progress[data-percentage]').forEach(circle => {
+                        const percentage = parseInt(circle.dataset.percentage);
+                        const circumference = 2 * Math.PI * 45; // r = 45
+                        const strokeDasharray = `${(circumference * percentage) / 100} ${circumference}`;
+                        const progressBar = circle.querySelector('.circular-progress-bar');
+                        if (progressBar) {
+                            progressBar.style.strokeDasharray = strokeDasharray;
                         }
                     });
-                    
-                    // Show success toast
-                    if (window.uiInteractions.showToast) {
-                        window.uiInteractions.showToast('success', 'Dashboard Refreshed', 'All data has been updated successfully');
+                }, 800);
+            }
+
+            initializeRealTimeUpdates() {
+                // Update timestamps
+                this.updateTimestamps();
+                setInterval(() => this.updateTimestamps(), 60000); // Update every minute
+            }
+
+            setupEventListeners() {
+                // Refresh dashboard button
+                document.addEventListener('click', (e) => {
+                    if (e.target.closest('[onclick="refreshDashboard()"]')) {
+                        e.preventDefault();
+                        this.refreshDashboard();
                     }
+                });
+            }
+
+            updateTimestamps() {
+                const timeElements = document.querySelectorAll('.update-time[data-timestamp]');
+                timeElements.forEach(element => {
+                    const timestamp = new Date(element.dataset.timestamp);
+                    const now = new Date();
+                    const diffMinutes = Math.floor((now - timestamp) / 60000);
+                    
+                    if (diffMinutes < 1) {
+                        element.textContent = 'just now';
+                    } else if (diffMinutes < 60) {
+                        element.textContent = `${diffMinutes}m ago`;
+                    } else {
+                        element.textContent = timestamp.toLocaleTimeString();
+                    }
+                });
+            }
+
+            animateCounter(element, start, end, duration) {
+                const range = end - start;
+                const increment = range / (duration / 16);
+                let current = start;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= end) {
+                        current = end;
+                        clearInterval(timer);
+                    }
+                    element.textContent = Math.floor(current);
+                }, 16);
+            }
+
+            refreshDashboard() {
+                if (this.isRefreshing) return;
+                this.isRefreshing = true;
+
+                const refreshBtn = document.querySelector('[onclick="refreshDashboard()"]');
+                if (refreshBtn) {
+                    refreshBtn.classList.add('loading');
+                    refreshBtn.disabled = true;
+                }
+
+                // Simulate API call - in real implementation, this would be an actual AJAX request
+                setTimeout(() => {
+                    // Re-initialize animations and counters
+                    this.initializeCounters();
+                    this.initializeProgressBars();
+                    
+                    // Update timestamps
+                    this.updateTimestamps();
+                    
+                    // Show success notification
+                    this.showNotification('success', 'Dashboard Updated', 'All data has been refreshed successfully');
+                    
+                    // Reset refresh button
+                    if (refreshBtn) {
+                        refreshBtn.classList.remove('loading');
+                        refreshBtn.disabled = false;
+                    }
+                    
+                    this.isRefreshing = false;
                 }, 1500);
             }
+
+            showNotification(type, title, message) {
+                // Use existing toast system if available
+                if (window.uiInteractions && window.uiInteractions.showToast) {
+                    window.uiInteractions.showToast(type, title, message);
+                } else {
+                    console.log(`${type.toUpperCase()}: ${title} - ${message}`);
+                }
+            }
+        }
+
+        // Enhanced dashboard functions for specific actions
+        function refreshActivity() {
+            console.log('Refreshing activity feed...');
+            // Implementation for activity refresh
+        }
+
+        function viewRegistrationDetails(externalRef) {
+            console.log('Viewing registration details for:', externalRef);
+            // Implementation for viewing registration details
+        }
+
+        function exportReport(format) {
+            console.log('Exporting report in format:', format);
+            // Implementation for report export
+        }
+
+        function openAnalytics() {
+            window.location.href = '@Url.Action("Dashboard", "Analytics", new { area = "Admin" })';
+        }
+
+        function openImportModal() {
+            // Implementation for opening import modal
+            if (window.AdminCore) {
+                window.AdminCore.openModal('excelImportModal');
+            }
+        }
+
+        function exportData() {
+            console.log('Exporting data...');
+            // Implementation for data export
+        }
+
+        function refreshSystemStatus() {
+            console.log('Refreshing system status...');
+            // Implementation for system status refresh
         }
 
         // Initialize dashboard when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-            // Add staggered animation to widgets
-            const widgets = document.querySelectorAll('.stats-widget, .glass-card');
-            widgets.forEach((widget, index) => {
-                widget.style.animationDelay = `${index * 0.1}s`;
-                widget.classList.add('fade-in-up');
-            });
-
-            // Initialize progress bars after page load
-            setTimeout(() => {
-                const progressBars = document.querySelectorAll('.progress-bar-modern[data-value]');
-                progressBars.forEach(bar => {
-                    bar.style.width = bar.dataset.value;
-                });
-            }, 500);
-
-            // Real-time clock update
-            function updateClock() {
-                const clockElements = document.querySelectorAll('[data-clock]');
-                clockElements.forEach(element => {
-                    element.textContent = new Date().toLocaleTimeString();
-                });
-            }
-            
-            setInterval(updateClock, 1000);
+            window.dashboardManager = new DashboardManager();
+            console.log('✨ Enhanced KBank ODD Dashboard Initialized');
         });
     </script>
 }

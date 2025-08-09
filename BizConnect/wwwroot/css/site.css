@@ -1,0 +1,606 @@
+/* Site-wide styles for BizConnect */
+/*
+ * Global styles that apply across the entire application
+ * Contains base styles, utilities, and legacy support
+ */
+
+/* ============================================================================
+   BASE STYLES
+============================================================================ */
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+    color: #333;
+    overflow-x: hidden;
+}
+
+/* Links */
+a {
+    color: #0066CC;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #004499;
+    text-decoration: underline;
+}
+
+/* Focus styles for accessibility */
+:focus {
+    outline: 2px solid #0066CC;
+    outline-offset: 2px;
+}
+
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid #0066CC;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+/* ============================================================================
+   BOOTSTRAP OVERRIDES
+============================================================================ */
+
+/* Container adjustments */
+.container,
+.container-fluid,
+.container-sm,
+.container-md,
+.container-lg,
+.container-xl,
+.container-xxl {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+/* Button overrides */
+.btn {
+    border-radius: 0.5rem;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #0066CC;
+    border-color: #0066CC;
+}
+
+.btn-primary:hover {
+    background-color: #004499;
+    border-color: #004499;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 102, 204, 0.3);
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #212529;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+/* Form overrides */
+.form-control,
+.form-select {
+    border-radius: 0.5rem;
+    border: 2px solid #e0e0e0;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #0066CC;
+    box-shadow: 0 0 0 0.25rem rgba(0, 102, 204, 0.1);
+}
+
+.form-label {
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 0.5rem;
+}
+
+/* Card overrides */
+.card {
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+    font-weight: 600;
+}
+
+/* Modal overrides */
+.modal-content {
+    border-radius: 0.75rem;
+    border: none;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #f8f9fa;
+}
+
+.modal-footer {
+    border-top: 1px solid #e0e0e0;
+    background-color: #f8f9fa;
+}
+
+/* Alert overrides */
+.alert {
+    border-radius: 0.75rem;
+    border: none;
+    font-weight: 500;
+}
+
+.alert-primary {
+    background-color: rgba(0, 102, 204, 0.1);
+    color: #004080;
+}
+
+.alert-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #155724;
+}
+
+.alert-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #856404;
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #721c24;
+}
+
+/* ============================================================================
+   LAYOUT STYLES
+============================================================================ */
+
+.main-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.page-content {
+    flex: 1;
+    padding: 2rem 0;
+}
+
+/* Header styles */
+.site-header {
+    background: linear-gradient(135deg, #0066CC 0%, #004499 100%);
+    color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer styles */
+.site-footer {
+    background-color: #343a40;
+    color: #ffffff;
+    padding: 2rem 0;
+    margin-top: auto;
+}
+
+.site-footer a {
+    color: #ffc107;
+}
+
+.site-footer a:hover {
+    color: #ffffff;
+}
+
+/* ============================================================================
+   NAVIGATION STYLES
+============================================================================ */
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.navbar-nav .nav-link {
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #ffc107;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+}
+
+.dropdown-menu {
+    border-radius: 0.75rem;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-item {
+    padding: 0.75rem 1.25rem;
+    transition: background-color 0.3s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: #0066CC;
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+============================================================================ */
+
+/* Text utilities */
+.text-kbank {
+    color: #0066CC !important;
+}
+
+.text-kbank-secondary {
+    color: #004499 !important;
+}
+
+.text-gold {
+    color: #ffc107 !important;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+/* Background utilities */
+.bg-kbank {
+    background-color: #0066CC !important;
+}
+
+.bg-kbank-gradient {
+    background: linear-gradient(135deg, #0066CC 0%, #004499 100%) !important;
+}
+
+.bg-gold {
+    background-color: #ffc107 !important;
+}
+
+.bg-light-gray {
+    background-color: #f8f9fa !important;
+}
+
+/* Border utilities */
+.border-kbank {
+    border-color: #0066CC !important;
+}
+
+.border-gold {
+    border-color: #ffc107 !important;
+}
+
+/* Spacing utilities */
+.section-spacing {
+    padding: 4rem 0;
+}
+
+.section-spacing-sm {
+    padding: 2rem 0;
+}
+
+.section-spacing-lg {
+    padding: 6rem 0;
+}
+
+/* Shadow utilities */
+.shadow-sm-custom {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.shadow-md-custom {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.shadow-lg-custom {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* ============================================================================
+   LOADING STATES
+============================================================================ */
+
+.loading {
+    position: relative;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #0066CC;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* ============================================================================
+   ERROR PAGES
+============================================================================ */
+
+.error-page {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.error-code {
+    font-size: 6rem;
+    font-weight: 700;
+    color: #0066CC;
+    line-height: 1;
+    margin-bottom: 1rem;
+}
+
+.error-message {
+    font-size: 1.5rem;
+    color: #6c757d;
+    margin-bottom: 2rem;
+}
+
+.error-description {
+    color: #868e96;
+    margin-bottom: 2rem;
+    max-width: 500px;
+}
+
+/* ============================================================================
+   ACCESSIBILITY ENHANCEMENTS
+============================================================================ */
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: #0066CC;
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    z-index: 1000;
+    border-radius: 0 0 4px 4px;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .btn {
+        border: 2px solid currentColor;
+    }
+    
+    .form-control,
+    .form-select {
+        border: 2px solid currentColor;
+    }
+    
+    .card {
+        border: 2px solid currentColor;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ============================================================================
+   RESPONSIVE ADJUSTMENTS
+============================================================================ */
+
+@media (max-width: 767.98px) {
+    .container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+    
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .error-code {
+        font-size: 4rem;
+    }
+    
+    .error-message {
+        font-size: 1.25rem;
+    }
+    
+    .section-spacing {
+        padding: 2rem 0;
+    }
+    
+    .section-spacing-lg {
+        padding: 4rem 0;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .container {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    
+    .btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    
+    .error-code {
+        font-size: 3rem;
+    }
+    
+    .error-message {
+        font-size: 1.1rem;
+    }
+    
+    .section-spacing {
+        padding: 1.5rem 0;
+    }
+}
+
+/* ============================================================================
+   ANIMATIONS
+============================================================================ */
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.slide-in-up {
+    animation: slideInUp 0.6s ease-out;
+}
+
+/* ============================================================================
+   PRINT STYLES
+============================================================================ */
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .btn,
+    .navbar,
+    .modal,
+    .dropdown-menu,
+    .tooltip,
+    .popover {
+        display: none !important;
+    }
+    
+    .container,
+    .container-fluid {
+        width: auto !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #000 !important;
+    }
+    
+    a {
+        text-decoration: underline !important;
+    }
+    
+    a[href]:after {
+        content: " (" attr(href) ")";
+        font-size: 90%;
+    }
+    
+    .page-break-before {
+        page-break-before: always;
+    }
+    
+    .page-break-after {
+        page-break-after: always;
+    }
+    
+    .page-break-inside-avoid {
+        page-break-inside: avoid;
+    }
+}

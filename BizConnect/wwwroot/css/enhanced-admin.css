@@ -1,0 +1,597 @@
+/* Enhanced Admin Theme for BizConnect */
+/*
+ * Advanced admin-specific styling and enhanced components
+ * Built on top of the modern UI framework
+ */
+
+/* ============================================================================
+   ADMIN LAYOUT ENHANCEMENTS
+============================================================================ */
+
+/* Enhanced Topbar */
+.admin-topbar {
+    background: var(--gradient-primary);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.admin-topbar .navbar-brand {
+    font-family: var(--font-family-primary);
+    font-weight: 700;
+    font-size: 1.4rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-topbar .nav-link {
+    font-weight: 500;
+    border-radius: var(--border-radius-md);
+    margin: 0 0.25rem;
+    transition: all var(--duration-normal) var(--ease-out);
+    position: relative;
+}
+
+.admin-topbar .nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--kbank-gold);
+    transition: all var(--duration-normal) var(--ease-out);
+    transform: translateX(-50%);
+}
+
+.admin-topbar .nav-link:hover::before {
+    width: 80%;
+}
+
+/* Enhanced Sidebar */
+.admin-sidebar {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-header {
+    background: linear-gradient(135deg, rgba(6, 102, 204, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.nav-link {
+    font-weight: 500;
+    letter-spacing: 0.025em;
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%) scale(0);
+    width: 6px;
+    height: 6px;
+    background: var(--kbank-gold);
+    border-radius: 50%;
+    transition: all var(--duration-normal) var(--ease-out);
+}
+
+.nav-link.active::after,
+.nav-link:hover::after {
+    transform: translateY(-50%) scale(1);
+}
+
+.nav-link.active {
+    background: linear-gradient(135deg, rgba(6, 102, 204, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%);
+    border-left: 3px solid var(--kbank-gold);
+}
+
+/* ============================================================================
+   ENHANCED DASHBOARD COMPONENTS
+============================================================================ */
+
+/* Premium Stats Widgets */
+.stats-widget {
+    position: relative;
+    background: linear-gradient(135deg, white 0%, #f8fafc 100%);
+    border: 1px solid rgba(6, 102, 204, 0.08);
+    overflow: hidden;
+}
+
+.stats-widget::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-kbank);
+}
+
+.stats-widget::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(6, 102, 204, 0.03) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.stats-widget:hover {
+    border-color: rgba(6, 102, 204, 0.15);
+    box-shadow: 0 10px 25px rgba(6, 102, 204, 0.1);
+}
+
+.stats-icon {
+    background: var(--gradient-kbank);
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-icon::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: var(--gradient-kbank);
+    border-radius: inherit;
+    z-index: -1;
+}
+
+.stats-number {
+    background: linear-gradient(135deg, var(--gray-900) 0%, var(--kbank-primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Enhanced Card System */
+.card-premium {
+    background: linear-gradient(135deg, white 0%, #fafbfc 100%);
+    border: 1px solid rgba(6, 102, 204, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    position: relative;
+    overflow: hidden;
+}
+
+.card-premium::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--gradient-kbank);
+}
+
+.card-premium:hover {
+    border-color: rgba(6, 102, 204, 0.12);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.card-premium .card-modern-header {
+    background: linear-gradient(135deg, #f8fafc 0%, white 100%);
+    border-bottom: 1px solid rgba(6, 102, 204, 0.08);
+}
+
+/* Enhanced Tables */
+.table-enhanced {
+    background: white;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(6, 102, 204, 0.08);
+}
+
+.table-enhanced thead {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+.table-enhanced th {
+    font-weight: 600;
+    color: var(--gray-700);
+    text-transform: uppercase;
+    font-size: var(--font-size-xs);
+    letter-spacing: 0.05em;
+    padding: 1rem 1.25rem;
+    border-bottom: 2px solid rgba(6, 102, 204, 0.1);
+}
+
+.table-enhanced td {
+    padding: 1rem 1.25rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--gray-100);
+    font-weight: 500;
+}
+
+.table-enhanced tbody tr {
+    transition: all var(--duration-fast) var(--ease-out);
+}
+
+.table-enhanced tbody tr:hover {
+    background: linear-gradient(135deg, rgba(6, 102, 204, 0.02) 0%, rgba(255, 215, 0, 0.01) 100%);
+    transform: scale(1.002);
+}
+
+.table-enhanced tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ============================================================================
+   ENHANCED FORMS
+============================================================================ */
+
+.form-enhanced .form-label {
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 0.5rem;
+    font-size: var(--font-size-sm);
+}
+
+.form-enhanced .form-control,
+.form-enhanced .form-select {
+    border: 2px solid var(--gray-200);
+    border-radius: var(--border-radius-md);
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    transition: all var(--duration-normal) var(--ease-out);
+    background: white;
+}
+
+.form-enhanced .form-control:focus,
+.form-enhanced .form-select:focus {
+    border-color: var(--kbank-primary);
+    box-shadow: 0 0 0 3px rgba(6, 102, 204, 0.1);
+    background: linear-gradient(135deg, white 0%, #f8fafc 100%);
+}
+
+.form-enhanced .form-control:valid {
+    border-color: var(--success);
+}
+
+.form-enhanced .form-control:invalid {
+    border-color: var(--danger);
+}
+
+/* ============================================================================
+   ENHANCED MODALS
+============================================================================ */
+
+.modal-enhanced .modal-content {
+    border: none;
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.modal-enhanced .modal-header {
+    background: linear-gradient(135deg, var(--kbank-primary) 0%, var(--kbank-secondary) 100%);
+    color: white;
+    border-bottom: none;
+    padding: 1.5rem;
+}
+
+.modal-enhanced .modal-title {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.modal-enhanced .btn-close {
+    filter: invert(1);
+    opacity: 0.8;
+}
+
+.modal-enhanced .btn-close:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.modal-enhanced .modal-body {
+    padding: 2rem;
+    background: linear-gradient(135deg, white 0%, #fafbfc 100%);
+}
+
+.modal-enhanced .modal-footer {
+    background: var(--gray-50);
+    border-top: 1px solid var(--gray-200);
+    padding: 1.5rem 2rem;
+}
+
+/* ============================================================================
+   ENHANCED NAVIGATION
+============================================================================ */
+
+.nav-enhanced .nav-link {
+    border-radius: var(--border-radius-md);
+    margin: 0 0.25rem;
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-enhanced .nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(6, 102, 204, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%);
+    transition: left var(--duration-normal) var(--ease-out);
+}
+
+.nav-enhanced .nav-link:hover::before,
+.nav-enhanced .nav-link.active::before {
+    left: 0;
+}
+
+.nav-enhanced .nav-link.active {
+    background: linear-gradient(135deg, rgba(6, 102, 204, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%);
+    color: var(--kbank-primary);
+    font-weight: 600;
+}
+
+/* ============================================================================
+   ENHANCED ALERTS AND NOTIFICATIONS
+============================================================================ */
+
+.alert-enhanced {
+    border: none;
+    border-radius: var(--border-radius-lg);
+    padding: 1.25rem;
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+}
+
+.alert-enhanced::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 4px;
+}
+
+.alert-enhanced.alert-primary::before {
+    background: var(--gradient-primary);
+}
+
+.alert-enhanced.alert-success::before {
+    background: var(--gradient-success);
+}
+
+.alert-enhanced.alert-warning::before {
+    background: var(--gradient-warning);
+}
+
+.alert-enhanced.alert-danger::before {
+    background: var(--gradient-danger);
+}
+
+.alert-enhanced .alert-heading {
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Toast Notifications */
+.toast-enhanced {
+    border: none;
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.toast-enhanced .toast-header {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.9) 100%);
+    border-bottom: 1px solid rgba(6, 102, 204, 0.1);
+    font-weight: 600;
+}
+
+.toast-enhanced .toast-body {
+    background: rgba(255, 255, 255, 0.95);
+    font-weight: 500;
+}
+
+/* ============================================================================
+   ENHANCED PAGINATION
+============================================================================ */
+
+.pagination-enhanced .page-link {
+    border: 2px solid var(--gray-200);
+    color: var(--gray-700);
+    font-weight: 500;
+    margin: 0 0.125rem;
+    border-radius: var(--border-radius-md);
+    transition: all var(--duration-normal) var(--ease-out);
+}
+
+.pagination-enhanced .page-link:hover {
+    border-color: var(--kbank-primary);
+    background: var(--kbank-primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.pagination-enhanced .page-item.active .page-link {
+    background: var(--gradient-kbank);
+    border-color: var(--kbank-primary);
+    color: var(--gray-900);
+    font-weight: 700;
+}
+
+/* ============================================================================
+   ENHANCED BREADCRUMB
+============================================================================ */
+
+.breadcrumb-enhanced {
+    background: linear-gradient(135deg, white 0%, #f8fafc 100%);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius-lg);
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.breadcrumb-enhanced .breadcrumb-item {
+    font-weight: 500;
+}
+
+.breadcrumb-enhanced .breadcrumb-item a {
+    color: var(--kbank-primary);
+    text-decoration: none;
+    transition: all var(--duration-fast) var(--ease-out);
+}
+
+.breadcrumb-enhanced .breadcrumb-item a:hover {
+    color: var(--kbank-secondary);
+    text-decoration: underline;
+}
+
+.breadcrumb-enhanced .breadcrumb-item.active {
+    color: var(--gray-600);
+    font-weight: 600;
+}
+
+/* ============================================================================
+   ENHANCED SEARCH AND FILTERS
+============================================================================ */
+
+.search-enhanced {
+    position: relative;
+}
+
+.search-enhanced .form-control {
+    padding-left: 3rem;
+    border-radius: var(--border-radius-lg);
+    border: 2px solid var(--gray-200);
+    font-weight: 500;
+}
+
+.search-enhanced .search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-500);
+    z-index: 5;
+}
+
+.search-enhanced .form-control:focus {
+    border-color: var(--kbank-primary);
+    box-shadow: 0 0 0 3px rgba(6, 102, 204, 0.1);
+}
+
+.search-enhanced .form-control:focus + .search-icon {
+    color: var(--kbank-primary);
+}
+
+.filter-group {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.filter-group .form-label {
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 0.75rem;
+}
+
+/* ============================================================================
+   RESPONSIVE ENHANCEMENTS
+============================================================================ */
+
+@media (max-width: 991.98px) {
+    .admin-topbar .navbar-brand {
+        font-size: 1.2rem;
+    }
+    
+    .stats-widget {
+        margin-bottom: 1rem;
+    }
+    
+    .table-enhanced {
+        font-size: var(--font-size-sm);
+    }
+    
+    .table-enhanced th,
+    .table-enhanced td {
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .modal-enhanced .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .breadcrumb-enhanced {
+        padding: 0.75rem 1rem;
+    }
+    
+    .filter-group {
+        padding: 1rem;
+    }
+}
+
+/* ============================================================================
+   DARK MODE SUPPORT (Future Enhancement)
+============================================================================ */
+
+@media (prefers-color-scheme: dark) {
+    .dark-mode-support {
+        /* Future dark mode variables and overrides */
+        --bg-primary: #0f172a;
+        --bg-secondary: #1e293b;
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+    }
+}
+
+/* ============================================================================
+   PRINT OPTIMIZATIONS
+============================================================================ */
+
+@media print {
+    .admin-topbar,
+    .admin-sidebar,
+    .btn-modern,
+    .modal,
+    .toast,
+    .dropdown-menu {
+        display: none !important;
+    }
+    
+    .admin-content {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .stats-widget,
+    .card-premium,
+    .table-enhanced {
+        box-shadow: none !important;
+        border: 1px solid var(--gray-400) !important;
+        background: white !important;
+        break-inside: avoid;
+    }
+    
+    .stats-widget::before,
+    .stats-widget::after,
+    .card-premium::before {
+        display: none !important;
+    }
+}

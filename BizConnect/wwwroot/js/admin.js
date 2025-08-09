@@ -19,7 +19,7 @@ class AdminUI {
      * Initialize admin UI system
      */
     init() {
-        this.setupSidebar();
+        // Sidebar is now handled by AdminLayout module
         this.setupDashboardWidgets();
         this.setupRealTimeUpdates();
         this.setupDataTables();
@@ -34,87 +34,7 @@ class AdminUI {
     // =================
     // SIDEBAR MANAGEMENT
     // =================
-
-    setupSidebar() {
-        const sidebar = document.querySelector('.admin-sidebar');
-        const toggle = document.querySelector('#sidebarToggle');
-        const content = document.querySelector('.admin-content');
-        
-        if (!sidebar || !toggle) return;
-
-        // Toggle functionality
-        toggle.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.toggleSidebar();
-        });
-
-        // Restore sidebar state
-        const isCollapsed = localStorage.getItem('admin-sidebar-collapsed') === 'true';
-        if (isCollapsed) {
-            this.setSidebarCollapsed(true);
-        }
-
-        // Mobile sidebar handling
-        this.setupMobileSidebar();
-
-        // Active navigation highlighting
-        this.highlightActiveNavigation();
-    }
-
-    toggleSidebar() {
-        const sidebar = document.querySelector('.admin-sidebar');
-        const content = document.querySelector('.admin-content');
-        
-        const isCollapsed = sidebar.classList.contains('collapsed');
-        this.setSidebarCollapsed(!isCollapsed);
-    }
-
-    setSidebarCollapsed(collapsed) {
-        const sidebar = document.querySelector('.admin-sidebar');
-        const content = document.querySelector('.admin-content');
-        
-        if (collapsed) {
-            sidebar.classList.add('collapsed');
-            content.classList.add('sidebar-collapsed');
-        } else {
-            sidebar.classList.remove('collapsed');
-            content.classList.remove('sidebar-collapsed');
-        }
-        
-        localStorage.setItem('admin-sidebar-collapsed', collapsed);
-    }
-
-    setupMobileSidebar() {
-        const sidebar = document.querySelector('.admin-sidebar');
-        const mobileToggle = document.querySelector('.sidebar-toggle-mobile');
-        
-        if (mobileToggle) {
-            mobileToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('show');
-            });
-        }
-
-        // Close on outside click
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768) {
-                if (!sidebar.contains(e.target) && !e.target.closest('.sidebar-toggle-mobile')) {
-                    sidebar.classList.remove('show');
-                }
-            }
-        });
-    }
-
-    highlightActiveNavigation() {
-        const currentPath = window.location.pathname;
-        const navLinks = document.querySelectorAll('.admin-sidebar .nav-link');
-        
-        navLinks.forEach(link => {
-            const href = link.getAttribute('href');
-            if (href && currentPath.includes(href)) {
-                link.classList.add('active');
-            }
-        });
-    }
+    // Note: Sidebar functionality is now handled by AdminLayout module
 
     // =================
     // DASHBOARD WIDGETS
