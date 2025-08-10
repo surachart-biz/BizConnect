@@ -397,11 +397,16 @@ function exportData(format) {
  * Enhanced OTAC generation
  */
 function generateOtacImmediately() {
+    console.log('generateOtacImmediately called (legacy version)');
     showToast('info', 'กำลังสร้าง OTAC Code...');
 
     const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+    const generateUrl = '/Admin/Otac/GenerateForKBankOdd';
 
-    fetch(window.generateOtacUrl || '/Admin/Otac/GenerateForKBankOdd', {
+    console.log('Token found:', !!token);
+    console.log('Generate URL:', generateUrl);
+
+    fetch(generateUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -409,8 +414,15 @@ function generateOtacImmediately() {
         },
         body: `__RequestVerificationToken=${encodeURIComponent(token || '')}`
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
     .then(data => {
+        console.log('Response data:', data);
         if (data.success) {
             showOtacResultsModal(data);
         } else {
@@ -418,8 +430,8 @@ function generateOtacImmediately() {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        showToast('danger', 'เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง');
+        console.error('OTAC generation error:', error);
+        showToast('danger', `เกิดข้อผิดพลาดในการเชื่อมต่อ: ${error.message}`);
     });
 }
 

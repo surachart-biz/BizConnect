@@ -69,7 +69,20 @@
       "Bash(\"C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe\" \"host=localhost dbname=bizconnect_test user=postgres password=bizitadmin\" -c \"SELECT table_name FROM information_schema.views WHERE table_schema = ''public'' AND table_name LIKE ''v_%'' ORDER BY table_name;\")",
       "Bash(\"C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe\" \"host=localhost dbname=bizconnect_test user=postgres password=bizitadmin\" -c \"SELECT matviewname FROM pg_matviews WHERE schemaname = ''public'';\")",
       "Bash(\"C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe\" \"host=localhost dbname=bizconnect_test user=postgres password=bizitadmin\" -c \"SELECT routine_name FROM information_schema.routines WHERE routine_schema = ''public'' AND routine_name LIKE ''get_%'' OR routine_name LIKE ''refresh_%'' ORDER BY routine_name;\")",
-      "Bash(start admin_mockup.html)"
+      "Bash(start admin_mockup.html)",
+      "Bash(start oddregistration_mockup.html)",
+      "Bash(ren:*)",
+      "Bash(move:*)",
+      "Bash(for:*)",
+      "Bash(do echo \"File exists: db/migrations/$file\")",
+      "Bash(if [ -f \"db/migrations/$file\" ])",
+      "Bash(then echo \"✓ Found\")",
+      "Bash(else echo \"✗ Missing\")",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(if [ -f \"20250806-03_SimpleModernUIOptimizations.sql\" ])",
+      "Bash(then echo \"ERROR: File should be deleted but still exists\")",
+      "Bash(else echo \"✓ Correctly deleted: 20250806-03_SimpleModernUIOptimizations.sql\")"
     ],
     "deny": []
   }
