@@ -161,7 +161,24 @@ Alternative: Set environment variable PG_BIN to your PostgreSQL bin directory:
         }
     }
 
-    $sqlFiles = @(Get-ChildItem -Path $MigrationsPath -Filter "*.sql" | Sort-Object Name)
+    # Define migrations in the correct execution order (updated 2025-08-10)
+    $migrationOrder = @(
+        "20250805-03_ConsolidatedSchema.sql",
+        "20250805-04_EnhanceOtacStateConstraint.sql", 
+        "20250805-05_EMERGENCY_FixExternalReferenceForOTAC.sql",
+        "20250805-06_AddMultiLanguageStatusColumns.sql",
+        "20250805-07_EnhanceMultiLanguageViews.sql",
+        "20250806-01_ModernUIPerformanceOptimization.sql"
+    )
+    
+    # Get SQL files in the specified order, excluding master_migration.sql and README.md
+    $sqlFiles = @()
+    foreach ($fileName in $migrationOrder) {
+        $filePath = Join-Path $MigrationsPath $fileName
+        if (Test-Path $filePath) {
+            $sqlFiles += Get-Item $filePath
+        }
+    }
 
     if ($sqlFiles.Count -eq 0) {
         Write-Warning "No SQL migration files found in: $MigrationsPath"

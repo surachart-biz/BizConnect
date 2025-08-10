@@ -309,8 +309,24 @@ if [[ ! -d "$MIGRATIONS_PATH" ]]; then
     print_success "Migrations directory created"
 fi
 
-# Find and sort SQL files
-mapfile -t SQL_FILES < <(find "$MIGRATIONS_PATH" -name "*.sql" -type f | sort)
+# Define migrations in the correct execution order (updated 2025-08-10)
+MIGRATION_ORDER=(
+    "20250805-03_ConsolidatedSchema.sql"
+    "20250805-04_EnhanceOtacStateConstraint.sql"
+    "20250805-05_EMERGENCY_FixExternalReferenceForOTAC.sql"
+    "20250805-06_AddMultiLanguageStatusColumns.sql"
+    "20250805-07_EnhanceMultiLanguageViews.sql"
+    "20250806-01_ModernUIPerformanceOptimization.sql"
+)
+
+# Get SQL files in the specified order, excluding master_migration.sql and README.md
+SQL_FILES=()
+for filename in "${MIGRATION_ORDER[@]}"; do
+    filepath="$MIGRATIONS_PATH/$filename"
+    if [[ -f "$filepath" ]]; then
+        SQL_FILES+=("$filepath")
+    fi
+done
 
 if [[ ${#SQL_FILES[@]} -eq 0 ]]; then
     print_warning "No SQL migration files found in: $MIGRATIONS_PATH"
