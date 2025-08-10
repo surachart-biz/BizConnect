@@ -29,15 +29,13 @@ public partial class VRecentActivity
 
     public string? BranchCode { get; set; }
 
+    /// <summary>
+    /// Computed branch name column that prefers English (NameEn), falls back to Thai (NameTh), then &quot;Unknown&quot;. 
+    /// Added for DashboardService.cs compatibility.
+    /// </summary>
+    public string? BranchName { get; set; }
+
     public string? ActivityType { get; set; }
 
     public int? PrioritySort { get; set; }
-
-    /// <summary>
-    /// Computed property that returns the appropriate branch name
-    /// Falls back to English if Thai is not available, then to branch code
-    /// </summary>
-    public string? BranchName => !string.IsNullOrWhiteSpace(BranchNameEn) ? BranchNameEn : 
-                                 !string.IsNullOrWhiteSpace(BranchNameTh) ? BranchNameTh : 
-                                 BranchCode;
 }

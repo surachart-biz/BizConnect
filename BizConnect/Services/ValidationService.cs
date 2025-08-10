@@ -13,11 +13,11 @@ public class ValidationService : IValidationService
     /// <param name="idType">Type of ID (National ID, Passport, etc.)</param>
     /// <param name="idValue">ID value to validate</param>
     /// <returns>Validation result with error message if invalid</returns>
-    public ValidationResult ValidateIdValue(string idType, string idValue)
+    public BizConnect.Services.Interfaces.ValidationResult ValidateIdValue(string idType, string idValue)
     {
         if (string.IsNullOrWhiteSpace(idValue))
         {
-            return ValidationResult.Failure("ID value is required");
+            return BizConnect.Services.Interfaces.ValidationResult.Failure("ID value is required");
         }
 
         return idType switch
@@ -26,55 +26,55 @@ public class ValidationService : IValidationService
             "Passport" => ValidatePassport(idValue),
             "Tax ID" => ValidateTaxId(idValue),
             "Company Tax ID" => ValidateCompanyTaxId(idValue),
-            _ => ValidationResult.Success() // Unknown ID types pass through basic validation
+            _ => BizConnect.Services.Interfaces.ValidationResult.Success() // Unknown ID types pass through basic validation
         };
     }
 
     /// <summary>
     /// Validates Thai National ID format (13 digits)
     /// </summary>
-    private static ValidationResult ValidateThaiNationalId(string value)
+    private static BizConnect.Services.Interfaces.ValidationResult ValidateThaiNationalId(string value)
     {
         if (value.Length != 13 || !value.All(char.IsDigit))
         {
-            return ValidationResult.Failure("National ID must be exactly 13 digits");
+            return BizConnect.Services.Interfaces.ValidationResult.Failure("National ID must be exactly 13 digits");
         }
-        return ValidationResult.Success();
+        return BizConnect.Services.Interfaces.ValidationResult.Success();
     }
 
     /// <summary>
     /// Validates passport format (8-20 alphanumeric characters)
     /// </summary>
-    private static ValidationResult ValidatePassport(string value)
+    private static BizConnect.Services.Interfaces.ValidationResult ValidatePassport(string value)
     {
         if (value.Length < 8 || value.Length > 20 || !value.All(char.IsLetterOrDigit))
         {
-            return ValidationResult.Failure("Passport number must be 8-20 alphanumeric characters");
+            return BizConnect.Services.Interfaces.ValidationResult.Failure("Passport number must be 8-20 alphanumeric characters");
         }
-        return ValidationResult.Success();
+        return BizConnect.Services.Interfaces.ValidationResult.Success();
     }
 
     /// <summary>
     /// Validates Tax ID format (10-13 digits)
     /// </summary>
-    private static ValidationResult ValidateTaxId(string value)
+    private static BizConnect.Services.Interfaces.ValidationResult ValidateTaxId(string value)
     {
         if (value.Length < 10 || value.Length > 13 || !value.All(char.IsDigit))
         {
-            return ValidationResult.Failure("Tax ID must be 10-13 digits");
+            return BizConnect.Services.Interfaces.ValidationResult.Failure("Tax ID must be 10-13 digits");
         }
-        return ValidationResult.Success();
+        return BizConnect.Services.Interfaces.ValidationResult.Success();
     }
 
     /// <summary>
     /// Validates Company Tax ID format (13 digits)
     /// </summary>
-    private static ValidationResult ValidateCompanyTaxId(string value)
+    private static BizConnect.Services.Interfaces.ValidationResult ValidateCompanyTaxId(string value)
     {
         if (value.Length != 13 || !value.All(char.IsDigit))
         {
-            return ValidationResult.Failure("Company Tax ID must be exactly 13 digits");
+            return BizConnect.Services.Interfaces.ValidationResult.Failure("Company Tax ID must be exactly 13 digits");
         }
-        return ValidationResult.Success();
+        return BizConnect.Services.Interfaces.ValidationResult.Success();
     }
 }

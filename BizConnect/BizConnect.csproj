@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\test-integration-complete.html" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\BizConnect.Services\BizConnect.Services.csproj" />
   </ItemGroup>
 

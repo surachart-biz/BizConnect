@@ -13,9 +13,13 @@
 
 @section HeaderActions {
     <div class="d-flex gap-2">
-        <button type="button" class="btn btn-success" id="generateOtacButton" onclick="generateOtacImmediately(); return false;">
-            <i class="fas fa-key me-1"></i>@Localizer["AddData"]
+        <button type="button" class="btn btn-success" id="generateOtacButton" 
+                title="สร้างรหัสยืนยันตัวตนแบบใช้ครั้งเดียว (OTAC) สำหรับการลงทะเบียน ODD"
+                aria-label="สร้างรหัส OTAC สำหรับการลงทะเบียน">
+            <i class="fas fa-key me-1" aria-hidden="true"></i>สร้างรหัส OTAC
         </button>
+        
+        
         <div class="d-flex gap-2">
             <button class="btn btn-outline-success" onclick="exportData('excel')">
                 <i class="fas fa-file-excel me-1"></i>@Localizer["ExportExcel"]
@@ -23,35 +27,14 @@
             <button class="btn btn-outline-info" onclick="exportData('csv')">
                 <i class="fas fa-file-csv me-1"></i>@Localizer["ExportCsv"]
             </button>
-            <div class="dropdown">
-                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <i class="fas fa-cog me-1"></i>@Localizer["Actions"]
-                </button>
-                <ul class="dropdown-menu">
-                    <li>
-                        <a class="dropdown-item" href="#" onclick="bulkAction('approve')">
-                            <i class="fas fa-check me-2"></i>@Localizer["BulkApprove"]
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="#" onclick="bulkAction('reject')">
-                            <i class="fas fa-times me-2"></i>@Localizer["BulkReject"]
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <a class="dropdown-item" href="#" onclick="refreshTable()">
-                            <i class="fas fa-sync-alt me-2"></i>@Localizer["Refresh"]
-                        </a>
-                    </li>
-                </ul>
-            </div>
         </div>
     </div>
 }
 
 @section Styles {
     <link href="~/css/odd-registration-modern.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/css/otac-enhancements.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/css/odd-priority2-enhancements.css" rel="stylesheet" asp-append-version="true" />
 }
 
     <!-- Skip link for accessibility -->
@@ -595,59 +578,278 @@
     }
     </div>
 
+<!-- Include Priority 2 Enhanced OTAC Modals -->
+@Html.Partial("_OtacModals")
+
 @section Scripts {
     @Html.AntiForgeryToken()
     <script src="~/js/odd-registrations.js" asp-append-version="true"></script>
     <script src="~/js/odd-registration-modern.js" asp-append-version="true"></script>
+    <script src="~/js/visual-feedback.js" asp-append-version="true"></script>
+    <script src="~/js/mobile-optimizer.js" asp-append-version="true"></script>
+    <script src="~/js/accessibility-enhancer.js" asp-append-version="true"></script>
     <script>
-        // Additional safety measures for OTAC generation
+        // Priority 2: Enhanced OTAC Button Integration
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, checking OTAC function availability');
-            console.log('generateOtacImmediately function exists:', typeof window.generateOtacImmediately);
+            console.log('DOM loaded for ODD Registration page with Priority 2 features');
             
-            // Add backup event listener
-            const generateButton = document.getElementById('generateOtacButton');
-            if (generateButton) {
-                console.log('Generate OTAC button found');
+            function initializeEnhancedOtacButton() {
+                const generateButton = document.getElementById('generateOtacButton');
                 
-                // Add additional click handler as backup
-                generateButton.addEventListener('click', function(e) {
-                    console.log('Button clicked via event listener');
-                    
-                    // Prevent double execution if onclick also fires
-                    if (e.detail === 'backup-handler') {
-                        if (typeof window.generateOtacImmediately === 'function') {
-                            console.log('Calling generateOtacImmediately from backup handler');
-                            window.generateOtacImmediately();
-                        } else {
-                            console.error('generateOtacImmediately function not found!');
-                            alert('เกิดข้อผิดพลาด: ไม่พบฟังก์ชันสร้าง OTAC กรุณาโหลดหน้าใหม่');
-                        }
-                    }
-                });
+                if (!generateButton) {
+                    console.error('Generate OTAC button (#generateOtacButton) not found in DOM!');
+                    return;
+                }
 
-                // Test function availability on button hover
-                generateButton.addEventListener('mouseenter', function() {
-                    if (typeof window.generateOtacImmediately !== 'function') {
-                        console.error('generateOtacImmediately function not available on hover!');
-                        this.title = 'ฟังก์ชันไม่พร้อมใช้งาน - กรุณาโหลดหน้าใหม่';
-                        this.classList.add('btn-warning');
-                        this.classList.remove('btn-success');
+                console.log('Generate OTAC button found - initializing Priority 2 integration');
+                
+                // Clean up any existing listeners
+                generateButton.removeAttribute('onclick');
+                const newButton = generateButton.cloneNode(true);
+                generateButton.parentNode.replaceChild(newButton, generateButton);
+                
+                // Add enhanced event listener for Priority 2 system
+                newButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    console.log('Priority 2: Add Data button clicked');
+                    
+                    // Check if Priority 2 system is available
+                    if (typeof window.generateOtacImmediately === 'function') {
+                        console.log('Using Priority 2 enhanced OTAC generation system');
+                        try {
+                            window.generateOtacImmediately();
+                        } catch (error) {
+                            console.error('Error calling Priority 2 generateOtacImmediately:', error);
+                            
+                            // Show enhanced error notification
+                            if (window.visualFeedback) {
+                                window.visualFeedback.showErrorAnimation(newButton, {
+                                    title: 'เกิดข้อผิดพลาด',
+                                    message: 'ไม่สามารถเริ่มการสร้างรหัส OTAC ได้: ' + error.message,
+                                    duration: 4000
+                                });
+                            } else {
+                                alert('เกิดข้อผิดพลาดในการสร้าง OTAC Code: ' + error.message);
+                            }
+                        }
                     } else {
-                        this.title = 'คลิกเพื่อสร้าง OTAC Code';
+                        console.warn('Priority 2 system not available, using fallback');
+                        fallbackOtacGeneration(newButton);
                     }
                 });
-            } else {
-                console.error('Generate OTAC button not found!');
+                
+                // Enhanced visual feedback on hover
+                newButton.addEventListener('mouseenter', function() {
+                    if (typeof window.generateOtacImmediately === 'function') {
+                        this.title = '🚀 Priority 2: สร้าง OTAC Code ด้วยระบบขั้นสูง (4 ขั้นตอน)';
+                        this.style.boxShadow = '0 4px 12px rgba(40, 167, 69, 0.3)';
+                        this.style.transform = 'translateY(-1px)';
+                    } else {
+                        this.title = '⚠️ ระบบสำรอง: สร้าง OTAC Code แบบพื้นฐาน';
+                        this.style.boxShadow = '0 4px 12px rgba(255, 193, 7, 0.3)';
+                    }
+                });
+                
+                newButton.addEventListener('mouseleave', function() {
+                    this.style.boxShadow = '';
+                    this.style.transform = '';
+                });
+                
+                console.log('Priority 2: Enhanced button integration completed');
             }
+            
+            // Initialize with multiple attempts to ensure Priority 2 system is loaded
+            setTimeout(initializeEnhancedOtacButton, 100);
+            setTimeout(initializeEnhancedOtacButton, 500);
+            setTimeout(initializeEnhancedOtacButton, 1000);
         });
 
-        // Global error handler for unhandled promise rejections
+        // Fallback generation function for compatibility
+        function fallbackOtacGeneration(button) {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+            const generateUrl = '/Admin/Otac/GenerateForKBankOdd';
+            
+            if (!token) {
+                if (window.visualFeedback) {
+                    window.visualFeedback.showToast('error', 'ข้อผิดพลาด', 'ไม่พบ Security Token กรุณาโหลดหน้าใหม่', { duration: 4000 });
+                } else {
+                    alert('เกิดข้อผิดพลาด: ไม่พบ Security Token กรุณาโหลดหน้าใหม่');
+                }
+                return;
+            }
+            
+            // Show loading state with visual feedback
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>กำลังสร้าง OTAC...';
+                
+                if (window.visualFeedback) {
+                    window.visualFeedback.setButtonLoading(button, true);
+                }
+            }
+            
+            if (window.visualFeedback) {
+                window.visualFeedback.showToast('info', 'กำลังประมวลผล', 'กำลังสร้างรหัส OTAC กรุณารอสักครู่...', { duration: 3000 });
+            }
+            
+            fetch(generateUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': token
+                },
+                body: `__RequestVerificationToken=${encodeURIComponent(token)}`
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Reset button
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fas fa-key me-1"></i>สร้างรหัส OTAC';
+                    
+                    if (window.visualFeedback) {
+                        window.visualFeedback.setButtonLoading(button, false);
+                    }
+                }
+                
+                if (data.success) {
+                    const successMessage = `สร้าง OTAC Code สำเร็จ!\n\nรหัส OTAC: ${data.code || data.otacCode || 'N/A'}\nจำนวนที่สร้าง: ${data.generatedCount || 0} รายการ`;
+                    
+                    if (window.visualFeedback) {
+                        window.visualFeedback.showSuccessAnimation({
+                            title: 'สำเร็จ!',
+                            message: `สร้างรหัส OTAC: ${data.code || data.otacCode}`,
+                            duration: 3000
+                        });
+                    } else {
+                        alert(successMessage);
+                    }
+                    
+                    // ENHANCED: Auto-refresh table with multiple strategies
+                    setTimeout(() => {
+                        console.log('Fallback: OTAC created successfully, attempting table refresh...');
+                        
+                        // Strategy 1: Use window.refreshTable if available
+                        if (typeof window.refreshTable === 'function') {
+                            console.log('Fallback: Using window.refreshTable()');
+                            window.refreshTable();
+                            return;
+                        }
+                        
+                        // Strategy 2: Direct table refresh via fetch
+                        console.log('Fallback: Attempting direct table refresh');
+                        const currentUrl = window.location.href;
+                        const url = new URL(currentUrl);
+                        url.searchParams.set('_refresh', Date.now()); // Cache buster
+                        
+                        fetch(url.toString())
+                            .then(response => response.text())
+                            .then(html => {
+                                const parser = new DOMParser();
+                                const doc = parser.parseFromString(html, 'text/html');
+                                const newTableBody = doc.querySelector('.odd-table tbody');
+                                const currentTableBody = document.querySelector('.odd-table tbody');
+                                
+                                if (newTableBody && currentTableBody) {
+                                    console.log('Fallback: Successfully updated table via fetch');
+                                    currentTableBody.innerHTML = newTableBody.innerHTML;
+                                    
+                                    // Update stats
+                                    const newStats = doc.querySelector('.odd-table-stats');
+                                    const currentStats = document.querySelector('.odd-table-stats');
+                                    if (newStats && currentStats) {
+                                        currentStats.innerHTML = newStats.innerHTML;
+                                    }
+                                    
+                                    // Show feedback
+                                    if (window.visualFeedback) {
+                                        window.visualFeedback.showToast('success', 'อัพเดทแล้ว', 'ตารางได้รับการอัพเดทเรียบร้อยแล้ว', { duration: 2000 });
+                                    }
+                                } else {
+                                    throw new Error('Could not find table elements');
+                                }
+                            })
+                            .catch(error => {
+                                console.log('Fallback: Direct refresh failed, using page reload');
+                                window.location.reload();
+                            });
+                    }, 1500); // Reduced delay for faster UX
+                } else {
+                    const errorMsg = data.message || 'ไม่สามารถสร้าง OTAC Code ได้';
+                    
+                    if (window.visualFeedback) {
+                        window.visualFeedback.showErrorAnimation(button, {
+                            title: 'เกิดข้อผิดพลาด',
+                            message: errorMsg,
+                            duration: 4000
+                        });
+                    } else {
+                        alert('เกิดข้อผิดพลาด: ' + errorMsg);
+                    }
+                }
+            })
+            .catch(error => {
+                // Reset button
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fas fa-key me-1"></i>สร้างรหัส OTAC';
+                    
+                    if (window.visualFeedback) {
+                        window.visualFeedback.setButtonLoading(button, false);
+                    }
+                }
+                
+                console.error('OTAC generation error:', error);
+                
+                if (window.visualFeedback) {
+                    window.visualFeedback.showErrorAnimation(button, {
+                        title: 'ข้อผิดพลาดการเชื่อมต่อ',
+                        message: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้: ' + error.message,
+                        duration: 4000
+                    });
+                } else {
+                    alert('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + error.message);
+                }
+            });
+        }
+
+        // Enhanced error handling
         window.addEventListener('unhandledrejection', function(event) {
             console.error('Unhandled promise rejection:', event.reason);
-            if (event.reason && event.reason.message && event.reason.message.includes('generateOtacImmediately')) {
-                alert('เกิดข้อผิดพลาดในการสร้าง OTAC Code กรุณาลองใหม่อีกครั้ง');
+            if (event.reason && (event.reason.message?.includes('generateOtac') || event.reason.message?.includes('OTAC'))) {
+                if (window.visualFeedback) {
+                    window.visualFeedback.showToast('error', 'ข้อผิดพลาดระบบ', 'เกิดข้อผิดพลาดในการสร้าง OTAC Code กรุณาลองใหม่', { duration: 5000 });
+                }
+                event.preventDefault();
             }
         });
+        
+        // Debug function for testing
+        window.testPriority2OtacGeneration = function() {
+            console.log('Testing Priority 2 OTAC generation system');
+            const button = document.getElementById('generateOtacButton');
+            if (button) {
+                button.click();
+            } else {
+                console.error('Button not found for Priority 2 test');
+            }
+        };
+        
+        // Status check function
+        window.checkPriority2Status = function() {
+            console.log('Priority 2 System Status:');
+            console.log('- generateOtacImmediately:', typeof window.generateOtacImmediately);
+            console.log('- visualFeedback:', typeof window.visualFeedback);
+            console.log('- Priority 2 CSS loaded:', document.querySelector('link[href*="odd-priority2-enhancements"]') ? 'Yes' : 'No');
+            console.log('- OTAC Progress Modal:', document.getElementById('otacProgressModal') ? 'Yes' : 'No');
+            console.log('- OTAC Results Modal:', document.getElementById('otacResultsModal') ? 'Yes' : 'No');
+        };
     </script>
 }

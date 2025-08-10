@@ -15,14 +15,6 @@ public partial class ExpiredOtacCode
 
     public string? Status { get; set; }
 
-    public string? StatusMessageTh { get; set; }
-
-    public string? StatusMessageEn { get; set; }
-
-    public string? ErrorMessageTh { get; set; }
-
-    public string? ErrorMessageEn { get; set; }
-
     public DateTime? OtacExpiresAt { get; set; }
 
     public DateTime? CreatedAt { get; set; }

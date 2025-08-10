@@ -1,0 +1,1915 @@
+/**
+ * OTAC Generation Enhancements - Mobile-First Responsive Styles
+ * Enhances the user experience for OTAC generation and copying
+ */
+
+/* Loading Button States */
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.btn-loading .spinner-border {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Success feedback animation */
+.btn.copied {
+    transform: scale(1.05);
+    transition: all 0.2s ease-in-out;
+}
+
+/* Mobile-responsive modal enhancements */
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+    
+    .modal-dialog-centered {
+        min-height: calc(100% - 1rem);
+    }
+    
+    /* OTAC code display on mobile */
+    .code-display input[type="text"] {
+        font-size: clamp(1rem, 5vw, 1.5rem) !important;
+        letter-spacing: 0.2em !important;
+        padding: 0.75rem !important;
+    }
+    
+    /* Touch-friendly buttons */
+    .modal-footer .btn {
+        min-height: 44px;
+        min-width: 44px;
+        font-size: 0.9rem;
+    }
+    
+    .modal-footer .btn-lg {
+        min-height: 46px;
+        min-width: 100px;
+        font-size: 1rem;
+    }
+    
+    /* Better spacing for mobile */
+    .modal-body {
+        padding: 1rem;
+    }
+    
+    .modal-header {
+        padding: 1rem;
+    }
+    
+    .modal-footer {
+        padding: 1rem;
+        gap: 0.75rem;
+    }
+}
+
+/* Enhanced copy feedback */
+.copied-flash {
+    background-color: #d4edda !important;
+    border-color: #c3e6cb !important;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Haptic feedback simulation */
+@media (hover: none) and (pointer: coarse) {
+    .btn:active {
+        transform: scale(0.95);
+    }
+}
+
+/* Toast enhancements */
+.toast {
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.toast-body {
+    font-weight: 500;
+}
+
+/* Generate button specific styles */
+#generateOtacButton.btn-loading {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    border-color: transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+#generateOtacButton.btn-loading::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    animation: buttonLoadingShine 2s infinite;
+}
+
+#generateOtacButton.btn-loading:hover {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    border-color: transparent;
+}
+
+@keyframes buttonLoadingShine {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* OTAC result modal enhancements */
+.modal-header.bg-gradient {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ARIA and screen reader improvements */
+[aria-describedby] {
+    position: relative;
+}
+
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Live region for dynamic updates */
+.copy-status-live {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+/* Enhanced button states for accessibility */
+.btn[disabled], 
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.btn[aria-pressed="true"] {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.modal-header.bg-gradient::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+    animation: headerShimmer 3s ease infinite;
+}
+
+.input-group .form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(79, 172, 254, 0.25), 0 0 12px rgba(79, 172, 254, 0.3);
+    border-color: #4facfe;
+    transition: all 0.3s ease;
+}
+
+.input-group .form-control:focus-visible {
+    outline: 2px solid #00f2fe;
+    outline-offset: 2px;
+}
+
+/* Responsive text sizing */
+@media (max-width: 576px) {
+    .modal-title {
+        font-size: 1.1rem;
+    }
+    
+    .modal-footer .btn span.d-sm-none {
+        font-size: 0.875rem;
+    }
+    
+    /* Stack buttons vertically on very small screens */
+    .modal-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .modal-footer .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    .modal-footer .btn:last-child {
+        margin-bottom: 0;
+    }
+}
+
+/* Enhanced Accessibility improvements */
+.btn:focus {
+    outline: 3px solid #0066CC !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 5px rgba(0, 102, 204, 0.3) !important;
+    z-index: 1050 !important;
+}
+
+.btn:focus-visible {
+    outline: 3px solid #0066CC !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 5px rgba(0, 102, 204, 0.4) !important;
+}
+
+.otac-code-input:focus {
+    outline: 3px solid #0066CC !important;
+    outline-offset: 2px !important;
+    box-shadow: inset 0 2px 6px rgba(76, 175, 80, 0.1), 
+                0 0 0 5px rgba(0, 102, 204, 0.3) !important;
+}
+
+/* Skip link for modal */
+.modal-skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: #000;
+    color: #fff;
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    z-index: 1070;
+    transition: top 0.3s;
+}
+
+.modal-skip-link:focus {
+    top: 6px;
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+/* High contrast mode for buttons */
+@media (prefers-contrast: high) {
+    .btn {
+        border: 2px solid currentColor !important;
+    }
+    
+    .btn:focus,
+    .btn:focus-visible {
+        outline: 4px solid #000000 !important;
+        outline-offset: 2px;
+        box-shadow: none !important;
+    }
+    
+    .btn-success {
+        background: #000000 !important;
+        color: #ffffff !important;
+        border-color: #000000 !important;
+    }
+}
+
+.modal-content {
+    border: none;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+}
+
+/* Loading overlay improvements */
+.odd-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 0.375rem;
+}
+
+.odd-loading-spinner {
+    width: 3rem;
+    height: 3rem;
+    border: 0.3em solid rgba(79, 172, 254, 0.2);
+    border-top: 0.3em solid transparent;
+    border-image: linear-gradient(45deg, #4facfe, #00f2fe) 1;
+    border-radius: 50%;
+    animation: spin 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    position: relative;
+    box-shadow: 0 0 16px rgba(79, 172, 254, 0.3);
+}
+
+.odd-loading-spinner::before {
+    content: '';
+    position: absolute;
+    top: -0.3em;
+    left: -0.3em;
+    right: -0.3em;
+    bottom: -0.3em;
+    border-radius: 50%;
+    border: 0.2em solid transparent;
+    border-top: 0.2em solid #00f2fe;
+    animation: spin 2s linear infinite reverse;
+    opacity: 0.6;
+}
+
+.odd-loading-text {
+    font-weight: 500;
+    color: #6c757d;
+}
+
+/* Enhanced button states */
+.btn-success:disabled,
+.btn-success.disabled {
+    background: linear-gradient(135deg, #adb5bd 0%, #6c757d 100%);
+    border-color: transparent;
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-success:not(:disabled):not(.disabled) {
+    background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+    border-color: transparent;
+    transition: all 0.3s ease;
+}
+
+.btn-success:not(:disabled):not(.disabled):hover {
+    background: linear-gradient(135deg, #1db584 0%, #138496 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(32, 201, 151, 0.3);
+}
+
+/* Modern input styling */
+.font-monospace {
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace !important;
+}
+
+/* Improved visual hierarchy */
+.code-display {
+    background: linear-gradient(135deg, #f8fffe 0%, #e6fffa 100%);
+    border: 2px solid #20c997;
+    border-radius: 0.75rem;
+    box-shadow: 0 6px 20px rgba(32, 201, 151, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.code-display::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 50%, #20c997 100%);
+    border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.code-display .form-control {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(32, 201, 151, 0.3);
+    box-shadow: inset 0 1px 3px rgba(32, 201, 151, 0.1);
+}
+
+/* Animation improvements */
+.modal.show .modal-dialog {
+    transform: none;
+    transition: transform 0.3s ease-out;
+}
+
+/* OTAC-specific success styling - complementing admin-layout.css */
+.otac-success-alert,
+.modal-success-alert {
+    background: linear-gradient(135deg, #E8F5E8 0%, #F1F8E9 100%) !important;
+    border: 1px solid rgba(76, 175, 80, 0.3) !important;
+    border-left: 5px solid #4CAF50 !important;
+    border-radius: 0.75rem !important;
+    color: #2E7D32 !important;
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.15), 
+                0 2px 8px rgba(76, 175, 80, 0.1) !important;
+}
+
+/* Enhanced OTAC code container styling */
+.otac-code-container::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg, #4CAF50, #2E7D32, #1B5E20, #4CAF50);
+    background-size: 300% 300%;
+    border-radius: 0.875rem;
+    z-index: -1;
+    animation: codeContainerGlow 3s ease-in-out infinite;
+}
+
+@keyframes codeContainerGlow {
+    0%, 100% { 
+        background-position: 0% 50%;
+        opacity: 0.7;
+    }
+    50% { 
+        background-position: 100% 50%;
+        opacity: 1;
+    }
+}
+
+.toast.bg-success {
+    background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+}
+
+/* Enhanced copy button styling and feedback */
+.btn-success:not(:disabled):not(.disabled) {
+    background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
+    border: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-success:not(:disabled):not(.disabled):hover {
+    background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(46, 125, 50, 0.4);
+}
+
+.btn-success:not(:disabled):not(.disabled):active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3);
+}
+
+.btn-success.copied {
+    background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+    transform: scale(1.02);
+    animation: copySuccess 0.6s ease-out;
+}
+
+@keyframes copySuccess {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1.02); }
+}
+
+/* Enhanced countdown styling */
+.badge.bg-warning {
+    background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%) !important;
+    color: #E65100 !important;
+    border: 1px solid rgba(255, 152, 0, 0.3);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+/* Modal body content area enhancements */
+.modal-body {
+    background: linear-gradient(180deg, 
+        rgba(248, 249, 250, 0.8) 0%, 
+        rgba(255, 255, 255, 0.95) 50%, 
+        rgba(248, 249, 250, 0.9) 100%);
+}
+
+/* ====== ENHANCED MODAL HEADERS FOR OTAC MODALS ====== */
+/* Modern modal header styling with enhanced visual appeal */
+.modal-header.modern-modal-header {
+    position: relative;
+    overflow: hidden;
+    border: none;
+    padding: 1.75rem 2.25rem;
+    border-radius: 0.75rem 0.75rem 0 0;
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Primary modal headers with enhanced gradient */
+.modal-header.modern-modal-header.bg-primary {
+    background: linear-gradient(135deg, #1976D2 0%, #1565C0 25%, #1E88E5 50%, #1976D2 75%, #0D47A1 100%) !important;
+    background-size: 300% 300%;
+    animation: modernGradientShift 12s ease-in-out infinite;
+}
+
+/* Success modal headers with enhanced gradient */
+.modal-header.modern-modal-header.bg-success {
+    background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 25%, #388E3C 50%, #2E7D32 75%, #1B5E20 100%) !important;
+    background-size: 300% 300%;
+    animation: modernGradientShift 12s ease-in-out infinite;
+}
+
+/* Enhanced gradient overlay for depth */
+.modal-header.modern-modal-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.15) 0%, 
+        transparent 30%, 
+        transparent 70%, 
+        rgba(0, 0, 0, 0.08) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Sophisticated shimmer effect */
+.modal-header.modern-modal-header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.1) 20%, 
+        rgba(255, 255, 255, 0.2) 50%, 
+        rgba(255, 255, 255, 0.1) 80%, 
+        transparent 100%);
+    animation: modernHeaderShimmer 8s infinite;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Enhanced modal title styling */
+.modal-header.modern-modal-header .modal-title {
+    position: relative;
+    z-index: 3;
+    font-weight: 700;
+    font-size: 1.4rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    line-height: 1.2;
+}
+
+.modal-header.modern-modal-header .modal-title i {
+    font-size: 1.3rem;
+    opacity: 0.95;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    text-shadow: none;
+}
+
+/* ====== ENHANCED CLOSE BUTTON STYLING FOR OTAC MODALS ====== */
+/* Modern close button with proper Bootstrap 5 btn-close-white support */
+.modal-header .btn-close.otac-close-btn {
+    position: relative;
+    z-index: 4;
+    
+    /* FIXED: Improved visibility with higher opacity */
+    opacity: 1 !important;
+    
+    /* Enhanced styling with better visibility */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0.375rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25) !important;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.4) !important;
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    
+    /* Ensure proper sizing and clickability */
+    flex-shrink: 0;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    
+    /* Add subtle shadow for better definition */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header .btn-close.otac-close-btn:hover {
+    opacity: 1 !important;
+    background: rgba(255, 255, 255, 0.35) !important;
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+    border-color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.modal-header .btn-close.otac-close-btn:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.9) !important;
+    outline-offset: 2px;
+    background: rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5), 0 4px 15px rgba(0, 0, 0, 0.25) !important;
+    opacity: 1 !important;
+}
+
+.modal-header .btn-close.otac-close-btn:active {
+    transform: scale(1.05) rotate(90deg);
+    background: rgba(255, 255, 255, 0.3) !important;
+    opacity: 1 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* FIXED: Remove conflicting filter - Bootstrap 5 btn-close-white handles this properly */
+
+/* High contrast mode support for close button */
+@media (prefers-contrast: high) {
+    .modal-header .btn-close.otac-close-btn {
+        border: 3px solid #ffffff !important;
+        background: rgba(0, 0, 0, 0.8) !important;
+        filter: none !important;
+    }
+    
+    .modal-header .btn-close.otac-close-btn:hover,
+    .modal-header .btn-close.otac-close-btn:focus {
+        background: rgba(255, 255, 255, 0.9) !important;
+        color: #000000 !important;
+        border-color: #000000 !important;
+    }
+}
+
+/* Connection status styling */
+#connectionStatus {
+    position: relative;
+    z-index: 3;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+#connectionStatus i {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+#connectionStatus.connection-error {
+    background: rgba(220, 53, 69, 0.2);
+    border-color: rgba(220, 53, 69, 0.3);
+    animation: connectionErrorPulse 2s infinite;
+}
+
+/* Modern gradient animation */
+@keyframes modernGradientShift {
+    0%, 100% { 
+        background-position: 0% 50%; 
+        filter: hue-rotate(0deg) brightness(1);
+    }
+    25% { 
+        background-position: 100% 50%; 
+        filter: hue-rotate(5deg) brightness(1.05);
+    }
+    50% { 
+        background-position: 100% 100%; 
+        filter: hue-rotate(-5deg) brightness(1.1);
+    }
+    75% { 
+        background-position: 0% 100%; 
+        filter: hue-rotate(3deg) brightness(1.05);
+    }
+}
+
+/* Enhanced shimmer animation */
+@keyframes modernHeaderShimmer {
+    0% { 
+        left: -100%; 
+        opacity: 0; 
+    }
+    20% { 
+        opacity: 1; 
+    }
+    80% { 
+        opacity: 1; 
+    }
+    100% { 
+        left: 100%; 
+        opacity: 0; 
+    }
+}
+
+/* Connection error pulse */
+@keyframes connectionErrorPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* ====== LEGACY SUPPORT FOR ENHANCED MODAL HEADERS ====== */
+.modal-header.bg-gradient,
+.modal-header.bg-success:not(.modern-modal-header) {
+    background: linear-gradient(135deg, #2E7D32 0%, #2E7D32 25%, #1B5E20 75%, #1B5E20 100%) !important;
+    box-shadow: 0 4px 20px rgba(46, 125, 50, 0.3);
+}
+
+/* Ensure legacy close buttons also work properly */
+.modal-header.bg-success .btn-close,
+.modal-header.bg-gradient .btn-close {
+    filter: brightness(0) invert(1) !important;
+    opacity: 0.9 !important;
+}
+
+.modal-header.bg-success .btn-close:hover,
+.modal-header.bg-gradient .btn-close:hover {
+    opacity: 1 !important;
+    transform: scale(1.1);
+}
+
+.modal-header.bg-success .btn-close:focus,
+.modal-header.bg-gradient .btn-close:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.8) !important;
+    outline-offset: 2px;
+    opacity: 1 !important;
+}
+
+/* Enhanced modal footer styling */
+.modal-footer {
+    background: linear-gradient(180deg, 
+        rgba(248, 249, 250, 0.3) 0%, 
+        rgba(255, 255, 255, 0.8) 100%);
+    border-top: 1px solid rgba(76, 175, 80, 0.1);
+    padding: 1.5rem 2rem;
+}
+
+.modal-footer .btn-lg {
+    min-height: 44px;
+    padding: 0.65rem 1.25rem;
+    font-weight: 600;
+    border-radius: 0.75rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-footer .btn-outline-success {
+    border: 2px solid #4CAF50;
+    color: #2E7D32;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.modal-footer .btn-outline-success:hover {
+    background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+    border-color: #4CAF50;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+}
+
+.modal-footer .btn-secondary {
+    background: linear-gradient(135deg, #6C757D 0%, #495057 100%);
+    border: none;
+    color: white;
+}
+
+.modal-footer .btn-secondary:hover {
+    background: linear-gradient(135deg, #5A6268 0%, #343A40 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+}
+
+/* ====== RESPONSIVE ADJUSTMENTS FOR OTAC MODALS ====== */
+@media (max-width: 768px) {
+    .modal-header.modern-modal-header {
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .modal-header.modern-modal-header .modal-title {
+        font-size: 1.2rem;
+        gap: 0.5rem;
+    }
+    
+    .modal-header.modern-modal-header .modal-title i {
+        font-size: 1.1rem;
+    }
+    
+    /* Enhanced close button responsive styling */
+    .modal-header .btn-close.otac-close-btn {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        min-height: 32px !important;
+        padding: 0.375rem;
+    }
+    
+    #connectionStatus {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.6rem;
+    }
+    
+    /* Copy button responsive adjustments */
+    .primary-copy-btn {
+        min-width: 160px !important;
+        font-size: 0.95rem !important;
+        padding: 0.75rem 1.25rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-header.modern-modal-header {
+        padding: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .modal-header.modern-modal-header .d-flex.align-items-center.gap-3 {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .modal-header.modern-modal-header .modal-title {
+        font-size: 1.1rem;
+        order: 1;
+    }
+    
+    #connectionStatus {
+        font-size: 0.8rem;
+        order: 2;
+    }
+    
+    /* Enhanced small screen close button */
+    .modal-header .btn-close.otac-close-btn {
+        order: 3;
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        min-height: 32px !important;
+        padding: 0.4rem;
+    }
+    
+    /* Copy button adjustments for very small screens */
+    .primary-copy-btn {
+        min-width: 100% !important;
+        width: 100% !important;
+        font-size: 0.9rem !important;
+        padding: 0.7rem 1.1rem !important;
+    }
+}
+
+/* ====== ENHANCED OTAC SUCCESS MODAL STYLING ====== */
+/* Unified visual hierarchy and cohesive design system */
+
+/* Main Success Container */
+.otac-success-container {
+    background: linear-gradient(135deg, 
+        rgba(229, 255, 229, 0.3) 0%, 
+        rgba(248, 255, 248, 0.5) 50%, 
+        rgba(229, 255, 229, 0.3) 100%);
+    border: 1px solid rgba(76, 175, 80, 0.15);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(76, 175, 80, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.otac-success-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #4CAF50 0%, #2E7D32 50%, #4CAF50 100%);
+    background-size: 200% 100%;
+    animation: subtleGradientFlow 8s ease-in-out infinite;
+}
+
+@keyframes subtleGradientFlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Success Message Styling */
+.success-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2E7D32;
+    letter-spacing: -0.02em;
+    text-shadow: 0 2px 4px rgba(46, 125, 50, 0.1);
+    margin-bottom: 0.75rem;
+}
+
+.success-subtitle {
+    font-size: 1rem;
+    color: #4A5568;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.success-icon-container {
+    animation: subtleSuccessPulse 3s ease-in-out infinite;
+}
+
+@keyframes subtleSuccessPulse {
+    0%, 100% { 
+        transform: scale(1);
+        filter: drop-shadow(0 4px 12px rgba(46, 125, 50, 0.3));
+    }
+    50% { 
+        transform: scale(1.05);
+        filter: drop-shadow(0 6px 18px rgba(46, 125, 50, 0.4));
+    }
+}
+
+/* Enhanced Code Display */
+.otac-main-display {
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.9) 0%, 
+        rgba(248, 255, 248, 0.8) 100%);
+    border-radius: 1rem;
+    padding: 2.5rem 2rem;
+    margin: 2.5rem 0;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+    box-shadow: 0 8px 32px rgba(76, 175, 80, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    position: relative;
+    overflow: hidden;
+}
+
+.otac-main-display::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        #4CAF50 0%, #2E7D32 50%, #4CAF50 100%);
+    background-size: 200% 100%;
+    animation: codeDisplayGlow 4s ease-in-out infinite;
+}
+
+@keyframes codeDisplayGlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.code-label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #2E7D32;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.code-input-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+}
+
+.otac-code-wrapper {
+    flex: 0 1 auto;
+}
+
+.otac-code-input {
+    font-size: 2.4rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.35em !important;
+    text-align: center !important;
+    color: #1B5E20 !important;
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.98) 0%, 
+        rgba(248, 255, 248, 0.95) 100%) !important;
+    border: 2px solid rgba(76, 175, 80, 0.4) !important;
+    border-radius: 1rem !important;
+    padding: 1.25rem 1.75rem !important;
+    min-height: 90px !important;
+    max-width: 320px !important;
+    width: 100% !important;
+    box-shadow: inset 0 2px 8px rgba(76, 175, 80, 0.15),
+                0 4px 16px rgba(76, 175, 80, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
+}
+
+.otac-code-input:focus {
+    outline: none !important;
+    border-color: #4CAF50 !important;
+    box-shadow: inset 0 2px 6px rgba(76, 175, 80, 0.1), 
+                0 0 0 3px rgba(76, 175, 80, 0.2) !important;
+}
+
+/* FIXED: Copy button container for proper spacing */
+.copy-button-container {
+    margin: 1.5rem 0;
+    position: relative;
+    z-index: 1;
+}
+
+/* FIXED: Simplified copy-button base class to avoid conflicts */
+.copy-button {
+    background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%) !important;
+    border: none !important;
+    border-radius: 0.75rem !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    color: white !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 4px 16px rgba(46, 125, 50, 0.25);
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.copy-button:hover {
+    background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46, 125, 50, 0.4);
+}
+
+.copy-button:active {
+    transform: translateY(0px);
+}
+
+.copy-button.copied {
+    background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%) !important;
+    animation: copyFeedback 0.8s ease-out;
+}
+
+@keyframes copyFeedback {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* ====== ENHANCED PRIMARY COPY BUTTON ====== */
+/* FIXED: Professional copy button with improved spacing and no duplication */
+.primary-copy-btn {
+    /* Clear positioning to avoid duplication issues */
+    position: relative !important;
+    
+    /* Proper sizing */
+    min-width: 180px !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    text-transform: none !important;
+    letter-spacing: 0.02em !important;
+    
+    /* Better spacing and alignment */
+    padding: 0.75rem 1.25rem !important;
+    border-radius: 0.75rem !important;
+    margin: 0 auto !important;
+    
+    /* Enhanced shadow for better depth */
+    box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3),
+                0 3px 10px rgba(46, 125, 50, 0.2) !important;
+    
+    /* Proper icon spacing */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    
+    /* Ensure proper line height and no overflow */
+    line-height: 1.4 !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+}
+
+.primary-copy-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 28px rgba(46, 125, 50, 0.4),
+                0 4px 14px rgba(46, 125, 50, 0.25) !important;
+}
+
+.primary-copy-btn:active {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 16px rgba(46, 125, 50, 0.35),
+                0 2px 8px rgba(46, 125, 50, 0.2) !important;
+}
+
+.primary-copy-btn.copied {
+    background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%) !important;
+    transform: scale(1.05) translateY(-1px) !important;
+    animation: primaryCopySuccess 0.8s ease-out;
+    
+    /* Ensure icon spacing is maintained when copied */
+    gap: 0.5rem !important;
+}
+
+/* Copy button icon styling */
+.primary-copy-btn i {
+    font-size: 1rem !important;
+    flex-shrink: 0;
+}
+
+/* Copy button text styling */
+.primary-copy-btn .copy-text {
+    font-weight: 700 !important;
+    flex-grow: 0;
+    white-space: nowrap;
+}
+
+@keyframes primaryCopySuccess {
+    0% { 
+        transform: scale(1) translateY(-2px);
+        box-shadow: 0 8px 28px rgba(46, 125, 50, 0.4);
+    }
+    30% { 
+        transform: scale(1.1) translateY(-3px);
+        box-shadow: 0 12px 35px rgba(76, 175, 80, 0.5);
+    }
+    60% { 
+        transform: scale(1.08) translateY(-2px);
+        box-shadow: 0 10px 32px rgba(76, 175, 80, 0.45);
+    }
+    100% { 
+        transform: scale(1.05) translateY(-1px);
+        box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+    }
+}
+
+/* Integrated Timing Section */
+.timing-section {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    border: 1px solid rgba(76, 175, 80, 0.1);
+}
+
+.expiry-info {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #2E7D32;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.expiry-label {
+    color: #4A5568;
+}
+
+.expiry-time {
+    font-weight: 700;
+    color: #2E7D32;
+}
+
+.countdown-display .alert {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(229, 255, 229, 0.3) 100%) !important;
+    border: 1px solid rgba(76, 175, 80, 0.2) !important;
+    color: #2E7D32 !important;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.countdown-display .alert-warning {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 248, 225, 0.5) 100%) !important;
+    border: 1px solid rgba(255, 193, 7, 0.3) !important;
+    color: #E65100 !important;
+}
+
+.countdown-display .alert-danger {
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.1) 0%, rgba(255, 235, 238, 0.5) 100%) !important;
+    border: 1px solid rgba(244, 67, 54, 0.3) !important;
+    color: #C62828 !important;
+}
+
+/* Enhanced Security Guidelines Section */
+.security-guidelines-section {
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.8) 0%, 
+        rgba(248, 252, 255, 0.9) 100%);
+    border-radius: 1rem;
+    padding: 2rem;
+    border: 1px solid rgba(76, 175, 80, 0.15);
+    box-shadow: 0 4px 20px rgba(76, 175, 80, 0.06);
+    position: relative;
+    overflow: hidden;
+}
+
+.security-guidelines-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        #4CAF50 0%, #2196F3 50%, #4CAF50 100%);
+    background-size: 200% 100%;
+    animation: securityGlow 6s ease-in-out infinite;
+}
+
+@keyframes securityGlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.critical-notice {
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.95) 0%, 
+        rgba(248, 255, 248, 0.9) 100%);
+    border-radius: 0.75rem;
+    padding: 1.75rem;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+    border-left: 5px solid #4CAF50;
+    box-shadow: 0 6px 25px rgba(76, 175, 80, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.notice-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.notice-icon {
+    font-size: 1.25rem;
+    color: #2E7D32;
+}
+
+.notice-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #1B5E20;
+    margin: 0;
+    letter-spacing: -0.01em;
+    text-shadow: 0 1px 2px rgba(27, 94, 32, 0.1);
+}
+
+.notice-content {
+    margin-top: 1rem;
+}
+
+.guideline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.do-item {
+    background: linear-gradient(135deg, 
+        rgba(76, 175, 80, 0.08) 0%, 
+        rgba(139, 195, 74, 0.06) 100%);
+    border: 1px solid rgba(76, 175, 80, 0.2);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.08);
+}
+
+.do-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #4CAF50 0%, #66BB6A 100%);
+}
+
+.dont-item {
+    background: linear-gradient(135deg, 
+        rgba(255, 193, 7, 0.08) 0%, 
+        rgba(255, 235, 59, 0.06) 100%);
+    border: 1px solid rgba(255, 193, 7, 0.2);
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.08);
+}
+
+.dont-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #FF9800 0%, #FFC107 100%);
+}
+
+.guideline-icon {
+    font-size: 1.1rem;
+    margin-top: 0.125rem;
+    flex-shrink: 0;
+}
+
+.guideline-text {
+    flex: 1;
+}
+
+.guideline-text strong {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #2E7D32;
+}
+
+.guideline-list {
+    margin: 0;
+    padding-left: 1rem;
+    list-style: none;
+}
+
+.guideline-list li {
+    position: relative;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #37474F;
+    font-weight: 500;
+    padding-left: 0.5rem;
+}
+
+.guideline-list li::before {
+    content: '•';
+    position: absolute;
+    left: -0.75rem;
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.dont-item .guideline-list li::before {
+    color: #FF9800;
+}
+
+/* Enhanced responsive improvements for OTAC modals */
+@media (max-width: 768px) {
+    .otac-success-container {
+        padding: 1.5rem;
+        margin: 0 -0.5rem;
+    }
+    
+    .success-title {
+        font-size: 1.5rem;
+    }
+    
+    .code-input-group {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .otac-code-input {
+        font-size: 1.8rem !important;
+        letter-spacing: 0.3em !important;
+        max-width: 100% !important;
+        min-height: 70px !important;
+    }
+    
+    .copy-button {
+        width: 100%;
+        padding: 0.875rem 1.25rem !important;
+    }
+    
+    .security-guidelines-section {
+        margin: 0 -0.5rem;
+    }
+    
+    .guideline-item {
+        margin-bottom: 0.75rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .otac-success-container {
+        padding: 1rem;
+        border-radius: 0.75rem;
+        margin: 0;
+    }
+    
+    .success-title {
+        font-size: 1.4rem;
+        line-height: 1.3;
+        margin-bottom: 1rem;
+    }
+    
+    .success-subtitle {
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    
+    .otac-code-input {
+        font-size: 1.8rem !important;
+        letter-spacing: 0.3em !important;
+        padding: 1rem 0.75rem !important;
+        min-height: 70px !important;
+        max-width: 100% !important;
+    }
+    
+    .primary-copy-btn {
+        width: 100% !important;
+        min-width: auto !important;
+        padding: 1rem 1.5rem !important;
+        font-size: 1.1rem !important;
+        margin-top: 1rem;
+    }
+    
+    .modal-title {
+        font-size: 1.2rem !important;
+        line-height: 1.3;
+    }
+    
+    .notice-content .row {
+        margin: 0;
+        gap: 0.75rem;
+    }
+    
+    .notice-content .col-md-6 {
+        padding: 0;
+        margin-bottom: 0.75rem;
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
+    .guideline-text strong {
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .guideline-list li {
+        font-size: 0.9rem;
+        margin-bottom: 0.4rem;
+    }
+    
+    .modal-footer {
+        padding: 1rem;
+        gap: 0.75rem !important;
+    }
+    
+    .modal-footer .btn-lg {
+        min-height: 48px;
+        font-size: 0.95rem;
+    }
+}
+
+/* Extra small screens (< 400px) */
+@media (max-width: 399px) {
+    .modal-dialog {
+        margin: 0.25rem;
+        max-width: calc(100% - 0.5rem);
+    }
+    
+    .otac-code-input {
+        font-size: 1.6rem !important;
+        letter-spacing: 0.25em !important;
+        padding: 0.875rem 0.5rem !important;
+        min-height: 65px !important;
+    }
+    
+    .primary-copy-btn {
+        font-size: 1rem !important;
+        padding: 0.875rem 1.25rem !important;
+    }
+    
+    .modal-header.modern-modal-header {
+        padding: 0.875rem 1rem;
+    }
+    
+    .modal-body {
+        padding: 1rem 0.75rem;
+    }
+    
+    .security-guidelines-section {
+        padding: 1.25rem;
+        margin: 0;
+    }
+    
+    .critical-notice {
+        padding: 1.25rem;
+    }
+    
+    .guideline-item {
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .modal-footer {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 0.875rem;
+    }
+    
+    .modal-footer .btn-lg {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    .modal-footer .btn-lg:last-child {
+        margin-bottom: 0;
+    }
+}
+
+/* Touch-friendly enhancements */
+@media (hover: none) and (pointer: coarse) {
+    .btn-success {
+        min-height: 44px;
+        min-width: 44px;
+        font-size: 0.95rem;
+    }
+    
+    .primary-copy-btn {
+        min-height: 48px !important;
+        font-size: 1rem !important;
+        letter-spacing: 0.02em !important;
+    }
+    
+    .btn-success:active {
+        transform: scale(0.95) !important;
+        transition: transform 0.1s ease;
+    }
+    
+    /* Ensure close button is touch-friendly but properly sized */
+    .modal-header .btn-close.otac-close-btn {
+        min-height: 32px !important;
+        min-width: 32px !important;
+        width: 32px !important;
+        height: 32px !important;
+        touch-action: manipulation;
+    }
+    
+    /* Ensure touch targets are accessible */
+    .modal-footer .btn {
+        min-height: 44px;
+        min-width: 44px;
+        touch-action: manipulation;
+    }
+    
+    /* Improve touch scrolling */
+    .modal-body {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .otac-code-input {
+        border: 3px solid #000000 !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+    
+    .btn-success, 
+    .primary-copy-btn {
+        border: 3px solid #000000 !important;
+        background: #000000 !important;
+        color: #ffffff !important;
+        box-shadow: none !important;
+    }
+    
+    .btn-success:hover,
+    .primary-copy-btn:hover {
+        background: #333333 !important;
+        border-color: #333333 !important;
+    }
+    
+    .modal-header.modern-modal-header {
+        background: #000000 !important;
+        color: #ffffff !important;
+    }
+    
+    .security-guidelines-section,
+    .critical-notice {
+        border: 2px solid #000000 !important;
+        background: #ffffff !important;
+    }
+    
+    .guideline-item {
+        border: 1px solid #000000 !important;
+        background: #f8f9fa !important;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .modal-header.modern-modal-header::after,
+    .modal-header.modern-modal-header::before,
+    .otac-main-display::before,
+    .security-guidelines-section::before,
+    .btn-success.copied,
+    .primary-copy-btn.copied,
+    .success-icon-container {
+        animation: none !important;
+    }
+    
+    .btn-success,
+    .primary-copy-btn,
+    .copy-button {
+        transition: none !important;
+    }
+    
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Enhanced Focus Management and Accessibility */
+.modal:focus {
+    outline: none;
+}
+
+.modal-content:focus-within {
+    box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.5),
+                0 10px 40px rgba(0,0,0,0.15);
+}
+
+/* Screen reader enhancements */
+.sr-only-focusable:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+}
+
+/* ====== BOOTSTRAP 5 CLOSE BUTTON COMPATIBILITY ====== */
+/* Ensure proper Bootstrap 5 btn-close functionality with correct SVG */
+.btn-close {
+    --bs-btn-close-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e");
+}
+
+.btn-close-white {
+    --bs-btn-close-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e");
+}
+
+/* FIXED: Ensure Bootstrap 5 btn-close-white handles the white styling properly */
+
+/* Override any conflicting styles and ensure the close button is visible */
+.modal-header .btn-close.otac-close-btn {
+    /* Let Bootstrap handle the background image */
+    background-image: var(--bs-btn-close-bg) !important;
+    
+    /* Ensure the X is visible and properly sized */
+    background-size: 1.2em !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    
+    /* Remove any filters that might hide the X */
+    filter: none !important;
+    
+    /* Ensure full opacity for maximum visibility */
+    opacity: 1 !important;
+}
+
+.modal-header .btn-close.otac-close-btn:hover {
+    /* Maintain visibility on hover */
+    opacity: 1 !important;
+    background-image: var(--bs-btn-close-bg) !important;
+}
+
+.modal-header .btn-close.otac-close-btn:focus {
+    /* Maintain visibility on focus */
+    opacity: 1 !important;
+    background-image: var(--bs-btn-close-bg) !important;
+}
+
+.modal-header .btn-close.otac-close-btn::before {
+    display: none !important;
+}
+
+/* ====== CRITICAL FIX: MAXIMUM SPECIFICITY CLOSE BUTTON SIZE ====== */
+/* Override button-size-fixes.css which loads AFTER this file */
+html body .modal .modal-dialog .modal-content .modal-header .btn-close.otac-close-btn,
+html body .modal .modal-dialog .modal-content .modal-header .btn-close.btn-close-white.otac-close-btn {
+    /* FORCE 32px size with maximum specificity and importance */
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
+    
+    /* Prevent any padding that might make it appear larger */
+    padding: 0.375rem !important;
+    
+    /* Ensure it doesn't flex or grow */
+    flex: none !important;
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    
+    /* Lock the box model */
+    box-sizing: border-box !important;
+}
+
+/* Override touch device rules from button-size-fixes.css */
+@media (hover: none) and (pointer: coarse) {
+    html body .modal .modal-dialog .modal-content .modal-header .btn-close.otac-close-btn {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        min-height: 32px !important;
+        max-width: 32px !important;
+        max-height: 32px !important;
+        padding: 0.375rem !important;
+    }
+}
+
+/* Override all responsive breakpoints from button-size-fixes.css */
+@media (max-width: 768px) {
+    html body .modal .modal-dialog .modal-content .modal-header .btn-close.otac-close-btn {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        min-height: 32px !important;
+        max-width: 32px !important;
+        max-height: 32px !important;
+        padding: 0.375rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    html body .modal .modal-dialog .modal-content .modal-header .btn-close.otac-close-btn {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        min-height: 32px !important;
+        max-width: 32px !important;
+        max-height: 32px !important;
+        padding: 0.375rem !important;
+    }
+}
+
+/* ====== ADDITIONAL CLOSE BUTTON VISIBILITY FIXES ====== */
+/* Ensure close button is always visible with fallback styles */
+.modal-header.bg-success .btn-close.otac-close-btn,
+.modal-header.modern-modal-header.bg-success .btn-close.otac-close-btn {
+    /* Maximum visibility approach */
+    opacity: 1 !important;
+    
+    /* Strong white background for better contrast */
+    background: rgba(255, 255, 255, 0.3) !important;
+    border: 2px solid rgba(255, 255, 255, 0.5) !important;
+    
+    /* Ensure the X icon is always white */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") !important;
+    background-size: 1.2em !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    
+    /* Strong shadow for definition */
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+.modal-header.bg-success .btn-close.otac-close-btn:hover,
+.modal-header.modern-modal-header.bg-success .btn-close.otac-close-btn:hover {
+    background: rgba(255, 255, 255, 0.4) !important;
+    border-color: rgba(255, 255, 255, 0.7) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+.modal-header.bg-success .btn-close.otac-close-btn:focus,
+.modal-header.modern-modal-header.bg-success .btn-close.otac-close-btn:focus {
+    background: rgba(255, 255, 255, 0.5) !important;
+    border-color: rgba(255, 255, 255, 0.8) !important;
+    outline: 2px solid rgba(255, 255, 255, 0.9) !important;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ARIA live regions for dynamic content */
+.otac-success-container[role="region"] {
+    position: relative;
+}
+
+.otac-success-container::after {
+    content: attr(aria-label);
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+/* Enhanced keyboard navigation */
+.modal .btn:focus,
+.modal input:focus,
+.modal button:focus {
+    z-index: 1060;
+    position: relative;
+}
+
+/* Color contrast improvements */
+.success-subtitle {
+    color: #2D3748 !important; /* Improved contrast ratio */
+}
+
+.guideline-list li {
+    color: #2D3748 !important; /* Improved contrast ratio */
+}
+
+.expiry-label {
+    color: #2D3748 !important; /* Improved contrast ratio */
+}
+
+/* Focus trap styling */
+.modal-dialog {
+    position: relative;
+}
+
+.modal-dialog::before,
+.modal-dialog::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ====== ULTIMATE FIX: MAXIMUM CSS SPECIFICITY OVERRIDE ====== */
+/* This rule has the highest possible specificity to override button-size-fixes.css */
+html[data-admin-theme="modern"] body.admin-body .modal .modal-dialog .modal-content .modal-header .btn-close.otac-close-btn,
+html[data-admin-theme="modern"] body.admin-body .modal .modal-dialog .modal-content .modal-header .btn-close.btn-close-white.otac-close-btn {
+    /* NUCLEAR OPTION: Force 32px with maximum CSS specificity */
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
+    
+    /* Lock all box model properties */
+    padding: 0.375rem !important;
+    margin: 0 !important;
+    border-width: 2px !important;
+    
+    /* Prevent flexbox interference */
+    flex: 0 0 32px !important;
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    flex-basis: 32px !important;
+    
+    /* Ensure box-sizing doesn't interfere */
+    box-sizing: border-box !important;
+    
+    /* Debug outline to verify this rule is working - ENABLE THIS TO TEST */
+    outline: 2px solid lime !important;
+}
+
+/* All responsive overrides with maximum specificity */
+@media (hover: none) and (pointer: coarse) {
+    html[data-admin-theme="modern"] body.admin-body .modal .modal-dialog .modal-content .modal-header .btn-close.otac-close-btn {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        min-height: 32px !important;
+        max-width: 32px !important;
+        max-height: 32px !important;
+        padding: 0.375rem !important;
+        flex: 0 0 32px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    html[data-admin-theme="modern"] body.admin-body .modal .modal-dialog .modal-content .modal-header .btn-close.otac-close-btn {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        min-height: 32px !important;
+        max-width: 32px !important;
+        max-height: 32px !important;
+        padding: 0.375rem !important;
+        flex: 0 0 32px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    html[data-admin-theme="modern"] body.admin-body .modal .modal-dialog .modal-content .modal-header .btn-close.otac-close-btn {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        min-height: 32px !important;
+        max-width: 32px !important;
+        max-height: 32px !important;
+        padding: 0.375rem !important;
+        flex: 0 0 32px !important;
+    }
+}

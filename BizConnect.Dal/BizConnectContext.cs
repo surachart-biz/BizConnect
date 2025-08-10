@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using BizConnect.Dal.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace BizConnect.Dal.Models;
+namespace BizConnect.Dal;
 
 public partial class BizConnectContext : DbContext
 {
+    public BizConnectContext()
+    {
+    }
+
     public BizConnectContext(DbContextOptions<BizConnectContext> options)
         : base(options)
     {
@@ -27,8 +32,6 @@ public partial class BizConnectContext : DbContext
 
     public virtual DbSet<VBranchPerformance> VBranchPerformances { get; set; }
 
-    public virtual DbSet<VDashboardStat> VDashboardStats { get; set; }
-
     public virtual DbSet<VDatabaseSizeMonitor> VDatabaseSizeMonitors { get; set; }
 
     public virtual DbSet<VOtacTrend> VOtacTrends { get; set; }
@@ -39,11 +42,13 @@ public partial class BizConnectContext : DbContext
 
     public virtual DbSet<VRecentActivity> VRecentActivities { get; set; }
 
-    public virtual DbSet<VRecentActivity1> VRecentActivities1 { get; set; }
-
     public virtual DbSet<VSystemHealthStat> VSystemHealthStats { get; set; }
 
     public virtual DbSet<VwOtacLifecycleStat> VwOtacLifecycleStats { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseNpgsql("Host=localhost;Database=bizconnect_test;Username=postgres;Password=bizitadmin");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -86,6 +91,8 @@ public partial class BizConnectContext : DbContext
             entity.HasIndex(e => e.IsActive, "IX_Branch_IsActive");
 
             entity.HasIndex(e => e.Name, "IX_Branch_Name");
+
+            entity.HasIndex(e => new { e.NameEn, e.NameTh, e.Name, e.IsActive }, "idx_branch_multilang_names").HasFilter("(\"IsActive\" = true)");
 
             entity.Property(e => e.BranchId).HasComment("Primary key, auto-incrementing branch identifier");
             entity.Property(e => e.Address).HasComment("Default physical address (fallback)");
@@ -175,13 +182,7 @@ public partial class BizConnectContext : DbContext
 
             entity.HasIndex(e => e.OtacCode, "UQ_KbankOddRegistration_OtacCode").IsUnique();
 
-            entity.HasIndex(e => new { e.BranchId, e.CreatedAt }, "idx_kbank_branch_date");
-
             entity.HasIndex(e => new { e.BranchId, e.Status, e.CreatedAt }, "idx_kbank_branch_performance_modern").HasFilter("((\"BranchId\" IS NOT NULL) AND (\"Status\" IS NOT NULL))");
-
-            entity.HasIndex(e => new { e.CreatedAt, e.Status }, "idx_kbank_created_status");
-
-            entity.HasIndex(e => new { e.OtacState, e.CreatedAt }, "idx_kbank_otac_state");
 
             entity.HasIndex(e => new { e.Status, e.CreatedAt }, "idx_kbank_status_created_modern_ui")
                 .IsDescending(false, true)
@@ -367,23 +368,6 @@ public partial class BizConnectContext : DbContext
             entity.Property(e => e.WeekCount).HasColumnName("week_count");
         });
 
-        modelBuilder.Entity<VDashboardStat>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("v_dashboard_stats");
-
-            entity.Property(e => e.ActiveOtac).HasColumnName("active_otac");
-            entity.Property(e => e.MonthSuccess).HasColumnName("month_success");
-            entity.Property(e => e.MonthTotal).HasColumnName("month_total");
-            entity.Property(e => e.OtacGenerated).HasColumnName("otac_generated");
-            entity.Property(e => e.OtacUsed).HasColumnName("otac_used");
-            entity.Property(e => e.OtacValidated).HasColumnName("otac_validated");
-            entity.Property(e => e.TodayFailed).HasColumnName("today_failed");
-            entity.Property(e => e.TodaySuccess).HasColumnName("today_success");
-            entity.Property(e => e.TodayTotal).HasColumnName("today_total");
-        });
-
         modelBuilder.Entity<VDatabaseSizeMonitor>(entity =>
         {
             entity
@@ -456,6 +440,7 @@ public partial class BizConnectContext : DbContext
             entity.Property(e => e.BranchCode)
                 .HasMaxLength(10)
                 .HasColumnName("branch_code");
+            entity.Property(e => e.BranchName).HasComment("Computed branch name column that prefers English (NameEn), falls back to Thai (NameTh), then \"Unknown\". \nAdded for DashboardService.cs compatibility.");
             entity.Property(e => e.BranchNameEn)
                 .HasMaxLength(100)
                 .HasColumnName("branch_name_en");
@@ -469,20 +454,6 @@ public partial class BizConnectContext : DbContext
             entity.Property(e => e.OtacCode).HasMaxLength(8);
             entity.Property(e => e.OtacState).HasMaxLength(20);
             entity.Property(e => e.PrioritySort).HasColumnName("priority_sort");
-            entity.Property(e => e.Status).HasMaxLength(20);
-        });
-
-        modelBuilder.Entity<VRecentActivity1>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("v_recent_activity");
-
-            entity.Property(e => e.BranchName).HasMaxLength(100);
-            entity.Property(e => e.CreatedBy).HasMaxLength(100);
-            entity.Property(e => e.ExternalReference).HasMaxLength(50);
-            entity.Property(e => e.OtacCode).HasMaxLength(8);
-            entity.Property(e => e.OtacState).HasMaxLength(20);
             entity.Property(e => e.Status).HasMaxLength(20);
         });
 

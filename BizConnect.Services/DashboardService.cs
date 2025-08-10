@@ -1,6 +1,7 @@
 using BizConnect.Dal;
 using BizConnect.Dal.Models;
 using BizConnect.Services.Interfaces;
+using BizConnect.Services.Caching;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Data;
@@ -14,15 +15,18 @@ public class DashboardService : IDashboardService
 {
     private readonly BizConnectContext _context;
     private readonly IUserService _userService;
+    private readonly ICacheService _cacheService;
     private readonly ILogger<DashboardService> _logger;
 
     public DashboardService(
         BizConnectContext context,
         IUserService userService,
+        ICacheService cacheService,
         ILogger<DashboardService> logger)
     {
         _context = context;
         _userService = userService;
+        _cacheService = cacheService;
         _logger = logger;
     }
 
@@ -97,41 +101,73 @@ public class DashboardService : IDashboardService
     }
 
     /// <summary>
-    /// Gets real-time dashboard statistics using optimized database views
+    /// Gets real-time dashboard statistics using optimized database views with caching
     /// </summary>
     /// <returns>Real-time dashboard metrics</returns>
     public async Task<RealTimeDashboardStats> GetRealTimeStatsAsync()
     {
-        try
-        {
-            _logger.LogInformation("Fetching real-time dashboard statistics from optimized views");
+        const string cacheKey = "dashboard:realtime:stats";
+        const int cacheMinutes = 2; // Short cache for real-time data
 
-            var stats = await _context.VRealtimeDashboardStats.FirstOrDefaultAsync();
-            
-            if (stats == null)
+        return await _cacheService.GetOrCreateAsync(cacheKey, async () =>
+        {
+            try
             {
-                _logger.LogWarning("No dashboard statistics found in optimized view");
-                return new RealTimeDashboardStats();
+                _logger.LogInformation("Fetching real-time dashboard statistics from optimized views");
+
+                // Use cached database function for better performance
+                var result = await _context.Database
+                    .SqlQueryRaw<string>("SELECT get_cached_dashboard_stats()::text")
+                    .FirstOrDefaultAsync();
+
+                if (string.IsNullOrEmpty(result))
+                {
+                    _logger.LogWarning("No dashboard statistics returned from cached function");
+                    return new RealTimeDashboardStats();
+                }
+
+                // Parse JSON result from database function
+                var statsJson = System.Text.Json.JsonDocument.Parse(result);
+                var root = statsJson.RootElement;
+
+                return new RealTimeDashboardStats
+                {
+                    TodayTotal = root.GetProperty("registrations_today").GetInt32(),
+                    TodaySuccess = root.GetProperty("approved_registrations").GetInt32(),
+                    TodayFailed = root.GetProperty("rejected_registrations").GetInt32(),
+                    MonthTotal = root.GetProperty("registrations_month").GetInt32(),
+                    MonthSuccess = root.GetProperty("approved_registrations").GetInt32(),
+                    OtacGenerated = root.GetProperty("active_otac_codes").GetInt32(),
+                    OtacValidated = root.GetProperty("validated_otac_codes").GetInt32(),
+                    OtacUsed = root.GetProperty("used_otac_codes").GetInt32(),
+                    ActiveOtac = root.GetProperty("active_otac_codes").GetInt32()
+                };
             }
-
-            return new RealTimeDashboardStats
+            catch (Exception ex)
             {
-                TodayTotal = (int)(stats.RegistrationsToday ?? 0),
-                TodaySuccess = (int)(stats.ApprovedRegistrations ?? 0),
-                TodayFailed = (int)(stats.RejectedRegistrations ?? 0),
-                MonthTotal = (int)(stats.RegistrationsWeek ?? 0),
-                MonthSuccess = (int)(stats.ApprovedRegistrations ?? 0),
-                OtacGenerated = (int)(stats.ActiveOtacCodes ?? 0),
-                OtacValidated = (int)(stats.ValidatedOtacCodes ?? 0),
-                OtacUsed = (int)(stats.ValidatedOtacCodes ?? 0),
-                ActiveOtac = (int)(stats.ActiveOtacCodes ?? 0)
-            };
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to fetch real-time dashboard statistics");
-            throw;
-        }
+                _logger.LogError(ex, "Failed to fetch real-time dashboard statistics");
+                
+                // Fallback to direct view query
+                var stats = await _context.VRealtimeDashboardStats.FirstOrDefaultAsync();
+                if (stats == null)
+                {
+                    return new RealTimeDashboardStats();
+                }
+
+                return new RealTimeDashboardStats
+                {
+                    TodayTotal = (int)(stats.RegistrationsToday ?? 0),
+                    TodaySuccess = (int)(stats.ApprovedRegistrations ?? 0),
+                    TodayFailed = (int)(stats.RejectedRegistrations ?? 0),
+                    MonthTotal = (int)(stats.RegistrationsWeek ?? 0),
+                    MonthSuccess = (int)(stats.ApprovedRegistrations ?? 0),
+                    OtacGenerated = (int)(stats.ActiveOtacCodes ?? 0),
+                    OtacValidated = (int)(stats.ValidatedOtacCodes ?? 0),
+                    OtacUsed = (int)(stats.ValidatedOtacCodes ?? 0),
+                    ActiveOtac = (int)(stats.ActiveOtacCodes ?? 0)
+                };
+            }
+        }, TimeSpan.FromMinutes(cacheMinutes));
     }
 
     /// <summary>
@@ -160,7 +196,7 @@ public class DashboardService : IDashboardService
                 Status = a.Status,
                 CreatedAt = a.CreatedAt ?? DateTime.MinValue,
                 UpdatedAt = a.UpdatedAt,
-                BranchName = a.BranchName ?? string.Empty,
+                BranchName = a.BranchNameEn ?? string.Empty,
                 CreatedBy = a.GeneratedByUsername ?? string.Empty
             }).ToList();
         }

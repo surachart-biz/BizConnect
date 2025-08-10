@@ -1,0 +1,190 @@
+/**
+ * Button Size Fixes for BizConnect Application
+ * 
+ * Ensures consistent, professional button sizing across all interfaces
+ * while maintaining accessibility standards (minimum 44px touch targets)
+ */
+
+/* ====== GENERAL BUTTON SIZE CONSISTENCY ====== */
+
+/* Standard buttons - slightly smaller for better proportions */
+.btn {
+    min-height: 38px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+/* Large buttons - reduced from oversized to professional */
+.btn-lg {
+    min-height: 44px;
+    padding: 0.65rem 1.25rem;
+    font-size: 1rem;
+}
+
+/* Small buttons - for secondary actions */
+.btn-sm {
+    min-height: 32px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+}
+
+/* ====== MODAL SPECIFIC BUTTON FIXES ====== */
+
+/* Modal header close buttons - consistent sizing */
+.modal-header .btn-close {
+    width: 36px;
+    height: 36px;
+    padding: 0.5rem;
+}
+
+/* Modal footer buttons - professional sizing */
+.modal-footer .btn {
+    min-height: 42px;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+}
+
+.modal-footer .btn-lg {
+    min-height: 44px;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.95rem;
+}
+
+/* ====== RESPONSIVE BUTTON ADJUSTMENTS ====== */
+
+@media (max-width: 768px) {
+    /* Slightly smaller buttons on mobile while maintaining touch targets */
+    .btn {
+        min-height: 42px;
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .btn-lg {
+        min-height: 44px;
+        padding: 0.7rem 1.2rem;
+        font-size: 0.95rem;
+    }
+    
+    .modal-header .btn-close {
+        width: 34px;
+        height: 34px;
+        padding: 0.45rem;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Very small screens - maintain minimum touch targets */
+    .btn {
+        min-height: 44px;
+        padding: 0.65rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .btn-lg {
+        min-height: 46px;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.9rem;
+    }
+    
+    .modal-header .btn-close {
+        width: 32px;
+        height: 32px;
+        padding: 0.4rem;
+    }
+}
+
+/* ====== ACCESSIBILITY AND TOUCH TARGETS ====== */
+
+/* Ensure minimum touch targets for accessibility */
+@media (hover: none) and (pointer: coarse) {
+    .btn {
+        min-height: 44px;
+        min-width: 44px;
+        touch-action: manipulation;
+    }
+    
+    .btn-sm {
+        min-height: 40px;
+        min-width: 40px;
+    }
+    
+    .modal-header .btn-close {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* ====== HIGH CONTRAST MODE SUPPORT ====== */
+
+@media (prefers-contrast: high) {
+    .btn {
+        border-width: 2px;
+        font-weight: 600;
+    }
+    
+    .modal-header .btn-close {
+        border-width: 2px;
+    }
+}
+
+/* ====== SPECIFIC COMPONENT FIXES ====== */
+
+/* Copy buttons in OTAC modals */
+.primary-copy-btn {
+    min-width: 160px !important;
+    min-height: 44px !important;
+    padding: 0.7rem 1.2rem !important;
+    font-size: 0.95rem !important;
+}
+
+/* Form submit buttons */
+.form-actions .btn {
+    min-height: 42px;
+    padding: 0.65rem 1.5rem;
+}
+
+/* Table action buttons */
+.table .btn {
+    min-height: 32px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+}
+
+/* Header action buttons */
+.header-actions .btn {
+    min-height: 38px;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+}
+
+/* ====== ANIMATION AND TRANSITION CONSISTENCY ====== */
+
+/* Ensure all buttons have consistent hover effects */
+.btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* ====== FOCUS STYLES FOR ACCESSIBILITY ====== */
+
+.btn:focus,
+.btn:focus-visible {
+    outline: 2px solid #0066CC;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.25);
+}
+
+.modal-header .btn-close:focus,
+.modal-header .btn-close:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}

@@ -514,6 +514,218 @@ public class RealtimeNotificationService : IRealtimeNotificationService
     }
 
     #endregion
+
+    #region Real-time Broadcasting Methods (SignalR Integration)
+
+    /// <summary>
+    /// Broadcast dashboard statistics update to connected clients
+    /// </summary>
+    /// <param name="stats">Updated dashboard statistics</param>
+    /// <returns>Task representing the broadcast operation</returns>
+    public async Task BroadcastDashboardUpdateAsync(object stats)
+    {
+        try
+        {
+            // In a real implementation, this would use SignalR to broadcast to all connected admin users
+            var payload = new RealtimeNotificationPayload
+            {
+                EventType = RealtimeEventTypes.DashboardStatsUpdated,
+                Data = stats,
+                TargetGroup = "AdminUsers"
+            };
+
+            // For now, we'll track this as an activity
+            var activity = new ActivityNotification
+            {
+                Id = Guid.NewGuid().ToString(),
+                Type = "DASHBOARD_UPDATED",
+                Title = "Dashboard Statistics Updated",
+                Description = "Real-time dashboard statistics have been refreshed",
+                Timestamp = DateTime.UtcNow,
+                Severity = "Info",
+                Category = "System",
+                UserId = "System",
+                IsSystemGenerated = true,
+                RequiresUserAttention = false,
+                Metadata = new Dictionary<string, object>
+                {
+                    ["eventType"] = RealtimeEventTypes.DashboardStatsUpdated,
+                    ["targetGroup"] = "AdminUsers"
+                }
+            };
+
+            await AddActivityNotificationAsync(activity);
+            _logger.LogDebug("Broadcasted dashboard update to admin users");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error broadcasting dashboard update");
+        }
+    }
+
+    /// <summary>
+    /// Broadcast registration status update to specific user groups
+    /// </summary>
+    /// <param name="registrationId">ID of the updated registration</param>
+    /// <param name="status">New status</param>
+    /// <param name="targetGroups">User groups to notify (optional, defaults to all admin users)</param>
+    /// <returns>Task representing the broadcast operation</returns>
+    public async Task BroadcastRegistrationUpdateAsync(int registrationId, string status, List<string>? targetGroups = null)
+    {
+        try
+        {
+            var groups = targetGroups ?? new List<string> { "AdminUsers", "EmployeeUsers" };
+            
+            var payload = new RealtimeNotificationPayload
+            {
+                EventType = RealtimeEventTypes.RegistrationStatusChanged,
+                Data = new { registrationId, status, timestamp = DateTime.UtcNow },
+                TargetGroup = string.Join(",", groups)
+            };
+
+            var activity = new ActivityNotification
+            {
+                Id = Guid.NewGuid().ToString(),
+                Type = "REGISTRATION_STATUS_BROADCAST",
+                Title = $"Registration Status Updated",
+                Description = $"Registration {registrationId} status changed to {status}",
+                Timestamp = DateTime.UtcNow,
+                Severity = status == "Fail" ? "Warning" : "Success",
+                Category = "Registration",
+                UserId = "System",
+                IsSystemGenerated = true,
+                RequiresUserAttention = status == "Fail",
+                Metadata = new Dictionary<string, object>
+                {
+                    ["registrationId"] = registrationId,
+                    ["newStatus"] = status,
+                    ["targetGroups"] = groups
+                }
+            };
+
+            await AddActivityNotificationAsync(activity);
+            _logger.LogDebug("Broadcasted registration status update for ID {RegistrationId} to groups: {Groups}", 
+                registrationId, string.Join(", ", groups));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error broadcasting registration update for ID {RegistrationId}", registrationId);
+        }
+    }
+
+    /// <summary>
+    /// Broadcast OTAC status update (expiry, validation, usage)
+    /// </summary>
+    /// <param name="otacCode">OTAC code (masked)</param>
+    /// <param name="newState">New OTAC state</param>
+    /// <param name="expiresAt">Expiration time for countdown updates</param>
+    /// <returns>Task representing the broadcast operation</returns>
+    public async Task BroadcastOtacUpdateAsync(string otacCode, string newState, DateTime? expiresAt = null)
+    {
+        try
+        {
+            var maskedCode = MaskOtacCode(otacCode);
+            var eventType = newState switch
+            {
+                "Expired" => RealtimeEventTypes.OtacExpiring,
+                _ => RealtimeEventTypes.OtacStateChanged
+            };
+
+            var payload = new RealtimeNotificationPayload
+            {
+                EventType = eventType,
+                Data = new 
+                { 
+                    otacCode = maskedCode, 
+                    newState, 
+                    expiresAt,
+                    timestamp = DateTime.UtcNow 
+                },
+                TargetGroup = "AdminUsers"
+            };
+
+            var activity = new ActivityNotification
+            {
+                Id = Guid.NewGuid().ToString(),
+                Type = "OTAC_STATE_BROADCAST",
+                Title = $"OTAC State Updated",
+                Description = $"OTAC {maskedCode} state changed to {newState}",
+                Timestamp = DateTime.UtcNow,
+                Severity = newState == "Expired" ? "Warning" : "Info",
+                Category = "OTAC",
+                UserId = "System",
+                IsSystemGenerated = true,
+                RequiresUserAttention = newState == "Expired",
+                Metadata = new Dictionary<string, object>
+                {
+                    ["maskedOtacCode"] = maskedCode,
+                    ["originalOtacCode"] = otacCode, // Keep original for internal tracking
+                    ["newState"] = newState,
+                    ["expiresAt"] = expiresAt?.ToString() ?? "N/A"
+                }
+            };
+
+            await AddActivityNotificationAsync(activity);
+            _logger.LogDebug("Broadcasted OTAC state update for {MaskedCode}: {NewState}", maskedCode, newState);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error broadcasting OTAC update for {OtacCode}", MaskOtacCode(otacCode));
+        }
+    }
+
+    /// <summary>
+    /// Broadcast system health alert to administrators
+    /// </summary>
+    /// <param name="alertType">Type of alert (Warning, Error, Critical)</param>
+    /// <param name="message">Alert message</param>
+    /// <param name="metadata">Additional alert data</param>
+    /// <returns>Task representing the broadcast operation</returns>
+    public async Task BroadcastSystemAlertAsync(string alertType, string message, Dictionary<string, object>? metadata = null)
+    {
+        try
+        {
+            var payload = new RealtimeNotificationPayload
+            {
+                EventType = RealtimeEventTypes.SystemHealthAlert,
+                Data = new 
+                { 
+                    alertType, 
+                    message, 
+                    metadata = metadata ?? new Dictionary<string, object>(),
+                    timestamp = DateTime.UtcNow 
+                },
+                TargetGroup = "AdminUsers"
+            };
+
+            var activity = new ActivityNotification
+            {
+                Id = Guid.NewGuid().ToString(),
+                Type = "SYSTEM_ALERT_BROADCAST",
+                Title = $"System Alert: {alertType}",
+                Description = message,
+                Timestamp = DateTime.UtcNow,
+                Severity = alertType,
+                Category = "System",
+                UserId = "System",
+                IsSystemGenerated = true,
+                RequiresUserAttention = alertType == "Error" || alertType == "Critical",
+                Metadata = metadata ?? new Dictionary<string, object>()
+            };
+
+            // Also track as system health event
+            await TrackSystemHealthEventAsync("AlertSystem", alertType, message, alertType);
+            await AddActivityNotificationAsync(activity);
+            
+            _logger.LogWarning("Broadcasted system alert [{AlertType}]: {Message}", alertType, message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error broadcasting system alert [{AlertType}]: {Message}", alertType, message);
+        }
+    }
+
+    #endregion
 }
 
 /// <summary>

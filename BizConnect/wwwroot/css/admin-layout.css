@@ -689,7 +689,7 @@ html {
     border: none;
     border-radius: var(--border-radius);
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     cursor: pointer;
     transition: var(--transition-fast);
     display: flex;
@@ -733,37 +733,275 @@ html {
     gap: 0.75rem;
 }
 
-/* Skip link accessibility - Properly hidden until focused */
+/* ====== MODAL HEADER ENHANCEMENTS ====== */
+/* Modern modal header styling with gradients and professional appearance */
+.modal-header {
+    position: relative;
+    overflow: hidden;
+    border: none;
+    padding: 1.5rem 2rem;
+    border-radius: 0.75rem 0.75rem 0 0;
+}
+
+/* Primary modal headers */
+.modal-header.bg-primary {
+    background: linear-gradient(135deg, #1976D2 0%, #1565C0 25%, #0D47A1 75%, #0A3A8B 100%) !important;
+    background-size: 200% 200%;
+    animation: subtleGradientShift 8s ease-in-out infinite;
+    box-shadow: 0 4px 20px rgba(25, 118, 210, 0.3);
+}
+
+/* Success modal headers */
+.modal-header.bg-success {
+    background: linear-gradient(135deg, #2E7D32 0%, #2E7D32 25%, #1B5E20 75%, #1B5E20 100%) !important;
+    background-size: 200% 200%;
+    animation: subtleGradientShift 8s ease-in-out infinite;
+    box-shadow: 0 4px 20px rgba(46, 125, 50, 0.3);
+}
+
+/* Enhanced modal headers with professional gradient overlay */
+.modal-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.1) 0%, 
+        transparent 35%, 
+        transparent 65%, 
+        rgba(0, 0, 0, 0.05) 100%);
+    pointer-events: none;
+}
+
+/* Subtle shimmer effect for modal headers */
+.modal-header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.15), 
+        transparent);
+    animation: modalHeaderShimmer 6s infinite;
+    pointer-events: none;
+}
+
+/* Modal title enhancements */
+.modal-header .modal-title {
+    position: relative;
+    z-index: 2;
+    font-weight: 700;
+    font-size: 1.35rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modal-header .modal-title i {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+/* Close button enhancements - General styling for all modals */
+.modal-header .btn-close:not(.otac-close-btn) {
+    position: relative;
+    z-index: 3;
+    filter: brightness(0) invert(1);
+    opacity: 0.8;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0.6rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-header .btn-close:not(.otac-close-btn):hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.modal-header .btn-close:not(.otac-close-btn):focus {
+    outline: 2px solid rgba(255, 255, 255, 0.6);
+    outline-offset: 2px;
+    background: rgba(255, 255, 255, 0.25);
+    opacity: 1;
+}
+
+.modal-header .btn-close:not(.otac-close-btn):active {
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* ====== SUCCESS ALERT ENHANCEMENTS ====== */
+/* Modern success alert styling with enhanced visual appeal */
+.alert-success {
+    position: relative;
+    background: linear-gradient(135deg, #E8F5E8 0%, #F1F8E9 100%) !important;
+    border: 1px solid rgba(76, 175, 80, 0.3) !important;
+    border-left: 5px solid #4CAF50 !important;
+    border-radius: 0.75rem !important;
+    color: #2E7D32 !important;
+    padding: 1.25rem 1.5rem !important;
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.15), 
+                0 2px 8px rgba(76, 175, 80, 0.1) !important;
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+}
+
+/* Success alert with enhanced icon */
+.alert-success i {
+    color: #2E7D32;
+    filter: drop-shadow(0 1px 2px rgba(46, 125, 50, 0.3));
+    font-size: 1.1em;
+}
+
+/* Success alert overlay pattern */
+.alert-success::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(76, 175, 80, 0.05) 0%, 
+        transparent 35%, 
+        transparent 65%, 
+        rgba(76, 175, 80, 0.03) 100%);
+    pointer-events: none;
+}
+
+/* Enhanced alert close button */
+.alert-success .btn-close {
+    filter: none;
+    opacity: 0.6;
+    color: #2E7D32;
+    background: rgba(76, 175, 80, 0.1);
+    border-radius: 50%;
+    padding: 0.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.alert-success .btn-close:hover {
+    opacity: 1;
+    background: rgba(76, 175, 80, 0.2);
+    transform: scale(1.1);
+}
+
+/* Large success alert for modals */
+.alert-success.modal-success-alert {
+    background: linear-gradient(135deg, #E3F2FD 0%, #E8F5E8 100%) !important;
+    border: none !important;
+    border-radius: 1rem !important;
+    padding: 2rem !important;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(76, 175, 80, 0.2) !important;
+}
+
+.alert-success.modal-success-alert .fa-check-circle {
+    color: #4CAF50;
+    filter: drop-shadow(0 2px 8px rgba(76, 175, 80, 0.3));
+    animation: successPulse 2s ease-in-out infinite;
+}
+
+.alert-success.modal-success-alert h4 {
+    color: #2E7D32;
+    font-weight: 700;
+    text-shadow: 0 1px 3px rgba(46, 125, 50, 0.1);
+    margin: 1rem 0 0.5rem;
+}
+
+.alert-success.modal-success-alert p {
+    color: #388E3C;
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+/* ====== ACCESSIBILITY - SKIP LINK IMPROVEMENTS ====== */
+/* Properly hidden skip link until focused - WCAG compliant */
 .skip-link {
     position: absolute;
-    left: -9999px;
-    top: 6px;
-    z-index: 9999;
+    top: -40px;
+    left: 6px;
+    z-index: 99999;
     color: white;
-    background: var(--kbank-green);
-    padding: 8px 16px;
+    background: linear-gradient(135deg, var(--kbank-green, #4CAF50) 0%, var(--kbank-green-dark, #388E3C) 100%);
+    padding: 0.75rem 1.25rem;
     text-decoration: none;
-    border-radius: 4px;
+    border-radius: 0 0 8px 8px;
     font-weight: 600;
     font-size: 0.9rem;
-    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(76, 175, 80, 0.4);
+    
+    /* Critical: Completely hide until focused */
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-10px);
+    transform: translateY(-100%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Ensure no visual artifacts */
+    clip: rect(1px, 1px, 1px, 1px);
+    clip-path: inset(50%);
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .skip-link:focus {
-    left: 6px;
+    /* Show the skip link when focused */
+    top: 0;
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
-    outline: 2px solid white;
+    
+    /* Reset clipping to make it visible */
+    clip: auto;
+    clip-path: none;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    white-space: normal;
+    
+    /* Styling when focused */
+    outline: 3px solid white;
     outline-offset: 2px;
+    color: white;
+    text-decoration: none;
+    
+    /* Enhanced focus state */
+    background: linear-gradient(135deg, var(--kbank-green-dark, #388E3C) 0%, var(--kbank-green, #4CAF50) 100%);
+    box-shadow: 0 6px 24px rgba(76, 175, 80, 0.5);
 }
 
 .skip-link:hover:focus {
-    background: var(--kbank-green-dark);
     transform: translateY(0) scale(1.05);
+    box-shadow: 0 8px 32px rgba(76, 175, 80, 0.6);
+}
+
+/* Ensure skip link works with keyboard navigation */
+.skip-link:focus-visible {
+    outline: 3px solid #FFD54F;
+    outline-offset: 3px;
 }
 
 /* Screen reader only content */
@@ -868,5 +1106,58 @@ html {
     to {
         opacity: 1;
         transform: translateX(0);
+    }
+}
+
+/* ====== MODAL AND ALERT ANIMATIONS ====== */
+/* Subtle gradient animation for modal headers */
+@keyframes subtleGradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Modal header shimmer effect */
+@keyframes modalHeaderShimmer {
+    0% { left: -100%; opacity: 0; }
+    50% { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
+}
+
+/* Success icon pulse animation */
+@keyframes successPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Alert slide-in animation */
+@keyframes alertSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.alert {
+    animation: alertSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Modal content enhanced entrance animation */
+.modal.show .modal-dialog {
+    animation: modalEnhancedEntrance 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalEnhancedEntrance {
+    0% {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
     }
 }

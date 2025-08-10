@@ -1,0 +1,716 @@
+/**
+ * ODD Registration Priority 2 Feature Enhancements
+ * CSS for advanced progressive loading, warnings, and error handling
+ */
+
+/* ==========================================================================
+   Progressive Loading Modal Styles
+   ========================================================================== */
+
+#otacProgressModal .modal-content {
+    border: none;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+}
+
+#otacProgressModal .modal-header {
+    border-bottom: none;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+#otacProgressModal .modal-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, 
+        transparent 30%, 
+        rgba(255, 255, 255, 0.1) 50%, 
+        transparent 70%);
+    animation: headerShimmer 3s ease infinite;
+}
+
+#otacProgressModal .modal-body {
+    padding: 2rem;
+    background: linear-gradient(135deg, #fafbfc 0%, #f8f9fa 100%);
+}
+
+@keyframes headerShimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Enhanced Progress Bar with Modern Colors */
+.progress-lg {
+    height: 14px !important;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    overflow: hidden;
+}
+
+.progress-lg .progress-bar {
+    border-radius: 10px;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    /* Modern vibrant gradient instead of plain dark green */
+    background: linear-gradient(135deg, #20c997 0%, #28a745 25%, #17a2b8 50%, #6f42c1 75%, #e83e8c 100%) !important;
+    background-size: 300% 300%;
+    animation: progressGradientShift 3s ease infinite;
+    box-shadow: 0 2px 10px rgba(40, 167, 69, 0.3);
+}
+
+.progress-lg .progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.4), 
+        rgba(255, 255, 255, 0.6),
+        rgba(255, 255, 255, 0.4), 
+        transparent
+    );
+    animation: progressShine 2s infinite;
+    border-radius: inherit;
+}
+
+/* Gradient animation for modern look */
+@keyframes progressGradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes progressShine {
+    0% { 
+        left: -100%; 
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% { 
+        left: 100%; 
+        opacity: 0;
+    }
+}
+
+/* Enhanced Step Messages Card */
+#otacProgressModal .card {
+    border: 1px solid rgba(79, 172, 254, 0.2);
+    box-shadow: 0 6px 20px rgba(79, 172, 254, 0.08);
+    background: linear-gradient(135deg, #ffffff 0%, #f8fffe 100%);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+#otacProgressModal .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+    border-radius: 12px 12px 0 0;
+}
+
+#currentStepMessage {
+    color: #4facfe !important;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    text-shadow: 0 1px 2px rgba(79, 172, 254, 0.2);
+}
+
+#currentStepMessage i {
+    color: #00f2fe !important;
+    text-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+    animation: iconGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes iconGlow {
+    0% { 
+        color: #4facfe !important;
+        text-shadow: 0 0 8px rgba(79, 172, 254, 0.3);
+    }
+    100% { 
+        color: #00f2fe !important;
+        text-shadow: 0 0 12px rgba(0, 242, 254, 0.5);
+    }
+}
+
+#stepDetails {
+    color: #495057;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+#timeEstimate {
+    color: #00c9ff !important;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 201, 255, 0.2);
+}
+
+/* Enhanced Security Guidelines Alert */
+#otacProgressModal .alert-warning {
+    background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+    border-left: 4px solid #ff9800;
+    border-radius: 10px;
+    color: #bf6000;
+    box-shadow: 0 4px 16px rgba(255, 152, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+#otacProgressModal .alert-warning::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #ff9800, #ffc107, #ff9800);
+    background-size: 200% 100%;
+    animation: warningPulse 2s ease-in-out infinite;
+}
+
+@keyframes warningPulse {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Enhanced Connection Status with Modern Colors */
+#connectionStatus {
+    padding: 0.5rem 0.75rem;
+    background: linear-gradient(135deg, rgba(32, 201, 151, 0.12) 0%, rgba(23, 162, 184, 0.08) 100%);
+    border-radius: 12px;
+    border: 1px solid rgba(32, 201, 151, 0.25);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(32, 201, 151, 0.15);
+    backdrop-filter: blur(4px);
+}
+
+#connectionStatus.connection-error {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.12) 0%, rgba(255, 99, 132, 0.08) 100%);
+    border-color: rgba(220, 53, 69, 0.25);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.15);
+    animation: connectionPulse 2s infinite;
+}
+
+#connectionStatus small {
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+@keyframes connectionPulse {
+    0%, 100% { 
+        opacity: 1; 
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.15);
+    }
+    50% { 
+        opacity: 0.8; 
+        transform: scale(1.02);
+        box-shadow: 0 4px 16px rgba(220, 53, 69, 0.25);
+    }
+}
+
+/* Retry Section */
+.retry-section {
+    animation: slideInUp 0.5s ease-out;
+    border-top: 2px solid #dee2e6;
+    padding-top: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.retry-section .alert-danger {
+    background: linear-gradient(135deg, #f8d7da 0%, #f1aeb5 100%);
+    border-left: 4px solid #dc3545;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================================================
+   Enhanced Results Modal Styles
+   ========================================================================== */
+
+#otacResultsModal .modal-content {
+    border: none;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+}
+
+/* Expiry Warning Alerts */
+.alert-success {
+    background: linear-gradient(135deg, #d1edff 0%, #a8dadc 100%);
+    border-left: 4px solid #28a745;
+    color: #155724;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border-left: 4px solid #ffc107;
+    color: #856404;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #f8d7da 0%, #f1aeb5 100%);
+    border-left: 4px solid #dc3545;
+    color: #721c24;
+}
+
+/* Code Display Enhancement */
+.code-display {
+    background: linear-gradient(135deg, #f8fff9 0%, #e8f5e9 100%) !important;
+    border: 2px solid #28a745 !important;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.code-display::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(40, 167, 69, 0.1), transparent);
+    animation: codeShine 3s infinite;
+}
+
+@keyframes codeShine {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+#resultGeneratedCode {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 2px solid #28a745 !important;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace !important;
+    font-weight: 700 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 2;
+}
+
+#resultGeneratedCode:focus {
+    box-shadow: 0 0 15px rgba(40, 167, 69, 0.4) !important;
+    border-color: #20c997 !important;
+}
+
+/* Copy Button Enhancement */
+.btn-success.copied {
+    background: linear-gradient(135deg, #28a745, #20c997) !important;
+    transform: scale(1.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced Security Warnings Grid */
+.row.g-3 .alert {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.row.g-3 .alert:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Expiry Warning Pulse Animation */
+.expiry-warning-pulse {
+    animation: expiryWarningPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes expiryWarningPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.02);
+        opacity: 0.9;
+    }
+}
+
+/* Critical Warning Animation */
+.alert-danger[class*="mb-3"] {
+    animation: urgentPulse 2s infinite;
+    border: 2px solid #dc3545 !important;
+    box-shadow: 0 0 20px rgba(220, 53, 69, 0.3);
+}
+
+@keyframes urgentPulse {
+    0%, 100% { 
+        box-shadow: 0 0 20px rgba(220, 53, 69, 0.3);
+        border-color: #dc3545;
+    }
+    50% { 
+        box-shadow: 0 0 30px rgba(220, 53, 69, 0.6);
+        border-color: #c82333;
+    }
+}
+
+/* ==========================================================================
+   Enhanced Countdown Styles
+   ========================================================================== */
+
+#resultCountdown .alert {
+    border-radius: 12px;
+    font-weight: 600;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.5s ease;
+}
+
+#resultCountdown .alert-success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-color: #28a745;
+    animation: none;
+}
+
+#resultCountdown .alert-warning {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border-color: #ffc107;
+    animation: warningBlink 2s infinite;
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.3);
+}
+
+#resultCountdown .alert-danger {
+    background: linear-gradient(135deg, #f8d7da 0%, #f1aeb5 100%);
+    border-color: #dc3545;
+    animation: dangerPulse 1s infinite;
+    box-shadow: 0 0 20px rgba(220, 53, 69, 0.4);
+}
+
+@keyframes warningBlink {
+    0%, 70%, 100% { 
+        opacity: 1; 
+        transform: scale(1);
+        box-shadow: 0 0 15px rgba(255, 193, 7, 0.3);
+    }
+    35% { 
+        opacity: 0.8; 
+        transform: scale(1.01);
+        box-shadow: 0 0 25px rgba(255, 193, 7, 0.5);
+    }
+}
+
+@keyframes dangerPulse {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(220, 53, 69, 0.4);
+        opacity: 1;
+    }
+    50% { 
+        transform: scale(1.03);
+        box-shadow: 0 0 30px rgba(220, 53, 69, 0.7);
+        opacity: 0.9;
+    }
+}
+
+/* ==========================================================================
+   Expired Overlay Styles
+   ========================================================================== */
+
+.expired-overlay {
+    animation: overlayFadeIn 0.8s ease-out;
+    border-radius: 12px;
+}
+
+.expired-overlay .expired-icon {
+    animation: expiredIconPulse 2s infinite;
+}
+
+@keyframes expiredIconPulse {
+    0%, 100% { 
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% { 
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+.expired-overlay .btn-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    border: 2px solid #ffc107;
+    color: #212529;
+    font-weight: 600;
+    padding: 12px 24px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+}
+
+.expired-overlay .btn-warning:hover {
+    background: linear-gradient(135deg, #e0a800 0%, #d39e00 100%);
+    border-color: #d39e00;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 193, 7, 0.4);
+}
+
+@keyframes overlayFadeIn {
+    from {
+        opacity: 0;
+        backdrop-filter: blur(0px);
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        backdrop-filter: blur(5px);
+        transform: scale(1);
+    }
+}
+
+/* ==========================================================================
+   Enhanced Alert System
+   ========================================================================== */
+
+.odd-alert-modern {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+    animation: alertSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes alertSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Center positioned alerts */
+.odd-alert-modern[style*="center"] {
+    animation: alertZoomIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes alertZoomIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* ==========================================================================
+   Button Loading States
+   ========================================================================== */
+
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    animation: buttonShine 2s infinite;
+}
+
+@keyframes buttonShine {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* ==========================================================================
+   Responsive Enhancements
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    #otacProgressModal .modal-body,
+    #otacResultsModal .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .code-display {
+        padding: 1.5rem !important;
+    }
+    
+    #resultGeneratedCode {
+        font-size: 1.2rem !important;
+        letter-spacing: 0.2em !important;
+    }
+    
+    .row.g-3 {
+        gap: 1rem !important;
+    }
+    
+    .modal-footer {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .modal-footer .btn {
+        width: 100%;
+        min-height: 48px;
+    }
+}
+
+@media (max-width: 576px) {
+    #otacProgressModal .modal-body,
+    #otacResultsModal .modal-body {
+        padding: 1rem;
+    }
+    
+    .progress-lg {
+        height: 8px !important;
+    }
+    
+    #resultGeneratedCode {
+        font-size: 1rem !important;
+        padding: 0.75rem !important;
+    }
+    
+    .alert {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* ==========================================================================
+   Accessibility Enhancements
+   ========================================================================== */
+
+/* Enhanced High contrast mode support */
+@media (prefers-contrast: high) {
+    .progress-lg .progress-bar {
+        background: linear-gradient(135deg, #000000 0%, #333333 100%) !important;
+        box-shadow: 0 0 0 2px #ffffff !important;
+    }
+    
+    .progress-lg {
+        background: #ffffff !important;
+        border: 2px solid #000000 !important;
+    }
+    
+    .alert {
+        border-width: 3px !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+    
+    #resultGeneratedCode {
+        border-width: 4px !important;
+        border-color: #000000 !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+    
+    #connectionStatus {
+        background: #ffffff !important;
+        border: 2px solid #000000 !important;
+        color: #000000 !important;
+    }
+    
+    #currentStepMessage {
+        color: #000000 !important;
+    }
+    
+    #timeEstimate {
+        color: #000000 !important;
+    }
+    
+    .modal-header {
+        background: linear-gradient(135deg, #000000 0%, #333333 100%) !important;
+        color: #ffffff !important;
+    }
+    
+    .card {
+        border: 2px solid #000000 !important;
+        background: #ffffff !important;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    .progress-lg .progress-bar::after,
+    .code-display::before,
+    .btn-loading::after {
+        display: none;
+    }
+}
+
+/* Enhanced Focus indicators for keyboard navigation */
+.btn:focus-visible,
+.form-control:focus-visible {
+    outline: 3px solid #4facfe;
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px rgba(79, 172, 254, 0.3), 0 0 12px rgba(79, 172, 254, 0.4);
+    position: relative;
+    z-index: 10;
+}
+
+.btn:focus-visible {
+    transform: translateY(-1px);
+    transition: transform 0.2s ease;
+}
+
+.modal:focus-within .btn:focus-visible {
+    outline-color: #00f2fe;
+    box-shadow: 0 0 0 6px rgba(0, 242, 254, 0.3), 0 0 12px rgba(0, 242, 254, 0.4);
+}
+
+/* Enhanced focus for modal elements */
+.modal-content:focus-within {
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.15), 
+        0 8px 24px rgba(0, 0, 0, 0.1),
+        0 0 0 4px rgba(79, 172, 254, 0.2);
+}
+
+/* Print styles */
+@media print {
+    #otacProgressModal,
+    #otacResultsModal,
+    .odd-alert-modern {
+        display: none !important;
+    }
+}

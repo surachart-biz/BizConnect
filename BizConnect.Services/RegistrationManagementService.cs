@@ -348,7 +348,7 @@ namespace BizConnect.Services
         /// <summary>
         /// Validates the registration request data
         /// </summary>
-        private async Task<ValidationResult> ValidateRegistrationRequestAsync(RegistrationRequest request)
+        private async Task<Models.Results.ValidationResult> ValidateRegistrationRequestAsync(RegistrationRequest request)
         {
             var validationErrors = new List<string>();
 
@@ -371,8 +371,8 @@ namespace BizConnect.Services
             // Additional business rule validations can be added here
 
             return validationErrors.Any() 
-                ? ValidationResult.Invalid(string.Join("; ", validationErrors))
-                : ValidationResult.Valid();
+                ? Models.Results.ValidationResult.Invalid(string.Join("; ", validationErrors))
+                : Models.Results.ValidationResult.Valid();
         }
 
         /// <summary>

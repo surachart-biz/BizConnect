@@ -214,7 +214,7 @@ namespace BizConnect.Services
         /// <param name="code">The OTAC code to check</param>
         /// <param name="language">Language code ('th' for Thai, 'en' for English). Defaults to 'en'</param>
         /// <returns>ValidationResult indicating whether the code is valid</returns>
-        public async Task<ValidationResult> IsValidAsync(string code, string language = "en")
+        public async Task<Models.Results.ValidationResult> IsValidAsync(string code, string language = "en")
         {
             try
             {
@@ -223,7 +223,7 @@ namespace BizConnect.Services
                     var requiredMessage = language.ToLower() == "th" 
                         ? "จำเป็นต้องระบุรหัส OTAC" 
                         : "OTAC code is required";
-                    return ValidationResult.Invalid(requiredMessage);
+                    return Models.Results.ValidationResult.Invalid(requiredMessage);
                 }
 
                 if (!_otacCodeGenerator.IsValidFormat(code))
@@ -231,7 +231,7 @@ namespace BizConnect.Services
                     var formatMessage = language.ToLower() == "th" 
                         ? "รูปแบบรหัส OTAC ไม่ถูกต้อง" 
                         : "Invalid OTAC code format";
-                    return ValidationResult.Invalid(formatMessage);
+                    return Models.Results.ValidationResult.Invalid(formatMessage);
                 }
 
                 var normalizedCode = _otacCodeGenerator.NormalizeCode(code);
@@ -246,7 +246,7 @@ namespace BizConnect.Services
                     var notFoundMessage = language.ToLower() == "th" 
                         ? "ไม่พบรหัส OTAC" 
                         : "OTAC code not found";
-                    return ValidationResult.Invalid(notFoundMessage);
+                    return Models.Results.ValidationResult.Invalid(notFoundMessage);
                 }
 
                 if (registration.IsLocked)
@@ -254,7 +254,7 @@ namespace BizConnect.Services
                     var lockedMessage = language.ToLower() == "th" 
                         ? "รหัส OTAC ถูกล็อก" 
                         : "OTAC code is locked";
-                    return ValidationResult.Invalid(lockedMessage);
+                    return Models.Results.ValidationResult.Invalid(lockedMessage);
                 }
 
                 if (registration.OtacExpiresAt.HasValue && registration.OtacExpiresAt.Value <= now)
@@ -262,15 +262,15 @@ namespace BizConnect.Services
                     var expiredMessage = language.ToLower() == "th" 
                         ? "รหัส OTAC หมดอายุแล้ว" 
                         : "OTAC code has expired";
-                    return ValidationResult.Invalid(expiredMessage);
+                    return Models.Results.ValidationResult.Invalid(expiredMessage);
                 }
 
-                return ValidationResult.Valid();
+                return Models.Results.ValidationResult.Valid();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error checking OTAC validity for code {Code}", code);
-                return ValidationResult.Invalid($"System error: {ex.Message}");
+                return Models.Results.ValidationResult.Invalid($"System error: {ex.Message}");
             }
         }
 

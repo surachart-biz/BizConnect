@@ -77,4 +77,66 @@ public interface IRealtimeNotificationService
     /// Clean up old activities to prevent memory growth
     /// </summary>
     Task CleanupOldActivitiesAsync();
+
+    // Real-time Broadcasting Capabilities for Frontend Updates
+    
+    /// <summary>
+    /// Broadcast dashboard statistics update to connected clients
+    /// </summary>
+    /// <param name="stats">Updated dashboard statistics</param>
+    /// <returns>Task representing the broadcast operation</returns>
+    Task BroadcastDashboardUpdateAsync(object stats);
+
+    /// <summary>
+    /// Broadcast registration status update to specific user groups
+    /// </summary>
+    /// <param name="registrationId">ID of the updated registration</param>
+    /// <param name="status">New status</param>
+    /// <param name="targetGroups">User groups to notify (optional, defaults to all admin users)</param>
+    /// <returns>Task representing the broadcast operation</returns>
+    Task BroadcastRegistrationUpdateAsync(int registrationId, string status, List<string>? targetGroups = null);
+
+    /// <summary>
+    /// Broadcast OTAC status update (expiry, validation, usage)
+    /// </summary>
+    /// <param name="otacCode">OTAC code (masked)</param>
+    /// <param name="newState">New OTAC state</param>
+    /// <param name="expiresAt">Expiration time for countdown updates</param>
+    /// <returns>Task representing the broadcast operation</returns>
+    Task BroadcastOtacUpdateAsync(string otacCode, string newState, DateTime? expiresAt = null);
+
+    /// <summary>
+    /// Broadcast system health alert to administrators
+    /// </summary>
+    /// <param name="alertType">Type of alert (Warning, Error, Critical)</param>
+    /// <param name="message">Alert message</param>
+    /// <param name="metadata">Additional alert data</param>
+    /// <returns>Task representing the broadcast operation</returns>
+    Task BroadcastSystemAlertAsync(string alertType, string message, Dictionary<string, object>? metadata = null);
+}
+
+/// <summary>
+/// Real-time update event types for frontend consumption
+/// </summary>
+public static class RealtimeEventTypes
+{
+    public const string DashboardStatsUpdated = "dashboard_stats_updated";
+    public const string RegistrationStatusChanged = "registration_status_changed";
+    public const string OtacStateChanged = "otac_state_changed";
+    public const string OtacExpiring = "otac_expiring";
+    public const string SystemHealthAlert = "system_health_alert";
+    public const string NewRegistration = "new_registration";
+    public const string BranchPerformanceUpdated = "branch_performance_updated";
+}
+
+/// <summary>
+/// Real-time notification payload structure
+/// </summary>
+public class RealtimeNotificationPayload
+{
+    public string EventType { get; set; } = string.Empty;
+    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+    public object Data { get; set; } = new();
+    public string? TargetGroup { get; set; }
+    public Dictionary<string, object>? Metadata { get; set; }
 }

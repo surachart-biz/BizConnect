@@ -1086,6 +1086,244 @@
 }
 
 /* ==========================================================================
+   Real-time Updates Animations & Visual Indicators
+   ========================================================================== */
+
+/* New row animations */
+.odd-row-new {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%);
+  border-left: 4px solid var(--odd-success);
+  animation: odd-row-slide-in 0.5s ease-out;
+}
+
+.odd-row-inserted {
+  background: rgba(16, 185, 129, 0.05);
+  transition: background-color 2s ease-out;
+}
+
+@keyframes odd-row-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+    background: rgba(16, 185, 129, 0.2);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    background: rgba(16, 185, 129, 0.1);
+  }
+}
+
+/* Updated row animations */
+.odd-row-updating {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%);
+  border-left: 4px solid var(--odd-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+.odd-row-updating::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
+  animation: odd-shimmer 1.5s ease-in-out infinite;
+}
+
+.odd-row-updated {
+  background: rgba(59, 130, 246, 0.05);
+  border-left: 4px solid var(--odd-primary);
+  transition: all 2s ease-out;
+}
+
+@keyframes odd-shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Fade out animation for removed rows */
+.odd-fade-out {
+  animation: odd-fade-out 0.3s ease-in forwards;
+}
+
+@keyframes odd-fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 200px;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}
+
+/* Connection status indicator */
+#realTimeStatus {
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--odd-border);
+}
+
+#realTimeStatus:hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Pulse animation for connection indicator */
+.odd-connection-pulse {
+  animation: odd-connection-pulse 2s ease-in-out infinite;
+}
+
+@keyframes odd-connection-pulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* Status badge updates with glow effect */
+.odd-badge-updated {
+  animation: odd-badge-glow 1s ease-out;
+  position: relative;
+}
+
+@keyframes odd-badge-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+/* New data notification indicator */
+.odd-new-data-indicator {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 12px;
+  height: 12px;
+  background: var(--odd-success);
+  border: 2px solid white;
+  border-radius: 50%;
+  animation: odd-notification-pulse 2s ease-in-out infinite;
+}
+
+@keyframes odd-notification-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Table row focus state for keyboard navigation */
+.odd-table-row-focused {
+  background: rgba(59, 130, 246, 0.05);
+  outline: 2px solid rgba(59, 130, 246, 0.3);
+  outline-offset: -2px;
+}
+
+/* Loading overlay for table updates */
+.odd-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  backdrop-filter: blur(2px);
+}
+
+.odd-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--odd-gray-200);
+  border-top: 4px solid var(--odd-primary);
+  border-radius: 50%;
+  animation: odd-spin 1s linear infinite;
+}
+
+.odd-loading-text {
+  color: var(--odd-gray-600);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+@keyframes odd-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Smooth state transitions */
+.odd-table tbody tr {
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover effects for interactive elements */
+.odd-table tbody tr:hover:not(.odd-row-updating):not(.odd-row-new) {
+  background: var(--odd-gray-50);
+  transform: translateY(-1px);
+}
+
+/* Success state for recently updated elements */
+.odd-recently-updated {
+  position: relative;
+}
+
+.odd-recently-updated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--odd-success);
+  animation: odd-fade-out-delayed 3s ease-out 2s forwards;
+}
+
+@keyframes odd-fade-out-delayed {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
    Utility Classes
    ========================================================================== */
 

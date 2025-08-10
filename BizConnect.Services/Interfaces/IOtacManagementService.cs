@@ -33,7 +33,7 @@ namespace BizConnect.Services.Interfaces
         /// <param name="code">The OTAC code to check</param>
         /// <param name="language">Language code ('th' for Thai, 'en' for English). Defaults to 'en'</param>
         /// <returns>ValidationResult indicating whether the code is valid</returns>
-        Task<ValidationResult> IsValidAsync(string code, string language = "en");
+        Task<Models.Results.ValidationResult> IsValidAsync(string code, string language = "en");
 
         /// <summary>
         /// Retrieves information about an OTAC code without affecting its state

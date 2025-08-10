@@ -82,7 +82,10 @@
       "Bash(done)",
       "Bash(if [ -f \"20250806-03_SimpleModernUIOptimizations.sql\" ])",
       "Bash(then echo \"ERROR: File should be deleted but still exists\")",
-      "Bash(else echo \"✓ Correctly deleted: 20250806-03_SimpleModernUIOptimizations.sql\")"
+      "Bash(else echo \"✓ Correctly deleted: 20250806-03_SimpleModernUIOptimizations.sql\")",
+      "Bash(PGPASSWORD=bizitadmin psql -h localhost -d bizconnect_test -U postgres -v ON_ERROR_STOP=1 -f ./db/migrations/20250810-03_FixVRecentActivityBranchName.sql)",
+      "Bash(PGPASSWORD=bizitadmin psql -h localhost -d bizconnect_test -U postgres -c \"\\d \"\"KbankOddRegistration\"\"\")",
+      "Bash(PGPASSWORD=bizitadmin)"
     ],
     "deny": []
   }
