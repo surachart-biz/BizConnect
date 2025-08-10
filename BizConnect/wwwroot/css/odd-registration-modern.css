@@ -87,7 +87,7 @@
    Layout Components
    ========================================================================== */
 
-/* Skip Link for Accessibility */
+/* Skip Link for Accessibility - WCAG Compliant */
 .odd-skip-link {
   position: absolute;
   top: -40px;
@@ -99,10 +99,49 @@
   z-index: 1100;
   border-radius: var(--odd-radius-sm);
   font-weight: 500;
+  
+  /* Critical: Properly hide skip link until focused - WCAG compliant */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-100%);
+  transition: all 0.3s ease;
+  
+  /* Ensure completely hidden from screen readers until focused */
+  clip: rect(1px, 1px, 1px, 1px);
+  clip-path: inset(50%);
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .odd-skip-link:focus {
   top: var(--odd-space-sm);
+  
+  /* Show the skip link when focused */
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  
+  /* Reset clipping to make it visible */
+  clip: auto;
+  clip-path: none;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  white-space: normal;
+  
+  /* Enhanced focus styling */
+  outline: 3px solid #FFD54F;
+  outline-offset: 2px;
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.4);
+}
+
+.odd-skip-link:focus-visible {
+  outline: 3px solid #FFD54F;
+  outline-offset: 3px;
 }
 
 /* Main Container */

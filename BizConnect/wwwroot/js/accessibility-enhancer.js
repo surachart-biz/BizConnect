@@ -477,7 +477,7 @@ class AccessibilityEnhancer {
     setupInitialFocus() {
         // Set initial focus on page load
         window.addEventListener('load', () => {
-            const skipLink = document.getElementById('skip-to-content');
+            const skipLink = document.querySelector('.skip-link');
             if (skipLink) {
                 skipLink.focus();
             } else {
@@ -715,8 +715,7 @@ class AccessibilityEnhancer {
             }
         });
         
-        // Add skip link
-        this.addSkipLink();
+        // Skip link removed - using CSS-based implementation instead
     }
 
     getShortcutString(e) {
@@ -739,37 +738,6 @@ class AccessibilityEnhancer {
         );
     }
 
-    addSkipLink() {
-        if (document.getElementById('skip-to-content')) return;
-        
-        const skipLink = document.createElement('a');
-        skipLink.id = 'skip-to-content';
-        skipLink.href = '#main-content';
-        skipLink.textContent = 'Skip to main content';
-        skipLink.className = 'sr-only sr-only-focusable';
-        skipLink.style.cssText = `
-            position: absolute;
-            top: -40px;
-            left: 6px;
-            background: var(--kbank-primary);
-            color: white;
-            padding: 8px 12px;
-            text-decoration: none;
-            border-radius: 4px;
-            z-index: 10000;
-            transition: top 0.2s;
-        `;
-        
-        skipLink.addEventListener('focus', () => {
-            skipLink.style.top = '6px';
-        });
-        
-        skipLink.addEventListener('blur', () => {
-            skipLink.style.top = '-40px';
-        });
-        
-        document.body.insertBefore(skipLink, document.body.firstChild);
-    }
 
     setupARIAEnhancements() {
         // Enhance existing elements with ARIA attributes
@@ -952,10 +920,7 @@ class AccessibilityEnhancer {
             liveRegion.remove();
         }
         
-        const skipLink = document.getElementById('skip-to-content');
-        if (skipLink) {
-            skipLink.remove();
-        }
+        // Skip link cleanup no longer needed as it's CSS-based
         
         // Remove added styles
         const stylesToRemove = [

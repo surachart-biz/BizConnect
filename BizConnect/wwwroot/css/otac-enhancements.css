@@ -238,7 +238,7 @@
                 0 0 0 5px rgba(0, 102, 204, 0.3) !important;
 }
 
-/* Skip link for modal */
+/* Skip link for modal - WCAG Compliant */
 .modal-skip-link {
     position: absolute;
     top: -40px;
@@ -250,13 +250,41 @@
     border-radius: 4px;
     font-weight: bold;
     z-index: 1070;
-    transition: top 0.3s;
+    transition: all 0.3s ease;
+    
+    /* Critical: Properly hide skip link until focused - WCAG compliant */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-100%);
+    
+    /* Ensure completely hidden from screen readers until focused */
+    clip: rect(1px, 1px, 1px, 1px);
+    clip-path: inset(50%);
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .modal-skip-link:focus {
     top: 6px;
     outline: 2px solid #fff;
     outline-offset: 2px;
+    
+    /* Show the skip link when focused */
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    
+    /* Reset clipping to make it visible */
+    clip: auto;
+    clip-path: none;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    white-space: normal;
 }
 
 /* High contrast mode for buttons */

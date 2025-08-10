@@ -50,7 +50,7 @@
     <link rel="stylesheet" href="~/css/enhanced-admin.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/BizConnect.styles.css" asp-append-version="true" />
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
@@ -64,7 +64,7 @@
 <body class="admin-body" data-lang="@(isThaiCulture ? "th" : "en")">
     <!-- Skip Links for Accessibility -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    
+
     <!-- Loading Overlay -->
     <div id="loading-overlay" class="loading-overlay-modern d-none">
         <div class="loading-content">
@@ -80,7 +80,7 @@
                 <button class="sidebar-toggle" id="sidebarToggle">
                     <i class="fas fa-bars"></i>
                 </button>
-                
+
                 <a href="@Url.Action("Dashboard", "Home", new { area = "Admin" })" class="modern-brand">
                     <div class="modern-brand-icon">
                         <i class="fas fa-university"></i>
@@ -88,26 +88,26 @@
                     <span class="brand-text">BizConnect Admin</span>
                 </a>
             </div>
-            
+
             <div class="topbar-right">
                 <div class="topbar-actions">
                     <!-- Language Toggle -->
                     <button class="topbar-btn" title="Switch Language">
                         <i class="fas fa-language"></i>
                     </button>
-                    
+
                     <!-- Notifications -->
                     <button class="topbar-btn" title="@Localizer["Notifications"]">
                         <i class="fas fa-bell"></i>
                         <span class="notification-badge">3</span>
                     </button>
-                    
+
                     <!-- Full Screen -->
                     <button class="topbar-btn" title="Full Screen">
                         <i class="fas fa-expand"></i>
                     </button>
                 </div>
-                
+
                 <!-- User Menu -->
                 <div class="user-menu" data-bs-toggle="dropdown" aria-expanded="false">
                     <div class="user-avatar">@(User.Identity?.Name?.Substring(0, 2).ToUpper() ?? "AD")</div>
@@ -117,7 +117,7 @@
                     </div>
                     <i class="fas fa-chevron-down" style="color: var(--text-secondary); font-size: 0.8rem;"></i>
                 </div>
-                
+
                 <!-- User Dropdown Menu -->
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li>
@@ -156,66 +156,55 @@
             <div class="nav-section">
                 <div class="nav-section-title">Dashboard</div>
                 <div class="nav-item">
-                    <a class="nav-link @(currentAction == "Dashboard" && currentController == "Home" ? "active" : "")" 
-                       asp-controller="Home" asp-action="Dashboard" asp-area="Admin">
+                    <a class="nav-link @(currentAction == "Dashboard" && currentController == "Home" ? "active" : "")"
+                    asp-controller="Home" asp-action="Dashboard" asp-area="Admin">
                         <i class="fas fa-tachometer-alt"></i>
                         <span class="nav-text">@Localizer["Overview"]</span>
                     </a>
                 </div>
-                <div class="nav-item">
-                    <a class="nav-link @(currentController == "Analytics" ? "active" : "")" 
-                       asp-controller="Analytics" asp-action="Dashboard" asp-area="Admin">
-                        <i class="fas fa-chart-line"></i>
-                        <span class="nav-text">@Localizer["Analytics"]</span>
-                    </a>
-                </div>
+                @if (User.IsInRole("Admin"))
+                {
+                    <div class="nav-item">
+                        <a class="nav-link @(currentController == "Analytics" ? "active" : "")"
+                           asp-controller="Analytics" asp-action="Dashboard" asp-area="Admin">
+                            <i class="fas fa-chart-line"></i>
+                            <span class="nav-text">@Localizer["Analytics"]</span>
+                        </a>
+                    </div>
+                }
             </div>
 
             <!-- ODD Management Section -->
             <div class="nav-section">
                 <div class="nav-section-title">ODD Management</div>
                 <div class="nav-item">
-                    <a class="nav-link @(currentController == "OddRegistration" ? "active" : "")" 
+                    <a class="nav-link @(currentController == "OddRegistration" ? "active" : "")"
                        asp-controller="OddRegistration" asp-action="Index" asp-area="Admin">
                         <i class="fas fa-file-alt"></i>
                         <span class="nav-text">@Localizer["OddRegistrations"]</span>
-                        <span class="badge bg-warning rounded-pill">12</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-history"></i>
-                        <span class="nav-text">Transaction History</span>
+                        @* <span class="badge bg-warning rounded-pill">12</span> *@
                     </a>
                 </div>
             </div>
 
-            <!-- User Management Section -->
+            @if (User.IsInRole("Admin"))
+                {
+                    <!-- User Management Section -->
             <div class="nav-section">
                 <div class="nav-section-title">User Management</div>
                 <div class="nav-item">
-                    <a class="nav-link @(currentController == "Users" ? "active" : "")" 
+                    <a class="nav-link @(currentController == "Users" ? "active" : "")"
                        asp-controller="Users" asp-action="Index" asp-area="Admin">
                         <i class="fas fa-users"></i>
                         <span class="nav-text">@Localizer["AllUsers"]</span>
                     </a>
                 </div>
-                <div class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fas fa-user-shield"></i>
-                        <span class="nav-text">@Localizer["Admins"]</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a class="nav-link" asp-controller="Users" asp-action="Create" asp-area="Admin">
-                        <i class="fas fa-user-plus"></i>
-                        <span class="nav-text">@Localizer["AddUser"]</span>
-                    </a>
-                </div>
             </div>
+                }
+            
 
             <!-- System Section -->
-            <div class="nav-section">
+            @* <div class="nav-section">
                 <div class="nav-section-title">System</div>
                 <div class="nav-item">
                     <a class="nav-link" href="#" data-action="system-settings">
@@ -235,7 +224,7 @@
                         <span class="nav-text">Security Logs</span>
                     </a>
                 </div>
-            </div>
+            </div> *@
         </div>
     </nav>
 
@@ -251,12 +240,12 @@
                         {
                             <p class="content-subtitle">@ViewBag.Subtitle</p>
                         }
-                    
+
                         <!-- Breadcrumb -->
                         <nav aria-label="@Localizer["Breadcrumb"]" class="breadcrumb-nav">
                             <ol class="breadcrumb breadcrumb-enhanced">
                                 <li class="breadcrumb-item">
-                                    <a asp-controller="Home" asp-action="Dashboard" asp-area="Admin" 
+                                    <a asp-controller="Home" asp-action="Dashboard" asp-area="Admin"
                                        class="breadcrumb-link">
                                         <i class="fas fa-home me-1" aria-hidden="true"></i>
                                         @Localizer["Dashboard"]
@@ -305,7 +294,7 @@
                             </ol>
                         </nav>
                     </div>
-                
+
                     @if (IsSectionDefined("HeaderActions"))
                     {
                         <div class="header-actions">
@@ -316,7 +305,7 @@
                     {
                         <!-- Default Actions -->
                         <div class="header-actions-default">
-                            <button class="btn-modern btn-outline-modern" onclick="window.location.reload()" 
+                            <button class="btn-modern btn-outline-modern" onclick="window.location.reload()"
                                     title="@Localizer["RefreshPage"]">
                                 <i class="fas fa-sync-alt" aria-hidden="true"></i>
                                 <span class="d-none d-sm-inline">@Localizer["Refresh"]</span>
@@ -344,25 +333,25 @@
     <!-- Core Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
-    
+
     <!-- Modern UI System -->
     <script src="~/js/modern-ui.js" asp-append-version="true"></script>
-    
+
     <!-- Enhanced Animation and Interaction Systems -->
     <script src="~/js/interactions.js" asp-append-version="true"></script>
     <script src="~/js/visual-feedback.js" asp-append-version="true"></script>
     <script src="~/js/mobile-optimizer.js" asp-append-version="true"></script>
     <script src="~/js/accessibility-enhancer.js" asp-append-version="true"></script>
-    
+
     <!-- Admin Core Modules -->
     <script src="~/js/admin/admin-core.js" asp-append-version="true"></script>
     <!-- admin-layout.js disabled - using inline implementation -->
     <script src="~/js/admin/admin-tables.js" asp-append-version="true"></script>
-    
+
     <!-- Legacy Admin Scripts (maintaining compatibility) -->
     <script src="~/js/admin.js" asp-append-version="true"></script>
     <script src="~/js/real-time-updates.js" asp-append-version="true"></script>
-    
+
     <!-- Supporting Scripts -->
     <script src="~/js/language-switcher.js" asp-append-version="true"></script>
     <script src="~/js/ui-interactions.js" asp-append-version="true"></script>
@@ -378,23 +367,23 @@
             const sidebar = document.getElementById('adminSidebar');
             const content = document.querySelector('.admin-content');
             const overlay = document.getElementById('sidebarOverlay');
-            
+
             if (!sidebarToggle || !sidebar || !content) {
                 console.warn('Sidebar elements not found');
                 return;
             }
-            
+
             let isMobile = window.innerWidth <= 768;
-            
+
             // Update mobile status
             function updateMobileStatus() {
                 isMobile = window.innerWidth <= 768;
             }
-            
+
             // Desktop toggle functionality
             function toggleDesktopSidebar() {
                 const isCollapsed = sidebar.classList.contains('collapsed');
-                
+
                 if (isCollapsed) {
                     // Expand
                     sidebar.classList.remove('collapsed');
@@ -411,11 +400,11 @@
                     localStorage.setItem('admin-sidebar-collapsed', 'true');
                 }
             }
-            
+
             // Mobile toggle functionality
             function toggleMobileSidebar() {
                 const isOpen = sidebar.classList.contains('show');
-                
+
                 if (isOpen) {
                     // Close
                     sidebar.classList.remove('show');
@@ -434,19 +423,19 @@
                     }
                 }
             }
-            
+
             // Main toggle handler
             sidebarToggle.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 if (isMobile) {
                     toggleMobileSidebar();
                 } else {
                     toggleDesktopSidebar();
                 }
             });
-            
+
             // Close mobile sidebar when clicking overlay
             if (overlay) {
                 overlay.addEventListener('click', function() {
@@ -460,7 +449,7 @@
                     }
                 });
             }
-            
+
             // Close mobile sidebar with escape key
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && isMobile && sidebar.classList.contains('show')) {
@@ -472,12 +461,12 @@
                     }
                 }
             });
-            
+
             // Handle window resize
             window.addEventListener('resize', function() {
                 const wasMobile = isMobile;
                 updateMobileStatus();
-                
+
                 if (wasMobile && !isMobile) {
                     // Switched to desktop - close mobile sidebar and restore state
                     sidebar.classList.remove('show');
@@ -493,7 +482,7 @@
                     if (icon) icon.className = 'fas fa-bars';
                 }
             });
-            
+
             // Restore desktop sidebar state
             function restoreDesktopState() {
                 if (!isMobile) {
@@ -511,11 +500,11 @@
                     }
                 }
             }
-            
+
             // Initialize
             updateMobileStatus();
             restoreDesktopState();
-            
+
             console.log('✅ Sidebar toggle initialized - Desktop and Mobile ready');
 
             // Initialize the admin core system
@@ -561,7 +550,7 @@
             if (window.adminCore) {
                 // Load initial notifications
                 adminCore.getModule('layout')?.loadNotifications();
-                
+
                 // Setup periodic updates for real-time functionality
                 if (window.RealTimeUpdates) {
                     window.RealTimeUpdates.forceUpdate('all');
@@ -619,7 +608,7 @@
                     announcer.setAttribute('aria-atomic', 'true');
                     document.body.appendChild(announcer);
                 }
-                
+
                 setTimeout(() => {
                     announcer.textContent = `Page loaded: ${pageTitle.split(' - ')[0]}`;
                 }, 1000);
@@ -629,10 +618,10 @@
         // Error boundary for admin system
         window.addEventListener('error', function(e) {
             console.error('Admin System Error:', e.error);
-            
+
             // Show user-friendly error message if available
             if (window.adminCore) {
-                adminCore.showNotification('error', 'System Error', 
+                adminCore.showNotification('error', 'System Error',
                     'An error occurred. Please refresh the page or contact support if the issue persists.');
             }
         });
@@ -641,7 +630,7 @@
         function updateNetworkStatus(isOnline) {
             const statusIndicator = document.querySelector('.system-status .status-dot');
             const statusText = document.querySelector('.system-status span');
-            
+
             if (statusIndicator && statusText) {
                 if (isOnline) {
                     statusIndicator.className = 'fas fa-circle text-success status-dot';
@@ -656,7 +645,7 @@
         // Network event listeners
         window.addEventListener('online', () => updateNetworkStatus(true));
         window.addEventListener('offline', () => updateNetworkStatus(false));
-        
+
         // Initial network status
         updateNetworkStatus(navigator.onLine);
     </script>
