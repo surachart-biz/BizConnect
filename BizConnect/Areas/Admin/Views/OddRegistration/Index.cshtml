@@ -92,6 +92,68 @@
         </div>
     </div>
 
+   @*  <!-- Status Dashboard -->
+    <div class="odd-dashboard-container mb-4" id="statusDashboard">
+        <div class="row g-3">
+            <div class="col-md-3 col-sm-6">
+                <div class="odd-dashboard-card odd-dashboard-card-pending">
+                    <div class="odd-dashboard-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="odd-dashboard-content">
+                        <div class="odd-dashboard-number" id="pendingCount">
+                            @Model.Registrations.Count(r => r.Status == "Pending")
+                        </div>
+                        <div class="odd-dashboard-label">@Localizer["Pending"]</div>
+                        <div class="odd-dashboard-description">รออนุมัติ</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="odd-dashboard-card odd-dashboard-card-completed">
+                    <div class="odd-dashboard-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="odd-dashboard-content">
+                        <div class="odd-dashboard-number" id="completedCount">
+                            @Model.Registrations.Count(r => r.Status == "Completed")
+                        </div>
+                        <div class="odd-dashboard-label">@Localizer["Completed"]</div>
+                        <div class="odd-dashboard-description">สำเร็จแล้ว</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="odd-dashboard-card odd-dashboard-card-failed">
+                    <div class="odd-dashboard-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="odd-dashboard-content">
+                        <div class="odd-dashboard-number" id="failedCount">
+                            @Model.Registrations.Count(r => r.Status == "Failed")
+                        </div>
+                        <div class="odd-dashboard-label">@Localizer["Failed"]</div>
+                        <div class="odd-dashboard-description">ล้มเหลว</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="odd-dashboard-card odd-dashboard-card-total">
+                    <div class="odd-dashboard-icon">
+                        <i class="fas fa-list"></i>
+                    </div>
+                    <div class="odd-dashboard-content">
+                        <div class="odd-dashboard-number" id="totalCount">
+                            @Model.TotalRecords
+                        </div>
+                        <div class="odd-dashboard-label">Total</div>
+                        <div class="odd-dashboard-description">รวมทั้งหมด</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> *@
+
     <!-- Data Table -->
     <div class="odd-table-container" id="main-content">
         <div class="odd-table-header">
@@ -102,22 +164,113 @@
                         @string.Format(Localizer["ShowingEntries"], Model.StartRecord, Model.EndRecord, Model.TotalRecords)
                     </p>
                 </div>
-                <div class="odd-table-stats">
-                    <span class="odd-badge odd-badge-pending me-2">
-                        @Model.Registrations.Count(r => r.Status == "Pending") @Localizer["Pending"]
-                    </span>
-                    <span class="odd-badge odd-badge-success me-2">
-                        @Model.Registrations.Count(r => r.Status == "Completed") @Localizer["Completed"]
-                    </span>
-                    <span class="odd-badge odd-badge-failed">
-                        @Model.Registrations.Count(r => r.Status == "Failed") @Localizer["Failed"]
-                    </span>
+            </div>
+        </div>
+
+        <!-- Loading Skeleton -->
+        <div class="odd-loading-skeleton d-none" id="tableSkeleton">
+            <div class="odd-skeleton-dashboard mb-4">
+                <div class="row g-3">
+                    <div class="col-md-3 col-sm-6">
+                        <div class="odd-skeleton-card">
+                            <div class="odd-skeleton-icon"></div>
+                            <div class="odd-skeleton-content">
+                                <div class="odd-skeleton-number"></div>
+                                <div class="odd-skeleton-text"></div>
+                                <div class="odd-skeleton-text-sm"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="odd-skeleton-card">
+                            <div class="odd-skeleton-icon"></div>
+                            <div class="odd-skeleton-content">
+                                <div class="odd-skeleton-number"></div>
+                                <div class="odd-skeleton-text"></div>
+                                <div class="odd-skeleton-text-sm"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="odd-skeleton-card">
+                            <div class="odd-skeleton-icon"></div>
+                            <div class="odd-skeleton-content">
+                                <div class="odd-skeleton-number"></div>
+                                <div class="odd-skeleton-text"></div>
+                                <div class="odd-skeleton-text-sm"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="odd-skeleton-card">
+                            <div class="odd-skeleton-icon"></div>
+                            <div class="odd-skeleton-content">
+                                <div class="odd-skeleton-number"></div>
+                                <div class="odd-skeleton-text"></div>
+                                <div class="odd-skeleton-text-sm"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="odd-skeleton-table">
+                <div class="odd-skeleton-table-header">
+                    <div class="odd-skeleton-text-lg"></div>
+                    <div class="odd-skeleton-text"></div>
+                </div>
+                <div class="odd-skeleton-table-body">
+                    <div class="odd-skeleton-row">
+                        <div class="odd-skeleton-cell odd-skeleton-cell-sm"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell odd-skeleton-cell-lg"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell odd-skeleton-cell-lg"></div>
+                    </div>
+                    <div class="odd-skeleton-row">
+                        <div class="odd-skeleton-cell odd-skeleton-cell-sm"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell odd-skeleton-cell-lg"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell odd-skeleton-cell-lg"></div>
+                    </div>
+                    <div class="odd-skeleton-row">
+                        <div class="odd-skeleton-cell odd-skeleton-cell-sm"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell odd-skeleton-cell-lg"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell odd-skeleton-cell-lg"></div>
+                    </div>
+                    <div class="odd-skeleton-row">
+                        <div class="odd-skeleton-cell odd-skeleton-cell-sm"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell odd-skeleton-cell-lg"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell odd-skeleton-cell-lg"></div>
+                    </div>
+                    <div class="odd-skeleton-row">
+                        <div class="odd-skeleton-cell odd-skeleton-cell-sm"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell odd-skeleton-cell-lg"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell"></div>
+                        <div class="odd-skeleton-cell odd-skeleton-cell-lg"></div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Desktop Table View -->
-        <div class="odd-table-responsive">
+        <div class="odd-table-responsive" id="tableContent">
         @if (Model.Registrations.Any())
         {
                 <table class="odd-table table-hover mb-0">
@@ -589,9 +742,113 @@
     <script src="~/js/mobile-optimizer.js" asp-append-version="true"></script>
     <script src="~/js/accessibility-enhancer.js" asp-append-version="true"></script>
     <script>
+        // Loading States Management
+        window.OddLoadingStates = {
+            showSkeleton: function() {
+                const skeleton = document.getElementById('tableSkeleton');
+                const content = document.getElementById('tableContent');
+                const dashboard = document.getElementById('statusDashboard');
+                
+                if (skeleton && content) {
+                    skeleton.classList.remove('d-none');
+                    content.classList.add('d-none');
+                }
+                
+                if (dashboard) {
+                    dashboard.classList.add('odd-loading-progressive');
+                }
+            },
+            
+            hideSkeleton: function() {
+                const skeleton = document.getElementById('tableSkeleton');
+                const content = document.getElementById('tableContent');
+                const dashboard = document.getElementById('statusDashboard');
+                
+                if (skeleton && content) {
+                    skeleton.classList.add('d-none');
+                    content.classList.remove('d-none');
+                }
+                
+                if (dashboard) {
+                    dashboard.classList.remove('odd-loading-progressive');
+                }
+            },
+            
+            showDashboardLoading: function() {
+                const dashboardCards = document.querySelectorAll('.odd-dashboard-card');
+                dashboardCards.forEach(card => {
+                    card.classList.add('odd-dashboard-card-loading');
+                });
+            },
+            
+            hideDashboardLoading: function() {
+                const dashboardCards = document.querySelectorAll('.odd-dashboard-card');
+                dashboardCards.forEach(card => {
+                    card.classList.remove('odd-dashboard-card-loading');
+                });
+            },
+            
+            updateDashboardCounts: function(pending = 0, completed = 0, failed = 0, total = 0) {
+                const pendingEl = document.getElementById('pendingCount');
+                const completedEl = document.getElementById('completedCount');
+                const failedEl = document.getElementById('failedCount');
+                const totalEl = document.getElementById('totalCount');
+                
+                if (pendingEl) {
+                    pendingEl.textContent = pending;
+                    pendingEl.parentElement.parentElement.classList.add('odd-dashboard-card-updating');
+                    setTimeout(() => {
+                        pendingEl.parentElement.parentElement.classList.remove('odd-dashboard-card-updating');
+                    }, 1000);
+                }
+                
+                if (completedEl) {
+                    completedEl.textContent = completed;
+                    completedEl.parentElement.parentElement.classList.add('odd-dashboard-card-updating');
+                    setTimeout(() => {
+                        completedEl.parentElement.parentElement.classList.remove('odd-dashboard-card-updating');
+                    }, 1000);
+                }
+                
+                if (failedEl) {
+                    failedEl.textContent = failed;
+                    failedEl.parentElement.parentElement.classList.add('odd-dashboard-card-updating');
+                    setTimeout(() => {
+                        failedEl.parentElement.parentElement.classList.remove('odd-dashboard-card-updating');
+                    }, 1000);
+                }
+                
+                if (totalEl) {
+                    totalEl.textContent = total;
+                    totalEl.parentElement.parentElement.classList.add('odd-dashboard-card-updating');
+                    setTimeout(() => {
+                        totalEl.parentElement.parentElement.classList.remove('odd-dashboard-card-updating');
+                    }, 1000);
+                }
+            },
+            
+            showProgressiveLoading: function() {
+                // Show skeleton first
+                this.showSkeleton();
+                
+                // Simulate progressive loading
+                setTimeout(() => {
+                    this.showDashboardLoading();
+                }, 500);
+                
+                setTimeout(() => {
+                    this.hideDashboardLoading();
+                    this.hideSkeleton();
+                }, 2000);
+            }
+        };
+
         // Priority 2: Enhanced OTAC Button Integration
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded for ODD Registration page with Priority 2 features');
+            
+            // Initialize loading state management
+            console.log('Loading states initialized:', window.OddLoadingStates);
             
             function initializeEnhancedOtacButton() {
                 const generateButton = document.getElementById('generateOtacButton');
@@ -851,5 +1108,39 @@
             console.log('- OTAC Progress Modal:', document.getElementById('otacProgressModal') ? 'Yes' : 'No');
             console.log('- OTAC Results Modal:', document.getElementById('otacResultsModal') ? 'Yes' : 'No');
         };
+
+        // Demo functions for testing the new UI improvements
+        window.demoLoadingStates = function() {
+            console.log('Testing loading states...');
+            window.OddLoadingStates.showProgressiveLoading();
+        };
+        
+        window.demoSkeletonOnly = function() {
+            console.log('Testing skeleton screen...');
+            window.OddLoadingStates.showSkeleton();
+            setTimeout(() => {
+                window.OddLoadingStates.hideSkeleton();
+            }, 3000);
+        };
+        
+        window.demoDashboardUpdate = function() {
+            console.log('Testing dashboard count updates...');
+            const random = () => Math.floor(Math.random() * 20) + 1;
+            window.OddLoadingStates.updateDashboardCounts(
+                random(), // pending
+                random(), // completed  
+                random(), // failed
+                random() * 3 // total
+            );
+        };
+        
+        // Add keyboard shortcut for testing (Ctrl+Shift+L)
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && e.key === 'L') {
+                e.preventDefault();
+                console.log('Loading demo triggered by keyboard shortcut');
+                window.demoLoadingStates();
+            }
+        });
     </script>
 }

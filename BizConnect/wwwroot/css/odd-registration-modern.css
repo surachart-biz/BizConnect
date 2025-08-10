@@ -190,6 +190,231 @@
 }
 
 /* ==========================================================================
+   Status Dashboard Components
+   ========================================================================== */
+
+.odd-dashboard-container {
+  margin-bottom: var(--odd-space-xl);
+}
+
+.odd-dashboard-card {
+  background: var(--odd-surface);
+  border-radius: var(--odd-radius-lg);
+  padding: var(--odd-space-lg);
+  border: 1px solid var(--odd-border);
+  transition: var(--odd-transition);
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--odd-space-md);
+}
+
+.odd-dashboard-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, var(--odd-primary), transparent);
+  opacity: 0;
+  transition: var(--odd-transition);
+}
+
+.odd-dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--odd-shadow-lg);
+  border-color: var(--odd-primary-light);
+}
+
+.odd-dashboard-card:hover::before {
+  opacity: 1;
+}
+
+.odd-dashboard-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--odd-radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.odd-dashboard-icon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  opacity: 0.1;
+  border-radius: inherit;
+}
+
+.odd-dashboard-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.odd-dashboard-number {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: var(--odd-space-xs);
+  background: linear-gradient(135deg, var(--odd-gray-800), var(--odd-gray-600));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.odd-dashboard-label {
+  font-weight: 600;
+  color: var(--odd-gray-700);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.odd-dashboard-description {
+  font-size: 0.75rem;
+  color: var(--odd-gray-500);
+  font-family: var(--odd-font-thai);
+}
+
+/* Dashboard Card Variants */
+.odd-dashboard-card-pending {
+  border-left: 4px solid var(--odd-warning);
+}
+
+.odd-dashboard-card-pending .odd-dashboard-icon {
+  background: linear-gradient(135deg, var(--odd-warning-light), var(--odd-warning));
+  color: #78350f;
+}
+
+.odd-dashboard-card-pending:hover::before {
+  background: linear-gradient(90deg, transparent, var(--odd-warning), transparent);
+}
+
+.odd-dashboard-card-pending .odd-dashboard-number {
+  background: linear-gradient(135deg, var(--odd-warning-dark), var(--odd-warning));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.odd-dashboard-card-completed {
+  border-left: 4px solid var(--odd-success);
+}
+
+.odd-dashboard-card-completed .odd-dashboard-icon {
+  background: linear-gradient(135deg, var(--odd-success-light), var(--odd-success));
+  color: white;
+}
+
+.odd-dashboard-card-completed:hover::before {
+  background: linear-gradient(90deg, transparent, var(--odd-success), transparent);
+}
+
+.odd-dashboard-card-completed .odd-dashboard-number {
+  background: linear-gradient(135deg, var(--odd-success-dark), var(--odd-success));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.odd-dashboard-card-failed {
+  border-left: 4px solid var(--odd-danger);
+}
+
+.odd-dashboard-card-failed .odd-dashboard-icon {
+  background: linear-gradient(135deg, var(--odd-danger-light), var(--odd-danger));
+  color: white;
+}
+
+.odd-dashboard-card-failed:hover::before {
+  background: linear-gradient(90deg, transparent, var(--odd-danger), transparent);
+}
+
+.odd-dashboard-card-failed .odd-dashboard-number {
+  background: linear-gradient(135deg, var(--odd-danger-dark), var(--odd-danger));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.odd-dashboard-card-total {
+  border-left: 4px solid var(--odd-primary);
+}
+
+.odd-dashboard-card-total .odd-dashboard-icon {
+  background: linear-gradient(135deg, var(--odd-primary-light), var(--odd-primary));
+  color: white;
+}
+
+.odd-dashboard-card-total:hover::before {
+  background: linear-gradient(90deg, transparent, var(--odd-primary), transparent);
+}
+
+.odd-dashboard-card-total .odd-dashboard-number {
+  background: linear-gradient(135deg, var(--odd-primary-dark), var(--odd-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Dashboard animations */
+.odd-dashboard-card-updating .odd-dashboard-number {
+  animation: odd-number-pulse 1s ease-in-out;
+}
+
+@keyframes odd-number-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Dashboard responsive */
+@media (max-width: 768px) {
+  .odd-dashboard-card {
+    padding: var(--odd-space-md);
+    gap: var(--odd-space-sm);
+  }
+  
+  .odd-dashboard-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.25rem;
+  }
+  
+  .odd-dashboard-number {
+    font-size: 1.5rem;
+  }
+  
+  .odd-dashboard-label {
+    font-size: 0.8125rem;
+  }
+  
+  .odd-dashboard-description {
+    font-size: 0.6875rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .odd-dashboard-container .row {
+    margin: 0 -0.5rem;
+  }
+  
+  .odd-dashboard-container .row > * {
+    padding: 0 0.5rem;
+    margin-bottom: 1rem;
+  }
+}
+
+/* ==========================================================================
    Filter & Search Components
    ========================================================================== */
 
@@ -328,45 +553,269 @@
   background-color: var(--odd-surface-alt);
 }
 
-/* Table Cell Styles */
+/* Enhanced Table Cell Styles with Optimal Layout */
 .odd-cell-checkbox {
-  width: 40px;
+  width: 50px;
   text-align: center;
+  padding: var(--odd-space-sm) !important;
+  vertical-align: middle;
+}
+
+.odd-cell-checkbox input[type="checkbox"] {
+  transform: scale(1.1);
+  border-radius: var(--odd-radius-sm);
 }
 
 .odd-cell-external-ref {
-  min-width: 140px;
-  max-width: 180px;
+  min-width: 120px;
+  max-width: 160px;
+  font-weight: 500;
+  color: var(--odd-primary);
 }
 
 .odd-cell-customer {
+  min-width: 220px;
+  max-width: 320px;
+  padding-right: var(--odd-space-lg) !important;
+}
+
+.odd-cell-customer .odd-info-primary {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--odd-gray-800);
+  margin-bottom: 4px;
+}
+
+.odd-cell-customer .odd-info-secondary {
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.odd-cell-customer .odd-info-detail {
+  font-size: 0.75rem;
+  margin-bottom: 2px;
+}
+
+.odd-cell-branch {
+  min-width: 180px;
+  max-width: 240px;
+  padding-right: var(--odd-space-lg) !important;
+}
+
+.odd-cell-branch .odd-info-primary {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--odd-gray-800);
+  margin-bottom: 4px;
+}
+
+.odd-cell-branch .odd-info-secondary {
+  font-size: 0.75rem;
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+
+.odd-cell-otac {
+  min-width: 200px;
+  max-width: 280px;
+  padding-right: var(--odd-space-lg) !important;
+}
+
+.odd-cell-otac .odd-otac-code {
+  font-size: 0.875rem;
+  padding: 4px 8px;
+  margin-bottom: 8px;
+  display: inline-block;
+}
+
+.odd-cell-status {
+  min-width: 180px;
+  max-width: 240px;
+  padding-right: var(--odd-space-lg) !important;
+}
+
+.odd-cell-status .odd-timeline-item {
+  margin-bottom: 6px;
+  font-size: 0.8rem;
+}
+
+.odd-cell-status .odd-timeline-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.odd-cell-status .odd-timeline-value {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.odd-cell-tracking {
   min-width: 200px;
   max-width: 280px;
 }
 
-.odd-cell-branch {
-  min-width: 160px;
-  max-width: 220px;
+.odd-cell-tracking .odd-user-info {
+  margin-bottom: 8px;
 }
 
-.odd-cell-otac {
-  min-width: 180px;
-  max-width: 240px;
+.odd-cell-tracking .odd-user-name {
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
-.odd-cell-status {
-  min-width: 160px;
-  max-width: 200px;
+.odd-cell-tracking .odd-user-role {
+  font-size: 0.7rem;
 }
 
-.odd-cell-tracking {
-  min-width: 180px;
-  max-width: 240px;
+.odd-cell-tracking .odd-timeline-item {
+  margin-bottom: 4px;
+  font-size: 0.75rem;
 }
 
 .odd-cell-actions {
-  min-width: 120px;
-  max-width: 160px;
+  min-width: 140px;
+  max-width: 180px;
+  text-align: center;
+}
+
+/* Enhanced column header styling */
+.odd-table thead th {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--odd-gray-700);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  border-bottom: 2px solid var(--odd-primary-light);
+  background: linear-gradient(135deg, var(--odd-gray-50) 0%, var(--odd-gray-100) 100%);
+  position: relative;
+}
+
+.odd-table thead th::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--odd-primary), var(--odd-primary-light));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.odd-table thead th:hover::after {
+  opacity: 1;
+}
+
+/* Improved row styling for better visual hierarchy */
+.odd-table tbody tr {
+  border-bottom: 1px solid var(--odd-border-light);
+  transition: all 0.2s ease;
+}
+
+.odd-table tbody tr:hover {
+  background: linear-gradient(135deg, var(--odd-gray-50) 0%, rgba(255, 255, 255, 0.8) 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+.odd-table tbody tr:nth-child(even) {
+  background: rgba(248, 250, 252, 0.3);
+}
+
+.odd-table tbody tr:nth-child(even):hover {
+  background: linear-gradient(135deg, var(--odd-gray-50) 0%, rgba(255, 255, 255, 0.9) 100%);
+}
+
+/* Enhanced cell padding for better spacing */
+.odd-table td {
+  padding: var(--odd-space-md) var(--odd-space-sm);
+  vertical-align: top;
+  border-color: var(--odd-border-light);
+}
+
+/* Priority content highlighting */
+.odd-cell-external-ref .odd-info-primary,
+.odd-cell-customer .odd-info-primary,
+.odd-cell-otac .odd-otac-code {
+  position: relative;
+}
+
+.odd-cell-external-ref .odd-info-primary::before,
+.odd-cell-customer .odd-info-primary::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--odd-primary);
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.odd-table tbody tr:hover .odd-cell-external-ref .odd-info-primary::before,
+.odd-table tbody tr:hover .odd-cell-customer .odd-info-primary::before {
+  opacity: 1;
+}
+
+/* Responsive column adjustments */
+@media (max-width: 1400px) {
+  .odd-cell-customer {
+    min-width: 200px;
+    max-width: 260px;
+  }
+  
+  .odd-cell-branch {
+    min-width: 160px;
+    max-width: 200px;
+  }
+  
+  .odd-cell-otac {
+    min-width: 180px;
+    max-width: 240px;
+  }
+  
+  .odd-cell-status {
+    min-width: 160px;
+    max-width: 200px;
+  }
+  
+  .odd-cell-tracking {
+    min-width: 180px;
+    max-width: 220px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .odd-table {
+    font-size: 0.875rem;
+  }
+  
+  .odd-table thead th {
+    font-size: 0.75rem;
+    padding: var(--odd-space-sm);
+  }
+  
+  .odd-table td {
+    padding: var(--odd-space-sm);
+  }
+  
+  .odd-cell-customer .odd-info-primary,
+  .odd-cell-branch .odd-info-primary {
+    font-size: 0.85rem;
+  }
+  
+  .odd-cell-customer .odd-info-secondary,
+  .odd-cell-branch .odd-info-secondary {
+    font-size: 0.75rem;
+  }
+  
+  .odd-cell-customer .odd-info-detail {
+    font-size: 0.7rem;
+  }
 }
 
 /* ==========================================================================
@@ -803,20 +1252,324 @@
 }
 
 /* ==========================================================================
-   Loading States
+   Loading States & Skeleton Screens
    ========================================================================== */
 
-.odd-loading-overlay {
+/* Skeleton Loading Components */
+.odd-loading-skeleton {
+  padding: var(--odd-space-lg);
+}
+
+.odd-skeleton-dashboard {
+  margin-bottom: var(--odd-space-xl);
+}
+
+.odd-skeleton-card {
+  background: var(--odd-surface);
+  border-radius: var(--odd-radius-lg);
+  padding: var(--odd-space-lg);
+  border: 1px solid var(--odd-border);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--odd-space-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.odd-skeleton-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.6), 
+    transparent
+  );
+  animation: odd-skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+.odd-skeleton-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--odd-radius-lg);
+  background: var(--odd-gray-200);
+  flex-shrink: 0;
+}
+
+.odd-skeleton-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.odd-skeleton-number {
+  height: 32px;
+  background: var(--odd-gray-200);
+  border-radius: var(--odd-radius-sm);
+  margin-bottom: var(--odd-space-xs);
+  width: 80%;
+}
+
+.odd-skeleton-text {
+  height: 16px;
+  background: var(--odd-gray-200);
+  border-radius: var(--odd-radius-sm);
+  margin-bottom: var(--odd-space-xs);
+  width: 60%;
+}
+
+.odd-skeleton-text-sm {
+  height: 12px;
+  background: var(--odd-gray-200);
+  border-radius: var(--odd-radius-sm);
+  width: 40%;
+}
+
+.odd-skeleton-text-lg {
+  height: 20px;
+  background: var(--odd-gray-200);
+  border-radius: var(--odd-radius-sm);
+  margin-bottom: var(--odd-space-sm);
+  width: 200px;
+}
+
+.odd-skeleton-table {
+  background: var(--odd-surface);
+  border-radius: var(--odd-radius-lg);
+  border: 1px solid var(--odd-border);
+  overflow: hidden;
+}
+
+.odd-skeleton-table-header {
+  padding: var(--odd-space-lg);
+  border-bottom: 1px solid var(--odd-border);
+  background: linear-gradient(135deg, var(--odd-gray-50) 0%, var(--odd-gray-100) 100%);
+}
+
+.odd-skeleton-table-body {
+  padding: var(--odd-space-md);
+}
+
+.odd-skeleton-row {
+  display: flex;
+  gap: var(--odd-space-md);
+  padding: var(--odd-space-md) 0;
+  border-bottom: 1px solid var(--odd-border-light);
+  position: relative;
+  overflow: hidden;
+}
+
+.odd-skeleton-row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.4), 
+    transparent
+  );
+  animation: odd-skeleton-shimmer 2s ease-in-out infinite;
+  animation-delay: calc(var(--delay, 0) * 0.1s);
+}
+
+.odd-skeleton-row:nth-child(1) { --delay: 0; }
+.odd-skeleton-row:nth-child(2) { --delay: 1; }
+.odd-skeleton-row:nth-child(3) { --delay: 2; }
+.odd-skeleton-row:nth-child(4) { --delay: 3; }
+.odd-skeleton-row:nth-child(5) { --delay: 4; }
+
+.odd-skeleton-row:last-child {
+  border-bottom: none;
+}
+
+.odd-skeleton-cell {
+  height: 60px;
+  background: var(--odd-gray-200);
+  border-radius: var(--odd-radius-sm);
+  flex: 1;
+  min-width: 100px;
+}
+
+.odd-skeleton-cell-sm {
+  flex: 0 0 60px;
+  min-width: 60px;
+}
+
+.odd-skeleton-cell-lg {
+  flex: 2;
+  min-width: 200px;
+}
+
+@keyframes odd-skeleton-shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Progressive Loading States */
+.odd-loading-progressive {
+  position: relative;
+}
+
+.odd-loading-progressive::after {
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(1px);
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 5;
+}
+
+.odd-loading-dots {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.odd-loading-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--odd-primary);
+  animation: odd-dot-bounce 1.4s ease-in-out infinite both;
+}
+
+.odd-loading-dot:nth-child(1) { animation-delay: -0.32s; }
+.odd-loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes odd-dot-bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  } 40% {
+    transform: scale(1);
+  }
+}
+
+/* Skeleton responsive */
+@media (max-width: 768px) {
+  .odd-skeleton-card {
+    padding: var(--odd-space-md);
+    gap: var(--odd-space-sm);
+  }
+  
+  .odd-skeleton-icon {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .odd-skeleton-number {
+    height: 24px;
+  }
+  
+  .odd-skeleton-row {
+    flex-direction: column;
+    gap: var(--odd-space-sm);
+  }
+  
+  .odd-skeleton-cell {
+    height: 40px;
+    flex: none;
+  }
+  
+  .odd-skeleton-cell-sm,
+  .odd-skeleton-cell-lg {
+    flex: none;
+    min-width: auto;
+  }
+}
+
+/* Loading Overlay */
+.odd-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   z-index: 100;
+  backdrop-filter: blur(2px);
+}
+
+.odd-loading-content {
+  text-align: center;
+  padding: var(--odd-space-lg);
+}
+
+.odd-loading-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--odd-gray-700);
+  margin-bottom: var(--odd-space-sm);
+}
+
+.odd-loading-subtitle {
+  font-size: 0.875rem;
+  color: var(--odd-gray-500);
+  margin-bottom: var(--odd-space-lg);
+}
+
+/* Loading state for dashboard cards */
+.odd-dashboard-card-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.odd-dashboard-card-loading .odd-dashboard-number,
+.odd-dashboard-card-loading .odd-dashboard-label {
+  background: var(--odd-gray-200);
+  color: transparent;
+  border-radius: var(--odd-radius-sm);
+  animation: odd-pulse 1.5s ease-in-out infinite;
+}
+
+.odd-dashboard-card-loading .odd-dashboard-number {
+  height: 32px;
+  width: 60px;
+}
+
+.odd-dashboard-card-loading .odd-dashboard-label {
+  height: 16px;
+  width: 80px;
+}
+
+/* Button loading states */
+.odd-btn-loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.odd-btn-loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin-left: -8px;
+  margin-top: -8px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: odd-spin 1s linear infinite;
 }
 
 .odd-loading-spinner {
