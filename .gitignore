@@ -427,3 +427,20 @@ secrets.json
 # Dev helper binaries (auto-downloaded tools)
 /scripts/tools/*
 !/scripts/tools/README.md
+/BizConnect/wwwroot/test-close-button-fix.html
+/BizConnect/wwwroot/test-integration-complete.html
+/BizConnect/wwwroot/test-loading-improvements.html
+/BizConnect/wwwroot/test-otac-modal-fixes.html
+/BizConnect/wwwroot/test-otac-table-refresh.html
+/BizConnect/wwwroot/test-priority2-features-enhanced.html
+/BizConnect/wwwroot/test-priority2-features.html
+/BizConnect/wwwroot/test-table-refresh.html
+/BizConnect/wwwroot/ui-improvements-demo.html
+/BUTTON_SIZE_OPTIMIZATION.md
+/cleanup_otac_folder.bat
+/OTAC_CLEANUP_VERIFICATION.md
+/PHASE2_INTEGRATION_GUIDE.md
+/BizConnect/KBANK_ODD_SETUP.md
+/BizConnect/environment-setup.md
+/BizConnect/SERVICE_WORKER_README.md
+/BizConnect/wwwroot/MODERN-UI-GUIDE.md
