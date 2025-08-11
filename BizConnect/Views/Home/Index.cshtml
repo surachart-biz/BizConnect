@@ -257,6 +257,8 @@
 </div>
 
 @section Styles {
+    <!-- Landing page specific styles -->
+    <link rel="stylesheet" href="~/css/landing-page.css" asp-append-version="true" />
     <!-- Modal correctness fixes -->
     <link rel="stylesheet" href="~/css/modal-fixes.css" asp-append-version="true" />
 }
@@ -476,6 +478,38 @@
         } else {
             initLandingPage();
         }
+    </script>
+
+    <script>
+        // Dynamic height adjustment for viewport optimization (Landing page specific)
+        function adjustHeroHeight() {
+            const header = document.querySelector('.header');
+            const heroSection = document.querySelector('.hero-section');
+
+            if (header && heroSection) {
+                const headerHeight = header.offsetHeight;
+                const viewportHeight = window.innerHeight;
+                const calculatedHeight = viewportHeight - headerHeight;
+
+                // Set minimum height based on actual header height
+                heroSection.style.minHeight = calculatedHeight + 'px';
+
+                // Debug logging (remove in production)
+                console.log('Header height:', headerHeight);
+                console.log('Viewport height:', viewportHeight);
+                console.log('Calculated hero height:', calculatedHeight);
+
+                // Warn if content might cause scrolling
+                const heroContent = heroSection.offsetHeight;
+                if (heroContent > calculatedHeight) {
+                    console.warn('Hero content might cause scrolling. Content height:', heroContent, 'Available height:', calculatedHeight);
+                }
+            }
+        }
+
+        // Run on load and resize
+        window.addEventListener('load', adjustHeroHeight);
+        window.addEventListener('resize', adjustHeroHeight);
     </script>
 
 }
