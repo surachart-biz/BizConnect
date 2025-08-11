@@ -1,0 +1,377 @@
+/*
+ * KBank Registration Form Styles
+ * Optimized and organized CSS extracted from inline styles
+ * Bootstrap 5 compatible
+ */
+
+/* ===== MAIN CONTAINER ===== */
+.register-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 2rem 0;
+}
+
+.register-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    padding: 3rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* ===== HEADER SECTION ===== */
+.register-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.register-logo {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #0066CC, #004499);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: white;
+    font-size: 2rem;
+}
+
+.register-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.register-subtitle {
+    color: #6c757d;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+/* ===== OTAC DISPLAY ===== */
+.otac-display {
+    background: linear-gradient(135deg, #e8f5e8, #d4edda);
+    border: 2px solid #28a745;
+    border-radius: 15px;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    text-align: center;
+}
+
+.otac-code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #155724;
+    letter-spacing: 0.3em;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* ===== PROGRESS INDICATOR ===== */
+.progress-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    color: #6c757d;
+}
+
+.step.active {
+    color: #0066CC;
+}
+
+.step.completed {
+    color: #28a745;
+}
+
+.step-number {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+.step.active .step-number {
+    background: #0066CC;
+    color: white;
+}
+
+.step.completed .step-number {
+    background: #28a745;
+    color: white;
+}
+
+.step-connector {
+    width: 50px;
+    height: 2px;
+    background: #e9ecef;
+    margin: 0 1rem;
+}
+
+.step.completed + * .step-connector {
+    background: #28a745;
+}
+
+/* ===== FORM SECTIONS ===== */
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.5rem;
+}
+
+.section-icon {
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(135deg, #0066CC, #004499);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-right: 1rem;
+    font-size: 1rem;
+}
+
+/* ===== FORM INPUTS ===== */
+.form-floating {
+    margin-bottom: 1.5rem;
+}
+
+.form-floating > .form-control {
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1rem;
+    padding: 1rem 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.form-floating > .form-control:focus {
+    border-color: #0066CC;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.form-floating > .form-control.is-invalid {
+    border-color: #dc3545;
+    background: #fff5f5;
+}
+
+.form-floating > label {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* ===== INPUT GROUPS ===== */
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+.input-group-text {
+    background: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-right: none;
+    border-radius: 12px 0 0 12px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* ===== INPUT HINTS AND VALIDATION ===== */
+.input-hint {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background: rgba(108, 117, 125, 0.05);
+    border-radius: 6px;
+    border-left: 3px solid #6c757d;
+}
+
+.required-field::after {
+    content: " *";
+    color: #dc3545;
+}
+
+/* ===== FORM VALIDATION STYLING ===== */
+.was-validated .form-control:valid {
+    border-color: #28a745;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='m2.3 6.73.79-.79L4.25 4.77l-.79-.79L2.3 5.14l-.79-.79L.72 5.14z'/%3e%3c/svg%3e");
+}
+
+.was-validated .form-control:invalid {
+    border-color: #dc3545;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 4.6.4.4.4-.4m-.4.4v1.8'/%3e%3c/svg%3e");
+}
+
+/* ===== BUTTONS ===== */
+.register-btn {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border: none;
+    color: white;
+    padding: 1rem 3rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 2rem;
+}
+
+.register-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
+    color: white;
+}
+
+.register-btn:disabled {
+    background: #6c757d;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ===== SECURITY NOTICE ===== */
+.security-notice {
+    background: #e3f2fd;
+    border: 1px solid #bbdefb;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.security-notice-title {
+    color: #0066CC;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ===== LOADING ANIMATION ===== */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { 
+        transform: rotate(360deg); 
+    }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    .register-card {
+        padding: 2rem 1.5rem;
+        margin: 1rem;
+        border-radius: 15px;
+    }
+
+    .register-title {
+        font-size: 2rem;
+    }
+
+    .progress-indicator {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .step-connector {
+        width: 2px;
+        height: 30px;
+        margin: 0.5rem 0;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+    }
+
+    .form-floating > .form-control {
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+}
+
+/* ===== MODAL ENHANCEMENTS ===== */
+.terms-content h6,
+.privacy-content h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 0.5rem;
+}
+
+.terms-content p,
+.privacy-content p {
+    color: #495057;
+    line-height: 1.6;
+    text-align: justify;
+}
+
+/* ===== UTILITY CLASSES ===== */
+.text-primary {
+    text-decoration: none;
+}
+
+.text-primary:hover {
+    text-decoration: underline;
+}
+
+/* ===== ACCESSIBILITY IMPROVEMENTS ===== */
+.form-control:focus,
+.form-select:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+}
+
+.btn:focus {
+    outline: 2px solid rgba(0, 102, 204, 0.5);
+    outline-offset: 2px;
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+    .register-container {
+        background: white;
+        min-height: auto;
+    }
+    
+    .register-card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+    
+    .register-btn,
+    .modal {
+        display: none;
+    }
+}
