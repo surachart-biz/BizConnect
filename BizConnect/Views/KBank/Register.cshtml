@@ -26,44 +26,54 @@
 
                 <div class="steps-grid">
                     <div class="step-card completed">
-                        <div class="step-number">
-                            <i class="fas fa-check"></i>
+                        <div class="step-indicator">
+                            <div class="step-number">1</div>
+                            <div class="step-icon-overlay">
+                                <i class="fas fa-check"></i>
+                            </div>
                         </div>
-                        <div class="step-icon">
-                            <i class="fas fa-key"></i>
+                        <div class="step-content">
+                            <h3 class="step-title" data-text-th="ยืนยัน OTAC" data-text-en="Verify OTAC">@ViewBag.TextVerifyOtac</h3>
+                            <p class="step-description"
+                               data-text-th="ยืนยันรหัส OTAC ที่ได้รับจากเจ้าหน้าที่เพื่อเริ่มกระบวนการลงทะเบียน รหัสนี้ใช้ได้เพียงครั้งเดียว"
+                               data-text-en="Verify OTAC code received from staff to start registration process. This code is for one-time use only">
+                                @ViewBag.TextVerifyOtacDesc
+                            </p>
                         </div>
-                        <h3 class="step-title" data-text-th="ยืนยัน OTAC" data-text-en="Verify OTAC">@ViewBag.TextVerifyOtac</h3>
-                        <p class="step-description"
-                           data-text-th="ยืนยันรหัส OTAC ที่ได้รับจากเจ้าหน้าที่เพื่อเริ่มกระบวนการลงทะเบียน รหัสนี้ใช้ได้เพียงครั้งเดียว"
-                           data-text-en="Verify OTAC code received from staff to start registration process. This code is for one-time use only">
-                            @ViewBag.TextVerifyOtacDesc
-                        </p>
                     </div>
 
                     <div class="step-card active">
-                        <div class="step-number">2</div>
-                        <div class="step-icon">
-                            <i class="fas fa-edit"></i>
+                        <div class="step-indicator">
+                            <div class="step-number">2</div>
+                            <div class="step-icon-overlay">
+                                <i class="fas fa-edit"></i>
+                            </div>
                         </div>
-                        <h3 class="step-title" data-text-th="กรอกข้อมูล" data-text-en="Fill Information">@ViewBag.TextFillInformation</h3>
-                        <p class="step-description"
-                           data-text-th="กรอกข้อมูลส่วนตัว หมายเลขบัญชี และรายละเอียดที่จำเป็นสำหรับการลงทะเบียนบริการหักบัญชีอัตโนมัติ"
-                           data-text-en="Fill in personal information, account number, and required details for automatic direct debit service registration">
-                            @ViewBag.TextFillInformationDesc
-                        </p>
+                        <div class="step-content">
+                            <h3 class="step-title" data-text-th="กรอกข้อมูล" data-text-en="Fill Information">@ViewBag.TextFillInformation</h3>
+                            <p class="step-description"
+                               data-text-th="กรอกข้อมูลส่วนตัว หมายเลขบัญชี และรายละเอียดที่จำเป็นสำหรับการลงทะเบียนบริการหักบัญชีอัตโนมัติ"
+                               data-text-en="Fill in personal information, account number, and required details for automatic direct debit service registration">
+                                @ViewBag.TextFillInformationDesc
+                            </p>
+                        </div>
                     </div>
 
                     <div class="step-card">
-                        <div class="step-number">3</div>
-                        <div class="step-icon">
-                            <i class="fas fa-check-circle"></i>
+                        <div class="step-indicator">
+                            <div class="step-number">3</div>
+                            <div class="step-icon-overlay">
+                                <i class="fas fa-university"></i>
+                            </div>
                         </div>
-                        <h3 class="step-title" data-text-th="ยืนยันผ่าน KBank" data-text-en="Confirm via KBank">@ViewBag.TextConfirmViaKBank</h3>
-                        <p class="step-description"
-                           data-text-th="ระบบจะเชื่อมต่อกับ KBank เพื่อยืนยันข้อมูลและเปิดใช้งานบริการหักบัญชีอัตโนมัติให้คุณ"
-                           data-text-en="System will connect to KBank to verify information and activate automatic direct debit service for you">
-                            @ViewBag.TextConfirmViaKBankDesc
-                        </p>
+                        <div class="step-content">
+                            <h3 class="step-title" data-text-th="ยืนยันผ่าน KBank" data-text-en="Confirm via KBank">@ViewBag.TextConfirmViaKBank</h3>
+                            <p class="step-description"
+                               data-text-th="ระบบจะเชื่อมต่อกับ KBank เพื่อยืนยันข้อมูลและเปิดใช้งานบริการหักบัญชีอัตโนมัติให้คุณ"
+                               data-text-en="System will connect to KBank to verify information and activate automatic direct debit service for you">
+                                @ViewBag.TextConfirmViaKBankDesc
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
