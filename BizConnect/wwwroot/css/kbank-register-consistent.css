@@ -646,104 +646,126 @@ body {
     color: var(--kbank-green);
 }
 
-/* Security section matching landing page */
-.security-section {
-    background: rgba(255, 255, 255, 0.5);
-    padding: 3rem 2rem;
-    margin-top: 3rem;
+/* Compact Security Section */
+.security-compact-section {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 2rem;
+    margin-top: 2rem;
     border-radius: var(--border-radius-large);
     border: 1px solid var(--neutral-200);
     backdrop-filter: blur(8px);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
 }
 
-.security-container {
-    max-width: 800px;
+.security-compact-container {
+    max-width: 900px;
     margin: 0 auto;
-    padding: 0 2rem;
 }
 
-.security-content h2 {
-    color: var(--text-primary);
-    font-weight: 700;
-    margin-bottom: 2rem;
-}
-
-.security-features {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    margin-bottom: 2rem;
-}
-
-.security-feature {
+.security-header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 1rem;
-    text-align: left;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--neutral-200);
 }
 
-.security-content {
-    flex: 1;
-}
-
-.security-content h2 {
-    text-align: center;
-    color: var(--text-primary);
-    font-weight: 700;
-    margin-bottom: 2rem;
-    font-size: 2rem;
-}
-
-.security-text h3 {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-    line-height: 1.3;
-}
-
-.security-icon {
+.security-header-icon {
     width: 50px;
     height: 50px;
-    background: linear-gradient(135deg, var(--primary-blue), var(--kbank-green));
+    background: linear-gradient(135deg, var(--kbank-green), var(--primary-blue));
     border-radius: var(--border-radius);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 1.25rem;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.security-header-content h3 {
+    color: var(--text-primary);
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.4rem;
+}
+
+.security-header-content p {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.security-features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.security-feature-compact {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    background: rgba(248, 250, 252, 0.8);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(224, 224, 224, 0.4);
+    transition: all 0.3s ease;
+}
+
+.security-feature-compact:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(25, 118, 210, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.security-feature-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--primary-blue), var(--kbank-green));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.9rem;
     flex-shrink: 0;
 }
 
-.security-text p {
-    color: var(--text-secondary);
-    line-height: 1.6;
-    margin: 0;
-    font-size: 0.95rem;
+.security-feature-compact span {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.9rem;
+    line-height: 1.4;
 }
 
-/* Security visual section */
-.security-visual {
-    margin-top: 2rem;
+.security-trust-badges {
     display: flex;
     justify-content: center;
+    margin-top: 1rem;
 }
 
-.security-visual .otac-card {
-    max-width: 400px;
-    width: 100%;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px);
-    border-radius: var(--border-radius-large);
-    padding: 2rem;
-    box-shadow: var(--shadow-large);
-    border: 1px solid var(--neutral-200);
-}
-
-.security-container {
+.trust-badge {
     display: flex;
-    flex-direction: column;
-    gap: 2rem;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--kbank-green-dark);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(76, 175, 80, 0.2);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.trust-badge i {
+    color: var(--kbank-green);
+    font-size: 1rem;
 }
 
 /* Modal styling consistent with site theme */
@@ -941,32 +963,29 @@ body {
         padding: 0.875rem 1.25rem;
     }
     
-    .security-container {
-        padding: 0 1rem;
-        flex-direction: column;
-    }
-    
-    .security-content h2 {
-        font-size: 1.75rem;
-    }
-    
-    .security-feature {
-        flex-direction: column;
-        text-align: center;
-        gap: 0.75rem;
-    }
-    
-    .security-text {
-        text-align: center;
-    }
-    
-    .security-visual {
+    .security-compact-section {
+        padding: 1.5rem 1rem;
         margin-top: 1.5rem;
     }
     
-    .security-visual .otac-card {
-        padding: 1.5rem;
-        max-width: 320px;
+    .security-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .security-header-content h3 {
+        font-size: 1.3rem;
+    }
+    
+    .security-features-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .security-feature-compact {
+        justify-content: center;
+        padding: 1rem;
     }
     
     .otac-input {
@@ -1056,17 +1075,28 @@ body {
         font-size: 0.85rem;
     }
     
-    .security-content h2 {
-        font-size: 1.5rem;
+    .security-compact-section {
+        padding: 1rem 0.5rem;
+        margin-top: 1rem;
     }
     
-    .security-text h3 {
-        font-size: 1.1rem;
+    .security-header-content h3 {
+        font-size: 1.2rem;
     }
     
-    .security-visual .otac-card {
-        padding: 1rem;
-        max-width: 280px;
+    .security-header-content p {
+        font-size: 0.9rem;
+    }
+    
+    .security-feature-compact {
+        padding: 0.75rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+    
+    .security-feature-compact span {
+        font-size: 0.85rem;
     }
     
     .otac-input {
@@ -1090,28 +1120,17 @@ body {
 
 /* Large screen improvements */
 @media (min-width: 992px) {
-    .security-container {
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 3rem;
+    .security-features-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
     }
     
-    .security-content {
-        flex: 2;
-    }
-    
-    .security-visual {
-        flex: 1;
-        margin-top: 0;
-    }
-    
-    .security-content h2 {
+    .security-header {
         text-align: left;
-        margin-bottom: 2.5rem;
     }
     
-    .security-features {
-        gap: 2.5rem;
+    .security-compact-section {
+        padding: 2.5rem;
     }
 }
 
@@ -1237,7 +1256,7 @@ body {
         display: none !important;
     }
     
-    .security-section {
+    .security-compact-section {
         background: white !important;
         box-shadow: none !important;
     }

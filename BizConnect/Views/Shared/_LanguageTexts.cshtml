@@ -104,8 +104,14 @@ Then reference texts using the stored variables.
     ViewBag.TextUsageRate = isThaiLanguage ? "อัตราการใช้งาน" : "Usage Rate";
     
     // Registration Form Specific Text
+    ViewBag.TextRegistrationProcess = isThaiLanguage ? "ขั้นตอนการลงทะเบียน" : "Registration Process";
+    ViewBag.TextRegistrationStepsDesc = isThaiLanguage ? "เพียง 3 ขั้นตอนง่ายๆ คุณก็สามารถลงทะเบียนบริการหักบัญชีอัตโนมัติได้แล้ว" : "Just 3 simple steps to register for automatic direct debit service";
     ViewBag.TextVerifyOtac = isThaiLanguage ? "ยืนยัน OTAC" : "Verify OTAC";
+    ViewBag.TextVerifyOtacDesc = isThaiLanguage ? "ยืนยันรหัス OTAC ที่ได้รับจากเจ้าหน้าที่เพื่อเริ่มกระบวนการลงทะเบียน รหัสนี้ใช้ได้เพียงครั้งเดียว" : "Verify OTAC code received from staff to start registration process. This code is for one-time use only";
     ViewBag.TextFillInformation = isThaiLanguage ? "กรอกข้อมูล" : "Fill Information";
+    ViewBag.TextFillInformationDesc = isThaiLanguage ? "กรอกข้อมูลส่วนตัว หมายเลขบัญชี และรายละเอียดที่จำเป็นสำหรับการลงทะเบียนบริการหักบัญชีอัตโนมัติ" : "Fill in personal information, account number, and required details for automatic direct debit service registration";
+    ViewBag.TextConfirmViaKBank = isThaiLanguage ? "ยืนยันผ่าน KBank" : "Confirm via KBank";
+    ViewBag.TextConfirmViaKBankDesc = isThaiLanguage ? "ระบบจะเชื่อมต่อกับ KBank เพื่อยืนยันข้อมูลและเปิดใช้งานบริการหักบัญชีอัตโนมัติให้คุณ" : "System will connect to KBank to verify information and activate automatic direct debit service for you";
     ViewBag.TextPleaseFillInfo = isThaiLanguage ? "กรุณากรอกข้อมูลของท่านให้ครบถ้วนและถูกต้อง" : "Please fill in your information completely and accurately";
     ViewBag.TextVerifiedOtacCode = isThaiLanguage ? "รหัส OTAC ที่ยืนยันแล้ว:" : "Verified OTAC Code:";
     
@@ -139,7 +145,13 @@ Then reference texts using the stored variables.
     ViewBag.TextRegisterDirectDebit = isThaiLanguage ? "ลงทะเบียนหักบัญชีอัตโนมัติ" : "Register for Direct Debit";
     
     // Security Section
-    ViewBag.TextSecurityTitle = isThaiLanguage ? "การรักษาความปลอดภัย" : "Security";
+    ViewBag.TextSecurityTitle = isThaiLanguage ? "ความปลอดภัยระดับธนาคาร" : "Bank-Grade Security";
+    ViewBag.TextSecurityDesc = isThaiLanguage ? "ข้อมูลของคุณได้รับการปกป้องด้วยเทคโนโลยีความปลอดภัยขั้นสูง" : "Your data is protected with advanced security technology";
+    ViewBag.TextSSLEncryption = isThaiLanguage ? "เข้ารหัส SSL/TLS" : "SSL/TLS Encryption";
+    ViewBag.TextOneTimeCode = isThaiLanguage ? "รหัส OTAC ใช้ครั้งเดียว" : "One-Time OTAC";
+    ViewBag.TextContinuousMonitoring = isThaiLanguage ? "การตรวจสอบต่อเนื่อง" : "Continuous Monitoring";
+    ViewBag.TextBankingStandards = isThaiLanguage ? "มาตรฐานธนาคาร" : "Banking Standards";
+    ViewBag.TextSecurityCertified = isThaiLanguage ? "ได้รับการรับรองความปลอดภัย" : "Security Certified";
     ViewBag.TextSecurityNotice = isThaiLanguage ? "ข้อมูลของท่านจะถูกเข้ารหัสและส่งต่อไปยังระบบ KBank อย่างปลอดภัย โดยเป็นไปตามมาตรฐานความปลอดภัยระดับธนาคาร" : "Your data will be encrypted and securely transmitted to KBank system in accordance with banking-level security standards";
     
     // Terms Modal Content

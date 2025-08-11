@@ -264,72 +264,54 @@
             }
         </div>
 
-        <!-- Security Section (matching landing page style) -->
-        <section class="security-section">
-            <div class="security-container">
-                <div class="security-content">
-                    <h2 data-text-th="ความปลอดภัยระดับธนาคาร" data-text-en="Bank-Grade Security">@ViewBag.TextSecurityTitle</h2>
-
-                    <div class="security-features">
-                        <div class="security-feature">
-                            <div class="security-icon">
-                                <i class="fas fa-lock"></i>
-                            </div>
-                            <div class="security-text">
-                                <h3 data-text-th="เข้ารหัสระดับสูง" data-text-en="High-Level Encryption">@ViewBag.TextHighLevelEncryption</h3>
-                                <p data-text-th="ข้อมูลทั้งหมดได้รับการเข้ารหัส SSL/TLS และมาตรฐานความปลอดภัยของธนาคาร" 
-                                   data-text-en="All data is encrypted with SSL/TLS and bank-grade security standards">@ViewBag.TextEncryptionDesc</p>
-                            </div>
-                        </div>
-
-                        <div class="security-feature">
-                            <div class="security-icon">
-                                <i class="fas fa-key"></i>
-                            </div>
-                            <div class="security-text">
-                                <h3 data-text-th="รหัส OTAC แบบใช้ครั้งเดียว" data-text-en="One-Time OTAC Code">@ViewBag.TextOneTimeOtac</h3>
-                                <p data-text-th="รหัสมีอายุจำกัดและใช้ได้เพียงครั้งเดียว ป้องกันการใช้งานโดยไม่ได้รับอนุญาต"
-                                   data-text-en="Code has limited validity and can only be used once, preventing unauthorized access">@ViewBag.TextOtacSecurityDesc</p>
-                            </div>
-                        </div>
-
-                        <div class="security-feature">
-                            <div class="security-icon">
-                                <i class="fas fa-eye"></i>
-                            </div>
-                            <div class="security-text">
-                                <h3 data-text-th="ติดตามและตรวจสอบ" data-text-en="Monitoring & Tracking">@ViewBag.TextMonitoringTracking</h3>
-                                <p data-text-th="ระบบมีการบันทึกและติดตามการใช้งานทุกขั้นตอนเพื่อความปลอดภัย"
-                                   data-text-en="System logs and tracks all usage activities for enhanced security">@ViewBag.TextMonitoringDesc</p>
-                            </div>
-                        </div>
+        <!-- Compact Security Section -->
+        <section class="security-compact-section">
+            <div class="security-compact-container">
+                <div class="security-header">
+                    <div class="security-header-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="security-header-content">
+                        <h3 data-text-th="ความปลอดภัยระดับธนาคาร" data-text-en="Bank-Grade Security">@ViewBag.TextSecurityTitle</h3>
+                        <p data-text-th="ข้อมูลของคุณได้รับการปกป้องด้วยเทคโนโลยีความปลอดภัยขั้นสูง" 
+                           data-text-en="Your data is protected with advanced security technology">@ViewBag.TextSecurityDesc</p>
                     </div>
                 </div>
 
-                <div class="security-visual">
-                    <div class="otac-card">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <i class="fas fa-shield-alt"></i>
-                            </div>
-                            <h3 class="card-title" data-text-th="การรักษาความปลอดภัย" data-text-en="Security Protection">@ViewBag.TextSecurityProtection</h3>
-                            <p class="card-subtitle" data-text-th="มาตรฐานระดับธนาคาร" data-text-en="Bank-Grade Standard">@ViewBag.TextBankGradeStandard</p>
+                <div class="security-features-grid">
+                    <div class="security-feature-compact">
+                        <div class="security-feature-icon">
+                            <i class="fas fa-lock"></i>
                         </div>
+                        <span data-text-th="เข้ารหัส SSL/TLS" data-text-en="SSL/TLS Encryption">@ViewBag.TextSSLEncryption</span>
+                    </div>
 
-                        <div style="padding: 1rem 0;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                <span style="color: var(--text-secondary);" data-text-th="เข้ารหัสข้อมูล" data-text-en="Data Encryption">@ViewBag.TextDataEncryption</span>
-                                <span style="color: var(--success); font-weight: 600;" data-text-th="✓ เปิดใช้งาน" data-text-en="✓ Enabled">@ViewBag.TextEnabled</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                <span style="color: var(--text-secondary);" data-text-th="ยืนยันตัวตน" data-text-en="Identity Verification">@ViewBag.TextIdentityVerification</span>
-                                <span style="color: var(--success); font-weight: 600;" data-text-th="✓ เปิดใช้งาน" data-text-en="✓ Enabled">@ViewBag.TextEnabled</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span style="color: var(--text-secondary);" data-text-th="การตรวจสอบ" data-text-en="Monitoring">@ViewBag.TextMonitoring</span>
-                                <span style="color: var(--success); font-weight: 600;" data-text-th="✓ เปิดใช้งาน" data-text-en="✓ Enabled">@ViewBag.TextEnabled</span>
-                            </div>
+                    <div class="security-feature-compact">
+                        <div class="security-feature-icon">
+                            <i class="fas fa-key"></i>
                         </div>
+                        <span data-text-th="รหัส OTAC ใช้ครั้งเดียว" data-text-en="One-Time OTAC">@ViewBag.TextOneTimeCode</span>
+                    </div>
+
+                    <div class="security-feature-compact">
+                        <div class="security-feature-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <span data-text-th="การตรวจสอบต่อเนื่อง" data-text-en="Continuous Monitoring">@ViewBag.TextContinuousMonitoring</span>
+                    </div>
+
+                    <div class="security-feature-compact">
+                        <div class="security-feature-icon">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <span data-text-th="มาตรฐานธนาคาร" data-text-en="Banking Standards">@ViewBag.TextBankingStandards</span>
+                    </div>
+                </div>
+
+                <div class="security-trust-badges">
+                    <div class="trust-badge">
+                        <i class="fas fa-check-circle"></i>
+                        <span data-text-th="ได้รับการรับรองความปลอดภัย" data-text-en="Security Certified">@ViewBag.TextSecurityCertified</span>
                     </div>
                 </div>
             </div>

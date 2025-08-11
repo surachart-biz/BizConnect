@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ลงทะเบียนหักบัญชีอัตโนมัติ - BizConnect</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS Variables and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --kbank-green: #4CAF50;
+            --kbank-green-light: #81C784;
+            --kbank-green-dark: #388E3C;
+            --primary-blue: #1976D2;
+            --primary-blue-light: #42A5F5;
+            --accent-gold: #FFB000;
+            --success: #00C853;
+            --warning: #FF8F00;
+            --danger: #D32F2F;
+            --neutral-50: #FAFAFA;
+            --neutral-100: #F5F5F5;
+            --neutral-200: #EEEEEE;
+            --neutral-300: #E0E0E0;
+            --neutral-700: #424242;
+            --neutral-800: #303030;
+            --neutral-900: #212121;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --shadow-light: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-medium: 0 4px 20px rgba(0,0,0,0.15);
+            --shadow-large: 0 8px 32px rgba(0,0,0,0.2);
+            --border-radius: 12px;
+            --border-radius-large: 20px;
+        }
+
+        body {
+            font-family: 'Sarabun', 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8faff 0%, #e8f4f8 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--neutral-200);
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-light);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            height: 70px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--kbank-green), var(--primary-blue));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-blue);
+        }
+
+        /* Language Toggle */
+        .language-toggle {
+            display: flex;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--neutral-200);
+            border-radius: 25px;
+            padding: 0.25rem;
+            gap: 0.125rem;
+        }
+
+        .language-toggle button {
+            border: none;
+            background: transparent;
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .language-toggle button.active {
+            background: var(--primary-blue);
+            color: white;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+        }
+
+        /* Landing Page Wrapper */
+        .landing-wrapper {
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .register-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Steps Section */
+        .steps-section {
+            padding: 3rem 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(248, 250, 255, 0.3));
+            border-radius: var(--border-radius-large);
+            margin: 2rem 0;
+        }
+
+        .steps-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .section-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        /* Modern Steps Grid */
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            position: relative;
+            align-items: stretch;
+        }
+
+        /* Desktop connecting line */
+        .steps-grid::before {
+            content: '';
+            position: absolute;
+            top: 60px;
+            left: 15%;
+            right: 15%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--neutral-300) 0%, var(--success) 33%, var(--primary-blue) 66%, var(--neutral-300) 100%);
+            z-index: 1;
+            border-radius: 2px;
+        }
+
+        .step-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--border-radius-large);
+            padding: 2rem 1.5rem;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 2;
+            border: 1px solid var(--neutral-200);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .step-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Step indicator circle */
+        .step-indicator {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--neutral-200);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            position: relative;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            z-index: 3;
+        }
+
+        .step-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-icon-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 3;
+        }
+
+        /* Completed state (Step 1) */
+        .step-card.completed .step-indicator {
+            background: linear-gradient(135deg, var(--success), #00E676);
+            box-shadow: 0 4px 20px rgba(0, 200, 83, 0.3);
+        }
+
+        .step-card.completed .step-number {
+            opacity: 0;
+        }
+
+        .step-card.completed .step-icon-overlay {
+            opacity: 1;
+            color: white;
+        }
+
+        .step-card.completed {
+            border-color: var(--success);
+            background: linear-gradient(135deg, rgba(0, 200, 83, 0.05), rgba(0, 230, 118, 0.03));
+        }
+
+        /* Active state (Step 2) */
+        .step-card.active .step-indicator {
+            background: linear-gradient(135deg, var(--primary-blue), #2196F3);
+            box-shadow: 0 4px 20px rgba(25, 118, 210, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .step-card.active .step-number {
+            color: white;
+        }
+
+        .step-card.active {
+            border-color: var(--primary-blue);
+            background: linear-gradient(135deg, rgba(25, 118, 210, 0.05), rgba(33, 150, 243, 0.03));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(25, 118, 210, 0.15);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 4px 20px rgba(25, 118, 210, 0.3);
+            }
+            50% {
+                box-shadow: 0 4px 20px rgba(25, 118, 210, 0.5);
+            }
+        }
+
+        .step-content {
+            padding-top: 0.5rem;
+        }
+
+        .step-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 1rem 0;
+            line-height: 1.3;
+        }
+
+        .step-description {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin: 0;
+            text-align: center;
+        }
+
+        /* Registration Form Card */
+        .register-form-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-radius: var(--border-radius-large);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-large);
+            border: 1px solid var(--neutral-200);
+            margin-top: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        .card-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--kbank-green), var(--primary-blue));
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin: 0 auto 1.5rem;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .card-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .card-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Hero Badge for OTAC Display */
+        .hero-badge {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--kbank-green-dark);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: 1px solid rgba(76, 175, 80, 0.2);
+        }
+
+        .hero-badge i {
+            color: var(--kbank-green);
+        }
+
+        /* Form Sections */
+        .form-section {
+            margin-bottom: 2.5rem;
+            background: rgba(248, 250, 252, 0.5);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            border: 1px solid rgba(224, 224, 224, 0.3);
+        }
+
+        .section-heading {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid rgba(25, 118, 210, 0.2);
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin: -0.5rem -0.5rem 1.5rem -0.5rem;
+        }
+
+        .section-heading i {
+            color: var(--primary-blue);
+        }
+
+        /* Form Inputs */
+        .otac-input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            display: block;
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .required-field::after {
+            content: " *";
+            color: var(--danger);
+        }
+
+        .otac-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+            border: 2px solid var(--neutral-300);
+            border-radius: var(--border-radius);
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+            font-family: inherit;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .otac-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15), 0 2px 8px rgba(0,0,0,0.08);
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .input-hint {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.25rem;
+        }
+
+        .input-hint i {
+            color: var(--primary-blue);
+            margin-top: 0.1rem;
+            flex-shrink: 0;
+        }
+
+        /* Form Check (Checkbox) */
+        .form-check {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(224, 224, 224, 0.4);
+        }
+
+        .form-check-input {
+            width: 1.2rem;
+            height: 1.2rem;
+            border: 2px solid var(--neutral-300);
+            border-radius: 4px;
+            margin-top: 0.25rem;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+
+        .form-check-label {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+            margin-left: 0.5rem;
+        }
+
+        /* Submit Button */
+        .card-action {
+            width: 100%;
+            background: linear-gradient(135deg, var(--kbank-green), var(--primary-blue));
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 1.25rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .card-action:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-large);
+        }
+
+        /* Compact Security Section */
+        .security-compact-section {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 2rem;
+            margin-top: 2rem;
+            border-radius: var(--border-radius-large);
+            border: 1px solid var(--neutral-200);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .security-compact-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .security-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        .security-header-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--kbank-green), var(--primary-blue));
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .security-header-content h3 {
+            color: var(--text-primary);
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            font-size: 1.4rem;
+        }
+
+        .security-header-content p {
+            color: var(--text-secondary);
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .security-features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .security-feature-compact {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            background: rgba(248, 250, 252, 0.8);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(224, 224, 224, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .security-feature-compact:hover {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(25, 118, 210, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .security-feature-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--kbank-green));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .security-feature-compact span {
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .security-trust-badges {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--kbank-green-dark);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(76, 175, 80, 0.2);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .trust-badge i {
+            color: var(--kbank-green);
+            font-size: 1rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .register-form-card {
+                padding: 1.5rem;
+                margin: 1rem 0.5rem;
+                max-width: none;
+            }
+            
+            .section-title {
+                font-size: 1.75rem;
+            }
+            
+            .section-subtitle {
+                font-size: 1rem;
+            }
+            
+            .steps-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+            
+            .steps-grid::before {
+                display: none;
+            }
+            
+            .steps-grid::after {
+                content: '';
+                position: absolute;
+                left: 50%;
+                top: 80px;
+                bottom: 80px;
+                width: 2px;
+                background: linear-gradient(180deg, var(--success) 0%, var(--primary-blue) 50%, var(--neutral-300) 100%);
+                transform: translateX(-50%);
+                z-index: 1;
+                border-radius: 2px;
+            }
+            
+            .security-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            .security-features-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .nav-container {
+                padding: 0 1rem;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo-section">
+                <div class="logo">B</div>
+                <div class="logo-text">BizConnect</div>
+            </div>
+            <nav class="nav-links">
+                <a href="#" class="nav-link">หน้าหลัก</a>
+                <a href="#" class="nav-link">เข้าสู่ระบบ</a>
+                <div class="language-toggle">
+                    <button class="active">ไทย</button>
+                    <button>EN</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="landing-wrapper">
+        <div class="register-container">
+            <!-- Progress Steps Section -->
+            <section class="steps-section">
+                <div class="steps-container">
+                    <div class="section-header">
+                        <h2 class="section-title">ขั้นตอนการลงทะเบียน</h2>
+                        <p class="section-subtitle">
+                            เพียง 3 ขั้นตอนง่ายๆ คุณก็สามารถลงทะเบียนบริการหักบัญชีอัตโนมัติได้แล้ว
+                        </p>
+                    </div>
+
+                    <div class="steps-grid">
+                        <!-- Step 1: Completed -->
+                        <div class="step-card completed">
+                            <div class="step-indicator">
+                                <div class="step-number">1</div>
+                                <div class="step-icon-overlay">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </div>
+                            <div class="step-content">
+                                <h3 class="step-title">ยืนยัน OTAC</h3>
+                                <p class="step-description">
+                                    ยืนยันรหัส OTAC ที่ได้รับจากเจ้าหน้าที่เพื่อเริ่มกระบวนการลงทะเบียน รหัสนี้ใช้ได้เพียงครั้งเดียว
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Active (Current) -->
+                        <div class="step-card active">
+                            <div class="step-indicator">
+                                <div class="step-number">2</div>
+                                <div class="step-icon-overlay">
+                                    <i class="fas fa-edit"></i>
+                                </div>
+                            </div>
+                            <div class="step-content">
+                                <h3 class="step-title">กรอกข้อมูล</h3>
+                                <p class="step-description">
+                                    กรอกข้อมูลส่วนตัว หมายเลขบัญชี และรายละเอียดที่จำเป็นสำหรับการลงทะเบียนบริการหักบัญชีอัตโนมัติ
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Pending -->
+                        <div class="step-card">
+                            <div class="step-indicator">
+                                <div class="step-number">3</div>
+                                <div class="step-icon-overlay">
+                                    <i class="fas fa-university"></i>
+                                </div>
+                            </div>
+                            <div class="step-content">
+                                <h3 class="step-title">ยืนยันผ่าน KBank</h3>
+                                <p class="step-description">
+                                    ระบบจะเชื่อมต่อกับ KBank เพื่อยืนยันข้อมูลและเปิดใช้งานบริการหักบัญชีอัตโนมัติให้คุณ
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Registration Card -->
+            <div class="otac-card register-form-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <h3 class="card-title">ลงทะเบียนหักบัญชีอัตโนมัติ</h3>
+                    <p class="card-subtitle">
+                        กรุณากรอกข้อมูลของท่านให้ครบถ้วนและถูกต้องเพื่อลงทะเบียนบริการหักบัญชีอัตโนมัติของ KBank
+                    </p>
+
+                    <!-- OTAC Status Display -->
+                    <div class="hero-badge mb-3">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>รหัส OTAC ที่ยืนยันแล้ว: ABC123XYZ</span>
+                    </div>
+                </div>
+
+                <!-- Registration Form -->
+                <form class="otac-form" id="registerForm" novalidate>
+                    <!-- Personal Information Section -->
+                    <div class="form-section mb-4">
+                        <h4 class="section-heading">
+                            <i class="fas fa-user me-2"></i>
+                            <span>ข้อมูลส่วนตัว</span>
+                        </h4>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="otac-input-group mb-3">
+                                    <label class="input-label required-field" for="FullName">ชื่อ-นามสกุล</label>
+                                    <input type="text" class="otac-input" id="FullName" name="FullName" placeholder="ชื่อ-นามสกุล" required>
+                                    <div class="input-hint">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        <span>กรุณากรอกชื่อ-นามสกุลตามเอกสารทางราชการ</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="otac-input-group mb-3">
+                                    <label class="input-label required-field" for="IdValue">เลขบัตรประชาชน (13 หลัก)</label>
+                                    <input type="text" class="otac-input" id="IdValue" name="IdValue" placeholder="เลขบัตรประชาชน" required>
+                                    <div class="input-hint">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        <span>ใช้เฉพาะบัตรประชาชนไทยเท่านั้น - กรอกตัวเลข 13 หลัก</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information Section -->
+                    <div class="form-section mb-4">
+                        <h4 class="section-heading">
+                            <i class="fas fa-phone me-2"></i>
+                            <span>ข้อมูลการติดต่อ</span>
+                        </h4>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="otac-input-group mb-3">
+                                    <label class="input-label required-field" for="MobileNo">เบอร์มือถือ</label>
+                                    <input type="text" class="otac-input" id="MobileNo" name="MobileNo" placeholder="เบอร์มือถือ" required>
+                                    <div class="input-hint">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        <span>รูปแบบ: 08XXXXXXXX หรือ 09XXXXXXXX (10 หลัก)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Information Section -->
+                    <div class="form-section mb-4">
+                        <h4 class="section-heading">
+                            <i class="fas fa-university me-2"></i>
+                            <span>ข้อมูลบัญชีธนาคาร</span>
+                        </h4>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="otac-input-group mb-3">
+                                    <label class="input-label required-field" for="AccountNo">เลขที่บัญชี</label>
+                                    <input type="text" class="otac-input" id="AccountNo" name="AccountNo" placeholder="เลขที่บัญชี" required>
+                                    <div class="input-hint">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        <span>เลขบัญชี KBank 10-15 หลัก (ไม่ต้องใส่เครื่องหมายขีด)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="otac-input-group mb-3">
+                                    <label class="input-label required-field" for="BranchId">สาขาที่เปิดบัญชี</label>
+                                    <select class="otac-input" id="BranchId" name="BranchId" required>
+                                        <option value="">เลือกสาขา</option>
+                                        <option value="1">สาขาเซ็นทรัลเวิลด์</option>
+                                        <option value="2">สาขาสีลม</option>
+                                        <option value="3">สาขาอโศก</option>
+                                        <option value="4">สาขาชิดลม</option>
+                                        <option value="5">สาขาราชดำริ</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Terms and Submit -->
+                    <div class="form-section mb-4">
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                            <label class="form-check-label" for="agreeTerms">
+                                <span>ข้าพเจ้าได้อ่านและยอมรับ</span>
+                                <a href="#" class="text-primary fw-bold">ข้อกำหนดและเงื่อนไข</a>
+                                <span> และ </span>
+                                <a href="#" class="text-primary fw-bold">นโยบายความเป็นส่วนตัว</a>
+                                <span class="text-danger">*</span>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="card-action" id="submitBtn">
+                            <span class="btn-text">
+                                <i class="fas fa-arrow-right"></i>
+                                <span>ลงทะเบียนหักบัญชีอัตโนมัติ</span>
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Compact Security Section -->
+            <section class="security-compact-section">
+                <div class="security-compact-container">
+                    <div class="security-header">
+                        <div class="security-header-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="security-header-content">
+                            <h3>ความปลอดภัยระดับธนาคาร</h3>
+                            <p>ข้อมูลของคุณได้รับการปกป้องด้วยเทคโนโลยีความปลอดภัยขั้นสูง</p>
+                        </div>
+                    </div>
+
+                    <div class="security-features-grid">
+                        <div class="security-feature-compact">
+                            <div class="security-feature-icon">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <span>เข้ารหัส SSL/TLS</span>
+                        </div>
+
+                        <div class="security-feature-compact">
+                            <div class="security-feature-icon">
+                                <i class="fas fa-key"></i>
+                            </div>
+                            <span>รหัส OTAC ใช้ครั้งเดียว</span>
+                        </div>
+
+                        <div class="security-feature-compact">
+                            <div class="security-feature-icon">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <span>การตรวจสอบต่อเนื่อง</span>
+                        </div>
+
+                        <div class="security-feature-compact">
+                            <div class="security-feature-icon">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <span>มาตรฐานธนาคาร</span>
+                        </div>
+                    </div>
+
+                    <div class="security-trust-badges">
+                        <div class="trust-badge">
+                            <i class="fas fa-check-circle"></i>
+                            <span>ได้รับการรับรองความปลอดภัย</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Basic form interaction for demo purposes
+        document.addEventListener('DOMContentLoaded', function() {
+            // Language toggle simulation
+            const languageButtons = document.querySelectorAll('.language-toggle button');
+            languageButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    languageButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Form submission simulation
+            const form = document.getElementById('registerForm');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Simple validation check
+                const requiredFields = form.querySelectorAll('input[required], select[required]');
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.style.borderColor = '#e74c3c';
+                    } else {
+                        field.style.borderColor = '#27ae60';
+                    }
+                });
+                
+                const checkbox = document.getElementById('agreeTerms');
+                if (!checkbox.checked) {
+                    isValid = false;
+                    checkbox.style.outline = '2px solid #e74c3c';
+                } else {
+                    checkbox.style.outline = 'none';
+                }
+                
+                if (isValid) {
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>กำลังดำเนินการ...';
+                    submitBtn.disabled = true;
+                    
+                    // Simulate processing
+                    setTimeout(() => {
+                        alert('ลงทะเบียนสำเร็จ! (This is a demo)');
+                        submitBtn.innerHTML = '<i class="fas fa-arrow-right"></i> ลงทะเบียนหักบัญชีอัตโนมัติ';
+                        submitBtn.disabled = false;
+                    }, 2000);
+                } else {
+                    alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+                }
+            });
+
+            // Input formatting for demo
+            const idInput = document.getElementById('IdValue');
+            if (idInput) {
+                idInput.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, '').substring(0, 13);
+                });
+            }
+
+            const mobileInput = document.getElementById('MobileNo');
+            if (mobileInput) {
+                mobileInput.addEventListener('input', function() {
+                    let value = this.value.replace(/[^0-9]/g, '');
+                    if (value.length > 0 && !value.startsWith('0')) {
+                        if (value.startsWith('8') || value.startsWith('9')) {
+                            value = '0' + value;
+                        }
+                    }
+                    this.value = value.substring(0, 10);
+                });
+            }
+
+            const accountInput = document.getElementById('AccountNo');
+            if (accountInput) {
+                accountInput.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, '').substring(0, 15);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
