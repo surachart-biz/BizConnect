@@ -1,0 +1,964 @@
+/*
+ * KBank Registration Form - Consistent with Landing Page Design
+ * Matches the existing BizConnect design system and branding
+ * Uses the same color scheme, typography, and styling patterns as the landing page
+ */
+
+/* Use existing CSS variables from the main layout */
+:root {
+    --kbank-green: #4CAF50;
+    --kbank-green-light: #81C784;
+    --kbank-green-dark: #388E3C;
+    --primary-blue: #1976D2;
+    --primary-blue-light: #42A5F5;
+    --accent-gold: #FFB000;
+    --success: #00C853;
+    --warning: #FF8F00;
+    --danger: #D32F2F;
+    --neutral-50: #FAFAFA;
+    --neutral-100: #F5F5F5;
+    --neutral-200: #EEEEEE;
+    --neutral-300: #E0E0E0;
+    --neutral-700: #424242;
+    --neutral-800: #303030;
+    --neutral-900: #212121;
+    --text-primary: #1a1a1a;
+    --text-secondary: #666666;
+    --shadow-light: 0 2px 8px rgba(0,0,0,0.1);
+    --shadow-medium: 0 4px 20px rgba(0,0,0,0.15);
+    --shadow-large: 0 8px 32px rgba(0,0,0,0.2);
+    --border-radius: 12px;
+    --border-radius-large: 20px;
+}
+
+/* Body and container styles matching landing page */
+body {
+    font-family: 'Sarabun', 'Inter', sans-serif;
+    background: linear-gradient(135deg, #f8faff 0%, #e8f4f8 100%);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+/* Container and wrapper matching landing page */
+.landing-wrapper {
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.register-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Form card using the same style as OTAC card from landing page */
+.register-form-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border-radius: var(--border-radius-large);
+    padding: 2.5rem;
+    box-shadow: var(--shadow-large);
+    border: 1px solid var(--neutral-200);
+    margin-top: 2rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Card header matching landing page OTAC card */
+.card-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--neutral-200);
+}
+
+.card-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--kbank-green), var(--primary-blue));
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    margin: 0 auto 1.5rem;
+    box-shadow: var(--shadow-medium);
+}
+
+.card-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.card-subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+/* Steps section matching landing page */
+.steps-section {
+    padding: 2rem 0;
+}
+
+.steps-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Section header matching landing page */
+.section-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.section-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.steps-grid {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.step-card {
+    text-align: center;
+    padding: 2.5rem 1.5rem 1.5rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: var(--border-radius);
+    border: 2px solid var(--neutral-200);
+    transition: all 0.3s ease;
+    position: relative;
+    min-width: 200px;
+    max-width: 250px;
+    flex: 1;
+    margin-top: 1rem;
+}
+
+.step-card.completed {
+    border-color: var(--success);
+    background: rgba(0, 200, 83, 0.05);
+}
+
+.step-card.completed .step-number {
+    background: var(--success);
+    color: white;
+}
+
+.step-card.active {
+    border-color: var(--primary-blue);
+    background: rgba(25, 118, 210, 0.05);
+    box-shadow: var(--shadow-medium);
+}
+
+.step-card.active .step-number {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.step-number {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--neutral-200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: var(--shadow-light);
+    z-index: 2;
+}
+
+.step-icon {
+    color: var(--text-secondary);
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.step-card.completed .step-icon,
+.step-card.active .step-icon {
+    color: var(--primary-blue);
+}
+
+.step-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.75rem 0;
+}
+
+.step-description {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+    text-align: left;
+    padding: 0 0.5rem;
+}
+
+/* Form sections */
+.form-section {
+    margin-bottom: 2.5rem;
+    background: rgba(248, 250, 252, 0.5);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    border: 1px solid rgba(224, 224, 224, 0.3);
+}
+
+.section-heading {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(25, 118, 210, 0.2);
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin: -0.5rem -0.5rem 1.5rem -0.5rem;
+}
+
+.section-heading i {
+    color: var(--primary-blue);
+}
+
+/* Input groups matching landing page OTAC input style */
+.otac-input-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.input-label {
+    display: block;
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.required-field::after {
+    content: " *";
+    color: var(--danger);
+}
+
+.otac-input {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    border: 2px solid var(--neutral-300);
+    border-radius: var(--border-radius);
+    background: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+    font-family: inherit;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.otac-input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15), 0 2px 8px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 1);
+    transition: all 0.3s ease;
+}
+
+.otac-input.is-valid {
+    border-color: #27ae60;
+    background: rgba(39, 174, 96, 0.03);
+    box-shadow: 0 0 0 1px rgba(39, 174, 96, 0.15);
+    transition: all 0.3s ease;
+}
+
+.otac-input.is-valid + .input-hint {
+    color: #27ae60;
+}
+
+.otac-input.is-valid + .input-hint i {
+    color: #27ae60;
+}
+
+.otac-input.is-invalid {
+    border-color: #e74c3c;
+    background: rgba(231, 76, 60, 0.03);
+    box-shadow: 0 0 0 1px rgba(231, 76, 60, 0.1);
+    transition: all 0.3s ease;
+}
+
+.otac-input.is-invalid + .input-hint {
+    color: #e74c3c;
+}
+
+.otac-input.is-invalid + .input-hint i {
+    color: #e74c3c;
+}
+
+/* Input hints */
+.input-hint {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.25rem;
+}
+
+.input-hint i {
+    color: var(--primary-blue);
+    margin-top: 0.1rem;
+    flex-shrink: 0;
+}
+
+/* Form controls */
+.form-check {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(224, 224, 224, 0.4);
+}
+
+.form-check-input {
+    width: 1.2rem;
+    height: 1.2rem;
+    border: 2px solid var(--neutral-300);
+    border-radius: 4px;
+    margin-top: 0.25rem;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+    transition: all 0.2s ease;
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15);
+    outline: none;
+}
+
+.form-check-label {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+    margin-left: 0.5rem;
+}
+
+/* Submit button matching landing page card-action style */
+.card-action {
+    width: 100%;
+    background: linear-gradient(135deg, var(--kbank-green), var(--primary-blue));
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 1.25rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.card-action:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-large);
+}
+
+.card-action:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+}
+
+.btn-spinner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Hero badge for OTAC display */
+.hero-badge {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--kbank-green-dark);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.hero-badge i {
+    color: var(--kbank-green);
+}
+
+/* Security section matching landing page */
+.security-section {
+    background: rgba(255, 255, 255, 0.5);
+    padding: 3rem 2rem;
+    margin-top: 3rem;
+    border-radius: var(--border-radius-large);
+    border: 1px solid var(--neutral-200);
+    backdrop-filter: blur(8px);
+}
+
+.security-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.security-content h2 {
+    color: var(--text-primary);
+    font-weight: 700;
+    margin-bottom: 2rem;
+}
+
+.security-features {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.security-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    text-align: left;
+}
+
+.security-content {
+    flex: 1;
+}
+
+.security-content h2 {
+    text-align: center;
+    color: var(--text-primary);
+    font-weight: 700;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+}
+
+.security-text h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+}
+
+.security-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--primary-blue), var(--kbank-green));
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.security-text p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* Security visual section */
+.security-visual {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.security-visual .otac-card {
+    max-width: 400px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border-radius: var(--border-radius-large);
+    padding: 2rem;
+    box-shadow: var(--shadow-large);
+    border: 1px solid var(--neutral-200);
+}
+
+.security-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Modal styling consistent with site theme */
+.modal-content {
+    border-radius: var(--border-radius-large);
+    border: none;
+    box-shadow: var(--shadow-large);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--primary-blue), var(--kbank-green));
+    border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
+    border-bottom: none;
+    color: white;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--neutral-200);
+    background: var(--neutral-50);
+    border-radius: 0 0 var(--border-radius-large) var(--border-radius-large);
+}
+
+.terms-content h6,
+.privacy-content h6 {
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--neutral-200);
+}
+
+.terms-content p,
+.privacy-content p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    text-align: justify;
+}
+
+/* Validation messages - less aggressive styling */
+.text-danger {
+    color: #e74c3c !important;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: none; /* Hidden by default */
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    background: rgba(231, 76, 60, 0.04);
+    border-radius: 6px;
+    border-left: 2px solid #e74c3c;
+    transition: all 0.3s ease;
+}
+
+.text-danger.show {
+    display: flex;
+}
+
+.text-danger::before {
+    content: '\f06a';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+    color: #e74c3c;
+}
+
+.invalid-feedback {
+    color: #e74c3c;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: none; /* Hidden by default */
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    background: rgba(231, 76, 60, 0.04);
+    border-radius: 6px;
+    border-left: 2px solid #e74c3c;
+    transition: all 0.3s ease;
+}
+
+.invalid-feedback.show {
+    display: flex;
+}
+
+.invalid-feedback::before {
+    content: '\f06a';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+    color: #e74c3c;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .register-form-card {
+        padding: 1.5rem;
+        margin: 1rem 0.5rem;
+        max-width: none;
+    }
+    
+    .form-section {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-title {
+        font-size: 1.75rem;
+    }
+    
+    .card-subtitle {
+        font-size: 1rem;
+    }
+    
+    .section-title {
+        font-size: 1.75rem;
+    }
+    
+    .section-subtitle {
+        font-size: 1rem;
+    }
+    
+    .steps-grid {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .step-card {
+        padding: 2rem 1rem 1rem;
+        max-width: 280px;
+        width: 100%;
+    }
+    
+    .step-number {
+        width: 45px;
+        height: 45px;
+        font-size: 1rem;
+    }
+    
+    .step-description {
+        text-align: center;
+        padding: 0;
+    }
+    
+    .section-heading {
+        font-size: 1.2rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .otac-input {
+        font-size: 16px; /* Prevent zoom on iOS */
+        padding: 0.875rem 1.25rem;
+    }
+    
+    .security-container {
+        padding: 0 1rem;
+        flex-direction: column;
+    }
+    
+    .security-content h2 {
+        font-size: 1.75rem;
+    }
+    
+    .security-feature {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+    }
+    
+    .security-text {
+        text-align: center;
+    }
+    
+    .security-visual {
+        margin-top: 1.5rem;
+    }
+    
+    .security-visual .otac-card {
+        padding: 1.5rem;
+        max-width: 320px;
+    }
+    
+    .otac-input {
+        transform: none; /* Remove hover effects on mobile */
+    }
+    
+    .otac-input:focus {
+        transform: none; /* Remove transform on mobile focus */
+        box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15);
+    }
+}
+
+@media (max-width: 480px) {
+    .register-container {
+        padding: 0 0.5rem;
+    }
+    
+    .register-form-card {
+        padding: 1rem;
+        margin: 0.5rem 0;
+    }
+    
+    .form-section {
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .section-heading {
+        font-size: 1.1rem;
+        margin: -0.25rem -0.25rem 1rem -0.25rem;
+        padding: 0.75rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+    }
+    
+    .section-subtitle {
+        font-size: 0.95rem;
+    }
+    
+    .card-title {
+        font-size: 1.5rem;
+    }
+    
+    .card-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+    
+    .step-card {
+        padding: 1.75rem 0.75rem 1rem;
+        max-width: 260px;
+    }
+    
+    .step-title {
+        font-size: 1rem;
+    }
+    
+    .step-description {
+        font-size: 0.875rem;
+    }
+    
+    .security-content h2 {
+        font-size: 1.5rem;
+    }
+    
+    .security-text h3 {
+        font-size: 1.1rem;
+    }
+    
+    .security-visual .otac-card {
+        padding: 1rem;
+        max-width: 280px;
+    }
+    
+    .otac-input {
+        font-size: 16px; /* Prevent zoom on iOS */
+        padding: 0.75rem 1rem;
+    }
+    
+    .steps-container {
+        padding: 0 0.5rem;
+    }
+    
+    .security-container {
+        padding: 0 0.5rem;
+    }
+}
+
+/* Large screen improvements */
+@media (min-width: 992px) {
+    .security-container {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 3rem;
+    }
+    
+    .security-content {
+        flex: 2;
+    }
+    
+    .security-visual {
+        flex: 1;
+        margin-top: 0;
+    }
+    
+    .security-content h2 {
+        text-align: left;
+        margin-bottom: 2.5rem;
+    }
+    
+    .security-features {
+        gap: 2.5rem;
+    }
+}
+
+/* Additional UX improvements */
+.otac-input::placeholder {
+    color: #9ca3af;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.otac-input:focus::placeholder {
+    opacity: 0.5;
+}
+
+/* Smooth loading states */
+.loading-spinner::before {
+    content: "";
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: rgba(255, 255, 255, 0.8);
+    animation: spin 1s ease-in-out infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Enhanced accessibility */
+.otac-input:focus-visible {
+    outline: 2px solid var(--primary-blue);
+    outline-offset: 2px;
+}
+
+/* Better error state transitions */
+.otac-input.is-invalid {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 20%, 40%, 60%, 80%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-2px);
+    }
+}
+
+/* Success state feedback */
+.otac-input.is-valid::after {
+    content: "\f00c";
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #27ae60;
+    pointer-events: none;
+}
+
+.otac-input-group {
+    position: relative;
+}
+
+/* Enhanced button states */
+.card-action {
+    position: relative;
+    overflow: hidden;
+}
+
+.card-action::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: left 0.5s;
+}
+
+.card-action:hover::before {
+    left: 100%;
+}
+
+/* Form section hover effects */
+.form-section {
+    transition: all 0.3s ease;
+}
+
+.form-section:hover {
+    background: rgba(248, 250, 252, 0.8);
+    border-color: rgba(25, 118, 210, 0.2);
+}
+
+/* Print styles */
+@media print {
+    .register-container {
+        background: white !important;
+        min-height: auto;
+    }
+    
+    .register-form-card {
+        box-shadow: none !important;
+        border: 1px solid #ccc;
+        background: white !important;
+    }
+    
+    .card-action,
+    .modal,
+    .landing-wrapper::before,
+    .hero-badge {
+        display: none !important;
+    }
+    
+    .security-section {
+        background: white !important;
+        box-shadow: none !important;
+    }
+}

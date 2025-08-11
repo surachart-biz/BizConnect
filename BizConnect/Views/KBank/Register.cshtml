@@ -6,217 +6,324 @@
 }
 
 @section Styles {
-    <link href="~/css/kbank-register.css" rel="stylesheet" />
+    <!-- Consistent Registration Form Styles -->
+    <link href="~/css/kbank-register-consistent.css" rel="stylesheet" />
 }
 
-<div class="register-container">
-    <div class="register-card">
-        <!-- Progress Indicator -->
-        <div class="progress-indicator">
-            <div class="step completed">
-                <div class="step-number">
-                    <i class="fas fa-check"></i>
+<div class="landing-wrapper">
+    <div class="register-container">
+        <!-- Progress Steps Section -->
+        <section class="steps-section mb-4">
+            <div class="steps-container">
+                <div class="section-header">
+                    <h2 class="section-title" data-text-th="ขั้นตอนการลงทะเบียน" data-text-en="Registration Process">@ViewBag.TextRegistrationProcess</h2>
+                    <p class="section-subtitle" 
+                       data-text-th="เพียง 3 ขั้นตอนง่ายๆ คุณก็สามารถลงทะเบียนบริการหักบัญชีอัตโนมัติได้แล้ว"
+                       data-text-en="Just 3 simple steps to register for automatic direct debit service">
+                        @ViewBag.TextRegistrationStepsDesc
+                    </p>
                 </div>
-                <span data-text-th="ยืนยัน OTAC" data-text-en="Verify OTAC">@ViewBag.TextVerifyOtac</span>
+
+                <div class="steps-grid">
+                    <div class="step-card completed">
+                        <div class="step-number">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="step-icon">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <h3 class="step-title" data-text-th="ยืนยัน OTAC" data-text-en="Verify OTAC">@ViewBag.TextVerifyOtac</h3>
+                        <p class="step-description"
+                           data-text-th="ยืนยันรหัส OTAC ที่ได้รับจากเจ้าหน้าที่เพื่อเริ่มกระบวนการลงทะเบียน รหัสนี้ใช้ได้เพียงครั้งเดียว"
+                           data-text-en="Verify OTAC code received from staff to start registration process. This code is for one-time use only">
+                            @ViewBag.TextVerifyOtacDesc
+                        </p>
+                    </div>
+
+                    <div class="step-card active">
+                        <div class="step-number">2</div>
+                        <div class="step-icon">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <h3 class="step-title" data-text-th="กรอกข้อมูล" data-text-en="Fill Information">@ViewBag.TextFillInformation</h3>
+                        <p class="step-description"
+                           data-text-th="กรอกข้อมูลส่วนตัว หมายเลขบัญชี และรายละเอียดที่จำเป็นสำหรับการลงทะเบียนบริการหักบัญชีอัตโนมัติ"
+                           data-text-en="Fill in personal information, account number, and required details for automatic direct debit service registration">
+                            @ViewBag.TextFillInformationDesc
+                        </p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3 class="step-title" data-text-th="ยืนยันผ่าน KBank" data-text-en="Confirm via KBank">@ViewBag.TextConfirmViaKBank</h3>
+                        <p class="step-description"
+                           data-text-th="ระบบจะเชื่อมต่อกับ KBank เพื่อยืนยันข้อมูลและเปิดใช้งานบริการหักบัญชีอัตโนมัติให้คุณ"
+                           data-text-en="System will connect to KBank to verify information and activate automatic direct debit service for you">
+                            @ViewBag.TextConfirmViaKBankDesc
+                        </p>
+                    </div>
+                </div>
             </div>
-            <div class="step-connector"></div>
-            <div class="step active">
-                <div class="step-number">2</div>
-                <span data-text-th="กรอกข้อมูล" data-text-en="Fill Information">@ViewBag.TextFillInformation</span>
+        </section>
+
+        <!-- Main Registration Card -->
+        <div class="otac-card register-form-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-university"></i>
+                </div>
+                <h3 class="card-title">@ViewData["Title"]</h3>
+                <p class="card-subtitle">
+                    <span data-text-th="กรุณากรอกข้อมูลของท่านให้ครบถ้วนและถูกต้องเพื่อลงทะเบียนบริการหักบัญชีอัตโนมัติของ KBank" data-text-en="Please fill in your information completely and accurately to register for KBank's automatic direct debit service">@ViewBag.TextPleaseFillInfo</span>
+                </p>
+
+                <!-- OTAC Status Display -->
+                <div class="hero-badge mb-3">
+                    <i class="fas fa-shield-alt"></i>
+                    <span data-text-th="รหัส OTAC ที่ยืนยันแล้ว: @Model.OtacCode" data-text-en="Verified OTAC Code: @Model.OtacCode">@ViewBag.TextVerifiedOtacCode @Model.OtacCode</span>
+                </div>
             </div>
-            <div class="step-connector"></div>
-            <div class="step">
-                <div class="step-number">3</div>
-                <span>@ViewBag.TextRegister</span>
-            </div>
+
+            <!-- Registration Form -->
+            @using (Html.BeginForm("Register", "KBank", FormMethod.Post, new { @class = "otac-form", @id = "registerForm", novalidate = "novalidate" }))
+            {
+                @Html.AntiForgeryToken()
+                <input asp-for="OtacCode" type="hidden" />
+
+                <!-- Personal Information Section -->
+                <div class="form-section mb-4">
+                    <h4 class="section-heading">
+                        <i class="fas fa-user me-2"></i>
+                        <span data-text-th="ข้อมูลส่วนตัว" data-text-en="Personal Information">@ViewBag.TextPersonalInfo</span>
+                    </h4>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="otac-input-group mb-3">
+                                <label class="input-label required-field" for="FullName" 
+                                       data-text-th="ชื่อ-นามสกุล" 
+                                       data-text-en="Full Name">@ViewBag.TextFullNameLabel</label>
+                                @Html.TextBoxFor(m => m.FullName, new { 
+                                    @class = "otac-input", 
+                                    @id = "FullName", 
+                                    placeholder = ViewBag.TextFullNameLabel,
+                                    @data_placeholder_th = "ชื่อ-นามสกุล",
+                                    @data_placeholder_en = "Full Name", 
+                                    @required = "required" 
+                                })
+                                @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger small mt-1", style = "display: none;" })
+                                <div class="input-hint">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    <span data-text-th="กรุณากรอกชื่อ-นามสกุลตามเอกสารทางราชการ" data-text-en="Please enter full name as per official documents">@ViewBag.TextFullNameHint</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="otac-input-group mb-3">
+                                <label class="input-label required-field" for="IdValue" 
+                                       data-text-th="เลขบัตรประชาชน (13 หลัก)" 
+                                       data-text-en="National ID Number (13 digits)">@ViewBag.TextNationalIdLabel</label>
+                                @Html.TextBoxFor(m => m.IdValue, new { 
+                                    @class = "otac-input", 
+                                    @id = "idValueInput", 
+                                    placeholder = ViewBag.TextNationalIdLabel,
+                                    @data_placeholder_th = "เลขบัตรประชาชน",
+                                    @data_placeholder_en = "National ID Number", 
+                                    @required = "required" 
+                                })
+                                @Html.ValidationMessageFor(m => m.IdValue, "", new { @class = "text-danger small mt-1", style = "display: none;" })
+                                <div class="input-hint" id="idHint">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    <span id="idHintText" data-text-th="ใช้เฉพาะบัตรประชาชนไทยเท่านั้น - กรอกตัวเลข 13 หลัก" data-text-en="Thai National ID only - enter 13 digits">@ViewBag.TextNationalIdHint</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Information Section -->
+                <div class="form-section mb-4">
+                    <h4 class="section-heading">
+                        <i class="fas fa-phone me-2"></i>
+                        <span data-text-th="ข้อมูลการติดต่อ" data-text-en="Contact Information">@ViewBag.TextContactInfo</span>
+                    </h4>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="otac-input-group mb-3">
+                                <label class="input-label required-field" for="MobileNo" 
+                                       data-text-th="เบอร์มือถือ" 
+                                       data-text-en="Mobile Number">@ViewBag.TextMobileLabel</label>
+                                @Html.TextBoxFor(m => m.MobileNo, new { 
+                                    @class = "otac-input", 
+                                    @id = "mobileInput", 
+                                    placeholder = ViewBag.TextMobileLabel,
+                                    @data_placeholder_th = "เบอร์มือถือ",
+                                    @data_placeholder_en = "Mobile Number", 
+                                    @required = "required" 
+                                })
+                                @Html.ValidationMessageFor(m => m.MobileNo, "", new { @class = "text-danger small mt-1", style = "display: none;" })
+                                <div class="input-hint">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    <span data-text-th="รูปแบบ: 08XXXXXXXX หรือ 09XXXXXXXX (10 หลัก)" data-text-en="Format: 08XXXXXXXX or 09XXXXXXXX (10 digits)">@ViewBag.TextMobileHint</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Information Section -->
+                <div class="form-section mb-4">
+                    <h4 class="section-heading">
+                        <i class="fas fa-university me-2"></i>
+                        <span data-text-th="ข้อมูลบัญชีธนาคาร" data-text-en="Bank Account Information">@ViewBag.TextBankAccountInfo</span>
+                    </h4>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="otac-input-group mb-3">
+                                <label class="input-label required-field" for="AccountNo" 
+                                       data-text-th="เลขที่บัญชี" 
+                                       data-text-en="Account Number">@ViewBag.TextAccountLabel</label>
+                                @Html.TextBoxFor(m => m.AccountNo, new { 
+                                    @class = "otac-input", 
+                                    @id = "accountInput", 
+                                    placeholder = ViewBag.TextAccountLabel,
+                                    @data_placeholder_th = "เลขที่บัญชี",
+                                    @data_placeholder_en = "Account Number", 
+                                    @required = "required" 
+                                })
+                                @Html.ValidationMessageFor(m => m.AccountNo, "", new { @class = "text-danger small mt-1", style = "display: none;" })
+                                <div class="input-hint">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    <span data-text-th="เลขบัญชี KBank 10-15 หลัก (ไม่ต้องใส่เครื่องหมายขีด)" data-text-en="KBank account number 10-15 digits (no dashes)">@ViewBag.TextAccountHint</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="otac-input-group mb-3">
+                                <label class="input-label required-field" for="BranchId" 
+                                       data-text-th="สาขาที่เปิดบัญชี" 
+                                       data-text-en="Branch where account was opened">@ViewBag.TextBranchLabel</label>
+                                <select asp-for="BranchId" asp-items="Model.Branches" class="otac-input" required>
+                                    <option value="">@ViewBag.TextSelectBranch</option>
+                                </select>
+                                @Html.ValidationMessageFor(m => m.BranchId, "", new { @class = "text-danger small mt-1", style = "display: none;" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terms and Submit -->
+                <div class="form-section mb-4">
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                        <label class="form-check-label" for="agreeTerms">
+                            <span data-text-th="ข้าพเจ้าได้อ่านและยอมรับ" data-text-en="I have read and accept">@ViewBag.TextIHaveReadAndAccept</span>
+                            <a href="#" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#termsModal">
+                                <span data-text-th="ข้อกำหนดและเงื่อนไข" data-text-en="Terms and Conditions">@ViewBag.TextTermsAndConditions</span>
+                            </a>
+                            <span data-text-th="และ" data-text-en="and"> และ </span>
+                            <a href="#" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#privacyModal">
+                                <span data-text-th="นโยบายความเป็นส่วนตัว" data-text-en="Privacy Policy">@ViewBag.TextPrivacyPolicy</span>
+                            </a>
+                            <span class="text-danger">*</span>
+                        </label>
+                        <div class="invalid-feedback" style="display: none;">
+                            <span data-text-th="กรุณายอมรับข้อกำหนดและเงื่อนไขก่อนดำเนินการต่อ" data-text-en="Please accept the terms and conditions before proceeding">@ViewBag.TextMustAcceptTerms</span>
+        </div>
+                    </div>
+
+                    <button type="submit" class="card-action" id="submitBtn">
+                        <span class="btn-text">
+                            <i class="fas fa-arrow-right"></i>
+                            <span data-text-th="ลงทะเบียนหักบัญชีอัตโนมัติ" data-text-en="Register for Direct Debit">@ViewBag.TextRegisterDirectDebit</span>
+                        </span>
+                        <span class="btn-spinner d-none">
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            <span data-text-th="กำลังดำเนินการ..." data-text-en="Processing...">กำลังดำเนินการ...</span>
+                        </span>
+                    </button>
+                </div>
+            }
         </div>
 
-        <!-- Header -->
-        <div class="register-header">
-            <div class="register-logo">
-                <i class="fas fa-user-plus"></i>
-            </div>
-            <h1 class="register-title">@ViewData["Title"]</h1>
-            <p class="register-subtitle">
-                <span data-text-th="กรุณากรอกข้อมูลของท่านให้ครบถ้วนและถูกต้อง" data-text-en="Please fill in your information completely and accurately">@ViewBag.TextPleaseFillInfo</span>
-            </p>
+        <!-- Security Section (matching landing page style) -->
+        <section class="security-section">
+            <div class="security-container">
+                <div class="security-content">
+                    <h2 data-text-th="ความปลอดภัยระดับธนาคาร" data-text-en="Bank-Grade Security">@ViewBag.TextSecurityTitle</h2>
 
-            <!-- OTAC Display -->
-            <div class="otac-display">
-                <div class="d-flex align-items-center justify-content-center">
-                    <i class="fas fa-shield-check text-success me-2"></i>
-                    <small class="text-muted me-2" data-text-th="รหัส OTAC ที่ยืนยันแล้ว:" data-text-en="Verified OTAC Code:">@ViewBag.TextVerifiedOtacCode</small>
-                    <span class="otac-code">@Model.OtacCode</span>
-                </div>
-            </div>
-        </div>
+                    <div class="security-features">
+                        <div class="security-feature">
+                            <div class="security-icon">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <div class="security-text">
+                                <h3 data-text-th="เข้ารหัสระดับสูง" data-text-en="High-Level Encryption">@ViewBag.TextHighLevelEncryption</h3>
+                                <p data-text-th="ข้อมูลทั้งหมดได้รับการเข้ารหัส SSL/TLS และมาตรฐานความปลอดภัยของธนาคาร" 
+                                   data-text-en="All data is encrypted with SSL/TLS and bank-grade security standards">@ViewBag.TextEncryptionDesc</p>
+                            </div>
+                        </div>
 
-        <!-- Registration Form -->
-        <form asp-action="Register" method="post" id="registerForm" novalidate>
-            @Html.AntiForgeryToken()
-            <input asp-for="OtacCode" type="hidden" />
+                        <div class="security-feature">
+                            <div class="security-icon">
+                                <i class="fas fa-key"></i>
+                            </div>
+                            <div class="security-text">
+                                <h3 data-text-th="รหัส OTAC แบบใช้ครั้งเดียว" data-text-en="One-Time OTAC Code">@ViewBag.TextOneTimeOtac</h3>
+                                <p data-text-th="รหัสมีอายุจำกัดและใช้ได้เพียงครั้งเดียว ป้องกันการใช้งานโดยไม่ได้รับอนุญาต"
+                                   data-text-en="Code has limited validity and can only be used once, preventing unauthorized access">@ViewBag.TextOtacSecurityDesc</p>
+                            </div>
+                        </div>
 
-            <!-- Personal Information Section -->
-            <div class="form-section">
-                <div class="section-title">
-                    <div class="section-icon">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <span data-text-th="ข้อมูลส่วนตัว" data-text-en="Personal Information">@ViewBag.TextPersonalInfo</span>
-                </div>
-
-                <div class="row">
-                    <div class="col-12">
-                        <div class="form-floating">
-                            <input asp-for="FullName" 
-                                   class="form-control" 
-                                   placeholder="@ViewBag.TextFullNameLabel"
-                                   data-placeholder-th="ชื่อ-นามสกุล" data-placeholder-en="Full Name"
-                                   required />
-                            <label asp-for="FullName" class="required-field" data-text-th="ชื่อ-นามสกุล" data-text-en="Full Name">@ViewBag.TextFullNameLabel</label>
-                            <span asp-validation-for="FullName" class="text-danger"></span>
-                            <div class="input-hint">
-                                <i class="fas fa-info-circle me-1"></i>
-                                <span data-text-th="กรุณากรอกชื่อ-นามสกุลตามเอกสารทางราชการ" data-text-en="Please enter full name as per official documents">@ViewBag.TextFullNameHint</span>
+                        <div class="security-feature">
+                            <div class="security-icon">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="security-text">
+                                <h3 data-text-th="ติดตามและตรวจสอบ" data-text-en="Monitoring & Tracking">@ViewBag.TextMonitoringTracking</h3>
+                                <p data-text-th="ระบบมีการบันทึกและติดตามการใช้งานทุกขั้นตอนเพื่อความปลอดภัย"
+                                   data-text-en="System logs and tracks all usage activities for enhanced security">@ViewBag.TextMonitoringDesc</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-12">
-                        <!-- IdType is always "National ID" as per requirements - no field needed for ModernRegistrationViewModel -->
-                        <div class="form-floating">
-                            <input asp-for="IdValue" 
-                                   class="form-control" 
-                                   placeholder="@ViewBag.TextNationalIdLabel"
-                                   data-placeholder-th="เลขบัตรประชาชน" data-placeholder-en="National ID Number"
-                                   id="idValueInput"
-                                   required />
-                            <label asp-for="IdValue" class="required-field" data-text-th="เลขบัตรประชาชน (13 หลัก)" data-text-en="National ID Number (13 digits)">@ViewBag.TextNationalIdLabel</label>
-                            <span asp-validation-for="IdValue" class="text-danger"></span>
-                            <div class="input-hint" id="idHint">
-                                <i class="fas fa-info-circle me-1"></i>
-                                <span id="idHintText" data-text-th="ใช้เฉพาะบัตรประชาชนไทยเท่านั้น - กรอกตัวเลข 13 หลัก" data-text-en="Thai National ID only - enter 13 digits">@ViewBag.TextNationalIdHint</span>
+                <div class="security-visual">
+                    <div class="otac-card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3 class="card-title" data-text-th="การรักษาความปลอดภัย" data-text-en="Security Protection">@ViewBag.TextSecurityProtection</h3>
+                            <p class="card-subtitle" data-text-th="มาตรฐานระดับธนาคาร" data-text-en="Bank-Grade Standard">@ViewBag.TextBankGradeStandard</p>
+                        </div>
+
+                        <div style="padding: 1rem 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <span style="color: var(--text-secondary);" data-text-th="เข้ารหัสข้อมูล" data-text-en="Data Encryption">@ViewBag.TextDataEncryption</span>
+                                <span style="color: var(--success); font-weight: 600;" data-text-th="✓ เปิดใช้งาน" data-text-en="✓ Enabled">@ViewBag.TextEnabled</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <span style="color: var(--text-secondary);" data-text-th="ยืนยันตัวตน" data-text-en="Identity Verification">@ViewBag.TextIdentityVerification</span>
+                                <span style="color: var(--success); font-weight: 600;" data-text-th="✓ เปิดใช้งาน" data-text-en="✓ Enabled">@ViewBag.TextEnabled</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: var(--text-secondary);" data-text-th="การตรวจสอบ" data-text-en="Monitoring">@ViewBag.TextMonitoring</span>
+                                <span style="color: var(--success); font-weight: 600;" data-text-th="✓ เปิดใช้งาน" data-text-en="✓ Enabled">@ViewBag.TextEnabled</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Contact Information Section -->
-            <div class="form-section">
-                <div class="section-title">
-                    <div class="section-icon">
-                        <i class="fas fa-phone"></i>
-                    </div>
-                    <span data-text-th="ข้อมูลการติดต่อ" data-text-en="Contact Information">@ViewBag.TextContactInfo</span>
-                </div>
-
-                <div class="row">
-                    <div class="col-12">
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="fas fa-mobile-alt"></i>
-                            </span>
-                            <div class="form-floating">
-                                <input asp-for="MobileNo" 
-                                       class="form-control" 
-                                       placeholder="@ViewBag.TextMobileLabel"
-                                       data-placeholder-th="เบอร์มือถือ" data-placeholder-en="Mobile Number"
-                                       id="mobileInput"
-                                       required />
-                                <label asp-for="MobileNo" class="required-field" data-text-th="เบอร์มือถือ" data-text-en="Mobile Number">@ViewBag.TextMobileLabel</label>
-                            </div>
-                        </div>
-                        <span asp-validation-for="MobileNo" class="text-danger"></span>
-                        <div class="input-hint">
-                            <i class="fas fa-info-circle me-1"></i>
-                            <span data-text-th="รูปแบบ: 08XXXXXXXX หรือ 09XXXXXXXX (10 หลัก)" data-text-en="Format: 08XXXXXXXX or 09XXXXXXXX (10 digits)">@ViewBag.TextMobileHint</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Account Information Section -->
-            <div class="form-section">
-                <div class="section-title">
-                    <div class="section-icon">
-                        <i class="fas fa-university"></i>
-                    </div>
-                    <span data-text-th="ข้อมูลบัญชีธนาคาร" data-text-en="Bank Account Information">@ViewBag.TextBankAccountInfo</span>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-floating">
-                            <input asp-for="AccountNo" 
-                                   class="form-control" 
-                                   placeholder="@ViewBag.TextAccountLabel"
-                                   data-placeholder-th="เลขที่บัญชี" data-placeholder-en="Account Number"
-                                   id="accountInput"
-                                   required />
-                            <label asp-for="AccountNo" class="required-field" data-text-th="เลขที่บัญชี" data-text-en="Account Number">@ViewBag.TextAccountLabel</label>
-                            <span asp-validation-for="AccountNo" class="text-danger"></span>
-                            <div class="input-hint">
-                                <i class="fas fa-info-circle me-1"></i>
-                                <span data-text-th="เลขบัญชี KBank 10-15 หลัก (ไม่ต้องใส่เครื่องหมายขีด)" data-text-en="KBank account number 10-15 digits (no dashes)">@ViewBag.TextAccountHint</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-floating">
-                            <select asp-for="BranchId" class="form-select" required>
-                                <option value="" data-text-th="เลือกสาขา" data-text-en="Select Branch">@ViewBag.TextSelectBranch</option>
-                                @foreach (var branch in Model.Branches)
-                                {
-                                    <option value="@branch.Value">@branch.Text</option>
-                                }
-                            </select>
-                            <label asp-for="BranchId" class="required-field" data-text-th="สาขาที่เปิดบัญชี" data-text-en="Branch where account was opened">@ViewBag.TextBranchLabel</label>
-                            <span asp-validation-for="BranchId" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Terms and Submit -->
-            <div class="form-section">
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" id="agreeTerms" required>
-                    <label class="form-check-label" for="agreeTerms">
-                        <span data-text-th="ข้าพเจ้าได้อ่านและยอมรับ" data-text-en="I have read and accept">@ViewBag.TextIHaveReadAndAccept</span>
-                        <a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#termsModal">
-                            <strong data-text-th="ข้อกำหนดและเงื่อนไข" data-text-en="Terms and Conditions">@ViewBag.TextTermsAndConditions</strong>
-                        </a>
-                        และ
-                        <a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#privacyModal">
-                            <strong data-text-th="นโยบายความเป็นส่วนตัว" data-text-en="Privacy Policy">@ViewBag.TextPrivacyPolicy</strong>
-                        </a>
-                        <span class="text-danger">*</span>
-                    </label>
-                    <div class="invalid-feedback">
-                        <span data-text-th="กรุณายอมรับข้อกำหนดและเงื่อนไขก่อนดำเนินการต่อ" data-text-en="Please accept the terms and conditions before proceeding">@ViewBag.TextMustAcceptTerms</span>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn register-btn" id="submitBtn">
-                    <i class="fas fa-paper-plane me-2"></i>
-                    <span data-text-th="ลงทะเบียนหักบัญชีอัตโนมัติ" data-text-en="Register for Direct Debit">@ViewBag.TextRegisterDirectDebit</span>
-                </button>
-            </div>
-        </form>
-
-        <!-- Security Notice -->
-        <div class="security-notice">
-            <div class="security-notice-title">
-                <i class="fas fa-shield-alt me-2"></i>
-                <span data-text-th="การรักษาความปลอดภัย" data-text-en="Security">@ViewBag.TextSecurityTitle</span>
-            </div>
-            <p class="mb-0 text-muted">
-                <span data-text-th="ข้อมูลของท่านจะถูกเข้ารหัสและส่งต่อไปยังระบบ KBank อย่างปลอดภัย โดยเป็นไปตามมาตรฐานความปลอดภัยระดับธนาคาร" data-text-en="Your data will be encrypted and securely transmitted to KBank system in accordance with banking-level security standards">@ViewBag.TextSecurityNotice</span>
-            </p>
-        </div>
+        </section>
     </div>
 </div>
 
@@ -224,8 +331,8 @@
 <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="termsModalLabel">
+            <div class="modal-header">
+                <h5 class="modal-title text-white" id="termsModalLabel">
                     <i class="fas fa-file-contract me-2"></i><span data-text-th="ข้อกำหนดและเงื่อนไข" data-text-en="Terms and Conditions">@ViewBag.TextTermsModalTitle</span>
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -299,6 +406,34 @@
             checkFormData: '@ViewBag.TextCheckFormData',
             submittingData: '@ViewBag.TextSubmittingData'
         };
+        
+        // Check for server-side validation errors and show them only on form submission attempt
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if there are model validation errors (server-side)
+            const hasValidationErrors = @(Html.ViewData.ModelState.IsValid ? "false" : "true");
+            
+            if (hasValidationErrors) {
+                // Show validation errors only if this is a form submission response
+                const errorElements = document.querySelectorAll('.text-danger');
+                errorElements.forEach(element => {
+                    if (element.textContent.trim() !== '') {
+                        element.style.display = 'flex';
+                    }
+                });
+                
+                // Add visual feedback for invalid inputs
+                const form = document.getElementById('registerForm');
+                if (form) {
+                    const inputs = form.querySelectorAll('input[required], select[required]');
+                    inputs.forEach(input => {
+                        const errorElement = input.parentNode.querySelector('.text-danger');
+                        if (errorElement && errorElement.textContent.trim() !== '') {
+                            input.classList.add('is-invalid');
+                        }
+                    });
+                }
+            }
+        });
         
         // Display TempData messages
         @if (TempData["ErrorMessage"] != null)

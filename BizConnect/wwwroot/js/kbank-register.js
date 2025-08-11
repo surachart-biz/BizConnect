@@ -94,11 +94,26 @@
             });
         }
 
-        // Real-time validation for all inputs
+        // Setup validation only on blur (after user finishes input) and form submission
         const inputs = form.querySelectorAll('input[required], select[required]');
         inputs.forEach(input => {
-            input.addEventListener('blur', () => validateField(input));
-            input.addEventListener('input', () => clearValidationState(input));
+            // Only validate on blur (when user leaves the field)
+            input.addEventListener('blur', () => {
+                if (input.value.trim() !== '') {
+                    validateField(input);
+                }
+            });
+            // Clear validation state when user starts typing
+            input.addEventListener('input', () => {
+                clearValidationState(input);
+                // Also clear any server-side error messages
+                clearServerValidationErrors(input);
+            });
+            // Clear validation errors when user focuses on field
+            input.addEventListener('focus', () => {
+                clearValidationState(input);
+                clearServerValidationErrors(input);
+            });
         });
     }
 
@@ -150,11 +165,17 @@
         if (isValid) {
             field.classList.remove('is-invalid');
             field.classList.add('is-valid');
-            if (feedback) feedback.textContent = '';
+            if (feedback) {
+                feedback.textContent = '';
+                feedback.style.display = 'none';
+            }
         } else {
             field.classList.remove('is-valid');
             field.classList.add('is-invalid');
-            if (feedback) feedback.textContent = errorMessage;
+            if (feedback) {
+                feedback.textContent = errorMessage;
+                feedback.style.display = 'flex';
+            }
         }
     }
 
@@ -162,10 +183,32 @@
         field.classList.remove('is-valid', 'is-invalid');
     }
 
+    function clearServerValidationErrors(field) {
+        // Clear server-side validation errors
+        const feedback = field.parentNode.querySelector('.text-danger');
+        if (feedback) {
+            feedback.style.display = 'none';
+        }
+    }
+
+    function showServerValidationErrors(field) {
+        // Show server-side validation errors if they exist
+        const feedback = field.parentNode.querySelector('.text-danger');
+        if (feedback && feedback.textContent.trim() !== '') {
+            feedback.style.display = 'flex';
+        }
+    }
+
     function validateForm(form, agreeTerms) {
         const inputs = form.querySelectorAll('input[required], select[required]');
         let isFormValid = true;
 
+        // First, show all server-side errors
+        inputs.forEach(input => {
+            showServerValidationErrors(input);
+        });
+
+        // Then validate each field
         inputs.forEach(input => {
             if (!validateField(input)) {
                 isFormValid = false;
@@ -173,11 +216,18 @@
         });
 
         // Check terms agreement
+        const termsError = agreeTerms.parentNode.querySelector('.invalid-feedback');
         if (!agreeTerms.checked) {
             agreeTerms.classList.add('is-invalid');
+            if (termsError) {
+                termsError.style.display = 'flex';
+            }
             isFormValid = false;
         } else {
             agreeTerms.classList.remove('is-invalid');
+            if (termsError) {
+                termsError.style.display = 'none';
+            }
         }
 
         if (!isFormValid) {
