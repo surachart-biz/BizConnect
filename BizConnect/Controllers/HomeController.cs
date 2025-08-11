@@ -56,64 +56,8 @@ public class HomeController : BaseController
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> VerifyOtac(LandingPageViewModel model)
     {
-        if (!ModelState.IsValid)
-        {
-            return View("Index", model);
-        }
-
-        try
-        {
-            // Phase 1: Simple validation - จะเชื่อมต่อ service จริงใน Phase ถัดไป
-            var otacCode = model.OtacCode.ToUpper().Trim();
-
-            // Basic format validation
-            if (string.IsNullOrEmpty(otacCode) || otacCode.Length < 6 || otacCode.Length > 8)
-            {
-                ModelState.AddModelError("OtacCode", "รหัส OTAC ต้องมีความยาว 6-8 ตัวอักษร");
-                return View("Index", model);
-            }
-
-            // Check if OTAC contains only alphanumeric characters
-            if (!System.Text.RegularExpressions.Regex.IsMatch(otacCode, @"^[A-Z0-9]+$"))
-            {
-                ModelState.AddModelError("OtacCode", "รหัส OTAC ต้องเป็นตัวอักษรภาษาอังกฤษตัวใหญ่และตัวเลขเท่านั้น");
-                return View("Index", model);
-            }
-
-            // Phase 1: Demo validation - accept certain test codes
-            var validTestCodes = new[] { "ABC12345", "TEST1234", "DEMO5678", "OTAC9999" };
-
-            if (validTestCodes.Contains(otacCode))
-            {
-                // Success - store OTAC for next step
-                TempData["OtacCode"] = otacCode;
-                TempData["SuccessMessage"] = $"รหัส OTAC {otacCode} ยืนยันสำเร็จ! กำลังเปลี่ยนเส้นทางไปยังฟอร์มลงทะเบียน...";
-
-                // Phase 1: Redirect to a success page or registration form
-                // In real implementation: return RedirectToAction("Register", "Registration", new { otac = otacCode });
-                return RedirectToAction("RegistrationSuccess", new { otac = otacCode });
-            }
-            else
-            {
-                // Invalid OTAC
-                ModelState.AddModelError("OtacCode", "รหัส OTAC ไม่ถูกต้องหรือหมดอายุแล้ว กรุณาติดต่อเจ้าหน้าที่");
-                return View("Index", model);
-            }
-        }
-        catch (Exception ex)
-        {
-            // Log error in real implementation
-            ModelState.AddModelError("", "เกิดข้อผิดพลาดในระบบ กรุณาลองใหม่อีกครั้ง");
-            return View("Index", model);
-        }
-    }
-
-    // Temporary success page for Phase 1 demo
-    public IActionResult RegistrationSuccess(string otac)
-    {
-        ViewBag.OtacCode = otac;
-        ViewBag.Message = $"รหัส OTAC {otac} ยืนยันสำเร็จ!";
-        return View();
+        // Redirect to proper service-based validation instead of using hardcoded validation
+        return RedirectToAction("Verify", new { otac = model.OtacCode });
     }
 
     public IActionResult Privacy()
@@ -127,9 +71,14 @@ public class HomeController : BaseController
     /// Display OTAC verification form for guests
     /// </summary>
     [HttpGet("verify")]
-    public IActionResult Verify()
+    public IActionResult Verify(string otac = "")
     {
-        return View(new VerifyOtacViewModel());
+        var model = new VerifyOtacViewModel();
+        if (!string.IsNullOrEmpty(otac))
+        {
+            model.OtacCode = otac.ToUpper().Trim();
+        }
+        return View(model);
     }
 
     /// <summary>
@@ -157,7 +106,7 @@ public class HomeController : BaseController
             HttpContext.SetValidatedOtac(model.OtacCode);
 
             TempData["SuccessMessage"] = "รหัส OTAC ถูกต้อง กรุณากรอกข้อมูลสำหรับการลงทะเบียน";
-            return RedirectToAction("Register");
+            return RedirectToAction("Register", "KBank");
         }
         else
         {
@@ -235,72 +184,7 @@ public class HomeController : BaseController
         }
     }
 
-    /// <summary>
-    /// Display registration form (requires validated OTAC)
-    /// </summary>
-    [HttpGet("register")]
-    /// <summary>
-    /// Display enhanced registration form with modern UI features
-    /// </summary>
-    public async Task<IActionResult> Register()
-    {
-        // Check if OTAC is validated
-        var validatedOtac = HttpContext.GetValidatedOtac();
-        if (string.IsNullOrEmpty(validatedOtac))
-        {
-            TempData["ErrorMessage"] = "กรุณายืนยันรหัส OTAC ก่อนการลงทะเบียน";
-            return RedirectToAction("Verify");
-        }
-
-        // Check if OTAC is still valid
-        var language = GetCurrentLanguage();
-        var validationResult = await _otacService.IsValidAsync(validatedOtac, language);
-        if (!validationResult.IsValid)
-        {
-            HttpContext.ClearOtacVerification();
-            TempData["ErrorMessage"] = "รหัส OTAC หมดอายุแล้ว กรุณาขอรหัสใหม่";
-            return RedirectToAction("Verify");
-        }
-
-        // Load branches for dropdown with language support
-        var branchData = await _branchService.GetActiveBranchesForDropdownAsync(language);
-        var branches = branchData.Select(b => new SelectListItem 
-        { 
-            Value = b.BranchId.ToString(), 
-            Text = b.Name 
-        }).ToList();
-
-        var model = new ModernRegistrationViewModel
-        {
-            OtacCode = validatedOtac,
-            Branches = branches,
-            Progress = new RegistrationProgress
-            {
-                CurrentStep = 2,
-                TotalSteps = 3,
-                PercentComplete = 67,
-                Steps = new List<ProgressStep>
-                {
-                    new ProgressStep { StepNumber = 1, Title = "OTAC Verification", Status = "completed", Description = "รหัสยืนยัน" },
-                    new ProgressStep { StepNumber = 2, Title = "Information Entry", Status = "active", Description = "กรอกข้อมูล" },
-                    new ProgressStep { StepNumber = 3, Title = "Processing", Status = "pending", Description = "ประมวลผล" }
-                }
-            },
-            SecurityInfo = new FormSecurityInfo
-            {
-                SecurityLevel = "High",
-                IsEncrypted = true,
-                SecurityIndicators = new List<SecurityIndicator>
-                {
-                    new SecurityIndicator { Type = "SSL", Status = "Active", Description = "Secure Connection", IconClass = "fas fa-shield-alt" },
-                    new SecurityIndicator { Type = "Encryption", Status = "Active", Description = "256-bit Encryption", IconClass = "fas fa-lock" }
-                }
-            },
-            EstimatedProcessingTime = "2-3 minutes"
-        };
-
-        return View(model);
-    }
+    
 
     /// <summary>
     /// Process registration form submission
@@ -700,7 +584,7 @@ public class HomeController : BaseController
 public class VerifyOtacViewModel
 {
     [Required(ErrorMessage = "กรุณากรอกรหัส OTAC")]
-    [StringLength(8, MinimumLength = 8, ErrorMessage = "รหัส OTAC ต้องมี 8 ตัวอักษรเท่านั้น")]
+    [StringLength(8, MinimumLength = 6, ErrorMessage = "รหัส OTAC ต้องมีความยาว 6-8 ตัวอักษร")]
     [Display(Name = "รหัส OTAC")]
     public string OtacCode { get; set; } = string.Empty;
 }

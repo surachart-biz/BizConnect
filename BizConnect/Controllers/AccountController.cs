@@ -42,7 +42,7 @@ public class AccountController : Controller
             }
             else
             {
-                return RedirectToAction("Register", "KBank");
+               
             }
         }
 

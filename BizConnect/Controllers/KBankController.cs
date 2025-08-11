@@ -1,6 +1,8 @@
+using BizConnect.Extensions;
 using BizConnect.Services.Interfaces;
 using BizConnect.Services.Models.KBank;
 using BizConnect.ViewModels;
+using BizConnect.ViewModels.Modern;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -18,6 +20,7 @@ public class KBankController : BaseController
     private readonly IOddRegistrationService _oddRegistrationService;
     private readonly IValidationService _validationService;
     private readonly IBranchService _branchService;
+    private readonly IOtacManagementService _otacService;
     private readonly ILogger<KBankController> _logger;
 
     public KBankController(
@@ -25,9 +28,11 @@ public class KBankController : BaseController
         IOddRegistrationService oddRegistrationService,
         IValidationService validationService,
         IBranchService branchService,
+        IOtacManagementService otacService,
         ILogger<KBankController> logger)
     {
         _kbankOddService = kbankOddService;
+        _otacService = otacService;
         _oddRegistrationService = oddRegistrationService;
         _validationService = validationService;
         _branchService = branchService;
@@ -43,26 +48,93 @@ public class KBankController : BaseController
     /// Displays the KBank ODD registration form (authenticated users)
     /// </summary>
     /// <returns>Registration form view</returns>
+    //[HttpGet("register")]
+    //public async Task<IActionResult> Register()
+    //{
+    //    _logger.LogInformation("User {UserId} accessed KBank ODD registration form", User.Identity?.Name);
+
+    //    // Load active branches for dropdown
+    //    var language = GetCurrentLanguage();
+    //    var branchData = await _branchService.GetActiveBranchesForDropdownAsync(language);
+    //    var branches = branchData.Select(b => new SelectListItem 
+    //    { 
+    //        Value = b.BranchId.ToString(), 
+    //        Text = b.Name 
+    //    }).ToList();
+
+    //    var viewModel = new KBankOddRegisterViewModel
+    //    {
+    //        Branches = branches
+    //    };
+
+    //    return View(viewModel);
+    //}
+
+    /// <summary>
+    /// Display registration form (requires validated OTAC)
+    /// </summary>
     [HttpGet("register")]
+    /// <summary>
+    /// Display enhanced registration form with modern UI features
+    /// </summary>
     public async Task<IActionResult> Register()
     {
-        _logger.LogInformation("User {UserId} accessed KBank ODD registration form", User.Identity?.Name);
+        // Check if OTAC is validated
+        var validatedOtac = HttpContext.GetValidatedOtac();
+        if (string.IsNullOrEmpty(validatedOtac))
+        {
+            TempData["ErrorMessage"] = "กรุณายืนยันรหัส OTAC ก่อนการลงทะเบียน";
+            return RedirectToAction("Verify");
+        }
 
-        // Load active branches for dropdown
+        // Check if OTAC is still valid
         var language = GetCurrentLanguage();
+        var validationResult = await _otacService.IsValidAsync(validatedOtac, language);
+        if (!validationResult.IsValid)
+        {
+            HttpContext.ClearOtacVerification();
+            TempData["ErrorMessage"] = "รหัส OTAC หมดอายุแล้ว กรุณาขอรหัสใหม่";
+            return RedirectToAction("Verify");
+        }
+
+        // Load branches for dropdown with language support
         var branchData = await _branchService.GetActiveBranchesForDropdownAsync(language);
-        var branches = branchData.Select(b => new SelectListItem 
-        { 
-            Value = b.BranchId.ToString(), 
-            Text = b.Name 
+        var branches = branchData.Select(b => new SelectListItem
+        {
+            Value = b.BranchId.ToString(),
+            Text = b.Name
         }).ToList();
 
-        var viewModel = new KBankOddRegisterViewModel
+        var model = new ModernRegistrationViewModel
         {
-            Branches = branches
+            OtacCode = validatedOtac,
+            Branches = branches,
+            Progress = new RegistrationProgress
+            {
+                CurrentStep = 2,
+                TotalSteps = 3,
+                PercentComplete = 67,
+                Steps = new List<ProgressStep>
+                {
+                    new ProgressStep { StepNumber = 1, Title = "OTAC Verification", Status = "completed", Description = "รหัสยืนยัน" },
+                    new ProgressStep { StepNumber = 2, Title = "Information Entry", Status = "active", Description = "กรอกข้อมูล" },
+                    new ProgressStep { StepNumber = 3, Title = "Processing", Status = "pending", Description = "ประมวลผล" }
+                }
+            },
+            SecurityInfo = new FormSecurityInfo
+            {
+                SecurityLevel = "High",
+                IsEncrypted = true,
+                SecurityIndicators = new List<SecurityIndicator>
+                {
+                    new SecurityIndicator { Type = "SSL", Status = "Active", Description = "Secure Connection", IconClass = "fas fa-shield-alt" },
+                    new SecurityIndicator { Type = "Encryption", Status = "Active", Description = "256-bit Encryption", IconClass = "fas fa-lock" }
+                }
+            },
+            EstimatedProcessingTime = "2-3 minutes"
         };
 
-        return View(viewModel);
+        return View(model);
     }
 
     /// <summary>

@@ -1,632 +1,806 @@
-@model KBankOddRegisterViewModel
+@using BizConnect.ViewModels.Modern
+@model ModernRegistrationViewModel
 @{
-    ViewData["Title"] = "KBank ODD Registration";
-    var registrationId = ViewData["RegistrationId"];
+    await Html.PartialAsync("_LanguageTexts");
+    ViewData["Title"] = ViewBag.IsThaiLanguage ? "ลงทะเบียนหักบัญชีอัตโนมัติ" : "Direct Debit Registration";
 }
 
+@section Styles {
+    <style>
+        .register-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 2rem 0;
+        }
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-12 col-lg-10 col-xl-8">
-            <!-- Enhanced Page Header -->
-            <div class="text-center mb-4">
-                <div class="bc-page-header">
+        .register-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            padding: 3rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .register-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #0066CC, #004499);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 2rem;
+        }
+
+        .register-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .register-subtitle {
+            color: #6c757d;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .otac-display {
+            background: linear-gradient(135deg, #e8f5e8, #d4edda);
+            border: 2px solid #28a745;
+            border-radius: 15px;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .otac-code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #155724;
+            letter-spacing: 0.3em;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 0.5rem;
+        }
+
+        .section-icon {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #0066CC, #004499);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 1rem;
+            font-size: 1rem;
+        }
+
+        .form-floating {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-floating > .form-control {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            padding: 1rem 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-floating > .form-control:focus {
+            border-color: #0066CC;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .form-floating > .form-control.is-invalid {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .form-floating > label {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group-text {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-right: none;
+            border-radius: 12px 0 0 12px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .register-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+            color: white;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 2rem;
+        }
+
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
+            color: white;
+        }
+
+        .register-btn:disabled {
+            background: #6c757d;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .security-notice {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .security-notice-title {
+            color: #0066CC;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            color: #6c757d;
+        }
+
+        .step.active {
+            color: #0066CC;
+        }
+
+        .step.completed {
+            color: #28a745;
+        }
+
+        .step-number {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .step.active .step-number {
+            background: #0066CC;
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background: #28a745;
+            color: white;
+        }
+
+        .step-connector {
+            width: 50px;
+            height: 2px;
+            background: #e9ecef;
+            margin: 0 1rem;
+        }
+
+        .step.completed + * .step-connector {
+            background: #28a745;
+        }
+
+        .input-hint {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            background: rgba(108, 117, 125, 0.05);
+            border-radius: 6px;
+            border-left: 3px solid #6c757d;
+        }
+
+        .required-field::after {
+            content: " *";
+            color: #dc3545;
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 768px) {
+            .register-card {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+                border-radius: 15px;
+            }
+
+            .register-title {
+                font-size: 2rem;
+            }
+
+            .progress-indicator {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .step-connector {
+                width: 2px;
+                height: 30px;
+                margin: 0.5rem 0;
+            }
+
+            .section-title {
+                font-size: 1.1rem;
+            }
+
+            .form-floating > .form-control {
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @@keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Form Validation Styling */
+        .was-validated .form-control:valid {
+            border-color: #28a745;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='m2.3 6.73.79-.79L4.25 4.77l-.79-.79L2.3 5.14l-.79-.79L.72 5.14z'/%3e%3c/svg%3e");
+        }
+
+        .was-validated .form-control:invalid {
+            border-color: #dc3545;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 4.6.4.4.4-.4m-.4.4v1.8'/%3e%3c/svg%3e");
+        }
+    </style>
+}
+
+<div class="register-container">
+    <div class="register-card">
+        <!-- Progress Indicator -->
+        <div class="progress-indicator">
+            <div class="step completed">
+                <div class="step-number">
+                    <i class="fas fa-check"></i>
+                </div>
+                <span>@(ViewBag.IsThaiLanguage ? "ยืนยัน OTAC" : "Verify OTAC")</span>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step active">
+                <div class="step-number">2</div>
+                <span>@(ViewBag.IsThaiLanguage ? "กรอกข้อมูล" : "Fill Information")</span>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <span>@ViewBag.TextRegister</span>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="register-header">
+            <div class="register-logo">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h1 class="register-title">@ViewData["Title"]</h1>
+            <p class="register-subtitle">
+                @(ViewBag.IsThaiLanguage ? "กรุณากรอกข้อมูลของท่านให้ครบถ้วนและถูกต้อง" : "Please fill in your information completely and accurately")
+            </p>
+
+            <!-- OTAC Display -->
+            <div class="otac-display">
+                <div class="d-flex align-items-center justify-content-center">
+                    <i class="fas fa-shield-check text-success me-2"></i>
+                    <small class="text-muted me-2">@(ViewBag.IsThaiLanguage ? "รหัส OTAC ที่ยืนยันแล้ว:" : "Verified OTAC Code:"):</small>
+                    <span class="otac-code">@Model.OtacCode</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registration Form -->
+        <form asp-action="Register" method="post" id="registerForm" novalidate>
+            @Html.AntiForgeryToken()
+            <input asp-for="OtacCode" type="hidden" />
+
+            <!-- Personal Information Section -->
+            <div class="form-section">
+                <div class="section-title">
+                    <div class="section-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    ข้อมูลส่วนตัว
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-floating">
+                            <input asp-for="FullName" 
+                                   class="form-control" 
+                                   placeholder="ชื่อ-นามสกุล"
+                                   required />
+                            <label asp-for="FullName" class="required-field">ชื่อ-นามสกุล</label>
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                            <div class="input-hint">
+                                <i class="fas fa-info-circle me-1"></i>
+                                กรุณากรอกชื่อ-นามสกุลตามเอกสารทางราชการ
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <!-- IdType is always "National ID" as per requirements - no field needed for ModernRegistrationViewModel -->
+                        <div class="form-floating">
+                            <input asp-for="IdValue" 
+                                   class="form-control" 
+                                   placeholder="เลขบัตรประชาชน"
+                                   id="idValueInput"
+                                   required />
+                            <label asp-for="IdValue" class="required-field">เลขบัตรประชาชน (13 หลัก)</label>
+                            <span asp-validation-for="IdValue" class="text-danger"></span>
+                            <div class="input-hint" id="idHint">
+                                <i class="fas fa-info-circle me-1"></i>
+                                <span id="idHintText">ใช้เฉพาะบัตรประชาชนไทยเท่านั้น - กรอกตัวเลข 13 หลัก</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information Section -->
+            <div class="form-section">
+                <div class="section-title">
+                    <div class="section-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    ข้อมูลการติดต่อ
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-mobile-alt"></i>
+                            </span>
+                            <div class="form-floating">
+                                <input asp-for="MobileNo" 
+                                       class="form-control" 
+                                       placeholder="เบอร์มือถือ"
+                                       id="mobileInput"
+                                       required />
+                                <label asp-for="MobileNo" class="required-field">เบอร์มือถือ</label>
+                            </div>
+                        </div>
+                        <span asp-validation-for="MobileNo" class="text-danger"></span>
+                        <div class="input-hint">
+                            <i class="fas fa-info-circle me-1"></i>
+                            รูปแบบ: 08XXXXXXXX หรือ 09XXXXXXXX (10 หลัก)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Information Section -->
+            <div class="form-section">
+                <div class="section-title">
+                    <div class="section-icon">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    ข้อมูลบัญชีธนาคาร
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input asp-for="AccountNo" 
+                                   class="form-control" 
+                                   placeholder="เลขที่บัญชี"
+                                   id="accountInput"
+                                   required />
+                            <label asp-for="AccountNo" class="required-field">เลขที่บัญชี</label>
+                            <span asp-validation-for="AccountNo" class="text-danger"></span>
+                            <div class="input-hint">
+                                <i class="fas fa-info-circle me-1"></i>
+                                เลขบัญชี KBank 10-15 หลัก (ไม่ต้องใส่เครื่องหมายขีด)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select asp-for="BranchId" class="form-select" required>
+                                <option value="">เลือกสาขา</option>
+                                @foreach (var branch in Model.Branches)
+                                {
+                                    <option value="@branch.Value">@branch.Text</option>
+                                }
+                            </select>
+                            <label asp-for="BranchId" class="required-field">สาขาที่เปิดบัญชี</label>
+                            <span asp-validation-for="BranchId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terms and Submit -->
+            <div class="form-section">
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                    <label class="form-check-label" for="agreeTerms">
+                        ข้าพเจ้าได้อ่านและยอมรับ
+                        <a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#termsModal">
+                            <strong>ข้อกำหนดและเงื่อนไข</strong>
+                        </a>
+                        และ
+                        <a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#privacyModal">
+                            <strong>นโยบายความเป็นส่วนตัว</strong>
+                        </a>
+                        <span class="text-danger">*</span>
+                    </label>
+                    <div class="invalid-feedback">
+                        กรุณายอมรับข้อกำหนดและเงื่อนไขก่อนดำเนินการต่อ
+                    </div>
+                </div>
+
+                <button type="submit" class="btn register-btn" id="submitBtn">
+                    <i class="fas fa-paper-plane me-2"></i>
+                    ลงทะเบียนหักบัญชีอัตโนมัติ
+                </button>
+            </div>
+        </form>
+
+        <!-- Security Notice -->
+        <div class="security-notice">
+            <div class="security-notice-title">
+                <i class="fas fa-shield-alt me-2"></i>
+                การรักษาความปลอดภัย
+            </div>
+            <p class="mb-0 text-muted">
+                ข้อมูลของท่านจะถูกเข้ารหัสและส่งต่อไปยังระบบ KBank อย่างปลอดภัย
+                โดยเป็นไปตามมาตรฐานความปลอดภัยระดับธนาคาร
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Terms Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="termsModalLabel">
+                    <i class="fas fa-file-contract me-2"></i>ข้อกำหนดและเงื่อนไข
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="terms-content">
+                    <h6>1. การใช้บริการ</h6>
+                    <p>ท่านตกลงใช้บริการหักบัญชีอัตโนมัติตามเงื่อนไขที่กำหนดโดย KBank และ BizConnect</p>
                     
-                    <div class="bc-icon-wrapper mb-3">
-                        <i class="fas fa-shield-alt fa-4x"></i>
-                    </div>
-                    <h1 class="mb-2" data-th="ลงทะเบียนหักบัญชีอัตโนมัติ KBank" data-en="KBank Online Direct Debit">ลงทะเบียนหักบัญชีอัตโนมัติ KBank</h1>
-                    <p data-th="กรอกข้อมูลเพื่อเปิดใช้งานการหักเงินอัตโนมัติที่ปลอดภัย" data-en="Complete your registration to enable secure automatic payments">กรอกข้อมูลเพื่อเปิดใช้งานการหักเงินอัตโนมัติที่ปลอดภัย</p>
-                    <div class="bc-security-badge">
-                        <i class="fas fa-lock"></i>
-                        <span data-th="ปลอดภัยด้วย SSL และมาตรฐานธนาคาร" data-en="SSL Secured & Bank-Grade Security">ปลอดภัยด้วย SSL และมาตรฐานธนาคาร</span>
-                    </div>
+                    <h6>2. ความถูกต้องของข้อมูล</h6>
+                    <p>ท่านรับรองว่าข้อมูลที่ให้ไว้ถูกต้องและเป็นปัจจุบัน</p>
+                    
+                    <h6>3. ความรับผิดชอบ</h6>
+                    <p>ท่านรับผิดชอบต่อการใช้บริการและธุรกรรมที่เกิดขึ้น</p>
+                    
+                    <h6>4. การแก้ไขข้อกำหนด</h6>
+                    <p>บริษัทขอสงวนสิทธิ์ในการแก้ไขข้อกำหนดโดยแจ้งให้ทราบล่วงหน้า</p>
                 </div>
             </div>
-
-            <!-- Enhanced Registration Form Card -->
-            <div class="card shadow-sm border-0 kbank-registration-form" style="max-width: 800px; margin: 0 auto;">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-user-plus me-2"></i>
-                        <span data-th="ข้อมูลการลงทะเบียน" data-en="Registration Information">ข้อมูลการลงทะเบียน</span>
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <form asp-action="Register" method="post" id="oddRegistrationForm" novalidate class="needs-validation">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="registrationId" value="@registrationId" />
-                        
-                        <div class="form-sections-container">
-                        <!-- Section 1: Personal Information -->
-                        <div class="form-section personal-info-section mb-4">
-                            <div class="section-header">
-                                <h6 class="section-title">
-                                    <i class="fas fa-user section-icon"></i>
-                                    <span data-th="ข้อมูลส่วนตัว" data-en="Personal Information">ข้อมูลส่วนตัว</span>
-                                </h6>
-                                <div class="section-divider"></div>
-                            </div>
-                            
-                            <div class="row g-4">
-                                <!-- Full Name -->
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label asp-for="FullName" class="form-label required">
-                                            <i class="fas fa-user"></i>
-                                            <span data-th="ชื่อ-นามสกุล" data-en="Full Name">ชื่อ-นามสกุล</span>
-                                        </label>
-                                        <input asp-for="FullName" class="form-control" 
-                                               data-placeholder-th="กรอกชื่อ-นามสกุล" 
-                                               data-placeholder-en="Enter your full name"
-                                               placeholder="กรอกชื่อ-นามสกุล" 
-                                               autocomplete="name" required aria-describedby="fullNameHelp" />
-                                    </div>
-                                </div>
-
-                                <!-- Mobile Number -->
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label asp-for="MobileNo" class="form-label required">
-                                            <i class="fas fa-mobile-alt"></i>
-                                            <span data-th="เบอร์โทรศัพท์" data-en="Mobile Number">เบอร์โทรศัพท์</span>
-                                        </label>
-                                        <input asp-for="MobileNo" class="form-control" 
-                                               data-placeholder-th="08xxxxxxxx หรือ +66xxxxxxxx" 
-                                               data-placeholder-en="08xxxxxxxx or +66xxxxxxxx"
-                                               placeholder="08xxxxxxxx หรือ +66xxxxxxxx" 
-                                               autocomplete="tel" required aria-describedby="mobileHelp" />
-                                    </div>
-                                </div>
-
-                                <!-- National ID -->
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label asp-for="IdValue" class="form-label required">
-                                            <i class="fas fa-id-card"></i>
-                                            <span data-th="เลขบัตรประจำตัวประชาชน" data-en="National ID Number">เลขบัตรประจำตัวประชาชน</span>
-                                        </label>
-                                        <input asp-for="IdValue" class="form-control" 
-                                               data-placeholder-th="กรอกเลขบัตรประชาชน 13 หลัก" 
-                                               data-placeholder-en="Enter 13-digit National ID"
-                                               placeholder="กรอกเลขบัตรประชาชน 13 หลัก" 
-                                               id="nationalIdInput" maxlength="13" pattern="[0-9]{13}" required aria-describedby="idHelp" />
-                                    </div>
-                                </div>
-
-                                <!-- Email -->
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            <i class="fas fa-envelope"></i>
-                                            <span data-th="อีเมล" data-en="Email">อีเมล</span>
-                                        </label>
-                                        <input type="email" class="form-control" 
-                                               data-placeholder-th="example@email.com" 
-                                               data-placeholder-en="example@email.com"
-                                               placeholder="example@email.com" 
-                                               autocomplete="email" aria-describedby="emailHelp" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Section 2: Bank Account Information -->
-                        <div class="form-section bank-info-section mb-4">
-                            <div class="section-header">
-                                <h6 class="section-title">
-                                    <i class="fas fa-university section-icon"></i>
-                                    <span data-th="ข้อมูลบัญชีธนาคาร" data-en="Bank Account Information">ข้อมูลบัญชีธนาคาร</span>
-                                </h6>
-                                <div class="section-divider"></div>
-                            </div>
-                            
-                            <div class="row g-4">
-                                <!-- Bank Name (Read-only) -->
-                                <div class="col-md-12 mb-3">
-                                    <div class="bank-display-card">
-                                        <div class="bank-logo-section">
-                                            <i class="fas fa-university text-success"></i>
-                                            <div class="bank-info">
-                                                <h6 class="bank-name mb-1">
-                                                    <span data-th="ธนาคารกสิกรไทย" data-en="Kasikornbank">ธนาคารกสิกรไทย</span>
-                                                </h6>
-                                                <small class="text-muted">
-                                                    <span data-th="KBank Online Direct Debit" data-en="KBank Online Direct Debit">KBank Online Direct Debit</span>
-                                                </small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Account Number -->
-                                <div class="col-md-8">
-                                    <div class="form-group">
-                                        <label asp-for="AccountNo" class="form-label required">
-                                            <i class="fas fa-credit-card"></i>
-                                            <span data-th="เลขที่บัญชี" data-en="Account Number">เลขที่บัญชี</span>
-                                        </label>
-                                        <input asp-for="AccountNo" class="form-control" 
-                                               data-placeholder-th="กรอกเลขที่บัญชีธนาคาร" 
-                                               data-placeholder-en="Enter your bank account number"
-                                               placeholder="กรอกเลขที่บัญชีธนาคาร" 
-                                               autocomplete="off" required aria-describedby="accountHelp" />
-                                    </div>
-                                </div>
-
-                                <!-- Branch -->
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label asp-for="BranchId" class="form-label required">
-                                            <i class="fas fa-building"></i>
-                                            <span data-th="สาขา" data-en="Branch">สาขา</span>
-                                        </label>
-                                        <select asp-for="BranchId" asp-items="@Model.Branches" 
-                                                class="form-select" required aria-describedby="branchHelp">
-                                            <option value="" data-th="-- เลือกสาขา --" data-en="-- Select Branch --">-- เลือกสาขา --</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        </div> <!-- End form-sections-container -->
-
-                        <!-- Enhanced Form Actions -->
-                        <div class="form-actions justify-content-center">
-                            <button type="submit" class="btn btn-primary" id="submitBtn">
-                                <span class="btn-content">
-                                    <i class="fas fa-shield-alt me-2"></i>
-                                    <span data-th="ยืนยันการลงทะเบียน" data-en="Confirm Registration">ยืนยันการลงทะเบียน</span>
-                                </span>
-                                <span class="btn-loading d-none">
-                                    <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
-                                    <span data-th="กำลังดำเนินการ..." data-en="Processing...">กำลังดำเนินการ...</span>
-                                </span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Information Card -->
-            <div class="card mt-4 border-info" style="max-width: 800px; margin: 2.5rem auto 0 auto;">
-                <div class="card-header bg-info text-white">
-                    <h6 class="card-title mb-0">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <span data-th="ข้อมูลสำคัญ" data-en="Important Information">ข้อมูลสำคัญ</span>
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <ul class="mb-0">
-                        <li data-th="คุณจะถูกเปลี่ยนเส้นทางไปยังหน้าลงทะเบียนที่ปลอดภัยของ KBank หลังจากส่งแบบฟอร์มนี้" data-en="You will be redirected to KBank's secure registration page after submitting this form">คุณจะถูกเปลี่ยนเส้นทางไปยังหน้าลงทะเบียนที่ปลอดภัยของ KBank หลังจากส่งแบบฟอร์มนี้</li>
-                        <li data-th="กรุณาตรวจสอบความถูกต้องของข้อมูลทั้งหมดก่อนดำเนินการ" data-en="Please ensure all information is accurate before proceeding">กรุณาตรวจสอบความถูกต้องของข้อมูลทั้งหมดก่อนดำเนินการ</li>
-                        <li data-th="เตรียมเอกสารประจำตัวให้พร้อมสำหรับการยืนยันตัวตน" data-en="Keep your ID document ready for verification">เตรียมเอกสารประจำตัวให้พร้อมสำหรับการยืนยันตัวตน</li>
-                        <li data-th="ตรวจสอบให้แน่ใจว่าเลขที่บัญชีธนาคารถูกต้อง (10-15 หลัก)" data-en="Ensure your bank account number is correct (10-15 digits)">ตรวจสอบให้แน่ใจว่าเลขที่บัญชีธนาคารถูกต้อง (10-15 หลัก)</li>
-                        <li data-th="เลือกสาขาที่เหมาะสมสำหรับการลงทะเบียนของคุณ" data-en="Select the appropriate branch for your registration">เลือกสาขาที่เหมาะสมสำหรับการลงทะเบียนของคุณ</li>
-                    </ul>
-                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                <button type="button" class="btn btn-primary" onclick="acceptTerms()">ยอมรับ</button>
             </div>
         </div>
     </div>
 </div>
 
-@section Styles {
-    <link rel="stylesheet" href="~/css/register.css" />
-}
+<!-- Privacy Modal -->
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="privacyModalLabel">
+                    <i class="fas fa-user-shield me-2"></i>นโยบายความเป็นส่วนตัว
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="privacy-content">
+                    <h6>การเก็บรวบรวมข้อมูล</h6>
+                    <p>เราเก็บรวบรวมข้อมูลที่จำเป็นสำหรับการให้บริการเท่านั้น</p>
+                    
+                    <h6>การใช้ข้อมูล</h6>
+                    <p>ข้อมูลจะใช้เพื่อการให้บริการและการปรับปรุงบริการ</p>
+                    
+                    <h6>การเปิดเผยข้อมูล</h6>
+                    <p>เราจะไม่เปิดเผยข้อมูลให้บุคคลที่สาม ยกเว้นตามที่กฎหมายกำหนด</p>
+                    
+                    <h6>ความปลอดภัย</h6>
+                    <p>เรามีมาตรการรักษาความปลอดภัยข้อมูลตามมาตรฐานสากล</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                <button type="button" class="btn btn-info" onclick="acceptPrivacy()">ยอมรับ</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script src="~/js/kbank-registration-enhanced.js"></script>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const nationalIdInput = document.getElementById('nationalIdInput');
-            const form = document.getElementById('oddRegistrationForm');
+            const form = document.getElementById('registerForm');
             const submitBtn = document.getElementById('submitBtn');
+            const agreeTerms = document.getElementById('agreeTerms');
 
-            // Language switching is now handled by the layout
-            const currentLang = localStorage.getItem('preferredLanguage') || 'th';
+            // Form validation configuration - National ID only
+            const nationalIdValidator = {
+                pattern: /^[0-9]{13}$/,
+                message: 'เลขประจำตัวประชาชนต้องเป็นตัวเลข 13 หลัก',
+                hint: 'กรอกเลขประจำตัวประชาชน 13 หลัก'
+            };
+
+            // Initialize input formatting and validation
+            initializeInputs();
             
-            // Setup staff login button to trigger the login modal from layout
-            const staffLoginBtn = document.getElementById('staffLoginBtn');
-            if (staffLoginBtn) {
-                staffLoginBtn.addEventListener('click', function() {
-                    // Trigger the login modal if available
-                    if (typeof window.triggerLoginModal === 'function') {
-                        window.triggerLoginModal();
-                    } else if (window.globalModalInstance) {
-                        window.globalModalInstance.show();
-                    } else {
-                        // Fallback to direct navigation to login page
-                        window.location.href = '/Account/Login';
-                    }
-                });
-            }
-            
-            // Apply current language if layout hasn't initialized yet
-            if (window.BizConnectLanguage) {
-                window.BizConnectLanguage.switchLanguage(currentLang, false);
-            }
-
-            // Enhanced form validation with proper timing
-            let validFields = new Set();
-            const requiredFields = ['FullName', 'MobileNo', 'IdValue', 'AccountNo', 'BranchId'];
-
-            // Enhanced National ID validation with formatting
-            if (nationalIdInput) {
-                let hasUserInteracted = false;
-                
-                nationalIdInput.addEventListener('input', function(e) {
-                    let value = e.target.value;
-                    // Remove non-numeric characters
-                    value = value.replace(/[^\d]/g, '');
-                    
-                    // Format with dashes for better readability (display only)
-                    if (value.length > 1 && value.length <= 5) {
-                        e.target.dataset.formatted = value.substring(0, 1) + '-' + value.substring(1);
-                    } else if (value.length > 5 && value.length <= 10) {
-                        e.target.dataset.formatted = value.substring(0, 1) + '-' + value.substring(1, 5) + '-' + value.substring(5);
-                    } else if (value.length > 10 && value.length <= 12) {
-                        e.target.dataset.formatted = value.substring(0, 1) + '-' + value.substring(1, 5) + '-' + value.substring(5, 10) + '-' + value.substring(10);
-                    } else if (value.length === 13) {
-                        e.target.dataset.formatted = value.substring(0, 1) + '-' + value.substring(1, 5) + '-' + value.substring(5, 10) + '-' + value.substring(10, 12) + '-' + value.substring(12);
-                    }
-                    
-                    e.target.value = value;
-                    
-                    // Clear any existing error states when typing
-                    if (hasUserInteracted) {
-                        e.target.classList.remove('is-invalid');
-                        removeCustomError(e.target, 'national-id-error');
-                    }
-                });
-
-                nationalIdInput.addEventListener('blur', function(e) {
-                    hasUserInteracted = true;
-                    validateNationalId(e.target);
-                });
-
-                nationalIdInput.addEventListener('focus', function(e) {
-                    // Show formatted version in placeholder or helper text
-                    if (e.target.dataset.formatted) {
-                        e.target.title = 'Formatted: ' + e.target.dataset.formatted;
-                    }
-                    // Clear validation state on focus
-                    e.target.classList.remove('is-valid', 'is-invalid');
-                });
-            }
-
-            function validateNationalId(input) {
-                const value = input.value.trim();
-                const nationalIdPattern = /^[0-9]{13}$/;
-                
-                if (!value) {
-                    input.classList.remove('is-valid', 'is-invalid');
-                    validFields.delete('IdValue');
-                    removeCustomError(input, 'national-id-error');
-                    return;
-                }
-                
-                if (nationalIdPattern.test(value) && isValidThaiNationalId(value)) {
-                    input.classList.add('is-valid');
-                    input.classList.remove('is-invalid');
-                    validFields.add('IdValue');
-                    removeCustomError(input, 'national-id-error');
-                    showFieldSuccess(input, 'National ID verified successfully');
-                } else {
-                    input.classList.add('is-invalid');
-                    input.classList.remove('is-valid');
-                    validFields.delete('IdValue');
-                    const currentLang = localStorage.getItem('preferredLanguage') || 'th';
-                    const errorMessage = currentLang === 'th' ? 
-                        'เลขบัตรประชาชนไม่ถูกต้อง กรุณาตรวจสอบ' : 
-                        'Invalid National ID format';
-                    showCustomError(input, 'national-id-error', errorMessage);
-                }
-            }
-
-            // Thai National ID validation algorithm
-            function isValidThaiNationalId(id) {
-                if (id.length !== 13) return false;
-                
-                let sum = 0;
-                for (let i = 0; i < 12; i++) {
-                    sum += parseInt(id.charAt(i)) * (13 - i);
-                }
-                
-                const remainder = sum % 11;
-                const checkDigit = (11 - remainder) % 10;
-                
-                return checkDigit === parseInt(id.charAt(12));
-            }
-
-            // Enhanced mobile number validation with international support
-            const mobileInput = document.querySelector('input[name="MobileNo"]');
-            if (mobileInput) {
-                let hasUserInteracted = false;
-                
-                mobileInput.addEventListener('input', function(e) {
-                    let value = e.target.value;
-                    // Allow only digits, +, and - characters
-                    value = value.replace(/[^\d+\-]/g, '');
-                    e.target.value = value;
-                    
-                    // Auto-format for Thai numbers
-                    if (value.startsWith('08') || value.startsWith('09') || value.startsWith('06') || value.startsWith('07')) {
-                        // Format as 0X-XXXX-XXXX
-                        if (value.length > 2 && value.length <= 6) {
-                            e.target.dataset.formatted = value.substring(0, 2) + '-' + value.substring(2);
-                        } else if (value.length > 6) {
-                            e.target.dataset.formatted = value.substring(0, 2) + '-' + value.substring(2, 6) + '-' + value.substring(6);
-                        }
-                    }
-                    
-                    // Clear any existing error states when typing
-                    if (hasUserInteracted) {
-                        e.target.classList.remove('is-invalid');
-                        removeCustomError(e.target, 'mobile-error');
-                    }
-                });
-                
-                mobileInput.addEventListener('blur', function(e) {
-                    hasUserInteracted = true;
-                    validateMobileNumber(e.target);
-                });
-                
-                mobileInput.addEventListener('focus', function(e) {
-                    // Clear validation state on focus
-                    e.target.classList.remove('is-valid', 'is-invalid');
-                });
-            }
-
-            function validateMobileNumber(input) {
-                const value = input.value.trim();
-                const thaiMobilePattern = /^(08|09|06|07)\d{8}$/;
-                const internationalPattern = /^\+66[6-9]\d{8}$/;
-                
-                if (!value) {
-                    input.classList.remove('is-valid', 'is-invalid');
-                    validFields.delete('MobileNo');
-                    removeCustomError(input, 'mobile-error');
-                    return;
-                }
-                
-                if (thaiMobilePattern.test(value) || internationalPattern.test(value)) {
-                    input.classList.add('is-valid');
-                    input.classList.remove('is-invalid');
-                    validFields.add('MobileNo');
-                    removeCustomError(input, 'mobile-error');
-                    showFieldSuccess(input, 'Mobile number verified');
-                } else {
-                    input.classList.add('is-invalid');
-                    input.classList.remove('is-valid');
-                    validFields.delete('MobileNo');
-                    const currentLang = localStorage.getItem('preferredLanguage') || 'th';
-                    const errorMessage = currentLang === 'th' ? 
-                        'กรุณาใส่เบอร์โทรศัพท์ที่ถูกต้อง (08xxxxxxxx หรือ +66xxxxxxxx)' : 
-                        'Please enter a valid mobile number (08xxxxxxxx or +66xxxxxxxx)';
-                    showCustomError(input, 'mobile-error', errorMessage);
-                }
-            }
-
-            // Enhanced account number validation
-            const accountInput = document.querySelector('input[name="AccountNo"]');
-            if (accountInput) {
-                let hasUserInteracted = false;
-                
-                accountInput.addEventListener('input', function(e) {
-                    let value = e.target.value;
-                    // Only allow digits
-                    value = value.replace(/[^\d]/g, '');
-                    e.target.value = value;
-                    
-                    // Clear any existing error states when typing
-                    if (hasUserInteracted) {
-                        e.target.classList.remove('is-invalid');
-                    }
-                });
-
-                accountInput.addEventListener('blur', function(e) {
-                    hasUserInteracted = true;
-                    validateAccountNumber(e.target);
-                });
-                
-                accountInput.addEventListener('focus', function(e) {
-                    // Clear validation state on focus
-                    e.target.classList.remove('is-valid', 'is-invalid');
-                });
-            }
-
-            function validateAccountNumber(input) {
-                const value = input.value.trim();
-                const accountPattern = /^\d{10,15}$/;
-                
-                if (!value) {
-                    input.classList.remove('is-valid', 'is-invalid');
-                    validFields.delete('AccountNo');
-                    return;
-                }
-                
-                if (accountPattern.test(value)) {
-                    input.classList.add('is-valid');
-                    input.classList.remove('is-invalid');
-                    validFields.add('AccountNo');
-                    showFieldSuccess(input, 'Account number format is valid');
-                } else {
-                    input.classList.add('is-invalid');
-                    input.classList.remove('is-valid');
-                    validFields.delete('AccountNo');
-                }
-            }
-
-            // Enhanced form submission with loading states
+            // Form submission handler
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                // Final validation check - validate all fields
-                const allInputs = form.querySelectorAll('input[required], select[required]');
-                let formIsValid = true;
-                
-                allInputs.forEach(input => {
-                    if (input.name === 'MobileNo') {
-                        validateMobileNumber(input);
-                    } else if (input.id === 'nationalIdInput') {
-                        validateNationalId(input);
-                    } else if (input.name === 'AccountNo') {
-                        validateAccountNumber(input);
-                    } else {
-                        validateRequiredField(input);
-                    }
-                    
-                    if (input.classList.contains('is-invalid') || (!input.value.trim() && input.hasAttribute('required'))) {
-                        formIsValid = false;
-                    }
-                });
-                
-                if (!formIsValid) {
-                    const currentLang = localStorage.getItem('preferredLanguage') || 'th';
-                    const errorMessage = currentLang === 'th' ? 
-                        'กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง' : 
-                        'Please fill all required fields correctly';
-                    if (typeof showNotification === 'function') {
-                        showNotification(errorMessage, 'error');
-                    }
-                    
-                    // Reset button state if validation fails
-                    resetButtonState(submitBtn);
-                    return false;
-                }
-
-                // Show loading state
-                const btnContent = submitBtn.querySelector('.btn-content');
-                const btnLoading = submitBtn.querySelector('.btn-loading');
-                
-                if (btnContent && btnLoading) {
-                    btnContent.classList.add('d-none');
-                    btnLoading.classList.remove('d-none');
+                if (validateForm()) {
                     submitBtn.disabled = true;
-                } else {
-                    // Fallback if structure is different
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = `
-                        <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
-                        <span>กำลังดำเนินการ...</span>
-                    `;
+                    submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>กำลังส่งข้อมูล...';
+                    
+                    // Submit form after validation
+                    setTimeout(() => {
+                        form.submit();
+                    }, 500);
                 }
-                
-                // Show processing notification
-                const currentLang = localStorage.getItem('preferredLanguage') || 'th';
-                const processingMessage = currentLang === 'th' ? 
-                    'กำลังดำเนินการ กรุณารอสักครู่...' : 
-                    'Processing your request, please wait...';
-                if (typeof showNotification === 'function') {
-                    showNotification(processingMessage, 'info', {
-                        duration: 0, // Don't auto-dismiss
-                        showCloseButton: false
-                    });
-                }
-                
-                // Simulate processing time (remove in production)
-                setTimeout(() => {
-                    form.submit();
-                }, 1500);
             });
 
-            // Enhanced field validation for all inputs
-            const allInputs = form.querySelectorAll('input[required], select[required]');
-            allInputs.forEach(input => {
-                let hasUserInteracted = false;
-                
-                input.addEventListener('blur', function(e) {
-                    hasUserInteracted = true;
-                    validateRequiredField(e.target);
+            function initializeInputs() {
+                // Setup for National ID only (no dropdown)
+                const idValueInput = document.getElementById('idValueInput');
+
+                // ID Value input formatting (National ID only - 13 digits)
+                idValueInput.addEventListener('input', function() {
+                    // Always National ID - only allow 13 digits
+                    let value = this.value.replace(/[^0-9]/g, '').substring(0, 13);
+                    this.value = value;
+                    validateField(this);
                 });
-                
-                input.addEventListener('input', function(e) {
-                    if (hasUserInteracted) {
-                        clearFieldError(e.target);
-                        if (e.target.value.trim()) {
-                            validateRequiredField(e.target);
+
+                // Mobile number formatting
+                const mobileInput = document.getElementById('mobileInput');
+                mobileInput.addEventListener('input', function() {
+                    let value = this.value.replace(/[^0-9]/g, '');
+                    
+                    // Auto-add 0 prefix if not present
+                    if (value.length > 0 && !value.startsWith('0')) {
+                        if (value.startsWith('8') || value.startsWith('9')) {
+                            value = '0' + value;
                         }
                     }
+                    
+                    // Limit length
+                    value = value.substring(0, 10);
+                    this.value = value;
+                    validateField(this);
                 });
-                
-                input.addEventListener('focus', function(e) {
-                    // Clear validation state on focus
-                    e.target.classList.remove('is-valid', 'is-invalid');
-                });
-            });
 
-            function validateRequiredField(field) {
-                const fieldName = field.name;
-                
-                // Skip fields with custom validation
-                if (fieldName === 'MobileNo' || field.id === 'nationalIdInput' || fieldName === 'AccountNo') {
-                    return;
+                // Account number formatting
+                const accountInput = document.getElementById('accountInput');
+                accountInput.addEventListener('input', function() {
+                    let value = this.value.replace(/[^0-9]/g, '').substring(0, 15);
+                    this.value = value;
+                    validateField(this);
+                });
+
+                // Real-time validation for all inputs
+                const inputs = form.querySelectorAll('input[required], select[required]');
+                inputs.forEach(input => {
+                    input.addEventListener('blur', () => validateField(input));
+                    input.addEventListener('input', () => clearValidationState(input));
+                });
+            }
+
+            function validateField(field) {
+                const value = field.value.trim();
+                const fieldName = field.name || field.id;
+                let isValid = true;
+                let errorMessage = '';
+
+                switch (fieldName) {
+                    case 'FullName':
+                        isValid = value.length >= 2 && value.length <= 200;
+                        errorMessage = 'ชื่อ-นามสกุลต้องมี 2-200 ตัวอักษร';
+                        break;
+
+                    case 'IdValue':
+                        // Always National ID - validate 13 digits
+                        isValid = /^[0-9]{13}$/.test(value);
+                        errorMessage = 'เลขประจำตัวประชาชนต้องเป็นตัวเลข 13 หลัก';
+                        break;
+
+                    case 'MobileNo':
+                        isValid = /^0[89][0-9]{8}$/.test(value);
+                        errorMessage = 'เบอร์มือถือต้องขึ้นต้นด้วย 08 หรือ 09 และมี 10 หลัก';
+                        break;
+
+                    case 'AccountNo':
+                        isValid = /^[0-9]{10,15}$/.test(value);
+                        errorMessage = 'เลขที่บัญชีต้องเป็นตัวเลข 10-15 หลัก';
+                        break;
+
+                    case 'BranchId':
+                        isValid = value !== '';
+                        errorMessage = 'กรุณาเลือกสาขา';
+                        break;
                 }
 
-                if (field.checkValidity() && field.value.trim()) {
+                updateFieldValidation(field, isValid, errorMessage);
+                return isValid;
+            }
+
+            function updateFieldValidation(field, isValid, errorMessage) {
+                const feedback = field.parentNode.querySelector('.invalid-feedback') || 
+                               field.parentNode.parentNode.querySelector('.text-danger');
+                
+                if (isValid) {
                     field.classList.remove('is-invalid');
                     field.classList.add('is-valid');
-                    validFields.add(fieldName);
-                    
-                    if (fieldName === 'FullName') {
-                        showFieldSuccess(field, 'Name entered successfully');
-                    } else if (fieldName === 'BranchId') {
-                        showFieldSuccess(field, 'Branch selected successfully');
-                    }
+                    if (feedback) feedback.textContent = '';
                 } else {
                     field.classList.remove('is-valid');
                     field.classList.add('is-invalid');
-                    validFields.delete(fieldName);
+                    if (feedback) feedback.textContent = errorMessage;
                 }
             }
 
-            function clearFieldError(field) {
-                field.classList.remove('is-invalid');
-                validFields.delete(field.name);
-                removeCustomError(field, 'mobile-error');
-                removeCustomError(field, 'national-id-error');
+            function clearValidationState(field) {
+                field.classList.remove('is-valid', 'is-invalid');
             }
 
-            // Helper function to reset button state
-            function resetButtonState(button) {
-                const btnContent = button.querySelector('.btn-content');
-                const btnLoading = button.querySelector('.btn-loading');
-                
-                if (btnContent && btnLoading) {
-                    btnContent.classList.remove('d-none');
-                    btnLoading.classList.add('d-none');
+            function validateForm() {
+                const inputs = form.querySelectorAll('input[required], select[required]');
+                let isFormValid = true;
+
+                inputs.forEach(input => {
+                    if (!validateField(input)) {
+                        isFormValid = false;
+                    }
+                });
+
+                // Check terms agreement
+                if (!agreeTerms.checked) {
+                    agreeTerms.classList.add('is-invalid');
+                    isFormValid = false;
+                } else {
+                    agreeTerms.classList.remove('is-invalid');
                 }
-                
-                button.disabled = false;
-            }
 
-            // Helper functions for error/success messages
-            function showCustomError(input, className, message) {
-                removeCustomError(input, className);
-                const errorSpan = document.createElement('div');
-                errorSpan.className = className + ' text-danger small mt-1';
-                errorSpan.textContent = message;
-                input.parentNode.appendChild(errorSpan);
-            }
-
-            function removeCustomError(input, className) {
-                const errorSpan = input.parentNode.querySelector('.' + className);
-                if (errorSpan) errorSpan.remove();
-            }
-
-            function showFieldSuccess(input, message) {
-                // Optional: Show success tooltip or brief message
-                if (input.title !== message) {
-                    input.title = message;
-                    setTimeout(() => {
-                        input.title = '';
-                    }, 3000);
+                if (!isFormValid) {
+                    showAlert('warning', 'กรุณาตรวจสอบข้อมูลที่กรอกให้ครบถ้วนและถูกต้อง');
+                    
+                    // Focus on first invalid field
+                    const firstInvalid = form.querySelector('.is-invalid');
+                    if (firstInvalid) {
+                        firstInvalid.focus();
+                        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
                 }
+
+                return isFormValid;
             }
 
-            // No need to initialize validation on page load - wait for user interaction
+            // Display TempData messages
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <text>
+                showAlert('danger', '@Html.Raw(TempData["ErrorMessage"])');
+                </text>
+            }
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <text>
+                showAlert('success', '@Html.Raw(TempData["SuccessMessage"])');
+                </text>
+            }
         });
+
+        // Modal functions
+        function acceptTerms() {
+            document.getElementById('agreeTerms').checked = true;
+            const modal = bootstrap.Modal.getInstance(document.getElementById('termsModal'));
+            modal.hide();
+        }
+
+        function acceptPrivacy() {
+            document.getElementById('agreeTerms').checked = true;
+            const modal = bootstrap.Modal.getInstance(document.getElementById('privacyModal'));
+            modal.hide();
+        }
+
+        // Alert helper function
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 1060; min-width: 300px; max-width: 500px;';
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alertDiv);
+
+            // Auto-remove after 6 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.classList.remove('show');
+                    setTimeout(() => alertDiv.remove(), 150);
+                }
+            }, 6000);
+        }
     </script>
 }

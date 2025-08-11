@@ -84,7 +84,7 @@
                 <p class="card-subtitle" data-text-th="กรอกรหัส OTAC ที่ได้รับจากเจ้าหน้าที่" data-text-en="Enter the OTAC code received from staff">กรอกรหัส OTAC ที่ได้รับจากเจ้าหน้าที่</p>
             </div>
 
-            @using (Html.BeginForm("VerifyOtac", "Home", FormMethod.Post, new { @class = "otac-form", @id = "otacForm" }))
+            @using (Html.BeginForm("Verify", "Home", FormMethod.Post, new { @class = "otac-form", @id = "otacForm" }))
             {
                 @Html.AntiForgeryToken()
                 
