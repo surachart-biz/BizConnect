@@ -320,12 +320,12 @@
                 <div class="step-number">
                     <i class="fas fa-check"></i>
                 </div>
-                <span>@(ViewBag.IsThaiLanguage ? "ยืนยัน OTAC" : "Verify OTAC")</span>
+                <span data-text-th="ยืนยัน OTAC" data-text-en="Verify OTAC">@ViewBag.TextVerifyOtac</span>
             </div>
             <div class="step-connector"></div>
             <div class="step active">
                 <div class="step-number">2</div>
-                <span>@(ViewBag.IsThaiLanguage ? "กรอกข้อมูล" : "Fill Information")</span>
+                <span data-text-th="กรอกข้อมูล" data-text-en="Fill Information">@ViewBag.TextFillInformation</span>
             </div>
             <div class="step-connector"></div>
             <div class="step">
@@ -341,14 +341,14 @@
             </div>
             <h1 class="register-title">@ViewData["Title"]</h1>
             <p class="register-subtitle">
-                @(ViewBag.IsThaiLanguage ? "กรุณากรอกข้อมูลของท่านให้ครบถ้วนและถูกต้อง" : "Please fill in your information completely and accurately")
+                <span data-text-th="กรุณากรอกข้อมูลของท่านให้ครบถ้วนและถูกต้อง" data-text-en="Please fill in your information completely and accurately">@ViewBag.TextPleaseFillInfo</span>
             </p>
 
             <!-- OTAC Display -->
             <div class="otac-display">
                 <div class="d-flex align-items-center justify-content-center">
                     <i class="fas fa-shield-check text-success me-2"></i>
-                    <small class="text-muted me-2">@(ViewBag.IsThaiLanguage ? "รหัส OTAC ที่ยืนยันแล้ว:" : "Verified OTAC Code:"):</small>
+                    <small class="text-muted me-2" data-text-th="รหัส OTAC ที่ยืนยันแล้ว:" data-text-en="Verified OTAC Code:">@ViewBag.TextVerifiedOtacCode</small>
                     <span class="otac-code">@Model.OtacCode</span>
                 </div>
             </div>
@@ -365,7 +365,7 @@
                     <div class="section-icon">
                         <i class="fas fa-user"></i>
                     </div>
-                    ข้อมูลส่วนตัว
+                    <span data-text-th="ข้อมูลส่วนตัว" data-text-en="Personal Information">@ViewBag.TextPersonalInfo</span>
                 </div>
 
                 <div class="row">
@@ -373,13 +373,14 @@
                         <div class="form-floating">
                             <input asp-for="FullName" 
                                    class="form-control" 
-                                   placeholder="ชื่อ-นามสกุล"
+                                   placeholder="@ViewBag.TextFullNameLabel"
+                                   data-placeholder-th="ชื่อ-นามสกุล" data-placeholder-en="Full Name"
                                    required />
-                            <label asp-for="FullName" class="required-field">ชื่อ-นามสกุล</label>
+                            <label asp-for="FullName" class="required-field" data-text-th="ชื่อ-นามสกุล" data-text-en="Full Name">@ViewBag.TextFullNameLabel</label>
                             <span asp-validation-for="FullName" class="text-danger"></span>
                             <div class="input-hint">
                                 <i class="fas fa-info-circle me-1"></i>
-                                กรุณากรอกชื่อ-นามสกุลตามเอกสารทางราชการ
+                                <span data-text-th="กรุณากรอกชื่อ-นามสกุลตามเอกสารทางราชการ" data-text-en="Please enter full name as per official documents">@ViewBag.TextFullNameHint</span>
                             </div>
                         </div>
                     </div>
@@ -391,14 +392,15 @@
                         <div class="form-floating">
                             <input asp-for="IdValue" 
                                    class="form-control" 
-                                   placeholder="เลขบัตรประชาชน"
+                                   placeholder="@ViewBag.TextNationalIdLabel"
+                                   data-placeholder-th="เลขบัตรประชาชน" data-placeholder-en="National ID Number"
                                    id="idValueInput"
                                    required />
-                            <label asp-for="IdValue" class="required-field">เลขบัตรประชาชน (13 หลัก)</label>
+                            <label asp-for="IdValue" class="required-field" data-text-th="เลขบัตรประชาชน (13 หลัก)" data-text-en="National ID Number (13 digits)">@ViewBag.TextNationalIdLabel</label>
                             <span asp-validation-for="IdValue" class="text-danger"></span>
                             <div class="input-hint" id="idHint">
                                 <i class="fas fa-info-circle me-1"></i>
-                                <span id="idHintText">ใช้เฉพาะบัตรประชาชนไทยเท่านั้น - กรอกตัวเลข 13 หลัก</span>
+                                <span id="idHintText" data-text-th="ใช้เฉพาะบัตรประชาชนไทยเท่านั้น - กรอกตัวเลข 13 หลัก" data-text-en="Thai National ID only - enter 13 digits">@ViewBag.TextNationalIdHint</span>
                             </div>
                         </div>
                     </div>
@@ -411,7 +413,7 @@
                     <div class="section-icon">
                         <i class="fas fa-phone"></i>
                     </div>
-                    ข้อมูลการติดต่อ
+                    <span data-text-th="ข้อมูลการติดต่อ" data-text-en="Contact Information">@ViewBag.TextContactInfo</span>
                 </div>
 
                 <div class="row">
@@ -423,16 +425,17 @@
                             <div class="form-floating">
                                 <input asp-for="MobileNo" 
                                        class="form-control" 
-                                       placeholder="เบอร์มือถือ"
+                                       placeholder="@ViewBag.TextMobileLabel"
+                                       data-placeholder-th="เบอร์มือถือ" data-placeholder-en="Mobile Number"
                                        id="mobileInput"
                                        required />
-                                <label asp-for="MobileNo" class="required-field">เบอร์มือถือ</label>
+                                <label asp-for="MobileNo" class="required-field" data-text-th="เบอร์มือถือ" data-text-en="Mobile Number">@ViewBag.TextMobileLabel</label>
                             </div>
                         </div>
                         <span asp-validation-for="MobileNo" class="text-danger"></span>
                         <div class="input-hint">
                             <i class="fas fa-info-circle me-1"></i>
-                            รูปแบบ: 08XXXXXXXX หรือ 09XXXXXXXX (10 หลัก)
+                            <span data-text-th="รูปแบบ: 08XXXXXXXX หรือ 09XXXXXXXX (10 หลัก)" data-text-en="Format: 08XXXXXXXX or 09XXXXXXXX (10 digits)">@ViewBag.TextMobileHint</span>
                         </div>
                     </div>
                 </div>
@@ -444,7 +447,7 @@
                     <div class="section-icon">
                         <i class="fas fa-university"></i>
                     </div>
-                    ข้อมูลบัญชีธนาคาร
+                    <span data-text-th="ข้อมูลบัญชีธนาคาร" data-text-en="Bank Account Information">@ViewBag.TextBankAccountInfo</span>
                 </div>
 
                 <div class="row">
@@ -452,27 +455,28 @@
                         <div class="form-floating">
                             <input asp-for="AccountNo" 
                                    class="form-control" 
-                                   placeholder="เลขที่บัญชี"
+                                   placeholder="@ViewBag.TextAccountLabel"
+                                   data-placeholder-th="เลขที่บัญชี" data-placeholder-en="Account Number"
                                    id="accountInput"
                                    required />
-                            <label asp-for="AccountNo" class="required-field">เลขที่บัญชี</label>
+                            <label asp-for="AccountNo" class="required-field" data-text-th="เลขที่บัญชี" data-text-en="Account Number">@ViewBag.TextAccountLabel</label>
                             <span asp-validation-for="AccountNo" class="text-danger"></span>
                             <div class="input-hint">
                                 <i class="fas fa-info-circle me-1"></i>
-                                เลขบัญชี KBank 10-15 หลัก (ไม่ต้องใส่เครื่องหมายขีด)
+                                <span data-text-th="เลขบัญชี KBank 10-15 หลัก (ไม่ต้องใส่เครื่องหมายขีด)" data-text-en="KBank account number 10-15 digits (no dashes)">@ViewBag.TextAccountHint</span>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-floating">
                             <select asp-for="BranchId" class="form-select" required>
-                                <option value="">เลือกสาขา</option>
+                                <option value="" data-text-th="เลือกสาขา" data-text-en="Select Branch">@ViewBag.TextSelectBranch</option>
                                 @foreach (var branch in Model.Branches)
                                 {
                                     <option value="@branch.Value">@branch.Text</option>
                                 }
                             </select>
-                            <label asp-for="BranchId" class="required-field">สาขาที่เปิดบัญชี</label>
+                            <label asp-for="BranchId" class="required-field" data-text-th="สาขาที่เปิดบัญชี" data-text-en="Branch where account was opened">@ViewBag.TextBranchLabel</label>
                             <span asp-validation-for="BranchId" class="text-danger"></span>
                         </div>
                     </div>
@@ -484,24 +488,24 @@
                 <div class="form-check mb-3">
                     <input class="form-check-input" type="checkbox" id="agreeTerms" required>
                     <label class="form-check-label" for="agreeTerms">
-                        ข้าพเจ้าได้อ่านและยอมรับ
+                        <span data-text-th="ข้าพเจ้าได้อ่านและยอมรับ" data-text-en="I have read and accept">@ViewBag.TextIHaveReadAndAccept</span>
                         <a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#termsModal">
-                            <strong>ข้อกำหนดและเงื่อนไข</strong>
+                            <strong data-text-th="ข้อกำหนดและเงื่อนไข" data-text-en="Terms and Conditions">@ViewBag.TextTermsAndConditions</strong>
                         </a>
                         และ
                         <a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#privacyModal">
-                            <strong>นโยบายความเป็นส่วนตัว</strong>
+                            <strong data-text-th="นโยบายความเป็นส่วนตัว" data-text-en="Privacy Policy">@ViewBag.TextPrivacyPolicy</strong>
                         </a>
                         <span class="text-danger">*</span>
                     </label>
                     <div class="invalid-feedback">
-                        กรุณายอมรับข้อกำหนดและเงื่อนไขก่อนดำเนินการต่อ
+                        <span data-text-th="กรุณายอมรับข้อกำหนดและเงื่อนไขก่อนดำเนินการต่อ" data-text-en="Please accept the terms and conditions before proceeding">@ViewBag.TextMustAcceptTerms</span>
                     </div>
                 </div>
 
                 <button type="submit" class="btn register-btn" id="submitBtn">
                     <i class="fas fa-paper-plane me-2"></i>
-                    ลงทะเบียนหักบัญชีอัตโนมัติ
+                    <span data-text-th="ลงทะเบียนหักบัญชีอัตโนมัติ" data-text-en="Register for Direct Debit">@ViewBag.TextRegisterDirectDebit</span>
                 </button>
             </div>
         </form>
@@ -510,11 +514,10 @@
         <div class="security-notice">
             <div class="security-notice-title">
                 <i class="fas fa-shield-alt me-2"></i>
-                การรักษาความปลอดภัย
+                <span data-text-th="การรักษาความปลอดภัย" data-text-en="Security">@ViewBag.TextSecurityTitle</span>
             </div>
             <p class="mb-0 text-muted">
-                ข้อมูลของท่านจะถูกเข้ารหัสและส่งต่อไปยังระบบ KBank อย่างปลอดภัย
-                โดยเป็นไปตามมาตรฐานความปลอดภัยระดับธนาคาร
+                <span data-text-th="ข้อมูลของท่านจะถูกเข้ารหัสและส่งต่อไปยังระบบ KBank อย่างปลอดภัย โดยเป็นไปตามมาตรฐานความปลอดภัยระดับธนาคาร" data-text-en="Your data will be encrypted and securely transmitted to KBank system in accordance with banking-level security standards">@ViewBag.TextSecurityNotice</span>
             </p>
         </div>
     </div>
@@ -526,28 +529,28 @@
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="termsModalLabel">
-                    <i class="fas fa-file-contract me-2"></i>ข้อกำหนดและเงื่อนไข
+                    <i class="fas fa-file-contract me-2"></i><span data-text-th="ข้อกำหนดและเงื่อนไข" data-text-en="Terms and Conditions">@ViewBag.TextTermsModalTitle</span>
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="terms-content">
-                    <h6>1. การใช้บริการ</h6>
-                    <p>ท่านตกลงใช้บริการหักบัญชีอัตโนมัติตามเงื่อนไขที่กำหนดโดย KBank และ BizConnect</p>
+                    <h6><span data-text-th="1. การใช้บริการ" data-text-en="1. Service Usage">1. @ViewBag.TextTermsServiceUsage</span></h6>
+                    <p><span data-text-th="ท่านตกลงใช้บริการหักบัญชีอัตโนมัติตามเงื่อนไขที่กำหนดโดย KBank และ BizConnect" data-text-en="You agree to use the direct debit service according to the terms and conditions set by KBank and BizConnect">@ViewBag.TextTermsServiceUsageContent</span></p>
                     
-                    <h6>2. ความถูกต้องของข้อมูล</h6>
-                    <p>ท่านรับรองว่าข้อมูลที่ให้ไว้ถูกต้องและเป็นปัจจุบัน</p>
+                    <h6><span data-text-th="2. ความถูกต้องของข้อมูล" data-text-en="2. Data Accuracy">2. @ViewBag.TextTermsDataAccuracy</span></h6>
+                    <p>@ViewBag.TextTermsDataAccuracyContent</p>
                     
-                    <h6>3. ความรับผิดชอบ</h6>
-                    <p>ท่านรับผิดชอบต่อการใช้บริการและธุรกรรมที่เกิดขึ้น</p>
+                    <h6><span data-text-th="3. ความรับผิดชอบ" data-text-en="3. Responsibility">3. @ViewBag.TextTermsResponsibility</span></h6>
+                    <p>@ViewBag.TextTermsResponsibilityContent</p>
                     
-                    <h6>4. การแก้ไขข้อกำหนด</h6>
-                    <p>บริษัทขอสงวนสิทธิ์ในการแก้ไขข้อกำหนดโดยแจ้งให้ทราบล่วงหน้า</p>
+                    <h6><span data-text-th="4. การแก้ไขข้อกำหนด" data-text-en="4. Terms Modifications">4. @ViewBag.TextTermsModifications</span></h6>
+                    <p>@ViewBag.TextTermsModificationsContent</p>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
-                <button type="button" class="btn btn-primary" onclick="acceptTerms()">ยอมรับ</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-text-th="ปิด" data-text-en="Close">@ViewBag.TextClose</button>
+                <button type="button" class="btn btn-primary" onclick="acceptTerms()" data-text-th="ยอมรับ" data-text-en="Accept">@ViewBag.TextAccept</button>
             </div>
         </div>
     </div>
@@ -559,28 +562,28 @@
         <div class="modal-content">
             <div class="modal-header bg-info text-white">
                 <h5 class="modal-title" id="privacyModalLabel">
-                    <i class="fas fa-user-shield me-2"></i>นโยบายความเป็นส่วนตัว
+                    <i class="fas fa-user-shield me-2"></i><span data-text-th="นโยบายความเป็นส่วนตัว" data-text-en="Privacy Policy">@ViewBag.TextPrivacyModalTitle</span>
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="privacy-content">
-                    <h6>การเก็บรวบรวมข้อมูล</h6>
-                    <p>เราเก็บรวบรวมข้อมูลที่จำเป็นสำหรับการให้บริการเท่านั้น</p>
+                    <h6><span data-text-th="การเก็บรวบรวมข้อมูล" data-text-en="Data Collection">@ViewBag.TextPrivacyDataCollection</span></h6>
+                    <p>@ViewBag.TextPrivacyDataCollectionContent</p>
                     
-                    <h6>การใช้ข้อมูล</h6>
-                    <p>ข้อมูลจะใช้เพื่อการให้บริการและการปรับปรุงบริการ</p>
+                    <h6><span data-text-th="การใช้ข้อมูล" data-text-en="Data Usage">@ViewBag.TextPrivacyDataUsage</span></h6>
+                    <p>@ViewBag.TextPrivacyDataUsageContent</p>
                     
-                    <h6>การเปิดเผยข้อมูล</h6>
-                    <p>เราจะไม่เปิดเผยข้อมูลให้บุคคลที่สาม ยกเว้นตามที่กฎหมายกำหนด</p>
+                    <h6><span data-text-th="การเปิดเผยข้อมูล" data-text-en="Data Disclosure">@ViewBag.TextPrivacyDataDisclosure</span></h6>
+                    <p>@ViewBag.TextPrivacyDataDisclosureContent</p>
                     
-                    <h6>ความปลอดภัย</h6>
-                    <p>เรามีมาตรการรักษาความปลอดภัยข้อมูลตามมาตรฐานสากล</p>
+                    <h6><span data-text-th="ความปลอดภัย" data-text-en="Security">@ViewBag.TextPrivacyDataSecurity</span></h6>
+                    <p>@ViewBag.TextPrivacyDataSecurityContent</p>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
-                <button type="button" class="btn btn-info" onclick="acceptPrivacy()">ยอมรับ</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-text-th="ปิด" data-text-en="Close">@ViewBag.TextClose</button>
+                <button type="button" class="btn btn-info" onclick="acceptPrivacy()" data-text-th="ยอมรับ" data-text-en="Accept">@ViewBag.TextAccept</button>
             </div>
         </div>
     </div>
@@ -596,8 +599,8 @@
             // Form validation configuration - National ID only
             const nationalIdValidator = {
                 pattern: /^[0-9]{13}$/,
-                message: 'เลขประจำตัวประชาชนต้องเป็นตัวเลข 13 หลัก',
-                hint: 'กรอกเลขประจำตัวประชาชน 13 หลัก'
+                message: '@ViewBag.TextNationalIdValidation',
+                hint: '@ViewBag.TextNationalIdHintValidation'
             };
 
             // Initialize input formatting and validation
@@ -609,7 +612,7 @@
                 
                 if (validateForm()) {
                     submitBtn.disabled = true;
-                    submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>กำลังส่งข้อมูล...';
+                    submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>@ViewBag.TextSubmittingData';
                     
                     // Submit form after validation
                     setTimeout(() => {
@@ -673,28 +676,28 @@
                 switch (fieldName) {
                     case 'FullName':
                         isValid = value.length >= 2 && value.length <= 200;
-                        errorMessage = 'ชื่อ-นามสกุลต้องมี 2-200 ตัวอักษร';
+                        errorMessage = '@ViewBag.TextFullNameValidation';
                         break;
 
                     case 'IdValue':
                         // Always National ID - validate 13 digits
                         isValid = /^[0-9]{13}$/.test(value);
-                        errorMessage = 'เลขประจำตัวประชาชนต้องเป็นตัวเลข 13 หลัก';
+                        errorMessage = '@ViewBag.TextNationalIdValidation';
                         break;
 
                     case 'MobileNo':
                         isValid = /^0[89][0-9]{8}$/.test(value);
-                        errorMessage = 'เบอร์มือถือต้องขึ้นต้นด้วย 08 หรือ 09 และมี 10 หลัก';
+                        errorMessage = '@ViewBag.TextMobileValidation';
                         break;
 
                     case 'AccountNo':
                         isValid = /^[0-9]{10,15}$/.test(value);
-                        errorMessage = 'เลขที่บัญชีต้องเป็นตัวเลข 10-15 หลัก';
+                        errorMessage = '@ViewBag.TextAccountValidation';
                         break;
 
                     case 'BranchId':
                         isValid = value !== '';
-                        errorMessage = 'กรุณาเลือกสาขา';
+                        errorMessage = '@ViewBag.TextBranchValidation';
                         break;
                 }
 
@@ -740,7 +743,7 @@
                 }
 
                 if (!isFormValid) {
-                    showAlert('warning', 'กรุณาตรวจสอบข้อมูลที่กรอกให้ครบถ้วนและถูกต้อง');
+                    showAlert('warning', '@ViewBag.TextCheckFormData');
                     
                     // Focus on first invalid field
                     const firstInvalid = form.querySelector('.is-invalid');
