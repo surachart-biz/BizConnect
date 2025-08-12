@@ -534,6 +534,72 @@
                         });
             </text>
         }
+        
+        // KBank redirect fallback mechanism
+        @if (TempData["KBankRedirectUrl"] != null)
+        {
+            <text>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const kbankRedirectUrl = '@Html.Raw(TempData["KBankRedirectUrl"])';
+                            const externalRef = '@Html.Raw(TempData["KBankExternalRef"])';
+                            const regId = '@Html.Raw(TempData["KBankRegId"])';
+                            
+                            console.log('KBank redirect URL available:', kbankRedirectUrl);
+                            console.log('External Reference:', externalRef);
+                            console.log('Reg ID:', regId);
+                            
+                            // If we have a redirect URL but we're still on this page, 
+                            // it might mean the server redirect failed - use immediate JavaScript redirect
+                            if (kbankRedirectUrl && kbankRedirectUrl !== '') {
+                                // Validate URL before redirecting
+                                if (window.isValidKBankUrl && window.isValidKBankUrl(kbankRedirectUrl)) {
+                                    console.log('Valid KBank URL - performing immediate JavaScript redirect...');
+                                    
+                                    // Immediate redirect without delay to maintain user flow
+                                    console.log('Redirecting to:', kbankRedirectUrl);
+                                    window.location.replace(kbankRedirectUrl);
+                                } else {
+                                    console.error('Invalid or suspicious KBank URL:', kbankRedirectUrl);
+                                    showNotification('พบ URL ที่ไม่ถูกต้อง กรุณาติดต่อเจ้าหน้าที่หรือลองใหม่อีกครั้ง');
+                                    
+                                    // Create a manual redirect button as ultimate fallback
+                                    createManualRedirectButton(kbankRedirectUrl, externalRef, regId);
+                                }
+                            }
+                        });
+                        
+                        // Function to create manual redirect button
+                        window.createManualRedirectButton = function(redirectUrl, externalRef, regId) {
+                            const banner = document.getElementById('notificationBanner');
+                            if (banner) {
+                                banner.innerHTML = `
+                                    <div class="notification-content">
+                                        <i class="notification-icon fas fa-info-circle" aria-hidden="true"></i>
+                                        <div class="notification-message">
+                                            <div class="notification-title">ลงทะเบียนสำเร็จ</div>
+                                            <div class="notification-description">คลิกปุ่มด้านล่างเพื่อไปยังหน้า KBank เพื่อทำการลงทะเบียนต่อ</div>
+                                            <div class="mt-3">
+                                                <button type="button" class="btn btn-primary me-2" onclick="window.open('${redirectUrl}', '_blank')">
+                                                    <i class="fas fa-external-link-alt me-1"></i>
+                                                    ไปยัง KBank
+                                                </button>
+                                                <button type="button" class="btn btn-secondary" onclick="window.location.href='/kbank/odd/pending'">
+                                                    <i class="fas fa-clock me-1"></i>
+                                                    ดูสถานะ
+                                                </button>
+                                            </div>
+                                            <div class="mt-2 small text-muted">
+                                                External Ref: ${externalRef} | Reg ID: ${regId}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                                banner.style.display = 'block';
+                                banner.setAttribute('aria-hidden', 'false');
+                            }
+                        };
+            </text>
+        }
     </script>
     <script src="~/js/kbank-register.js"></script>
 }

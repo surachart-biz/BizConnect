@@ -90,6 +90,9 @@ public class SecurityHeadersMiddlewareTests : IDisposable
         Assert.Contains("font-src 'self'", cspValue);
         Assert.Contains("connect-src 'self'", cspValue);
         Assert.Contains("frame-ancestors 'none'", cspValue);
+        
+        // Note: form-action directive is dynamically configured in Program.cs
+        // to include KBank domains for payment gateway redirects
     }
 
     [Fact]

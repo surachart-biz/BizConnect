@@ -492,7 +492,45 @@ app.Use(async (context, next) =>
     // CRITICAL FIX: Add headers BEFORE calling next() to ensure response hasn't started
     try
     {
-        // Enhanced Content Security Policy for financial services
+        // Get KBank configuration to determine allowed form submission domains
+        var kbankConfig = app.Configuration.GetSection("KBankODD");
+        var kbankBaseUrl = kbankConfig["BaseUrl"] ?? string.Empty;
+        var kbankPGBaseUrl = kbankConfig["PGBaseUrl"] ?? string.Empty;
+        
+        // Build form-action directive with KBank domains
+        var formActionDirective = "'self'";
+        
+        // Add KBank domains to form-action for payment gateway redirects
+        var allowedDomains = new HashSet<string>();
+        
+        if (!string.IsNullOrEmpty(kbankBaseUrl) && Uri.TryCreate(kbankBaseUrl, UriKind.Absolute, out var kbankUri))
+        {
+            allowedDomains.Add($"{kbankUri.Scheme}://{kbankUri.Host}");
+        }
+        
+        if (!string.IsNullOrEmpty(kbankPGBaseUrl) && Uri.TryCreate(kbankPGBaseUrl, UriKind.Absolute, out var pgUri))
+        {
+            allowedDomains.Add($"{pgUri.Scheme}://{pgUri.Host}");
+        }
+        
+        // Add production and UAT KBank domains explicitly for safety
+        if (app.Environment.IsProduction())
+        {
+            allowedDomains.Add("https://ws06.kasikornbank.com");
+            allowedDomains.Add("https://*.kasikornbank.com");
+        }
+        else if (app.Environment.IsEnvironment("UAT") || app.Environment.IsDevelopment())
+        {
+            allowedDomains.Add("https://ws06.uat.kasikornbank.com");
+            allowedDomains.Add("https://*.uat.kasikornbank.com");
+        }
+        
+        if (allowedDomains.Any())
+        {
+            formActionDirective = $"'self' {string.Join(" ", allowedDomains)}";
+        }
+        
+        // Enhanced Content Security Policy for financial services with KBank integration
         var cspPolicy = new System.Text.StringBuilder()
             .Append("default-src 'self'; ")
             .Append("script-src 'self' 'unsafe-inline' 'unsafe-eval'; ") // Note: unsafe-inline/eval needed for some Bootstrap/jQuery features
@@ -504,7 +542,7 @@ app.Use(async (context, next) =>
             .Append("frame-ancestors 'none'; ")
             .Append("object-src 'none'; ")
             .Append("base-uri 'self'; ")
-            .Append("form-action 'self'; ")
+            .Append($"form-action {formActionDirective}; ") // Allow form submissions to KBank for payment redirects
             .Append("upgrade-insecure-requests; ")
             .ToString();
         
@@ -520,9 +558,21 @@ app.Use(async (context, next) =>
         
         // Additional enterprise security headers
         context.Response.Headers.TryAdd("X-Permitted-Cross-Domain-Policies", "none");
-        context.Response.Headers.TryAdd("Cross-Origin-Embedder-Policy", "require-corp");
-        context.Response.Headers.TryAdd("Cross-Origin-Opener-Policy", "same-origin");
-        context.Response.Headers.TryAdd("Cross-Origin-Resource-Policy", "same-origin");
+        
+        // Relaxed CORP/COOP for KBank integration - they may need to interact with our pages
+        // Only apply strict policies for admin pages
+        if (context.Request.Path.StartsWithSegments("/Admin"))
+        {
+            context.Response.Headers.TryAdd("Cross-Origin-Embedder-Policy", "require-corp");
+            context.Response.Headers.TryAdd("Cross-Origin-Opener-Policy", "same-origin");
+            context.Response.Headers.TryAdd("Cross-Origin-Resource-Policy", "same-origin");
+        }
+        else
+        {
+            // More permissive for public pages that interact with KBank
+            context.Response.Headers.TryAdd("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+            context.Response.Headers.TryAdd("Cross-Origin-Resource-Policy", "cross-origin");
+        }
         
         // Cache control for sensitive pages
         if (context.Request.Path.StartsWithSegments("/Admin") || 

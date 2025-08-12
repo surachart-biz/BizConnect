@@ -458,7 +458,7 @@ public class KbankOddService : IKbankOddService
             }
 
             // Build redirect URL with language support
-            var langLocale = "th_TH"; // language.ToLower() == "th" ? "th_TH" : "en_US";
+            var langLocale = language.ToLower() == "th" ? "th_TH" : "en_US";
             var redirectUrl = $"{pgBaseUrl.TrimEnd('/')}/PGSRegistration.do?reg_id={initResponse.RegId}&langLocale={langLocale}";
 
             _logger.LogInformation("KBank ODD initialization successful: ExternalReference={ExternalReference}, RegId={RegId}",

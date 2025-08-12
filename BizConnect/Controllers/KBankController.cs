@@ -241,25 +241,72 @@ public class KBankController : BaseController
             BranchId = registrationRequest.BranchId
         };
 
+        _logger.LogInformation("Submitting registration to KBank service - OTAC: {OtacCode}, FullName: {FullName}, IdValue: {IdValue}, MobileNo: {MobileNo}, AccountNo: {AccountNo}, BranchId: {BranchId}",
+            fullRequest.OtacCode, fullRequest.FullName, fullRequest.IdValue?.Substring(0, Math.Min(4, fullRequest.IdValue.Length)) + "***",
+            fullRequest.MobileNo?.Substring(0, Math.Min(3, fullRequest.MobileNo.Length)) + "***",
+            fullRequest.AccountNo?.Substring(0, Math.Min(3, fullRequest.AccountNo.Length)) + "***", fullRequest.BranchId);
+
         // Submit registration using consolidated KBank integration method
         var result = await _registrationService.SubmitWithKBankIntegrationAsync(fullRequest);
 
         if (result.IsSuccess)
         {
-            _logger.LogInformation("Guest registration submitted successfully using consolidated method. OTAC: {OtacCode}, External Reference: {ExternalReference}, RegId: {RegId}",
-                model.OtacCode, result.ExternalReference, result.RegId);
+            _logger.LogInformation("Guest registration submitted successfully using consolidated method. OTAC: {OtacCode}, External Reference: {ExternalReference}, RegId: {RegId}, RedirectUrl: {RedirectUrl}",
+                model.OtacCode, result.ExternalReference, result.RegId, result.RedirectUrl);
 
             // Clear session
             HttpContext.ClearOtacVerification();
 
-            // Redirect to KBank registration page
-            return Redirect(result.RedirectUrl ?? "/KBank/Pending");
+            // Validate redirect URL before redirecting
+            if (!string.IsNullOrEmpty(result.RedirectUrl) && Uri.IsWellFormedUriString(result.RedirectUrl, UriKind.Absolute))
+            {
+                _logger.LogInformation("Redirecting to KBank registration page: {RedirectUrl}", result.RedirectUrl);
+
+                // Validate KBank domain for security
+                try
+                {
+                    var redirectUri = new Uri(result.RedirectUrl);
+                    var validKBankDomains = new[] { "kasikornbank.com", "uat.kasikornbank.com", "kbank.co.th" };
+                    var isValidKBankDomain = validKBankDomains.Any(domain =>
+                        redirectUri.Host.Equals(domain, StringComparison.OrdinalIgnoreCase) ||
+                        redirectUri.Host.EndsWith($".{domain}", StringComparison.OrdinalIgnoreCase));
+
+                    if (!isValidKBankDomain)
+                    {
+                        _logger.LogError("Security violation: Redirect URL points to non-KBank domain: {RedirectUrl}", result.RedirectUrl);
+                        TempData["ErrorMessage"] = "เกิดข้อผิดพลาดด้านความปลอดภัย กรุณาติดต่อเจ้าหน้าที่";
+                        return RedirectToAction("Pending");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error validating redirect URL: {RedirectUrl}", result.RedirectUrl);
+                    TempData["ErrorMessage"] = "เกิดข้อผิดพลาดในการตรวจสอบ URL กรุณาลองใหม่อีกครั้ง";
+                    return RedirectToAction("Pending");
+                }
+
+                // Add redirect URL to TempData for JavaScript fallback if needed
+                TempData["KBankRedirectUrl"] = result.RedirectUrl;
+                TempData["KBankExternalRef"] = result.ExternalReference;
+                TempData["KBankRegId"] = result.RegId;
+
+                _logger.LogInformation("Performing server-side redirect to KBank with External Ref: {ExternalRef}, RegId: {RegId}",
+                    result.ExternalReference, result.RegId);
+
+                return Redirect(result.RedirectUrl);
+            }
+            else
+            {
+                _logger.LogWarning("Invalid or missing redirect URL from KBank service. RedirectUrl: {RedirectUrl}, falling back to pending page", result.RedirectUrl);
+                TempData["ErrorMessage"] = "ไม่สามารถเชื่อมต่อไปยัง KBank ได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง";
+                return RedirectToAction("Pending");
+            }
         }
         else
         {
             _logger.LogWarning("Guest registration failed using consolidated method. OTAC: {OtacCode}, Error: {ErrorMessage}, Errors: {Errors}",
                 model.OtacCode, result.ErrorMessage, string.Join(", ", result.Errors ?? new List<string>()));
-            
+
             // Add structured error handling
             if (result.Errors?.Any() == true)
             {

@@ -81,22 +81,44 @@
             validateTermsCheckbox(agreeTerms);
         });
         
-        // Form submission handler
+        // Form submission handler - ensure high priority to prevent interference
         form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (validateForm(form, agreeTerms)) {
-                submitBtn.disabled = true;
-                const originalText = submitBtn.innerHTML;
-                const submittingText = window.validationMessages?.submittingData || 'Submitting data...';
-                submitBtn.innerHTML = `<span class="loading-spinner me-2"></span>${submittingText}`;
-                
-                // Submit form after validation
-                setTimeout(() => {
-                    form.submit();
-                }, 500);
+            // Prevent double submission
+            if (submitBtn.disabled) {
+                e.preventDefault();
+                return false;
             }
-        });
+            
+            // Only prevent default if validation fails
+            if (!validateForm(form, agreeTerms)) {
+                e.preventDefault();
+                return false;
+            }
+            
+            // If validation passes, show loading state and allow natural form submission
+            submitBtn.disabled = true;
+            
+            // Use the existing button structure with proper Bootstrap spinner
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnSpinner = submitBtn.querySelector('.btn-spinner');
+            
+            if (btnText && btnSpinner) {
+                btnText.classList.add('d-none');
+                btnSpinner.classList.remove('d-none');
+            }
+            
+            console.log('Form validation passed, proceeding with submission to server');
+            console.log('Form action:', form.action || 'default action');
+            console.log('Form method:', form.method || 'default method');
+            
+            // Mark form as processing to avoid any potential global handler interference
+            form.setAttribute('data-kbank-processing', 'true');
+            
+            // Allow the form to submit naturally - the server will handle the redirect
+            // Important: Don't call e.preventDefault() or return false here
+            // Let the browser perform the natural form submission to /kbank/odd/register
+            return true;
+        }, { capture: true, once: false }); // Use capture phase to ensure this runs first
     }
 
     function initializeInputs(form) {
@@ -488,6 +510,48 @@
             banner.setAttribute('aria-hidden', 'true');
         }
     };
+    
+    // URL validation helper
+    function isValidKBankUrl(url) {
+        if (!url || typeof url !== 'string') {
+            return false;
+        }
+        
+        try {
+            const parsedUrl = new URL(url);
+            // Check if it's a KBank domain
+            const validKBankDomains = [
+                'kasikornbank.com',
+                'kbank.co.th',
+                'ws06.uat.kasikornbank.com',
+                'ws01.kasikornbank.com'
+            ];
+            
+            const hostname = parsedUrl.hostname.toLowerCase();
+            const isKBankDomain = validKBankDomains.some(domain => 
+                hostname === domain || hostname.endsWith('.' + domain)
+            );
+            
+            // Check if it uses HTTPS (KBank should always use HTTPS)
+            const isSecure = parsedUrl.protocol === 'https:';
+            
+            console.log('URL validation:', {
+                url: url,
+                hostname: hostname,
+                protocol: parsedUrl.protocol,
+                isKBankDomain: isKBankDomain,
+                isSecure: isSecure
+            });
+            
+            return isKBankDomain && isSecure;
+        } catch (e) {
+            console.error('Invalid URL format:', url, e);
+            return false;
+        }
+    }
+    
+    // Expose URL validation function globally
+    window.isValidKBankUrl = isValidKBankUrl;
     
     // Legacy alert helper function for backward compatibility
     window.showAlert = function(type, message) {

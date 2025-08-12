@@ -388,7 +388,14 @@ namespace BizConnect.Services
                 // Parse URL and extract RegId parameter
                 var uri = new Uri(redirectUrl);
                 var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
-                return queryParams["RegId"];
+                
+                // Try both possible parameter names: reg_id (actual KBank format) and RegId (fallback)
+                var regId = queryParams["reg_id"] ?? queryParams["RegId"];
+                
+                _logger.LogDebug("Extracting RegId from URL {RedirectUrl}: found reg_id={RegIdFromQuery}", 
+                    redirectUrl, regId);
+                
+                return regId;
             }
             catch (Exception ex)
             {
@@ -918,12 +925,13 @@ namespace BizConnect.Services
                         BranchId = request.BranchId
                     };
 
-                    // Call pure KBank API method
+                    // Call pure KBank API method with language support
                     KBankRegistrationResult kbankResult;
                     try
                     {
+                        // Default to Thai language for guest registrations
                         kbankResult = await _kbankOddService.InitializeRegistrationAsync(
-                            kbankRequest, externalReference, ct);
+                            kbankRequest, externalReference, ct, "th");
                     }
                     catch (Exception ex)
                     {

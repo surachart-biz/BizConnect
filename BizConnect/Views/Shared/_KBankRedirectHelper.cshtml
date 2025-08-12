@@ -1,0 +1,51 @@
+@* Helper partial view to handle KBank redirects with fallback mechanism *@
+@{
+    var redirectUrl = TempData["KBankRedirectUrl"] as string;
+    var externalRef = TempData["KBankExternalRef"] as string;
+    var regId = TempData["KBankRegId"] as string;
+}
+
+@if (!string.IsNullOrEmpty(redirectUrl))
+{
+    <div class="alert alert-info d-none" id="redirectAlert">
+        <i class="fas fa-spinner fa-spin me-2"></i>
+        <span data-text-th="กำลังเชื่อมต่อไปยัง KBank..." data-text-en="Redirecting to KBank...">
+            กำลังเชื่อมต่อไปยัง KBank...
+        </span>
+    </div>
+
+    <script>
+        // Fallback redirect mechanism in case server-side redirect is blocked
+        (function() {
+            var redirectUrl = '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(redirectUrl))';
+            var externalRef = '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(externalRef ?? ""))';
+            var regId = '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(regId ?? ""))';
+            
+            // Validate KBank URL
+            if (window.isValidKBankUrl && window.isValidKBankUrl(redirectUrl)) {
+                console.log('KBank Redirect Helper: Valid redirect URL detected', {
+                    url: redirectUrl,
+                    externalRef: externalRef,
+                    regId: regId
+                });
+                
+                // Show redirect alert
+                var alertEl = document.getElementById('redirectAlert');
+                if (alertEl) {
+                    alertEl.classList.remove('d-none');
+                }
+                
+                // Attempt redirect after a brief delay to ensure page is fully loaded
+                setTimeout(function() {
+                    console.log('KBank Redirect Helper: Attempting redirect to KBank');
+                    window.location.href = redirectUrl;
+                }, 500);
+            } else {
+                console.error('KBank Redirect Helper: Invalid or unsafe redirect URL', redirectUrl);
+                if (window.showNotification) {
+                    window.showNotification('ไม่สามารถเชื่อมต่อไปยัง KBank ได้ กรุณาลองใหม่อีกครั้ง');
+                }
+            }
+        })();
+    </script>
+}
