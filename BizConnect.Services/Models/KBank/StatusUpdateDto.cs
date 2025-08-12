@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace BizConnect.Services.Models.KBank;
 
@@ -13,30 +14,35 @@ public class StatusUpdateDto
     /// </summary>
     [Required]
     [StringLength(20)]
+    [JsonPropertyName("external_reference")]
     public string ExternalReference { get; set; } = null!;
 
     /// <summary>
     /// Payer Short Name - Only applicable for newly registered Payer, otherwise blank
     /// </summary>
     [StringLength(30)]
+    [JsonPropertyName("payer_short_name")]
     public string? PayerShortName { get; set; }
 
     /// <summary>
     /// ESPA ID - Only returned if registration successful
     /// </summary>
     [StringLength(100)]
+    [JsonPropertyName("espa_id")]
     public string? EspaId { get; set; }
 
     /// <summary>
     /// Payer account - Conditional depending on setup
     /// </summary>
     [StringLength(20)]
+    [JsonPropertyName("payer_account")]
     public string? PayerAccount { get; set; }
 
     /// <summary>
     /// Customer ID - Conditional depending on setup
     /// </summary>
     [StringLength(64)]
+    [JsonPropertyName("customer_id")]
     public string? CustomerId { get; set; }
 
     /// <summary>
@@ -45,6 +51,7 @@ public class StatusUpdateDto
     /// </summary>
     [Required]
     [StringLength(14)]
+    [JsonPropertyName("timestamp")]
     public string Timestamp { get; set; } = null!;
 
     /// <summary>
@@ -53,6 +60,7 @@ public class StatusUpdateDto
     /// </summary>
     [Required]
     [StringLength(1)]
+    [JsonPropertyName("return_status")]
     public string ReturnStatus { get; set; } = null!;
 
     /// <summary>
@@ -60,6 +68,7 @@ public class StatusUpdateDto
     /// </summary>
     [Required]
     [StringLength(5)]
+    [JsonPropertyName("return_code")]
     public string ReturnCode { get; set; } = null!;
 
     /// <summary>
@@ -67,6 +76,7 @@ public class StatusUpdateDto
     /// </summary>
     [Required]
     [StringLength(256)]
+    [JsonPropertyName("return_message")]
     public string ReturnMessage { get; set; } = null!;
 
     /// <summary>
@@ -74,6 +84,7 @@ public class StatusUpdateDto
     /// No space and comma
     /// </summary>
     [Required]
+    [JsonPropertyName("auth_parameter")]
     public string AuthParameter { get; set; } = null!;
 }
 

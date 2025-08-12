@@ -193,6 +193,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IValidationService, ValidationService>();
         services.AddScoped<IAnalyticsService, AnalyticsService>();
         
+        // Register JSON serialization utility for robust API integration
+        services.AddScoped<BizConnect.Services.Utils.JsonSerializationUtility>();
+        
         // Register dashboard and analytics services for modern UI
         services.AddScoped<IRealtimeDataService, RealtimeDataService>();
         services.AddScoped<ISystemHealthService, SystemHealthService>();
@@ -244,10 +247,13 @@ public static partial class ServiceCollectionExtensions
     /// <returns>The service collection for method chaining</returns>
     public static IServiceCollection AddKBankOddServices(this IServiceCollection services)
     {
-        // Add KBank ODD services with simple HTTP client configuration
+        // Add KBank ODD services with enhanced HTTP client configuration
         services.AddHttpClient<KBankOddClient>(client =>
         {
             client.Timeout = TimeSpan.FromSeconds(60); // KBank API timeout
+            client.DefaultRequestHeaders.Add("User-Agent", "BizConnect/1.0 (.NET 8.0)");
+            client.DefaultRequestHeaders.Add("Accept", "application/json");
+            client.DefaultRequestHeaders.Add("Accept-Charset", "utf-8");
         });
         
         services.AddScoped<IKBankOddClient, KBankOddClient>();

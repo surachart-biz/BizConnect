@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using BizConnect.Services.Interfaces;
 using BizConnect.Services.Models.KBank;
+using BizConnect.Services.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -16,17 +17,22 @@ public class KBankOddClient : IKBankOddClient
     private readonly IConfiguration _configuration;
     private readonly ILogger<KBankOddClient> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
+    private readonly JsonSerializationUtility _jsonUtility;
 
-    public KBankOddClient(HttpClient httpClient, IConfiguration configuration, ILogger<KBankOddClient> logger)
+    public KBankOddClient(HttpClient httpClient, IConfiguration configuration, ILogger<KBankOddClient> logger, JsonSerializationUtility jsonUtility)
     {
         _httpClient = httpClient;
         _configuration = configuration;
         _logger = logger;
+        _jsonUtility = jsonUtility;
         
         _jsonOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
-            WriteIndented = false
+            PropertyNameCaseInsensitive = true,
+            WriteIndented = false,
+            AllowTrailingCommas = true,
+            ReadCommentHandling = JsonCommentHandling.Skip
         };
     }
 
@@ -85,12 +91,18 @@ public class KBankOddClient : IKBankOddClient
                 throw new KBankApiException($"KBank API error ({errorDetail.Type}): {errorDetail.Message}", errorDetail.Type);
             }
 
-            var initResponse = JsonSerializer.Deserialize<KBankInitResponse>(responseContent, _jsonOptions);
+            // Use robust JSON deserialization with fallback strategies
+            var initResponse = _jsonUtility.TryDeserializeWithFallback<KBankInitResponse>(
+                responseContent, 
+                $"KBank API InitAsync - ExternalReference: {request.ExternalReference}");
             
             if (initResponse == null)
             {
-                _logger.LogError("Failed to deserialize KBank API response: {Content}", responseContent);
-                throw new KBankApiException("Failed to deserialize KBank API response");
+                // Provide detailed analysis for troubleshooting
+                var analysis = _jsonUtility.AnalyzeJson(responseContent, $"KBank InitAsync - ExternalReference: {request.ExternalReference}");
+                _logger.LogError("Failed to deserialize KBank API response. Analysis: IsValid={IsValid}, Length={Length}, PropertyCount={PropertyCount}, Properties=[{Properties}], Error={Error}", 
+                    analysis.IsValid, analysis.Length, analysis.PropertyCount, string.Join(", ", analysis.Properties), analysis.ErrorMessage);
+                throw new KBankApiException($"Failed to deserialize KBank API response - all fallback strategies failed. Content length: {responseContent?.Length ?? 0}");
             }
 
             _logger.LogInformation("KBank ODD initialization completed for external reference: {ExternalReference}, RegId: {RegId}, Status: {Status}", 
