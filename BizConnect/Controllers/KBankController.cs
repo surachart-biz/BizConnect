@@ -1,3 +1,4 @@
+using System.Linq;
 using BizConnect.Extensions;
 using BizConnect.Services.Interfaces;
 using BizConnect.Services.Models.KBank;
@@ -17,7 +18,6 @@ namespace BizConnect.Controllers;
 [Route("kbank/odd")]
 public class KBankController : BaseController
 {
-    private readonly IKbankOddService _kbankOddService;
     private readonly IOddRegistrationService _oddRegistrationService;
     private readonly IValidationService _validationService;
     private readonly IBranchService _branchService;
@@ -26,7 +26,6 @@ public class KBankController : BaseController
     private readonly ILogger<KBankController> _logger;
 
     public KBankController(
-        IKbankOddService kbankOddService,
         IOddRegistrationService oddRegistrationService,
         IValidationService validationService,
         IBranchService branchService,
@@ -34,7 +33,6 @@ public class KBankController : BaseController
         IRegistrationManagementService registrationService,
         ILogger<KBankController> logger)
     {
-        _kbankOddService = kbankOddService;
         _otacService = otacService;
         _oddRegistrationService = oddRegistrationService;
         _validationService = validationService;
@@ -61,7 +59,7 @@ public class KBankController : BaseController
         var validatedOtac = HttpContext.GetValidatedOtac();
         if (string.IsNullOrEmpty(validatedOtac))
         {
-            TempData["ErrorMessage"] = "°√ÿ≥“¬◊π¬—π√À—  OTAC °ËÕπ°“√≈ß∑–‡∫’¬π";
+            TempData["ErrorMessage"] = "‡∏Å‡∏£‡∏∏‡∏ì‡∏≤‡∏¢‡∏∑‡∏ô‡∏¢‡∏±‡∏ô‡∏£‡∏´‡∏±‡∏™ OTAC ‡∏Å‡πà‡∏≠‡∏ô‡∏Å‡∏≤‡∏£‡∏•‡∏á‡∏ó‡∏∞‡πÄ‡∏ö‡∏µ‡∏¢‡∏ô";
             return RedirectToAction("Verify");
         }
 
@@ -71,7 +69,7 @@ public class KBankController : BaseController
         if (!validationResult.IsValid)
         {
             HttpContext.ClearOtacVerification();
-            TempData["ErrorMessage"] = "√À—  OTAC À¡¥Õ“¬ÿ·≈È« °√ÿ≥“¢Õ√À— „À¡Ë";
+            TempData["ErrorMessage"] = "‡∏£‡∏´‡∏±‡∏™ OTAC ‡∏´‡∏°‡∏î‡∏≠‡∏≤‡∏¢‡∏∏‡πÅ‡∏•‡πâ‡∏ß ‡∏Å‡∏£‡∏∏‡∏ì‡∏≤‡∏Ç‡∏≠‡∏£‡∏´‡∏±‡∏™‡πÉ‡∏´‡∏°‡πà";
             return RedirectToAction("Verify");
         }
 
@@ -94,9 +92,9 @@ public class KBankController : BaseController
                 PercentComplete = 67,
                 Steps = new List<ProgressStep>
                 {
-                    new ProgressStep { StepNumber = 1, Title = "OTAC Verification", Status = "completed", Description = "√À— ¬◊π¬—π" },
-                    new ProgressStep { StepNumber = 2, Title = "Information Entry", Status = "active", Description = "°√Õ°¢ÈÕ¡Ÿ≈" },
-                    new ProgressStep { StepNumber = 3, Title = "Processing", Status = "pending", Description = "ª√–¡«≈º≈" }
+                    new ProgressStep { StepNumber = 1, Title = "OTAC Verification", Status = "completed", Description = "‡∏£‡∏´‡∏±‡∏™‡∏¢‡∏∑‡∏ô‡∏¢‡∏±‡∏ô" },
+                    new ProgressStep { StepNumber = 2, Title = "Information Entry", Status = "active", Description = "‡∏Å‡∏£‡∏≠‡∏Å‡∏Ç‡πâ‡∏≠‡∏°‡∏π‡∏•" },
+                    new ProgressStep { StepNumber = 3, Title = "Processing", Status = "pending", Description = "‡∏õ‡∏£‡∏∞‡∏°‡∏ß‡∏•‡∏ú‡∏•" }
                 }
             },
             SecurityInfo = new FormSecurityInfo
@@ -202,7 +200,7 @@ public class KBankController : BaseController
         var validatedOtac = HttpContext.GetValidatedOtac();
         if (string.IsNullOrEmpty(validatedOtac) || validatedOtac != model.OtacCode)
         {
-            TempData["ErrorMessage"] = "Session À¡¥Õ“¬ÿ °√ÿ≥“¬◊π¬—π√À—  OTAC „À¡Ë";
+            TempData["ErrorMessage"] = "Session ‡∏´‡∏°‡∏î‡∏≠‡∏≤‡∏¢‡∏∏ ‡∏Å‡∏£‡∏∏‡∏ì‡∏≤‡∏¢‡∏∑‡∏ô‡∏¢‡∏±‡∏ô‡∏£‡∏´‡∏±‡∏™ OTAC ‡πÉ‡∏´‡∏°‡πà";
             return RedirectToAction("Verify");
         }
 
@@ -230,13 +228,26 @@ public class KBankController : BaseController
             BranchId = model.BranchId
         };
 
-        // Submit registration using 3-phase flow (Phase 3: Submit validated OTAC with registration data)
-        var result = await _registrationService.SubmitAsync(model.OtacCode, registrationRequest);
+        // Phase 3: Use consolidated method from RegistrationManagementService
+        // Create complete registration request including OTAC code
+        var fullRequest = new RegistrationRequest
+        {
+            OtacCode = model.OtacCode,
+            FullName = registrationRequest.FullName,
+            IdType = registrationRequest.IdType,
+            IdValue = registrationRequest.IdValue,
+            MobileNo = registrationRequest.MobileNo,
+            AccountNo = registrationRequest.AccountNo,
+            BranchId = registrationRequest.BranchId
+        };
+
+        // Submit registration using consolidated KBank integration method
+        var result = await _registrationService.SubmitWithKBankIntegrationAsync(fullRequest);
 
         if (result.IsSuccess)
         {
-            _logger.LogInformation("Guest registration started successfully for OTAC: {OtacCode}, External Reference: {ExternalReference}",
-                model.OtacCode, result.ExternalReference);
+            _logger.LogInformation("Guest registration submitted successfully using consolidated method. OTAC: {OtacCode}, External Reference: {ExternalReference}, RegId: {RegId}",
+                model.OtacCode, result.ExternalReference, result.RegId);
 
             // Clear session
             HttpContext.ClearOtacVerification();
@@ -246,9 +257,21 @@ public class KBankController : BaseController
         }
         else
         {
-            _logger.LogWarning("Guest registration failed for OTAC: {OtacCode}, Error: {ErrorMessage}",
-                model.OtacCode, result.ErrorMessage);
-            ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "‡°‘¥¢ÈÕº‘¥æ≈“¥„π°“√≈ß∑–‡∫’¬π °√ÿ≥“≈Õß„À¡ËÕ’°§√—Èß");
+            _logger.LogWarning("Guest registration failed using consolidated method. OTAC: {OtacCode}, Error: {ErrorMessage}, Errors: {Errors}",
+                model.OtacCode, result.ErrorMessage, string.Join(", ", result.Errors ?? new List<string>()));
+            
+            // Add structured error handling
+            if (result.Errors?.Any() == true)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "‡πÄ‡∏Å‡∏¥‡∏î‡∏Ç‡πâ‡∏≠‡∏ú‡∏¥‡∏î‡∏û‡∏•‡∏≤‡∏î‡πÉ‡∏ô‡∏Å‡∏≤‡∏£‡∏•‡∏á‡∏ó‡∏∞‡πÄ‡∏ö‡∏µ‡∏¢‡∏ô ‡∏Å‡∏£‡∏∏‡∏ì‡∏≤‡∏•‡∏≠‡∏á‡πÉ‡∏´‡∏°‡πà‡∏≠‡∏µ‡∏Å‡∏Ñ‡∏£‡∏±‡πâ‡∏á");
+            }
         }
 
         // Reload branches on error with language support
@@ -284,20 +307,38 @@ public class KBankController : BaseController
     {
         try
         {
-            var result = await _kbankOddService.ProcessStatusUpdateAsync(dto, cancellationToken);
+            // Phase 3: Use consolidated method from RegistrationManagementService
+            var result = await _registrationService.ProcessKBankStatusUpdateAsync(dto);
 
-            return result switch
+            if (result.IsSuccess)
             {
-                StatusProcessResult.Success => Ok(new { success = true, message = "Status updated successfully", timestamp = DateTime.UtcNow }),
-                StatusProcessResult.NotFound => NotFound(new { success = false, message = "Registration record not found" }),
-                StatusProcessResult.Unauthorized => Unauthorized(new { success = false, message = "Invalid authentication" }),
-                StatusProcessResult.Fail => BadRequest(new { success = false, message = "Status update failed" }),
-                _ => StatusCode(500, new { success = false, message = "Unknown processing result" })
-            };
+                _logger.LogInformation("Status update processed successfully using consolidated method. ExternalReference: {ExternalReference}", dto.ExternalReference);
+                return Ok(new { success = true, message = "Status updated successfully", timestamp = DateTime.UtcNow });
+            }
+            else
+            {
+                _logger.LogWarning("Status update failed using consolidated method. ExternalReference: {ExternalReference}, Error: {ErrorMessage}",
+                    dto.ExternalReference, result.ErrorMessage);
+
+                // Map result to appropriate HTTP status based on error type
+                if (result.ErrorMessage?.Contains("not found", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    return NotFound(new { success = false, message = result.ErrorMessage });
+                }
+                else if (result.ErrorMessage?.Contains("unauthorized", StringComparison.OrdinalIgnoreCase) == true ||
+                         result.ErrorMessage?.Contains("authentication", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    return Unauthorized(new { success = false, message = result.ErrorMessage });
+                }
+                else
+                {
+                    return BadRequest(new { success = false, message = result.ErrorMessage ?? "Status update failed" });
+                }
+            }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to process KBank ODD status update for ExternalReference: {ExternalReference}", dto.ExternalReference);
+            _logger.LogError(ex, "Exception occurred while processing KBank status update using consolidated method. ExternalReference: {ExternalReference}", dto.ExternalReference);
             return StatusCode(500, new { success = false, message = "Internal server error" });
         }
     }
@@ -315,20 +356,38 @@ public class KBankController : BaseController
     {
         try
         {
-            var result = await _kbankOddService.ProcessStatusUpdateAsync(dto, cancellationToken);
+            // Phase 3: Use consolidated method from RegistrationManagementService (same as JSON endpoint)
+            var result = await _registrationService.ProcessKBankStatusUpdateAsync(dto);
 
-            return result switch
+            if (result.IsSuccess)
             {
-                StatusProcessResult.Success => Ok(new { success = true, message = "Status updated successfully", timestamp = DateTime.UtcNow }),
-                StatusProcessResult.NotFound => NotFound(new { success = false, message = "Registration record not found" }),
-                StatusProcessResult.Unauthorized => Unauthorized(new { success = false, message = "Invalid authentication" }),
-                StatusProcessResult.Fail => BadRequest(new { success = false, message = "Status update failed" }),
-                _ => StatusCode(500, new { success = false, message = "Unknown processing result" })
-            };
+                _logger.LogInformation("Form-based status update processed successfully using consolidated method. ExternalReference: {ExternalReference}", dto.ExternalReference);
+                return Ok(new { success = true, message = "Status updated successfully", timestamp = DateTime.UtcNow });
+            }
+            else
+            {
+                _logger.LogWarning("Form-based status update failed using consolidated method. ExternalReference: {ExternalReference}, Error: {ErrorMessage}",
+                    dto.ExternalReference, result.ErrorMessage);
+
+                // Map result to appropriate HTTP status based on error type
+                if (result.ErrorMessage?.Contains("not found", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    return NotFound(new { success = false, message = result.ErrorMessage });
+                }
+                else if (result.ErrorMessage?.Contains("unauthorized", StringComparison.OrdinalIgnoreCase) == true ||
+                         result.ErrorMessage?.Contains("authentication", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    return Unauthorized(new { success = false, message = result.ErrorMessage });
+                }
+                else
+                {
+                    return BadRequest(new { success = false, message = result.ErrorMessage ?? "Status update failed" });
+                }
+            }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to process KBank ODD status update (form) for ExternalReference: {ExternalReference}", dto.ExternalReference);
+            _logger.LogError(ex, "Exception occurred while processing form-based KBank status update using consolidated method. ExternalReference: {ExternalReference}", dto.ExternalReference);
             return StatusCode(500, new { success = false, message = "Internal server error" });
         }
     }

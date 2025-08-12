@@ -44,6 +44,22 @@ public class KBankOddClient : IKBankOddClient
             _logger.LogInformation("Calling KBank ODD initialization API for external reference: {ExternalReference}", 
                 request.ExternalReference);
 
+            // Validate required authentication parameter
+            if (string.IsNullOrEmpty(request.AuthParameter))
+            {
+                var error = "AuthParameter is required but not provided";
+                _logger.LogError(error);
+                throw new KBankApiException(error, "ValidationError");
+            }
+
+            // Validate AuthParameter format (SHA-256 hash should be 64 hex characters)
+            if (request.AuthParameter.Length != 64 || !IsValidHexString(request.AuthParameter))
+            {
+                var error = $"AuthParameter has invalid format. Expected 64-character hex string, got: {request.AuthParameter.Length} characters";
+                _logger.LogError(error);
+                throw new KBankApiException(error, "ValidationError");
+            }
+
             var baseUrl = _configuration["KBankODD:BaseUrl"] ?? throw new InvalidOperationException("KBankODD:BaseUrl not configured");
             var endpoint = "/ws/v1/registerinit";
             var requestUrl = $"{baseUrl.TrimEnd('/')}{endpoint}";
@@ -51,7 +67,8 @@ public class KBankOddClient : IKBankOddClient
             var jsonContent = JsonSerializer.Serialize(request, _jsonOptions);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-            _logger.LogInformation("Sending request to {Url}: {Content}", requestUrl, jsonContent);
+            _logger.LogInformation("Sending request to {Url} with ExternalReference: {ExternalReference}", 
+                requestUrl, request.ExternalReference);
 
             var response = await _httpClient.PostAsync(requestUrl, content, cancellationToken);
 
@@ -62,9 +79,10 @@ public class KBankOddClient : IKBankOddClient
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogError("KBank API returned error status: {StatusCode}, Content: {Content}", 
-                    response.StatusCode, responseContent);
-                throw new KBankApiException($"KBank API returned {response.StatusCode}: {responseContent}");
+                var errorDetail = GetErrorDetail(response.StatusCode, responseContent);
+                _logger.LogError("KBank API returned error status: {StatusCode}, ErrorType: {ErrorType}, Message: {Message}", 
+                    response.StatusCode, errorDetail.Type, errorDetail.Message);
+                throw new KBankApiException($"KBank API error ({errorDetail.Type}): {errorDetail.Message}", errorDetail.Type);
             }
 
             var initResponse = JsonSerializer.Deserialize<KBankInitResponse>(responseContent, _jsonOptions);
@@ -154,13 +172,82 @@ public class KBankOddClient : IKBankOddClient
             return false;
         }
     }
+
+    /// <summary>
+    /// Validates if a string contains only hexadecimal characters
+    /// </summary>
+    /// <param name="input">Input string to validate</param>
+    /// <returns>True if input is valid hexadecimal</returns>
+    private static bool IsValidHexString(string input)
+    {
+        return input.All(c => char.IsDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
+    }
+
+    /// <summary>
+    /// Maps HTTP status codes and response content to structured error details
+    /// </summary>
+    /// <param name="statusCode">HTTP status code from KBank API</param>
+    /// <param name="responseContent">Response content from KBank API</param>
+    /// <returns>Structured error details</returns>
+    private static (string Type, string Message) GetErrorDetail(System.Net.HttpStatusCode statusCode, string? responseContent)
+    {
+        return statusCode switch
+        {
+            System.Net.HttpStatusCode.BadRequest => ("ValidationError", "Invalid request data or parameters"),
+            System.Net.HttpStatusCode.Unauthorized => ("AuthenticationError", "Authentication failed or invalid credentials"),
+            System.Net.HttpStatusCode.Forbidden => ("AuthorizationError", "Access denied or insufficient permissions"),
+            System.Net.HttpStatusCode.NotFound => ("NotFound", "Requested resource not found"),
+            System.Net.HttpStatusCode.TooManyRequests => ("RateLimitError", "Request rate limit exceeded"),
+            System.Net.HttpStatusCode.InternalServerError => ("ServerError", "KBank internal server error"),
+            System.Net.HttpStatusCode.BadGateway => ("GatewayError", "KBank gateway error"),
+            System.Net.HttpStatusCode.ServiceUnavailable => ("ServiceUnavailable", "KBank service temporarily unavailable"),
+            System.Net.HttpStatusCode.GatewayTimeout => ("TimeoutError", "KBank gateway timeout"),
+            _ => ("UnknownError", $"HTTP {(int)statusCode}: {responseContent}")
+        };
+    }
 }
 
 /// <summary>
-/// Exception thrown when KBank API operations fail
+/// Exception thrown when KBank API operations fail with enhanced error categorization
 /// </summary>
 public class KBankApiException : Exception
 {
-    public KBankApiException(string message) : base(message) { }
-    public KBankApiException(string message, Exception innerException) : base(message, innerException) { }
+    /// <summary>
+    /// Gets the error type category (e.g., ValidationError, AuthenticationError, etc.)
+    /// </summary>
+    public string ErrorType { get; }
+
+    /// <summary>
+    /// Initializes a new instance with basic message
+    /// </summary>
+    /// <param name="message">Error message</param>
+    public KBankApiException(string message) : base(message) 
+    {
+        ErrorType = "UnknownError";
+    }
+
+    /// <summary>
+    /// Initializes a new instance with message and error type
+    /// </summary>
+    /// <param name="message">Error message</param>
+    /// <param name="errorType">Error type category</param>
+    public KBankApiException(string message, string errorType) : base(message) 
+    {
+        ErrorType = errorType;
+    }
+
+    /// <summary>
+    /// Initializes a new instance with message and inner exception
+    /// </summary>
+    /// <param name="message">Error message</param>
+    /// <param name="innerException">Inner exception</param>
+    public KBankApiException(string message, Exception innerException) : base(message, innerException) 
+    {
+        ErrorType = "UnknownError";
+    }
+
+    /// <summary>
+    /// Indicates if the error is potentially recoverable through retry
+    /// </summary>
+    public bool IsRetryable => ErrorType is "TimeoutError" or "ServiceUnavailable" or "GatewayError" or "ServerError";
 }

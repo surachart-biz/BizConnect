@@ -254,7 +254,7 @@ public class KbankOddService : IKbankOddService
                 ServiceName = serviceName,
                 UserMobileNo = request.MobileNo,
                 Id = request.IdValue,
-                CallbackUrl = $"{appBaseUrl.TrimEnd('/')}/kbank/status-update",
+                CallbackUrl = $"{appBaseUrl.TrimEnd('/')}/kbank/odd/status-update",
                 AuthParameter = authParameter
             };
 
@@ -378,6 +378,138 @@ public class KbankOddService : IKbankOddService
             _logger.LogError(ex, "Failed to process KBank ODD status update for external reference: {ExternalReference}", 
                 dto.ExternalReference);
             throw;
+        }
+    }
+
+    // Phase 1: Pure API methods without database operations
+
+    /// <inheritdoc />
+    public async Task<KBankRegistrationResult> InitializeRegistrationAsync(OddRegistrationRequest request, 
+        string? externalReference = null, CancellationToken cancellationToken = default, string language = "en")
+    {
+        try
+        {
+            _logger.LogInformation("Initializing KBank ODD registration (pure API) in language: {Language}", language);
+
+            // Generate or use provided external reference
+            var finalExternalReference = externalReference ?? OddUtils.GenerateExternalReference();
+            _logger.LogDebug("Using external reference: {ExternalReference}", finalExternalReference);
+
+            // Get configuration values
+            var passPhrase = _configuration["KBankODD:PassPhrase"];
+            if (string.IsNullOrEmpty(passPhrase))
+            {
+                var error = "KBankODD:PassPhrase not configured";
+                _logger.LogError(error);
+                return KBankRegistrationResult.Failure(finalExternalReference, error);
+            }
+
+            var externalSystem = _configuration["KBankODD:ExternalSystem"] ?? "BIZCONNECT";
+            var serviceName = _configuration["KBankODD:ServiceName"] ?? "BizConnect ODD Service";
+            var pgBaseUrl = _configuration["KBankODD:PGBaseUrl"];
+            var appBaseUrl = _configuration["KBankODD:AppBaseUrl"] ?? "https://localhost:7178";
+
+            if (string.IsNullOrEmpty(pgBaseUrl))
+            {
+                var error = "KBankODD:PGBaseUrl not configured";
+                _logger.LogError(error);
+                return KBankRegistrationResult.Failure(finalExternalReference, error);
+            }
+
+            // Build authentication hash
+            var authParameter = OddUtils.BuildAuth(passPhrase, externalSystem, finalExternalReference);
+
+            // Create initialization request with contact information
+            var initRequest = new KBankInitRequest
+            {
+                TransactionType = "0600",
+                Encoding = "UTF8",
+                ExternalSystem = externalSystem,
+                ExternalReference = finalExternalReference,
+                ServiceName = serviceName,
+                UserMobileNo = request.MobileNo,
+                Id = request.IdValue,
+                CallbackUrl = $"{appBaseUrl.TrimEnd('/')}/kbank/odd/status-update",
+                AuthParameter = authParameter
+            };
+
+            // Call KBank API
+            _logger.LogDebug("Calling KBank Init API with ExternalReference: {ExternalReference}", finalExternalReference);
+            var initResponse = await _kbankClient.InitAsync(initRequest, cancellationToken);
+
+            // Check if initialization was successful
+            if (initResponse.ReturnStatus != "0" || string.IsNullOrEmpty(initResponse.RegId))
+            {
+                var errorMessage = $"KBank initialization failed: {initResponse.ReturnMessage}";
+                _logger.LogError("KBank initialization failed: Status={Status}, Code={Code}, Message={Message}",
+                    initResponse.ReturnStatus, initResponse.ReturnCode, initResponse.ReturnMessage);
+                
+                return KBankRegistrationResult.Failure(finalExternalReference, errorMessage, 
+                    initResponse.ReturnStatus, initResponse.ReturnCode, initResponse.ReturnMessage);
+            }
+
+            // Build redirect URL with language support
+            var langLocale = language.ToLower() == "th" ? "th_TH" : "en_US";
+            var redirectUrl = $"{pgBaseUrl.TrimEnd('/')}/PGSRegistration.do?reg_id={initResponse.RegId}&langLocale={langLocale}";
+
+            _logger.LogInformation("KBank ODD initialization successful: ExternalReference={ExternalReference}, RegId={RegId}",
+                finalExternalReference, initResponse.RegId);
+
+            return KBankRegistrationResult.Success(finalExternalReference, initResponse.RegId, redirectUrl);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to initialize KBank ODD registration (pure API)");
+            
+            var externalRef = externalReference ?? "unknown";
+            return KBankRegistrationResult.Failure(externalRef, $"Registration initialization failed: {ex.Message}");
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<StatusValidationResult> ValidateStatusUpdateAsync(StatusUpdateDto dto, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            _logger.LogInformation("Validating KBank ODD status update (pure validation) for external reference: {ExternalReference}", 
+                dto.ExternalReference);
+
+            // Get pass phrase from configuration
+            var passPhrase = _configuration["KBankODD:PassPhrase"];
+            if (string.IsNullOrEmpty(passPhrase))
+            {
+                var error = "KBankODD:PassPhrase not configured";
+                _logger.LogError(error);
+                return StatusValidationResult.Failure(StatusValidationType.MissingPassPhrase, 
+                    dto.ExternalReference, error);
+            }
+
+            // Validate authentication hash
+            var expectedAuth = OddUtils.BuildAuth(passPhrase, dto.ExternalReference, dto.Timestamp, 
+                dto.ReturnStatus, dto.ReturnCode);
+            
+            if (dto.AuthParameter != expectedAuth)
+            {
+                var error = $"Invalid authentication hash. Expected: {expectedAuth}, Received: {dto.AuthParameter}";
+                _logger.LogWarning("Invalid authentication hash for external reference: {ExternalReference}. Expected: {Expected}, Received: {Received}",
+                    dto.ExternalReference, expectedAuth, dto.AuthParameter);
+                
+                return StatusValidationResult.Failure(StatusValidationType.InvalidAuthentication, 
+                    dto.ExternalReference, error);
+            }
+
+            _logger.LogInformation("KBank ODD status update validation successful for external reference: {ExternalReference}", 
+                dto.ExternalReference);
+
+            return StatusValidationResult.Success(dto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to validate KBank ODD status update for external reference: {ExternalReference}", 
+                dto.ExternalReference);
+                
+            return StatusValidationResult.Failure(StatusValidationType.InvalidData, 
+                dto.ExternalReference, $"Validation failed: {ex.Message}");
         }
     }
 }

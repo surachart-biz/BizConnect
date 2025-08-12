@@ -42,4 +42,25 @@ public interface IKbankOddService
     /// <param name="language">Language code ('th' for Thai, 'en' for English). Defaults to 'en'</param>
     /// <returns>Processing result</returns>
     Task<StatusProcessResult> ProcessStatusUpdateAsync(StatusUpdateDto dto, CancellationToken cancellationToken = default, string language = "en");
+
+    // Phase 1: Pure API methods without database operations
+
+    /// <summary>
+    /// Pure API method: Initializes registration with KBank without database operations
+    /// </summary>
+    /// <param name="request">Registration request containing user contact information</param>
+    /// <param name="externalReference">External reference to use (if null, will generate new)</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <param name="language">Language code ('th' for Thai, 'en' for English). Defaults to 'en'</param>
+    /// <returns>Registration result with KBank response data and redirect URL</returns>
+    Task<KBankRegistrationResult> InitializeRegistrationAsync(OddRegistrationRequest request, 
+        string? externalReference = null, CancellationToken cancellationToken = default, string language = "en");
+
+    /// <summary>
+    /// Pure validation method: Validates status update webhook without database operations
+    /// </summary>
+    /// <param name="dto">Status update data from KBank</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Validation result</returns>
+    Task<StatusValidationResult> ValidateStatusUpdateAsync(StatusUpdateDto dto, CancellationToken cancellationToken = default);
 }

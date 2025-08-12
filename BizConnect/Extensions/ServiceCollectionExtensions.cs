@@ -244,18 +244,19 @@ public static partial class ServiceCollectionExtensions
     /// <returns>The service collection for method chaining</returns>
     public static IServiceCollection AddKBankOddServices(this IServiceCollection services)
     {
-        // Add KBank ODD services
+        // Add KBank ODD services with simple HTTP client configuration
         services.AddHttpClient<KBankOddClient>(client =>
         {
-            client.Timeout = TimeSpan.FromSeconds(30);
-            client.DefaultRequestHeaders.Add("User-Agent", "BizConnect/1.0");
+            client.Timeout = TimeSpan.FromSeconds(60); // KBank API timeout
         });
+        
         services.AddScoped<IKBankOddClient, KBankOddClient>();
         services.AddScoped<IKbankOddService, KbankOddService>();
         services.AddScoped<IPaymentProcessingService, PaymentProcessingService>();
 
         return services;
     }
+
 
     /// <summary>
     /// Registers Hangfire background job services with the dependency injection container.

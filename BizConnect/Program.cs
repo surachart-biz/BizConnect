@@ -60,9 +60,26 @@ static bool IsNonProductionEnvironment(IWebHostEnvironment env)
 startupLogger.LogInformation("Starting BizConnect application configuration validation...");
 startupLogger.LogInformation("Environment: {Environment}", environment);
 
-// Add services to the container.
+// Add services to the container
 builder.Services.AddDbContext<BizConnectContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    options.UseNpgsql(connectionString, npgsqlOptions =>
+    {
+        npgsqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 3,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorCodesToAdd: null);
+        npgsqlOptions.CommandTimeout(30);
+    });
+
+    // Environment-specific settings
+    if (builder.Environment.IsDevelopment())
+    {
+        options.EnableSensitiveDataLogging();
+        options.EnableDetailedErrors();
+    }
+});
 
 // Add Repository and Unit of Work patterns
 builder.Services.AddRepositoryPattern();
@@ -611,6 +628,7 @@ RecurringJob.AddOrUpdate<DailyAnalyticsJob>(
     "daily-analytics-processing",
     job => job.ExecuteAsync(),
     "0 3 * * *"); // Daily at 3:00 AM (after payment processing)
+
 
 // Configure MVC routing
 app.MapControllerRoute(

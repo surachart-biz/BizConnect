@@ -808,5 +808,295 @@ namespace BizConnect.Services
                 return RegistrationResult.Failure(ex);
             }
         }
+
+        // Phase 2: Consolidated database methods using pure API methods
+
+        /// <summary>
+        /// Consolidated method: Submits registration with KBank integration in single transaction
+        /// Uses pure API methods and handles all database operations within UnitOfWork
+        /// </summary>
+        /// <param name="request">Registration request containing user data and OTAC code</param>
+        /// <returns>RegistrationResult containing redirect URL and registration details</returns>
+        public async Task<RegistrationResult> SubmitWithKBankIntegrationAsync(RegistrationRequest request)
+        {
+            try
+            {
+                _logger.LogInformation("Starting consolidated registration process for OTAC {OtacCode}", request.OtacCode);
+
+                // Validate the registration request
+                var validationResult = await ValidateRegistrationRequestAsync(request);
+                if (!validationResult.IsValid)
+                {
+                    var errors = validationResult.GetAllErrors();
+                    var errorMessage = errors.FirstOrDefault() ?? "Validation failed";
+                    return RegistrationResult.Failure(errorMessage);
+                }
+
+                // Find and validate the OTAC code
+                var normalizedOtac = _otacCodeGenerator.NormalizeCode(request.OtacCode);
+                var registration = await _unitOfWork.KbankOddRegistrations
+                    .QueryWithTracking()
+                    .Include(r => r.Branch)
+                    .FirstOrDefaultAsync(r => r.OtacCode == normalizedOtac && r.OtacState == "Validated");
+
+                if (registration == null)
+                {
+                    _logger.LogWarning("OTAC code {OtacCode} not found or not validated", normalizedOtac);
+                    return RegistrationResult.Failure("Invalid or unvalidated OTAC code");
+                }
+
+                // Check if OTAC has expired
+                var now = _dateTimeProvider.UtcNow;
+                if (registration.OtacExpiresAt.HasValue && registration.OtacExpiresAt.Value <= now)
+                {
+                    _logger.LogWarning("OTAC code {OtacCode} has expired", normalizedOtac);
+                    return RegistrationResult.Failure("OTAC code has expired");
+                }
+
+                // Check if OTAC hasn't already been used
+                if (!string.IsNullOrEmpty(registration.ExternalReference))
+                {
+                    _logger.LogWarning("OTAC code {OtacCode} has already been used", normalizedOtac);
+                    return RegistrationResult.Failure("OTAC code has already been used");
+                }
+
+                // Use transaction for atomic operations
+                return await _unitOfWork.ExecuteInTransactionAsync(async (uow, ct) =>
+                {
+                    // Generate unique external reference with retry logic
+                    string externalReference;
+                    var maxRetries = 3;
+                    var retryCount = 0;
+                    
+                    do
+                    {
+                        externalReference = OddUtils.GenerateExternalReference();
+                        retryCount++;
+                        
+                        // Check if this external reference already exists
+                        var existingRegistration = await uow.KbankOddRegistrations
+                            .Query()
+                            .FirstOrDefaultAsync(r => r.ExternalReference == externalReference, ct);
+                            
+                        if (existingRegistration == null)
+                        {
+                            break; // Unique reference found
+                        }
+                        
+                        if (retryCount >= maxRetries)
+                        {
+                            _logger.LogError("Failed to generate unique external reference after {MaxRetries} attempts", maxRetries);
+                            throw new InvalidOperationException("Unable to generate unique external reference");
+                        }
+                        
+                        // Add small delay before retry to reduce collision probability
+                        await Task.Delay(10 * retryCount, ct);
+                        
+                    } while (retryCount < maxRetries);
+
+                    // Update registration with form data first
+                    registration.ExternalReference = externalReference;
+                    registration.FullName = request.FullName;
+                    registration.IdType = request.IdType;
+                    registration.IdValue = request.IdValue;
+                    registration.MobileNo = request.MobileNo;
+                    registration.AccountNo = request.AccountNo;
+                    registration.BranchId = request.BranchId;
+                    registration.OtacState = "Used";
+                    registration.UpdatedAt = now;
+                    registration.StatusMessageTh = "กำลังดำเนินการลงทะเบียน";
+                    registration.StatusMessageEn = "Registration in progress";
+
+                    // Prepare KBank registration request
+                    var kbankRequest = new OddRegistrationRequest
+                    {
+                        FullName = request.FullName,
+                        MobileNo = request.MobileNo,
+                        IdType = request.IdType,
+                        IdValue = request.IdValue,
+                        AccountNo = request.AccountNo,
+                        BranchId = request.BranchId
+                    };
+
+                    // Call pure KBank API method
+                    KBankRegistrationResult kbankResult;
+                    try
+                    {
+                        kbankResult = await _kbankOddService.InitializeRegistrationAsync(
+                            kbankRequest, externalReference, ct);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "KBank API call failed for external reference {ExternalReference}", externalReference);
+                        return RegistrationResult.ExternalServiceError("KBank", ex.Message);
+                    }
+
+                    // Handle KBank API result
+                    if (kbankResult.IsSuccess)
+                    {
+                        // Update registration with successful KBank response
+                        registration.RegId = kbankResult.RegId;
+                        registration.Status = "Pending";
+                        registration.StatusMessageTh = "กำลังดำเนินการลงทะเบียน";
+                        registration.StatusMessageEn = "Registration in progress";
+                        registration.ReturnCode = kbankResult.ReturnCode;
+
+                        await uow.SaveChangesAsync(ct);
+
+                        var registrationInfo = new RegistrationInfo
+                        {
+                            RedirectUrl = kbankResult.RedirectUrl!,
+                            ExternalReference = externalReference,
+                            RegId = kbankResult.RegId!,
+                            RegistrationId = Guid.NewGuid(), // Using a placeholder GUID
+                            Status = "Pending",
+                            CreatedAt = registration.CreatedAt,
+                            ContactPhone = request.MobileNo
+                        };
+
+                        _logger.LogInformation("Consolidated registration completed successfully with external reference {ExternalReference} and RegId {RegId}", 
+                            externalReference, kbankResult.RegId);
+
+                        return RegistrationResult.Success(registrationInfo);
+                    }
+                    else
+                    {
+                        // Update registration with failed KBank response
+                        registration.Status = "Fail";
+                        registration.StatusMessageTh = "การลงทะเบียนไม่สำเร็จ";
+                        registration.StatusMessageEn = "Registration failed";
+                        registration.ErrorMessageTh = kbankResult.ErrorMessage;
+                        registration.ErrorMessageEn = kbankResult.ErrorMessage;
+                        registration.ReturnCode = kbankResult.ReturnCode;
+
+                        await uow.SaveChangesAsync(ct);
+
+                        _logger.LogError("KBank registration failed for external reference {ExternalReference}: {ErrorMessage}", 
+                            externalReference, kbankResult.ErrorMessage);
+
+                        return RegistrationResult.Failure(kbankResult.ErrorMessage ?? "KBank registration failed");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in consolidated registration process for OTAC {OtacCode}", request.OtacCode);
+                return RegistrationResult.Failure(ex);
+            }
+        }
+
+        /// <summary>
+        /// Consolidated method: Processes KBank status update callback in single transaction
+        /// Uses pure validation and handles database updates with proper transaction boundaries
+        /// </summary>
+        /// <param name="statusUpdateDto">Status update data from KBank</param>
+        /// <returns>Result indicating success or failure of the status update processing</returns>
+        public async Task<Result> ProcessKBankStatusUpdateAsync(StatusUpdateDto statusUpdateDto)
+        {
+            try
+            {
+                _logger.LogInformation("Processing KBank status update for external reference {ExternalReference}", 
+                    statusUpdateDto.ExternalReference);
+
+                // Use pure validation method from KbankOddService
+                StatusValidationResult validationResult;
+                try
+                {
+                    validationResult = await _kbankOddService.ValidateStatusUpdateAsync(statusUpdateDto);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error validating status update for external reference {ExternalReference}", 
+                        statusUpdateDto.ExternalReference);
+                    return Result.Failure($"Failed to validate status update: {ex.Message}");
+                }
+
+                // Handle validation result
+                if (!validationResult.IsValid)
+                {
+                    _logger.LogWarning("Status update validation failed for external reference {ExternalReference}: {ErrorMessage}", 
+                        statusUpdateDto.ExternalReference, validationResult.ErrorMessage);
+                    return Result.Failure(validationResult.ErrorMessage ?? "Status update validation failed");
+                }
+
+                // Process the validated status update within transaction
+                return await _unitOfWork.ExecuteInTransactionAsync(async (uow, ct) =>
+                {
+                    // Find registration by external reference
+                    var registration = await uow.KbankOddRegistrations
+                        .QueryWithTracking()
+                        .FirstOrDefaultAsync(r => r.ExternalReference == validationResult.ExternalReference, ct);
+
+                    if (registration == null)
+                    {
+                        _logger.LogWarning("Registration with external reference {ExternalReference} not found", 
+                            validationResult.ExternalReference);
+                        return Result.Failure($"Registration with external reference {validationResult.ExternalReference} not found");
+                    }
+
+                    // Update registration with validated status data
+                    var statusUpdate = validationResult.StatusUpdate!;
+                    
+                    // Convert KBank ReturnStatus to our Status field
+                    // ReturnStatus: "0" = Success, "1" = Fail
+                    var statusString = statusUpdate.ReturnStatus == "0" ? "Success" : "Fail";
+                    
+                    registration.Status = statusString;
+                    registration.ReturnCode = statusUpdate.ReturnCode;
+                    registration.EspaId = statusUpdate.EspaId;
+                    registration.UpdatedAt = _dateTimeProvider.UtcNow;
+                    
+                    // Set status messages based on converted status
+                    switch (statusString.ToLower())
+                    {
+                        case "success":
+                            registration.StatusMessageTh = "ลงทะเบียนสำเร็จ";
+                            registration.StatusMessageEn = "Registration successful";
+                            // Clear any previous error messages
+                            registration.ErrorMessageTh = null;
+                            registration.ErrorMessageEn = null;
+                            break;
+                        case "fail":
+                            registration.StatusMessageTh = "ลงทะเบียนไม่สำเร็จ";
+                            registration.StatusMessageEn = "Registration failed";
+                            if (!string.IsNullOrEmpty(statusUpdate.ReturnCode))
+                            {
+                                registration.ErrorMessageTh = $"รหัสข้อผิดพลาด: {statusUpdate.ReturnCode} - {statusUpdate.ReturnMessage}";
+                                registration.ErrorMessageEn = $"Error code: {statusUpdate.ReturnCode} - {statusUpdate.ReturnMessage}";
+                            }
+                            // Reset OTAC state to allow retry
+                            if (registration.OtacState == "Used")
+                            {
+                                registration.OtacState = "Validated";
+                            }
+                            break;
+                        case "pending":
+                            registration.StatusMessageTh = "กำลังดำเนินการลงทะเบียน";
+                            registration.StatusMessageEn = "Registration in progress";
+                            break;
+                        default:
+                            registration.StatusMessageTh = $"สถานะ: {statusString}";
+                            registration.StatusMessageEn = $"Status: {statusString}";
+                            break;
+                    }
+
+                    await uow.SaveChangesAsync(ct);
+
+                    _logger.LogInformation("Status update processed successfully for external reference {ExternalReference}: {Status} (ReturnStatus: {ReturnStatus})", 
+                        validationResult.ExternalReference, statusString, statusUpdate.ReturnStatus);
+
+                    // TODO: Add notification logic here if needed
+                    // await _notificationService.SendStatusUpdateNotificationAsync(registration);
+
+                    return Result.Success();
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing KBank status update for external reference {ExternalReference}", 
+                    statusUpdateDto.ExternalReference);
+                return Result.Failure($"Failed to process status update: {ex.Message}");
+            }
+        }
     }
 }

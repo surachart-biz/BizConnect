@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using BizConnect.Dal.Models;
 using BizConnect.Services.Models.Requests;
 using BizConnect.Services.Models.Results;
+using BizConnect.Services.Models.KBank;
 
 namespace BizConnect.Services.Interfaces
 {
@@ -72,5 +73,23 @@ namespace BizConnect.Services.Interfaces
         /// <param name="registrationData">Guest registration form data</param>
         /// <returns>RegistrationResult containing redirect URL and external reference</returns>
         Task<RegistrationResult> SubmitAsync(string validatedOtacCode, RegistrationRequest registrationData);
+
+        // Phase 2: Consolidated database methods using pure API methods
+
+        /// <summary>
+        /// Consolidated method: Submits registration with KBank integration in single transaction
+        /// Uses pure API methods and handles all database operations within UnitOfWork
+        /// </summary>
+        /// <param name="request">Registration request containing user data and OTAC code</param>
+        /// <returns>RegistrationResult containing redirect URL and registration details</returns>
+        Task<RegistrationResult> SubmitWithKBankIntegrationAsync(RegistrationRequest request);
+
+        /// <summary>
+        /// Consolidated method: Processes KBank status update callback in single transaction
+        /// Uses pure validation and handles database updates with proper transaction boundaries
+        /// </summary>
+        /// <param name="statusUpdateDto">Status update data from KBank</param>
+        /// <returns>Result indicating success or failure of the status update processing</returns>
+        Task<Result> ProcessKBankStatusUpdateAsync(StatusUpdateDto statusUpdateDto);
     }
 }
