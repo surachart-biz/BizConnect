@@ -53,20 +53,23 @@ public class KbankOddService : IKbankOddService
                 ?? throw new InvalidOperationException("KBankODD:PassPhrase not configured");
             var externalSystem = _configuration["KBankODD:ExternalSystem"] 
                 ?? throw new InvalidOperationException("KBankODD:ExternalSystem not configured");
+            var payeeShortName = _configuration["KBankODD:PayeeShortName"] 
+                ?? throw new InvalidOperationException("KBankODD:PayeeShortName not configured");
             var serviceName = _configuration["KBankODD:ServiceName"] 
                 ?? throw new InvalidOperationException("KBankODD:ServiceName not configured");
             var pgBaseUrl = _configuration["KBankODD:PGBaseUrl"] 
                 ?? throw new InvalidOperationException("KBankODD:PGBaseUrl not configured");
 
-            // Build authentication hash
-            var authParameter = OddUtils.BuildAuth(passPhrase, externalSystem, externalReference);
+            // Build authentication hash - SHA256(passphrase + external_system + payee_short_name + external_reference)
+            var authParameter = OddUtils.BuildAuth(passPhrase, externalSystem, payeeShortName, externalReference);
 
             // Create initialization request
             var initRequest = new KBankInitRequest
             {
-                TransactionType = "0600",
+                TransactionType = "0620",
                 Encoding = "UTF8",
                 ExternalSystem = externalSystem,
+                PayeeShortName = payeeShortName,
                 ExternalReference = externalReference,
                 ServiceName = serviceName,
                 AuthParameter = authParameter
@@ -134,19 +137,21 @@ public class KbankOddService : IKbankOddService
             }
 
             var externalSystem = _configuration["KBankODD:ExternalSystem"] ?? "BIZCONNECT";
+            var payeeShortName = _configuration["KBankODD:PayeeShortName"] ?? "BIZCONNECT";
             var serviceName = _configuration["KBankODD:ServiceName"] ?? "BizConnect ODD Service";
             var pgBaseUrl = _configuration["KBankODD:PGBaseUrl"] ?? throw new InvalidOperationException("KBankODD:PGBaseUrl not configured");
             var appBaseUrl = _configuration["KBankODD:AppBaseUrl"] ?? "https://localhost:7178"; // Application base URL
 
-            // Build authentication hash
-            var authParameter = OddUtils.BuildAuth(passPhrase, externalSystem, externalReference);
+            // Build authentication hash - SHA256(passphrase + external_system + payee_short_name + external_reference)
+            var authParameter = OddUtils.BuildAuth(passPhrase, externalSystem, payeeShortName, externalReference);
 
             // Create initialization request with contact information (V1.9.7 - no email)
             var initRequest = new KBankInitRequest
             {
-                TransactionType = "0600",
+                TransactionType = "0620",
                 Encoding = "UTF8",
                 ExternalSystem = externalSystem,
+                PayeeShortName = payeeShortName,
                 ExternalReference = externalReference,
                 ServiceName = serviceName,
                 UserMobileNo = request.MobileNo,
@@ -237,19 +242,21 @@ public class KbankOddService : IKbankOddService
             }
 
             var externalSystem = _configuration["KBankODD:ExternalSystem"] ?? "BIZCONNECT";
+            var payeeShortName = _configuration["KBankODD:PayeeShortName"] ?? "BIZCONNECT";
             var serviceName = _configuration["KBankODD:ServiceName"] ?? "BizConnect ODD Service";
             var pgBaseUrl = _configuration["KBankODD:PGBaseUrl"] ?? throw new InvalidOperationException("KBankODD:PGBaseUrl not configured");
             var appBaseUrl = _configuration["KBankODD:AppBaseUrl"] ?? "https://localhost:7178"; // Application base URL
 
-            // Build authentication hash using existing external reference
-            var authParameter = OddUtils.BuildAuth(passPhrase, externalSystem, existingExternalReference);
+            // Build authentication hash using existing external reference - SHA256(passphrase + external_system + payee_short_name + external_reference)
+            var authParameter = OddUtils.BuildAuth(passPhrase, externalSystem, payeeShortName, existingExternalReference);
 
             // Create initialization request with contact information (V1.9.7 - no email)
             var initRequest = new KBankInitRequest
             {
-                TransactionType = "0600",
+                TransactionType = "0620",
                 Encoding = "UTF8",
                 ExternalSystem = externalSystem,
+                PayeeShortName = payeeShortName,
                 ExternalReference = existingExternalReference,
                 ServiceName = serviceName,
                 UserMobileNo = request.MobileNo,
@@ -403,8 +410,9 @@ public class KbankOddService : IKbankOddService
                 _logger.LogError(error);
                 return KBankRegistrationResult.Failure(finalExternalReference, error);
             }
-
+            
             var externalSystem = _configuration["KBankODD:ExternalSystem"] ?? "BIZCONNECT";
+            var payeeShortName = _configuration["KBankODD:PayeeShortName"] ?? "BIZCONNECT";
             var serviceName = _configuration["KBankODD:ServiceName"] ?? "BizConnect ODD Service";
             var pgBaseUrl = _configuration["KBankODD:PGBaseUrl"];
             var appBaseUrl = _configuration["KBankODD:AppBaseUrl"] ?? "https://localhost:7178";
@@ -416,15 +424,16 @@ public class KbankOddService : IKbankOddService
                 return KBankRegistrationResult.Failure(finalExternalReference, error);
             }
 
-            // Build authentication hash
-            var authParameter = OddUtils.BuildAuth(passPhrase, externalSystem, finalExternalReference);
+            // Build authentication hash - SHA256(passphrase + external_system + payee_short_name + external_reference)
+            var authParameter = OddUtils.BuildAuth(passPhrase, externalSystem, payeeShortName, finalExternalReference);
 
             // Create initialization request with contact information
             var initRequest = new KBankInitRequest
             {
-                TransactionType = "0600",
+                TransactionType = "0620",
                 Encoding = "UTF8",
                 ExternalSystem = externalSystem,
+                PayeeShortName = payeeShortName,
                 ExternalReference = finalExternalReference,
                 ServiceName = serviceName,
                 UserMobileNo = request.MobileNo,

@@ -36,15 +36,15 @@ public static class OddUtils
     }
 
     /// <summary>
-    /// Generates external reference in the format BIZyyyyMMddHHmmssfff with microsecond precision
-    /// Uses Guid suffix to ensure uniqueness in high-concurrency scenarios
+    /// Generates external reference in the format BIZyyMMddHHmmss + 4-char GUID (19 characters total)
+    /// Complies with KBank ODD API 20-character limit while maintaining uniqueness
     /// </summary>
-    /// <returns>External reference string</returns>
+    /// <returns>External reference string (19 characters)</returns>
     public static string GenerateExternalReference()
     {
         var now = DateTime.Now;
         var guid = Guid.NewGuid().ToString("N")[..4]; // Take first 4 chars of GUID for uniqueness
-        return $"BIZ{now:yyyyMMddHHmmssfff}{guid}";
+        return $"BIZ{now:yyMMddHHmmss}{guid}";
     }
 
     /// <summary>
@@ -60,17 +60,36 @@ public static class OddUtils
         if (!externalReference.StartsWith("BIZ"))
             return false;
 
-        // Support both old format (20 chars) and new format (24 chars with GUID suffix)
-        if (externalReference.Length == 20)
+        // Support multiple formats for backward compatibility:
+        // - New format (19 chars): BIZyyMMddHHmmss + 4-char GUID (KBank compliant)
+        // - Legacy format (20 chars): BIZyyyyMMddHHmmssfff (old format)
+        // - Extended format (24 chars): BIZyyyyMMddHHmmssfff + 4-char GUID (pre-KBank limit fix)
+        
+        if (externalReference.Length == 19)
         {
-            // Old format: BIZyyyyMMddHHmmssfff
+            // New KBank-compliant format: BIZyyMMddHHmmss + 4-char GUID
+            var dateTimePart = externalReference.Substring(3, 12);
+            var guidPart = externalReference.Substring(15, 4);
+            
+            // Validate datetime part (2-digit year format)
+            var isValidDateTime = DateTime.TryParseExact(dateTimePart, "yyMMddHHmmss", null, 
+                System.Globalization.DateTimeStyles.None, out _);
+            
+            // Validate GUID part (should be hex characters)
+            var isValidGuid = guidPart.All(c => "0123456789abcdefABCDEF".Contains(c));
+            
+            return isValidDateTime && isValidGuid;
+        }
+        else if (externalReference.Length == 20)
+        {
+            // Legacy format: BIZyyyyMMddHHmmssfff
             var dateTimePart = externalReference.Substring(3);
             return DateTime.TryParseExact(dateTimePart, "yyyyMMddHHmmssfff", null, 
                 System.Globalization.DateTimeStyles.None, out _);
         }
         else if (externalReference.Length == 24)
         {
-            // New format: BIZyyyyMMddHHmmssfff + 4-char GUID suffix
+            // Extended legacy format: BIZyyyyMMddHHmmssfff + 4-char GUID suffix
             var dateTimePart = externalReference.Substring(3, 17);
             var guidPart = externalReference.Substring(20, 4);
             

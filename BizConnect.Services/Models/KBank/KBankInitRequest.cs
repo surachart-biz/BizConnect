@@ -10,12 +10,12 @@ namespace BizConnect.Services.Models.KBank;
 public class KBankInitRequest
 {
     /// <summary>
-    /// Transaction Service Type - Fixed value "0600" for Online Register Initialization Request
+    /// Transaction Service Type - Fixed value "0620" for Online Register Initialization Request
     /// </summary>
     [Required]
     [StringLength(4)]
     [JsonPropertyName("transaction_type")]
-    public string TransactionType { get; set; } = "0600";
+    public string TransactionType { get; set; } = "0620";
 
     /// <summary>
     /// Encoding - Possible values: UTF8, TIS620
@@ -34,11 +34,12 @@ public class KBankInitRequest
     public string ExternalSystem { get; set; } = null!;
 
     /// <summary>
-    /// Payee Short Name - Optional consideration for supporting company short name registration
+    /// Payee Short Name - Required for authentication hash calculation (max 12 chars)
     /// </summary>
+    [Required]
     [StringLength(12)]
     [JsonPropertyName("payee_short_name")]
-    public string? PayeeShortName { get; set; }
+    public string PayeeShortName { get; set; } = null!;
 
 
     /// <summary>
@@ -123,7 +124,7 @@ public class KBankInitRequest
 
     /// <summary>
     /// Authentication Hash Parameter
-    /// SHA-256 (pass phrase ++ external_system ++ external_reference)
+    /// SHA-256 (pass phrase ++ external_system ++ payee_short_name ++ external_reference)
     /// </summary>
     [Required]
     [JsonPropertyName("auth_parameter")]

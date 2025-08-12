@@ -29,7 +29,7 @@ public class DataValidationService : IDataValidationService
     private static readonly Regex AccountNumberPattern = new(@"^\d{10,15}$", RegexOptions.Compiled);
     private static readonly Regex MobileNumberPattern = new(@"^(08\d{8}|\+66\d{8,9})$", RegexOptions.Compiled);
     private static readonly Regex OtacCodePattern = new(@"^[A-Z0-9]{8}$", RegexOptions.Compiled);
-    private static readonly Regex ExternalReferencePattern = new(@"^BIZ\d{17}$", RegexOptions.Compiled);
+    private static readonly Regex ExternalReferencePattern = new(@"^BIZ\w{12,21}$", RegexOptions.Compiled); // Support legacy (17 chars), new (16 chars), or extended (21 chars) formats
 
     public DataValidationService(BizConnectContext context, ILogger<DataValidationService> logger)
     {
