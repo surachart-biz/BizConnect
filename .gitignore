@@ -444,3 +444,4 @@ secrets.json
 /BizConnect/environment-setup.md
 /BizConnect/SERVICE_WORKER_README.md
 /BizConnect/wwwroot/MODERN-UI-GUIDE.md
+/.claude/settings.local.json
