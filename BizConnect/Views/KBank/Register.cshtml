@@ -11,13 +11,14 @@
 }
 
 <div class="landing-wrapper">
+    <a href="#registerForm" class="skip-to-content" data-text-th="ข้ามไปยังเนื้อหา" data-text-en="Skip to main content">@(ViewBag.IsThaiLanguage ? "ข้ามไปยังเนื้อหา" : "Skip to main content")</a>
     <div class="register-container">
         <!-- Progress Steps Section -->
         <section class="steps-section mb-4">
             <div class="steps-container">
                 <div class="section-header">
                     <h2 class="section-title" data-text-th="ขั้นตอนการลงทะเบียน" data-text-en="Registration Process">@ViewBag.TextRegistrationProcess</h2>
-                    <p class="section-subtitle" 
+                    <p class="section-subtitle"
                        data-text-th="เพียง 3 ขั้นตอนง่ายๆ คุณก็สามารถลงทะเบียนบริการหักบัญชีอัตโนมัติได้แล้ว"
                        data-text-en="Just 3 simple steps to register for automatic direct debit service">
                         @ViewBag.TextRegistrationStepsDesc
@@ -79,6 +80,20 @@
             </div>
         </section>
 
+        <!-- Notification Banner Container -->
+        <div id="notificationBanner" class="notification-banner" style="display: none;" role="alert" aria-live="polite">
+            <div class="notification-content">
+                <i class="notification-icon fas fa-exclamation-triangle" aria-hidden="true"></i>
+                <div class="notification-message">
+                    <div class="notification-title" data-text-th="กรุณาตรวจสอบข้อมูล" data-text-en="Please check your form data">@(ViewBag.IsThaiLanguage ? "กรุณาตรวจสอบข้อมูล" : "Please check your form data")</div>
+                    <div class="notification-description" data-text-th="โปรดแก้ไขข้อผิดพลาดที่ระบุด้านล่างก่อนดำเนินการต่อ" data-text-en="Please correct the errors listed below before proceeding">@(ViewBag.IsThaiLanguage ? "โปรดแก้ไขข้อผิดพลาดที่ระบุด้านล่างก่อนดำเนินการต่อ" : "Please correct the errors listed below before proceeding")</div>
+                </div>
+                <button type="button" class="notification-close" onclick="hideNotification()" aria-label="@(ViewBag.IsThaiLanguage ? "ปิดการแจ้งเตือน" : "Close notification")" title="@(ViewBag.IsThaiLanguage ? "ปิดการแจ้งเตือน" : "Close notification")">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+
         <!-- Main Registration Card -->
         <div class="otac-card register-form-card">
             <div class="card-header">
@@ -113,18 +128,22 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="otac-input-group mb-3">
-                                <label class="input-label required-field" for="FullName" 
-                                       data-text-th="ชื่อ-นามสกุล" 
+                                <label class="input-label required-field" for="FullName"
+                                       data-text-th="ชื่อ-นามสกุล"
                                        data-text-en="Full Name">@ViewBag.TextFullNameLabel</label>
-                                @Html.TextBoxFor(m => m.FullName, new { 
-                                    @class = "otac-input", 
-                                    @id = "FullName", 
-                                    placeholder = ViewBag.TextFullNameLabel,
-                                    @data_placeholder_th = "ชื่อ-นามสกุล",
-                                    @data_placeholder_en = "Full Name", 
-                                    @required = "required" 
-                                })
-                                @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger small mt-1", style = "display: none;" })
+                                @Html.TextBoxFor(m => m.FullName, new
+                                    {
+                                        @class = "otac-input",
+                                        @id = "FullName",
+                                        placeholder = ViewBag.TextFullNameLabel,
+                                        @data_placeholder_th = "ชื่อ-นามสกุล",
+                                        @data_placeholder_en = "Full Name",
+                                        @required = "required"
+                                    })
+                                <div class="field-validation-error" data-valmsg-for="FullName" data-valmsg-replace="true">
+                                    <i class="fas fa-exclamation-triangle me-1" aria-hidden="true"></i>
+                                    @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "validation-text" })
+                                </div>
                                 <div class="input-hint">
                                     <i class="fas fa-info-circle me-1"></i>
                                     <span data-text-th="กรุณากรอกชื่อ-นามสกุลตามเอกสารทางราชการ" data-text-en="Please enter full name as per official documents">@ViewBag.TextFullNameHint</span>
@@ -136,18 +155,22 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="otac-input-group mb-3">
-                                <label class="input-label required-field" for="IdValue" 
-                                       data-text-th="เลขบัตรประชาชน (13 หลัก)" 
+                                <label class="input-label required-field" for="IdValue"
+                                       data-text-th="เลขบัตรประชาชน (13 หลัก)"
                                        data-text-en="National ID Number (13 digits)">@ViewBag.TextNationalIdLabel</label>
-                                @Html.TextBoxFor(m => m.IdValue, new { 
-                                    @class = "otac-input", 
-                                    @id = "idValueInput", 
-                                    placeholder = ViewBag.TextNationalIdLabel,
-                                    @data_placeholder_th = "เลขบัตรประชาชน",
-                                    @data_placeholder_en = "National ID Number", 
-                                    @required = "required" 
-                                })
-                                @Html.ValidationMessageFor(m => m.IdValue, "", new { @class = "text-danger small mt-1", style = "display: none;" })
+                                @Html.TextBoxFor(m => m.IdValue, new
+                                    {
+                                        @class = "otac-input",
+                                        @id = "idValueInput",
+                                        placeholder = ViewBag.TextNationalIdLabel,
+                                        @data_placeholder_th = "เลขบัตรประชาชน",
+                                        @data_placeholder_en = "National ID Number",
+                                        @required = "required"
+                                    })
+                                <div class="field-validation-error" data-valmsg-for="IdValue" data-valmsg-replace="true">
+                                    <i class="fas fa-exclamation-triangle me-1" aria-hidden="true"></i>
+                                    @Html.ValidationMessageFor(m => m.IdValue, "", new { @class = "validation-text" })
+                                </div>
                                 <div class="input-hint" id="idHint">
                                     <i class="fas fa-info-circle me-1"></i>
                                     <span id="idHintText" data-text-th="ใช้เฉพาะบัตรประชาชนไทยเท่านั้น - กรอกตัวเลข 13 หลัก" data-text-en="Thai National ID only - enter 13 digits">@ViewBag.TextNationalIdHint</span>
@@ -167,18 +190,22 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="otac-input-group mb-3">
-                                <label class="input-label required-field" for="MobileNo" 
-                                       data-text-th="เบอร์มือถือ" 
+                                <label class="input-label required-field" for="MobileNo"
+                                       data-text-th="เบอร์มือถือ"
                                        data-text-en="Mobile Number">@ViewBag.TextMobileLabel</label>
-                                @Html.TextBoxFor(m => m.MobileNo, new { 
-                                    @class = "otac-input", 
-                                    @id = "mobileInput", 
-                                    placeholder = ViewBag.TextMobileLabel,
-                                    @data_placeholder_th = "เบอร์มือถือ",
-                                    @data_placeholder_en = "Mobile Number", 
-                                    @required = "required" 
-                                })
-                                @Html.ValidationMessageFor(m => m.MobileNo, "", new { @class = "text-danger small mt-1", style = "display: none;" })
+                                @Html.TextBoxFor(m => m.MobileNo, new
+                                    {
+                                        @class = "otac-input",
+                                        @id = "mobileInput",
+                                        placeholder = ViewBag.TextMobileLabel,
+                                        @data_placeholder_th = "เบอร์มือถือ",
+                                        @data_placeholder_en = "Mobile Number",
+                                        @required = "required"
+                                    })
+                                <div class="field-validation-error" data-valmsg-for="MobileNo" data-valmsg-replace="true">
+                                    <i class="fas fa-exclamation-triangle me-1" aria-hidden="true"></i>
+                                    @Html.ValidationMessageFor(m => m.MobileNo, "", new { @class = "validation-text" })
+                                </div>
                                 <div class="input-hint">
                                     <i class="fas fa-info-circle me-1"></i>
                                     <span data-text-th="รูปแบบ: 08XXXXXXXX หรือ 09XXXXXXXX (10 หลัก)" data-text-en="Format: 08XXXXXXXX or 09XXXXXXXX (10 digits)">@ViewBag.TextMobileHint</span>
@@ -198,18 +225,22 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="otac-input-group mb-3">
-                                <label class="input-label required-field" for="AccountNo" 
-                                       data-text-th="เลขที่บัญชี" 
+                                <label class="input-label required-field" for="AccountNo"
+                                       data-text-th="เลขที่บัญชี"
                                        data-text-en="Account Number">@ViewBag.TextAccountLabel</label>
-                                @Html.TextBoxFor(m => m.AccountNo, new { 
-                                    @class = "otac-input", 
-                                    @id = "accountInput", 
-                                    placeholder = ViewBag.TextAccountLabel,
-                                    @data_placeholder_th = "เลขที่บัญชี",
-                                    @data_placeholder_en = "Account Number", 
-                                    @required = "required" 
-                                })
-                                @Html.ValidationMessageFor(m => m.AccountNo, "", new { @class = "text-danger small mt-1", style = "display: none;" })
+                                @Html.TextBoxFor(m => m.AccountNo, new
+                                    {
+                                        @class = "otac-input",
+                                        @id = "accountInput",
+                                        placeholder = ViewBag.TextAccountLabel,
+                                        @data_placeholder_th = "เลขที่บัญชี",
+                                        @data_placeholder_en = "Account Number",
+                                        @required = "required"
+                                    })
+                                <div class="field-validation-error" data-valmsg-for="AccountNo" data-valmsg-replace="true">
+                                    <i class="fas fa-exclamation-triangle me-1" aria-hidden="true"></i>
+                                    @Html.ValidationMessageFor(m => m.AccountNo, "", new { @class = "validation-text" })
+                                </div>
                                 <div class="input-hint">
                                     <i class="fas fa-info-circle me-1"></i>
                                     <span data-text-th="เลขบัญชี KBank 10-15 หลัก (ไม่ต้องใส่เครื่องหมายขีด)" data-text-en="KBank account number 10-15 digits (no dashes)">@ViewBag.TextAccountHint</span>
@@ -218,13 +249,16 @@
                         </div>
                         <div class="col-md-6">
                             <div class="otac-input-group mb-3">
-                                <label class="input-label required-field" for="BranchId" 
-                                       data-text-th="สาขาที่เปิดบัญชี" 
+                                <label class="input-label required-field" for="BranchId"
+                                       data-text-th="สาขาที่เปิดบัญชี"
                                        data-text-en="Branch where account was opened">@ViewBag.TextBranchLabel</label>
                                 <select asp-for="BranchId" asp-items="Model.Branches" class="otac-input" required>
                                     <option value="">@ViewBag.TextSelectBranch</option>
                                 </select>
-                                @Html.ValidationMessageFor(m => m.BranchId, "", new { @class = "text-danger small mt-1", style = "display: none;" })
+                                <div class="field-validation-error" data-valmsg-for="BranchId" data-valmsg-replace="true">
+                                    <i class="fas fa-exclamation-triangle me-1" aria-hidden="true"></i>
+                                    @Html.ValidationMessageFor(m => m.BranchId, "", new { @class = "validation-text" })
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -232,22 +266,35 @@
 
                 <!-- Terms and Submit -->
                 <div class="form-section mb-4">
-                    <div class="form-check mb-4">
-                        <input class="form-check-input" type="checkbox" id="agreeTerms" required>
-                        <label class="form-check-label" for="agreeTerms">
-                            <span data-text-th="ข้าพเจ้าได้อ่านและยอมรับ" data-text-en="I have read and accept">@ViewBag.TextIHaveReadAndAccept</span>
-                            <a href="#" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#termsModal">
-                                <span data-text-th="ข้อกำหนดและเงื่อนไข" data-text-en="Terms and Conditions">@ViewBag.TextTermsAndConditions</span>
-                            </a>
-                            <span data-text-th="และ" data-text-en="and"> และ </span>
-                            <a href="#" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#privacyModal">
-                                <span data-text-th="นโยบายความเป็นส่วนตัว" data-text-en="Privacy Policy">@ViewBag.TextPrivacyPolicy</span>
-                            </a>
-                            <span class="text-danger">*</span>
-                        </label>
-                        <div class="invalid-feedback" style="display: none;">
+                    <div class="terms-agreement-section mb-4" role="group" aria-labelledby="termsLabel">
+                        <div class="form-check terms-checkbox">
+                            <input class="form-check-input" type="checkbox" id="agreeTerms" required aria-required="true" aria-describedby="agreeTermsError termsDescription">
+                            <label class="form-check-label" for="agreeTerms" id="termsLabel">
+                                <span class="terms-text" data-text-th="ข้าพเจ้าได้อ่านและยอมรับ" data-text-en="I have read and accept">@ViewBag.TextIHaveReadAndAccept</span>
+                                <span class="required-indicator" aria-label="@(ViewBag.IsThaiLanguage ? "ช่องที่จำเป็น" : "Required field")">*</span>
+                            </label>
+                        </div>
+                        
+                        <div class="terms-links" id="termsDescription" aria-label="@(ViewBag.IsThaiLanguage ? "ลิงก์ไปยังเอกสารข้อกำหนด" : "Links to terms documents")">
+                            <div class="terms-link-group">
+                                <a href="#" class="terms-link" data-bs-toggle="modal" data-bs-target="#termsModal" 
+                                   aria-label="@(ViewBag.IsThaiLanguage ? "เปิดข้อกำหนดและเงื่อนไข" : "Open Terms and Conditions")">
+                                    <i class="fas fa-file-contract me-1" aria-hidden="true"></i>
+                                    <span data-text-th="ข้อกำหนดและเงื่อนไข" data-text-en="Terms and Conditions">@ViewBag.TextTermsAndConditions</span>
+                                </a>
+                                <span class="terms-separator" data-text-th="และ" data-text-en="and">@ViewBag.TextAnd</span>
+                                <a href="#" class="terms-link" data-bs-toggle="modal" data-bs-target="#privacyModal"
+                                   aria-label="@(ViewBag.IsThaiLanguage ? "เปิดนโยบายความเป็นส่วนตัว" : "Open Privacy Policy")">
+                                    <i class="fas fa-user-shield me-1" aria-hidden="true"></i>
+                                    <span data-text-th="นโยบายความเป็นส่วนตัว" data-text-en="Privacy Policy">@ViewBag.TextPrivacyPolicy</span>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="invalid-feedback terms-error" id="agreeTermsError" role="alert" aria-live="polite">
+                            <i class="fas fa-exclamation-circle me-1" aria-hidden="true"></i>
                             <span data-text-th="กรุณายอมรับข้อกำหนดและเงื่อนไขก่อนดำเนินการต่อ" data-text-en="Please accept the terms and conditions before proceeding">@ViewBag.TextMustAcceptTerms</span>
-        </div>
+                        </div>
                     </div>
 
                     <button type="submit" class="card-action" id="submitBtn">
@@ -273,7 +320,7 @@
                     </div>
                     <div class="security-header-content">
                         <h3 data-text-th="ความปลอดภัยระดับธนาคาร" data-text-en="Bank-Grade Security">@ViewBag.TextSecurityTitle</h3>
-                        <p data-text-th="ข้อมูลของคุณได้รับการปกป้องด้วยเทคโนโลยีความปลอดภัยขั้นสูง" 
+                        <p data-text-th="ข้อมูลของคุณได้รับการปกป้องด้วยเทคโนโลยีความปลอดภัยขั้นสูง"
                            data-text-en="Your data is protected with advanced security technology">@ViewBag.TextSecurityDesc</p>
                     </div>
                 </div>
@@ -333,13 +380,13 @@
                 <div class="terms-content">
                     <h6><span data-text-th="1. การใช้บริการ" data-text-en="1. Service Usage">1. @ViewBag.TextTermsServiceUsage</span></h6>
                     <p><span data-text-th="ท่านตกลงใช้บริการหักบัญชีอัตโนมัติตามเงื่อนไขที่กำหนดโดย KBank และ BizConnect" data-text-en="You agree to use the direct debit service according to the terms and conditions set by KBank and BizConnect">@ViewBag.TextTermsServiceUsageContent</span></p>
-                    
+
                     <h6><span data-text-th="2. ความถูกต้องของข้อมูล" data-text-en="2. Data Accuracy">2. @ViewBag.TextTermsDataAccuracy</span></h6>
                     <p>@ViewBag.TextTermsDataAccuracyContent</p>
-                    
+
                     <h6><span data-text-th="3. ความรับผิดชอบ" data-text-en="3. Responsibility">3. @ViewBag.TextTermsResponsibility</span></h6>
                     <p>@ViewBag.TextTermsResponsibilityContent</p>
-                    
+
                     <h6><span data-text-th="4. การแก้ไขข้อกำหนด" data-text-en="4. Terms Modifications">4. @ViewBag.TextTermsModifications</span></h6>
                     <p>@ViewBag.TextTermsModificationsContent</p>
                 </div>
@@ -366,13 +413,13 @@
                 <div class="privacy-content">
                     <h6><span data-text-th="การเก็บรวบรวมข้อมูล" data-text-en="Data Collection">@ViewBag.TextPrivacyDataCollection</span></h6>
                     <p>@ViewBag.TextPrivacyDataCollectionContent</p>
-                    
+
                     <h6><span data-text-th="การใช้ข้อมูล" data-text-en="Data Usage">@ViewBag.TextPrivacyDataUsage</span></h6>
                     <p>@ViewBag.TextPrivacyDataUsageContent</p>
-                    
+
                     <h6><span data-text-th="การเปิดเผยข้อมูล" data-text-en="Data Disclosure">@ViewBag.TextPrivacyDataDisclosure</span></h6>
                     <p>@ViewBag.TextPrivacyDataDisclosureContent</p>
-                    
+
                     <h6><span data-text-th="ความปลอดภัย" data-text-en="Security">@ViewBag.TextPrivacyDataSecurity</span></h6>
                     <p>@ViewBag.TextPrivacyDataSecurityContent</p>
                 </div>
@@ -398,51 +445,90 @@
             checkFormData: '@ViewBag.TextCheckFormData',
             submittingData: '@ViewBag.TextSubmittingData'
         };
-        
+
         // Check for server-side validation errors and show them only on form submission attempt
         document.addEventListener('DOMContentLoaded', function() {
             // Check if there are model validation errors (server-side)
             const hasValidationErrors = @(Html.ViewData.ModelState.IsValid ? "false" : "true");
-            
-            if (hasValidationErrors) {
+
+            // Only show validation errors if this is a form submission response (not initial page load)
+            // We can detect this by checking if there are form values or validation messages
+            const isFormSubmissionResponse = hasValidationErrors && checkIfFormSubmissionResponse();
+
+            if (isFormSubmissionResponse) {
                 // Show validation errors only if this is a form submission response
-                const errorElements = document.querySelectorAll('.text-danger');
+                const errorElements = document.querySelectorAll('.field-validation-error, .text-danger, .invalid-feedback');
+                let hasErrors = false;
+                
                 errorElements.forEach(element => {
-                    if (element.textContent.trim() !== '') {
+                    const textElement = element.querySelector('.validation-text') || element;
+                    if (textElement.textContent.trim() !== '') {
                         element.style.display = 'flex';
+                        element.classList.add('show');
+                        hasErrors = true;
                     }
                 });
-                
+
                 // Add visual feedback for invalid inputs
                 const form = document.getElementById('registerForm');
                 if (form) {
                     const inputs = form.querySelectorAll('input[required], select[required]');
                     inputs.forEach(input => {
-                        const errorElement = input.parentNode.querySelector('.text-danger');
-                        if (errorElement && errorElement.textContent.trim() !== '') {
-                            input.classList.add('is-invalid');
+                        const errorElement = input.parentNode.querySelector('.field-validation-error, .text-danger') ||
+                                            input.closest('.form-check')?.querySelector('.invalid-feedback');
+                        if (errorElement) {
+                            const textElement = errorElement.querySelector('.validation-text') || errorElement;
+                            if (textElement.textContent.trim() !== '') {
+                                input.classList.add('is-invalid');
+                            }
                         }
                     });
                 }
+                
+                // Show notification banner if there are validation errors
+                if (hasErrors) {
+                    showNotificationMultilingual();
+                }
+            }
+            
+            // Function to detect if this is a form submission response vs initial page load
+            function checkIfFormSubmissionResponse() {
+                // Check if any form fields have values (indicating user input)
+                const form = document.getElementById('registerForm');
+                if (form) {
+                    const inputs = form.querySelectorAll('input[type="text"], input[type="tel"], select');
+                    let hasUserInput = false;
+                    
+                    inputs.forEach(input => {
+                        if (input.name !== 'OtacCode' && input.value.trim() !== '') {
+                            hasUserInput = true;
+                        }
+                    });
+                    
+                    // If we have validation errors AND user input, it's likely a form submission response
+                    return hasUserInput;
+                }
+                return false;
             }
         });
-        
+
         // Display TempData messages
         @if (TempData["ErrorMessage"] != null)
         {
             <text>
-            document.addEventListener('DOMContentLoaded', function() {
-                showAlert('danger', '@Html.Raw(TempData["ErrorMessage"])');
-            });
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // For server errors, show custom message
+                            showNotification('@Html.Raw(TempData["ErrorMessage"])');
+                        });
             </text>
         }
 
         @if (TempData["SuccessMessage"] != null)
         {
             <text>
-            document.addEventListener('DOMContentLoaded', function() {
-                showAlert('success', '@Html.Raw(TempData["SuccessMessage"])');
-            });
+                        document.addEventListener('DOMContentLoaded', function() {
+                            showAlert('success', '@Html.Raw(TempData["SuccessMessage"])');
+                        });
             </text>
         }
     </script>
