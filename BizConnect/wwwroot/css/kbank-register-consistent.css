@@ -41,7 +41,8 @@ body {
 
 /* Defensive styling to hide any orphaned elements at the very top */
 body > div:first-child:not(.landing-wrapper):not([id]):not([class]),
-body > div[style*="position: fixed"]:not([id]):not([data-alert-id]) {
+body > div[style*="position: fixed"]:not([id]):not([data-alert-id]),
+body > *:first-child:empty {
     display: none !important;
 }
 
@@ -50,6 +51,33 @@ body > div[style*="position: fixed"]:not([id]):not([data-alert-id]) {
 .alert[style*="top: 20px"]:empty,
 .sr-only:not([data-announcement]):empty {
     display: none !important;
+}
+
+/* Ensure no pseudo elements create visible content at the very top */
+body::before,
+html::before {
+    display: none !important;
+}
+
+/* Ensure main content areas don't have any top margin/padding issues */
+.landing-wrapper {
+    margin-top: 0 !important;
+    padding-top: 2rem !important;
+}
+
+/* Ensure skip links are completely invisible and don't affect layout */
+.sr-only,
+.visually-hidden,
+[aria-hidden="true"]:empty {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
 }
 
 /* Container and wrapper matching landing page */
@@ -860,6 +888,14 @@ body > div[style*="position: fixed"]:not([id]):not([data-alert-id]) {
     animation: slideDownIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Ensure notification banner is completely hidden when display: none */
+.notification-banner[style*="display: none"],
+.notification-banner:not([style*="display: block"]):not([style*="display: flex"]) {
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
+
 .notification-content {
     background: linear-gradient(135deg, #fff3cd, #ffeaa7);
     border: 1px solid #f6c23e;
@@ -1536,11 +1572,13 @@ body > div[style*="position: fixed"]:not([id]):not([data-alert-id]) {
     border: 0;
 }
 
-/* Skip to content link for keyboard navigation */
+/* Skip to content link for keyboard navigation - completely hidden unless focused */
 .skip-to-content {
     position: absolute;
-    top: -40px;
-    left: 6px;
+    top: -9999px;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
     background: var(--primary-blue);
     color: white;
     padding: 8px;
@@ -1548,12 +1586,20 @@ body > div[style*="position: fixed"]:not([id]):not([data-alert-id]) {
     text-decoration: none;
     z-index: 1070;
     font-weight: 600;
-    transition: top 0.3s;
+    transition: all 0.3s;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
 }
 
 .skip-to-content:focus {
+    position: absolute;
     top: 6px;
+    left: 6px;
+    width: auto;
+    height: auto;
     color: white;
+    clip: auto;
 }
 
 /* Enhanced focus states */

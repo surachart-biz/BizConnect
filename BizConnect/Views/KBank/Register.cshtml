@@ -1,7 +1,6 @@
 @using BizConnect.ViewModels.Modern
 @model ModernRegistrationViewModel
 @{
-    await Html.PartialAsync("_LanguageTexts");
     ViewData["Title"] = ViewBag.IsThaiLanguage ? "ลงทะเบียนหักบัญชีอัตโนมัติ" : "Direct Debit Registration";
 }
 
@@ -11,6 +10,9 @@
 }
 
 <div class="landing-wrapper">
+    @{
+        await Html.PartialAsync("_LanguageTexts");
+    }
     <a href="#registerForm" class="skip-to-content" data-text-th="ข้ามไปยังเนื้อหา" data-text-en="Skip to main content">@(ViewBag.IsThaiLanguage ? "ข้ามไปยังเนื้อหา" : "Skip to main content")</a>
     <div class="register-container">
         <!-- Progress Steps Section -->
