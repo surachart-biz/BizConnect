@@ -115,6 +115,8 @@ public class UnitOfWork : IUnitOfWork
 
             _logger.LogDebug("Beginning new database transaction");
 
+            // WARNING: BeginTransactionAsync bypasses retry strategy
+            // For operations that need retry support, use ExecuteInTransactionAsync instead
             _currentTransaction = await _context.Database.BeginTransactionAsync(cancellationToken);
 
             _logger.LogDebug("Database transaction started with ID: {TransactionId}", _currentTransaction.TransactionId);
@@ -203,42 +205,54 @@ public class UnitOfWork : IUnitOfWork
         if (operation == null)
             throw new ArgumentNullException(nameof(operation));
 
-        var wasTransactionStartedHere = _currentTransaction == null;
-
-        try
+        // If there's already an active transaction, use it directly
+        if (_currentTransaction != null)
         {
-            if (wasTransactionStartedHere)
-            {
-                await BeginTransactionAsync(cancellationToken);
-                _logger.LogDebug("Started new transaction for operation execution");
-            }
-            else
-            {
-                _logger.LogDebug("Using existing transaction for operation execution");
-            }
+            _logger.LogDebug("Using existing transaction for operation execution");
+            return await operation(this, cancellationToken);
+        }
 
-            var result = await operation(this, cancellationToken);
-
-            if (wasTransactionStartedHere)
+        // Use ExecutionStrategy pattern to work with NpgsqlRetryingExecutionStrategy
+        var executionStrategy = _context.Database.CreateExecutionStrategy();
+        
+        return await executionStrategy.ExecuteAsync(async () =>
+        {
+            _logger.LogDebug("Starting new transaction within execution strategy");
+            
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+            _currentTransaction = transaction;
+            
+            try
             {
-                await CommitTransactionAsync(cancellationToken);
+                var result = await operation(this, cancellationToken);
+                
+                await transaction.CommitAsync(cancellationToken);
                 _logger.LogDebug("Committed transaction after successful operation execution");
+                
+                return result;
             }
-
-            return result;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error executing operation in transaction");
-
-            if (wasTransactionStartedHere)
+            catch (Exception ex)
             {
-                await RollbackTransactionAsync(cancellationToken);
-                _logger.LogDebug("Rolled back transaction after operation failure");
+                _logger.LogError(ex, "Error executing operation in transaction");
+                
+                try
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    _logger.LogDebug("Rolled back transaction after operation failure");
+                }
+                catch (Exception rollbackEx)
+                {
+                    _logger.LogError(rollbackEx, "Error rolling back transaction");
+                    // Don't throw rollback exceptions, preserve original exception
+                }
+                
+                throw;
             }
-
-            throw;
-        }
+            finally
+            {
+                _currentTransaction = null;
+            }
+        });
     }
 
     /// <inheritdoc />
@@ -271,6 +285,50 @@ public class UnitOfWork : IUnitOfWork
         _repositories[entityType] = repository;
 
         return repository;
+    }
+
+    /// <summary>
+    /// Executes an operation with retry support using the configured execution strategy.
+    /// Use this for operations that need retry support but don't require explicit transaction management.
+    /// </summary>
+    /// <typeparam name="TResult">The return type of the operation</typeparam>
+    /// <param name="operation">The operation to execute with retry support</param>
+    /// <param name="cancellationToken">Cancellation token for async operation</param>
+    /// <returns>The result of the operation</returns>
+    public async Task<TResult> ExecuteWithRetryAsync<TResult>(
+        Func<CancellationToken, Task<TResult>> operation,
+        CancellationToken cancellationToken = default)
+    {
+        ThrowIfDisposed();
+        
+        if (operation == null)
+            throw new ArgumentNullException(nameof(operation));
+
+        var executionStrategy = _context.Database.CreateExecutionStrategy();
+        
+        return await executionStrategy.ExecuteAsync(async (ct) =>
+        {
+            _logger.LogDebug("Executing operation with retry support");
+            return await operation(ct);
+        }, cancellationToken);
+    }
+
+    /// <summary>
+    /// Executes an operation with retry support using the configured execution strategy.
+    /// Use this for operations that need retry support but don't require explicit transaction management.
+    /// </summary>
+    /// <param name="operation">The operation to execute with retry support</param>
+    /// <param name="cancellationToken">Cancellation token for async operation</param>
+    /// <returns>Task representing the async operation</returns>
+    public async Task ExecuteWithRetryAsync(
+        Func<CancellationToken, Task> operation,
+        CancellationToken cancellationToken = default)
+    {
+        await ExecuteWithRetryAsync(async (ct) =>
+        {
+            await operation(ct);
+            return 0; // Return dummy value for void operations
+        }, cancellationToken);
     }
 
     #endregion

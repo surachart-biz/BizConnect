@@ -103,6 +103,29 @@ public interface IUnitOfWork : IDisposable
     /// <returns>Repository instance for the specified entity type</returns>
     IRepository<TEntity> GetRepository<TEntity>() where TEntity : class;
 
+    /// <summary>
+    /// Executes an operation with retry support using the configured execution strategy.
+    /// Use this for operations that need retry support but don't require explicit transaction management.
+    /// </summary>
+    /// <typeparam name="TResult">The return type of the operation</typeparam>
+    /// <param name="operation">The operation to execute with retry support</param>
+    /// <param name="cancellationToken">Cancellation token for async operation</param>
+    /// <returns>The result of the operation</returns>
+    Task<TResult> ExecuteWithRetryAsync<TResult>(
+        Func<CancellationToken, Task<TResult>> operation,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Executes an operation with retry support using the configured execution strategy.
+    /// Use this for operations that need retry support but don't require explicit transaction management.
+    /// </summary>
+    /// <param name="operation">The operation to execute with retry support</param>
+    /// <param name="cancellationToken">Cancellation token for async operation</param>
+    /// <returns>Task representing the async operation</returns>
+    Task ExecuteWithRetryAsync(
+        Func<CancellationToken, Task> operation,
+        CancellationToken cancellationToken = default);
+
     #endregion
 
     #region State Management
