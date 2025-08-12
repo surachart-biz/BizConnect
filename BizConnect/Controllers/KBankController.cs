@@ -45,32 +45,6 @@ public class KBankController : BaseController
     // Current authenticated endpoints: /kbank/odd/register, /kbank/odd/callback, /kbank/odd/status-update
 
     /// <summary>
-    /// Displays the KBank ODD registration form (authenticated users)
-    /// </summary>
-    /// <returns>Registration form view</returns>
-    //[HttpGet("register")]
-    //public async Task<IActionResult> Register()
-    //{
-    //    _logger.LogInformation("User {UserId} accessed KBank ODD registration form", User.Identity?.Name);
-
-    //    // Load active branches for dropdown
-    //    var language = GetCurrentLanguage();
-    //    var branchData = await _branchService.GetActiveBranchesForDropdownAsync(language);
-    //    var branches = branchData.Select(b => new SelectListItem 
-    //    { 
-    //        Value = b.BranchId.ToString(), 
-    //        Text = b.Name 
-    //    }).ToList();
-
-    //    var viewModel = new KBankOddRegisterViewModel
-    //    {
-    //        Branches = branches
-    //    };
-
-    //    return View(viewModel);
-    //}
-
-    /// <summary>
     /// Display registration form (requires validated OTAC)
     /// </summary>
     [HttpGet("register")]

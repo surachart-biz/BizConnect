@@ -1093,16 +1093,34 @@ html::before {
 }
 
 .terms-checkbox {
-    margin-bottom: 1rem;
+    margin-bottom: 0;
     background: rgba(255, 255, 255, 0.8);
     padding: 1rem;
     border-radius: var(--border-radius);
     border: 1px solid rgba(224, 224, 224, 0.3);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.terms-checkbox .form-check-input {
+    margin-top: 0.1rem;
+    flex-shrink: 0;
+}
+
+.terms-checkbox .form-check-label {
+    margin-left: 0;
+    flex: 1;
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
 .terms-text {
     font-weight: 500;
     color: var(--text-primary);
+    line-height: 1.5;
 }
 
 .required-indicator {
@@ -1112,11 +1130,11 @@ html::before {
 }
 
 .terms-links {
-    margin: 1rem 0;
-    padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: var(--border-radius);
-    border: 1px solid rgba(224, 224, 224, 0.3);
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+    border: none;
 }
 
 .terms-link-group {
@@ -1319,6 +1337,22 @@ html::before {
     }
     
     /* Terms section mobile styles */
+    .terms-checkbox {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 0.75rem;
+    }
+    
+    .terms-checkbox .form-check-input {
+        margin-top: 0;
+        align-self: flex-start;
+    }
+    
+    .terms-checkbox .form-check-label {
+        gap: 1rem;
+    }
+    
     .terms-link-group {
         flex-direction: column;
         align-items: stretch;
@@ -1476,11 +1510,21 @@ html::before {
     
     .terms-checkbox {
         padding: 0.75rem;
-        margin-bottom: 0.75rem;
+        flex-direction: column;
+        gap: 0.875rem;
+    }
+    
+    .terms-checkbox .form-check-input {
+        align-self: flex-start;
+        margin-top: 0;
+    }
+    
+    .terms-checkbox .form-check-label {
+        gap: 0.875rem;
     }
     
     .terms-links {
-        padding: 0.5rem;
+        padding: 0;
     }
     
     .terms-link {
