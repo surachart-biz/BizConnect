@@ -1,6 +1,7 @@
 using BizConnect.Extensions;
 using BizConnect.Services.Interfaces;
 using BizConnect.Services.Models.KBank;
+using BizConnect.Services.Models.Requests;
 using BizConnect.ViewModels;
 using BizConnect.ViewModels.Modern;
 using Microsoft.AspNetCore.Authorization;
@@ -21,14 +22,16 @@ public class KBankController : BaseController
     private readonly IValidationService _validationService;
     private readonly IBranchService _branchService;
     private readonly IOtacManagementService _otacService;
+    private readonly IRegistrationManagementService _registrationService;
     private readonly ILogger<KBankController> _logger;
 
     public KBankController(
-        IKbankOddService kbankOddService, 
+        IKbankOddService kbankOddService,
         IOddRegistrationService oddRegistrationService,
         IValidationService validationService,
         IBranchService branchService,
         IOtacManagementService otacService,
+        IRegistrationManagementService registrationService,
         ILogger<KBankController> logger)
     {
         _kbankOddService = kbankOddService;
@@ -36,6 +39,7 @@ public class KBankController : BaseController
         _oddRegistrationService = oddRegistrationService;
         _validationService = validationService;
         _branchService = branchService;
+        _registrationService = registrationService;
         _logger = logger;
     }
 
@@ -111,80 +115,160 @@ public class KBankController : BaseController
         return View(model);
     }
 
+    ///// <summary>
+    ///// Processes the KBank ODD registration form submission and redirects user to KBank's registration page
+    ///// </summary>
+    ///// <param name="viewModel">Registration form data</param>
+    ///// <param name="cancellationToken">Cancellation token</param>
+    ///// <returns>Redirect to KBank registration page or form with validation errors</returns>
+    //[HttpPost("register")]
+    //[ValidateAntiForgeryToken]
+    //public async Task<IActionResult> Register(KBankOddRegisterViewModel viewModel, CancellationToken cancellationToken = default)
+    //{
+    //    try
+    //    {
+    //        // Additional custom validation using validation service (business logic in service layer)
+    //        if (!string.IsNullOrEmpty(viewModel.IdType) && !string.IsNullOrEmpty(viewModel.IdValue))
+    //        {
+    //            var idValidationResult = _validationService.ValidateIdValue(viewModel.IdType, viewModel.IdValue);
+    //            if (!idValidationResult.IsValid)
+    //            {
+    //                ModelState.AddModelError(nameof(viewModel.IdValue), idValidationResult.ErrorMessage);
+    //            }
+    //        }
+
+    //        if (!ModelState.IsValid)
+    //        {
+    //            _logger.LogWarning("User {UserId} submitted invalid KBank ODD registration form", User.Identity?.Name);
+
+    //            // Reload branches for dropdown
+    //            var language = GetCurrentLanguage();
+    //            var branchData = await _branchService.GetActiveBranchesForDropdownAsync(language);
+    //            viewModel.Branches = branchData.Select(b => new SelectListItem 
+    //            { 
+    //                Value = b.BranchId.ToString(), 
+    //                Text = b.Name 
+    //            }).ToList();
+
+    //            return View(viewModel);
+    //        }
+
+    //        _logger.LogInformation("User {UserId} submitted valid KBank ODD registration form", User.Identity?.Name);
+
+    //        // Map ViewModel to service request DTO (V1.9.7 - no email)
+    //        var request = new OddRegistrationRequest
+    //        {
+    //            FullName = viewModel.FullName,
+    //            MobileNo = viewModel.MobileNo,
+    //            IdType = viewModel.IdType,
+    //            IdValue = viewModel.IdValue,
+    //            AccountNo = viewModel.AccountNo,
+    //            BranchId = viewModel.BranchId
+    //        };
+
+    //        var redirectUrl = await _kbankOddService.StartRegistrationAsync(request, cancellationToken);
+
+    //        _logger.LogInformation("Redirecting user {UserId} to KBank registration page: {RedirectUrl}",
+    //            User.Identity?.Name, redirectUrl);
+
+    //        return Redirect(redirectUrl);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        _logger.LogError(ex, "Failed to process KBank ODD registration for user {UserId}", User.Identity?.Name);
+    //        ModelState.AddModelError(string.Empty, "Unable to process registration. Please try again later.");
+
+    //        // Reload branches for dropdown
+    //        var languageForError = GetCurrentLanguage();
+    //        var branchData = await _branchService.GetActiveBranchesForDropdownAsync(languageForError);
+    //        viewModel.Branches = branchData.Select(b => new SelectListItem 
+    //        { 
+    //            Value = b.BranchId.ToString(), 
+    //            Text = b.Name 
+    //        }).ToList();
+
+    //        return View(viewModel);
+    //    }
+    //}
+
     /// <summary>
-    /// Processes the KBank ODD registration form submission and redirects user to KBank's registration page
+    /// Process registration form submission
     /// </summary>
-    /// <param name="viewModel">Registration form data</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Redirect to KBank registration page or form with validation errors</returns>
     [HttpPost("register")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Register(KBankOddRegisterViewModel viewModel, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Register(ModernRegistrationViewModel model)
     {
-        try
+        // Validate OTAC session
+        var validatedOtac = HttpContext.GetValidatedOtac();
+        if (string.IsNullOrEmpty(validatedOtac) || validatedOtac != model.OtacCode)
         {
-            // Additional custom validation using validation service (business logic in service layer)
-            if (!string.IsNullOrEmpty(viewModel.IdType) && !string.IsNullOrEmpty(viewModel.IdValue))
-            {
-                var idValidationResult = _validationService.ValidateIdValue(viewModel.IdType, viewModel.IdValue);
-                if (!idValidationResult.IsValid)
-                {
-                    ModelState.AddModelError(nameof(viewModel.IdValue), idValidationResult.ErrorMessage);
-                }
-            }
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("User {UserId} submitted invalid KBank ODD registration form", User.Identity?.Name);
-                
-                // Reload branches for dropdown
-                var language = GetCurrentLanguage();
-                var branchData = await _branchService.GetActiveBranchesForDropdownAsync(language);
-                viewModel.Branches = branchData.Select(b => new SelectListItem 
-                { 
-                    Value = b.BranchId.ToString(), 
-                    Text = b.Name 
-                }).ToList();
-                
-                return View(viewModel);
-            }
-
-            _logger.LogInformation("User {UserId} submitted valid KBank ODD registration form", User.Identity?.Name);
-
-            // Map ViewModel to service request DTO (V1.9.7 - no email)
-            var request = new OddRegistrationRequest
-            {
-                FullName = viewModel.FullName,
-                MobileNo = viewModel.MobileNo,
-                IdType = viewModel.IdType,
-                IdValue = viewModel.IdValue,
-                AccountNo = viewModel.AccountNo,
-                BranchId = viewModel.BranchId
-            };
-
-            var redirectUrl = await _kbankOddService.StartRegistrationAsync(request, cancellationToken);
-
-            _logger.LogInformation("Redirecting user {UserId} to KBank registration page: {RedirectUrl}",
-                User.Identity?.Name, redirectUrl);
-
-            return Redirect(redirectUrl);
+            TempData["ErrorMessage"] = "Session หมดอายุ กรุณายืนยันรหัส OTAC ใหม่";
+            return RedirectToAction("Verify");
         }
-        catch (Exception ex)
+
+        if (!ModelState.IsValid)
         {
-            _logger.LogError(ex, "Failed to process KBank ODD registration for user {UserId}", User.Identity?.Name);
-            ModelState.AddModelError(string.Empty, "Unable to process registration. Please try again later.");
-            
-            // Reload branches for dropdown
+            // Reload branches with language support
             var languageForError = GetCurrentLanguage();
-            var branchData = await _branchService.GetActiveBranchesForDropdownAsync(languageForError);
-            viewModel.Branches = branchData.Select(b => new SelectListItem 
-            { 
-                Value = b.BranchId.ToString(), 
-                Text = b.Name 
+            var branchDataForError = await _branchService.GetActiveBranchesForDropdownAsync(languageForError);
+            model.Branches = branchDataForError.Select(b => new SelectListItem
+            {
+                Value = b.BranchId.ToString(),
+                Text = b.Name
             }).ToList();
-            
-            return View(viewModel);
+            return View(model);
         }
+
+        // Create registration request (excluding OTAC code - passed separately)
+        var registrationRequest = new RegistrationRequest
+        {
+            FullName = model.FullName,
+            IdType = "National ID", // Always National ID as per requirements
+            IdValue = model.IdValue,
+            MobileNo = model.MobileNo,
+            AccountNo = model.AccountNo,
+            BranchId = model.BranchId
+        };
+
+        // Submit registration using 3-phase flow (Phase 3: Submit validated OTAC with registration data)
+        var result = await _registrationService.SubmitAsync(model.OtacCode, registrationRequest);
+
+        if (result.IsSuccess)
+        {
+            _logger.LogInformation("Guest registration started successfully for OTAC: {OtacCode}, External Reference: {ExternalReference}",
+                model.OtacCode, result.ExternalReference);
+
+            // Clear session
+            HttpContext.ClearOtacVerification();
+
+            // Redirect to KBank registration page
+            return Redirect(result.RedirectUrl ?? "/KBank/Pending");
+        }
+        else
+        {
+            _logger.LogWarning("Guest registration failed for OTAC: {OtacCode}, Error: {ErrorMessage}",
+                model.OtacCode, result.ErrorMessage);
+            ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "เกิดข้อผิดพลาดในการลงทะเบียน กรุณาลองใหม่อีกครั้ง");
+        }
+
+        // Reload branches on error with language support
+        var languageForReload = GetCurrentLanguage();
+        var branchData = await _branchService.GetActiveBranchesForDropdownAsync(languageForReload);
+        model.Branches = branchData.Select(b => new SelectListItem
+        {
+            Value = b.BranchId.ToString(),
+            Text = b.Name
+        }).ToList();
+
+        // Update validation status
+        model.ValidationStatus = new FormValidationStatus
+        {
+            IsValid = false,
+            GeneralErrors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList(),
+            //ValidationScore = CalculateValidationScore(ModelState)
+        };
+
+        return View(model);
     }
 
     /// <summary>
@@ -201,7 +285,7 @@ public class KBankController : BaseController
         try
         {
             var result = await _kbankOddService.ProcessStatusUpdateAsync(dto, cancellationToken);
-            
+
             return result switch
             {
                 StatusProcessResult.Success => Ok(new { success = true, message = "Status updated successfully", timestamp = DateTime.UtcNow }),
@@ -232,7 +316,7 @@ public class KBankController : BaseController
         try
         {
             var result = await _kbankOddService.ProcessStatusUpdateAsync(dto, cancellationToken);
-            
+
             return result switch
             {
                 StatusProcessResult.Success => Ok(new { success = true, message = "Status updated successfully", timestamp = DateTime.UtcNow }),
