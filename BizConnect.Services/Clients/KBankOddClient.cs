@@ -65,7 +65,7 @@ public class KBankOddClient : IKBankOddClient
                 _logger.LogError(error);
                 throw new KBankApiException(error, "ValidationError");
             }
-
+            
             var baseUrl = _configuration["KBankODD:BaseUrl"] ?? throw new InvalidOperationException("KBankODD:BaseUrl not configured");
             var endpoint = "/ws/v1/registerinit";
             var requestUrl = $"{baseUrl.TrimEnd('/')}{endpoint}";

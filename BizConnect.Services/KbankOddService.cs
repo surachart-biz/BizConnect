@@ -49,15 +49,15 @@ public class KbankOddService : IKbankOddService
             _logger.LogDebug("Generated external reference: {ExternalReference}", externalReference);
 
             // Get configuration values
-            var passPhrase = _configuration["KBankODD:PassPhrase"] 
+            var passPhrase = _configuration["KBankODD:PassPhrase"]
                 ?? throw new InvalidOperationException("KBankODD:PassPhrase not configured");
-            var externalSystem = _configuration["KBankODD:ExternalSystem"] 
+            var externalSystem = _configuration["KBankODD:ExternalSystem"]
                 ?? throw new InvalidOperationException("KBankODD:ExternalSystem not configured");
-            var payeeShortName = _configuration["KBankODD:PayeeShortName"] 
+            var payeeShortName = _configuration["KBankODD:PayeeShortName"]
                 ?? throw new InvalidOperationException("KBankODD:PayeeShortName not configured");
-            var serviceName = _configuration["KBankODD:ServiceName"] 
+            var serviceName = _configuration["KBankODD:ServiceName"]
                 ?? throw new InvalidOperationException("KBankODD:ServiceName not configured");
-            var pgBaseUrl = _configuration["KBankODD:PGBaseUrl"] 
+            var pgBaseUrl = _configuration["KBankODD:PGBaseUrl"]
                 ?? throw new InvalidOperationException("KBankODD:PGBaseUrl not configured");
 
             // Build authentication hash - SHA256(passphrase + external_system + payee_short_name + external_reference)
@@ -106,9 +106,9 @@ public class KbankOddService : IKbankOddService
             // Build redirect URL with language support
             var langLocale = language.ToLower() == "th" ? "th_TH" : "en_US";
             var redirectUrl = $"{pgBaseUrl.TrimEnd('/')}/PGSRegistration.do?reg_id={initResponse.RegId}&langLocale={langLocale}";
-            
+
             _logger.LogInformation("KBank ODD registration redirect URL generated: {RedirectUrl}", redirectUrl);
-            
+
             return redirectUrl;
         }
         catch (Exception ex)
@@ -308,7 +308,7 @@ public class KbankOddService : IKbankOddService
     {
         try
         {
-            _logger.LogInformation("Processing KBank ODD status update for external reference: {ExternalReference} in language: {Language}", 
+            _logger.LogInformation("Processing KBank ODD status update for external reference: {ExternalReference} in language: {Language}",
                 dto.ExternalReference, language);
 
             // Get pass phrase from configuration
@@ -320,9 +320,9 @@ public class KbankOddService : IKbankOddService
             }
 
             // Validate authentication hash
-            var expectedAuth = OddUtils.BuildAuth(passPhrase, dto.ExternalReference, dto.Timestamp, 
+            var expectedAuth = OddUtils.BuildAuth(passPhrase, dto.ExternalReference, dto.Timestamp,
                 dto.ReturnStatus, dto.ReturnCode);
-            
+
             if (dto.AuthParameter != expectedAuth)
             {
                 _logger.LogWarning("Invalid authentication hash for external reference: {ExternalReference}. Expected: {Expected}, Received: {Received}",
@@ -336,7 +336,7 @@ public class KbankOddService : IKbankOddService
 
             if (registration == null)
             {
-                _logger.LogWarning("Registration record not found for external reference: {ExternalReference}", 
+                _logger.LogWarning("Registration record not found for external reference: {ExternalReference}",
                     dto.ExternalReference);
                 return StatusProcessResult.NotFound;
             }
@@ -346,7 +346,7 @@ public class KbankOddService : IKbankOddService
             registration.Status = dto.ReturnStatus == "0" ? "Success" : "Fail";
             registration.ReturnCode = dto.ReturnCode;
             registration.UpdatedAt = _dateTimeProvider.UtcNow;
-            
+
             // Set status messages based on return status
             if (dto.ReturnStatus == "0")
             {
@@ -357,7 +357,7 @@ public class KbankOddService : IKbankOddService
             {
                 registration.StatusMessageTh = "ลงทะเบียนไม่สำเร็จ";
                 registration.StatusMessageEn = "Registration failed";
-                
+
                 if (!string.IsNullOrEmpty(dto.ReturnCode))
                 {
                     registration.ErrorMessageTh = $"รหัสข้อผิดพลาด: {dto.ReturnCode}";
@@ -369,8 +369,8 @@ public class KbankOddService : IKbankOddService
 
             // Track registration completion activity
             await _realtimeNotificationService.TrackRegistrationCompletionAsync(
-                dto.ExternalReference, 
-                registration.Status, 
+                dto.ExternalReference,
+                registration.Status,
                 null, // Branch name not available in status update
                 null  // OTAC code not available in status update
             );
@@ -382,7 +382,7 @@ public class KbankOddService : IKbankOddService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to process KBank ODD status update for external reference: {ExternalReference}", 
+            _logger.LogError(ex, "Failed to process KBank ODD status update for external reference: {ExternalReference}",
                 dto.ExternalReference);
             throw;
         }
@@ -391,7 +391,7 @@ public class KbankOddService : IKbankOddService
     // Phase 1: Pure API methods without database operations
 
     /// <inheritdoc />
-    public async Task<KBankRegistrationResult> InitializeRegistrationAsync(OddRegistrationRequest request, 
+    public async Task<KBankRegistrationResult> InitializeRegistrationAsync(OddRegistrationRequest request,
         string? externalReference = null, CancellationToken cancellationToken = default, string language = "en")
     {
         try
@@ -410,12 +410,12 @@ public class KbankOddService : IKbankOddService
                 _logger.LogError(error);
                 return KBankRegistrationResult.Failure(finalExternalReference, error);
             }
-            
+
             var externalSystem = _configuration["KBankODD:ExternalSystem"] ?? "BIZCONNECT";
             var payeeShortName = _configuration["KBankODD:PayeeShortName"] ?? "BIZCONNECT";
             var serviceName = _configuration["KBankODD:ServiceName"] ?? "BizConnect ODD Service";
             var pgBaseUrl = _configuration["KBankODD:PGBaseUrl"];
-            var appBaseUrl = _configuration["KBankODD:AppBaseUrl"] ?? "https://localhost:7178";
+            var appBaseUrl = _configuration["KBankODD:AppBaseUrl"] ?? "";
 
             if (string.IsNullOrEmpty(pgBaseUrl))
             {
@@ -452,13 +452,13 @@ public class KbankOddService : IKbankOddService
                 var errorMessage = $"KBank initialization failed: {initResponse.ReturnMessage}";
                 _logger.LogError("KBank initialization failed: Status={Status}, Code={Code}, Message={Message}",
                     initResponse.ReturnStatus, initResponse.ReturnCode, initResponse.ReturnMessage);
-                
-                return KBankRegistrationResult.Failure(finalExternalReference, errorMessage, 
+
+                return KBankRegistrationResult.Failure(finalExternalReference, errorMessage,
                     initResponse.ReturnStatus, initResponse.ReturnCode, initResponse.ReturnMessage);
             }
 
             // Build redirect URL with language support
-            var langLocale = language.ToLower() == "th" ? "th_TH" : "en_US";
+            var langLocale = "th_TH"; // language.ToLower() == "th" ? "th_TH" : "en_US";
             var redirectUrl = $"{pgBaseUrl.TrimEnd('/')}/PGSRegistration.do?reg_id={initResponse.RegId}&langLocale={langLocale}";
 
             _logger.LogInformation("KBank ODD initialization successful: ExternalReference={ExternalReference}, RegId={RegId}",
@@ -469,7 +469,7 @@ public class KbankOddService : IKbankOddService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to initialize KBank ODD registration (pure API)");
-            
+
             var externalRef = externalReference ?? "unknown";
             return KBankRegistrationResult.Failure(externalRef, $"Registration initialization failed: {ex.Message}");
         }
@@ -480,7 +480,7 @@ public class KbankOddService : IKbankOddService
     {
         try
         {
-            _logger.LogInformation("Validating KBank ODD status update (pure validation) for external reference: {ExternalReference}", 
+            _logger.LogInformation("Validating KBank ODD status update (pure validation) for external reference: {ExternalReference}",
                 dto.ExternalReference);
 
             // Get pass phrase from configuration
@@ -489,35 +489,35 @@ public class KbankOddService : IKbankOddService
             {
                 var error = "KBankODD:PassPhrase not configured";
                 _logger.LogError(error);
-                return StatusValidationResult.Failure(StatusValidationType.MissingPassPhrase, 
+                return StatusValidationResult.Failure(StatusValidationType.MissingPassPhrase,
                     dto.ExternalReference, error);
             }
 
             // Validate authentication hash
-            var expectedAuth = OddUtils.BuildAuth(passPhrase, dto.ExternalReference, dto.Timestamp, 
+            var expectedAuth = OddUtils.BuildAuth(passPhrase, dto.ExternalReference, dto.Timestamp,
                 dto.ReturnStatus, dto.ReturnCode);
-            
+
             if (dto.AuthParameter != expectedAuth)
             {
                 var error = $"Invalid authentication hash. Expected: {expectedAuth}, Received: {dto.AuthParameter}";
                 _logger.LogWarning("Invalid authentication hash for external reference: {ExternalReference}. Expected: {Expected}, Received: {Received}",
                     dto.ExternalReference, expectedAuth, dto.AuthParameter);
-                
-                return StatusValidationResult.Failure(StatusValidationType.InvalidAuthentication, 
+
+                return StatusValidationResult.Failure(StatusValidationType.InvalidAuthentication,
                     dto.ExternalReference, error);
             }
 
-            _logger.LogInformation("KBank ODD status update validation successful for external reference: {ExternalReference}", 
+            _logger.LogInformation("KBank ODD status update validation successful for external reference: {ExternalReference}",
                 dto.ExternalReference);
 
             return StatusValidationResult.Success(dto);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to validate KBank ODD status update for external reference: {ExternalReference}", 
+            _logger.LogError(ex, "Failed to validate KBank ODD status update for external reference: {ExternalReference}",
                 dto.ExternalReference);
-                
-            return StatusValidationResult.Failure(StatusValidationType.InvalidData, 
+
+            return StatusValidationResult.Failure(StatusValidationType.InvalidData,
                 dto.ExternalReference, $"Validation failed: {ex.Message}");
         }
     }
